@@ -266,7 +266,7 @@ QScrollBar::sub-line:vertical {
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-115</y>
+             <y>0</y>
              <width>236</width>
              <height>427</height>
             </rect>
@@ -318,6 +318,9 @@ QScrollBar::sub-line:vertical {
               <property name="text">
                <string>Open</string>
               </property>
+              <property name="autoDefault">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -344,6 +347,9 @@ QScrollBar::sub-line:vertical {
               </property>
               <property name="text">
                <string>New</string>
+              </property>
+              <property name="autoDefault">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -372,6 +378,9 @@ QScrollBar::sub-line:vertical {
               <property name="text">
                <string>Download</string>
               </property>
+              <property name="autoDefault">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -399,6 +408,9 @@ QScrollBar::sub-line:vertical {
               <property name="text">
                <string>Import</string>
               </property>
+              <property name="autoDefault">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -425,6 +437,9 @@ QScrollBar::sub-line:vertical {
               </property>
               <property name="text">
                <string>More options...</string>
+              </property>
+              <property name="autoDefault">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -500,6 +515,9 @@ background-color: #99aab5;</string>
                  <property name="text">
                   <string>Flush</string>
                  </property>
+                 <property name="autoDefault">
+                  <bool>true</bool>
+                 </property>
                 </widget>
                </item>
                <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -526,6 +544,9 @@ background-color: #99aab5;</string>
                  </property>
                  <property name="text">
                   <string>Dump</string>
+                 </property>
+                 <property name="autoDefault">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -581,6 +602,9 @@ background-color: #99aab5;</string>
         </property>
         <property name="text">
          <string>Quit</string>
+        </property>
+        <property name="autoDefault">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
