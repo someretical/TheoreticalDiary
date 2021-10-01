@@ -1,0 +1,56 @@
+on: [push]
+
+env:
+  QT_VERSION:     "5.12.9"
+  MINGW_VERSION:  "win64_mingw73"
+  MINGW_PATH:     "mingw73_64"
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Install correct version of mingw
+      run: |
+        choco uninstall mingw --force
+        choco uninstall strawberryperl --force
+        choco install mingw --version=7.3.0
+
+    - name: Refresh environment
+      run: |
+        refreshenv
+        Write-Output (Get-Command g++.exe).Path
+  
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.6.2
+      with:
+        host: windows
+        version: ${{ env.QT_VERSION }}
+        arch: ${{ env.MINGW_VERSION }}
+        extra: --external 7z
+        
+    - name: Qmake and make
+      run: qmake.exe theoretical-diary.pro -spec win32-g++ && mingw32-make.exe qmake_all
+        
+    - name: Compile
+      run: mingw32-make.exe -j8
+        
+    - name: Clean up
+      run: mingw32-make.exe clean
+
+    - name: Copy DLLs
+      # The 3 DLLs need to be manually copied
+      # Apprently adding the --compiler-runtime flag along with having g++ added to path should make windeployqt add those DLLs automatically,
+      # but that's not happening for some reason (g++ IS added to the path proven by Write-Output (Get-Command g++.exe).Path above
+      run: |
+        windeployqt.exe ./release/theoretical-diary.exe --compiler-runtime
+        Copy-Item -Path D:/a/theoretical-diary/Qt/${{ env.QT_VERSION }}/${{ env.MINGW_PATH }}/bin/libgcc_s_seh-1.dll,D:/a/theoretical-diary/Qt/${{ env.QT_VERSION }}/${{ env.MINGW_PATH }}/bin/libstdc++-6.dll,D:/a/theoretical-diary/Qt/${{ env.QT_VERSION }}/${{ env.MINGW_PATH }}/bin/libwinpthread-1.dll -Destination ./release/
+    - name: Upload to Github
+      uses: actions/upload-artifact@v2
+      with:
+        name: release
+        path: ./release/
