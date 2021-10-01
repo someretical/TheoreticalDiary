@@ -15,24 +15,32 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "mainwindow.h"
-#include "runguard.h"
+#ifndef RUNGUARD_H
+#define RUNGUARD_H
 
-#include <QApplication>
+#include <QObject>
+#include <QSharedMemory>
+#include <QSystemSemaphore>
 
-int main(int argc, char *argv[]) {
-  // This is to fix fonts not scaling properly at different DPI
-  // https://stackoverflow.com/a/36058882
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+class RunGuard {
 
-  // Make sure only 1 instance of the app is running at all times
-  // Courtesy of https://stackoverflow.com/a/28172162
-  RunGuard guard("theoretical-diary");
-  if (!guard.tryToRun())
-    return 0;
+public:
+  RunGuard(const QString &key);
+  ~RunGuard();
 
-  QApplication a(argc, argv);
-  MainWindow w;
-  w.show();
-  return a.exec();
-}
+  bool isAnotherRunning();
+  bool tryToRun();
+  void release();
+
+private:
+  const QString key;
+  const QString memLockKey;
+  const QString sharedmemKey;
+
+  QSharedMemory sharedMem;
+  QSystemSemaphore memLock;
+
+  Q_DISABLE_COPY(RunGuard)
+};
+
+#endif // RUNGUARD_H
