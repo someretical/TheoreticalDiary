@@ -13,7 +13,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
 
-QT       += core gui
+INCLUDEPATH += .
+
+# The lib version of networkauth is installed by default.
+# To install the dev version needed for compiling, run $ sudo apt install libqt5networkauth5-dev
+QT += core gui network networkauth
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -24,15 +28,26 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aboutwindow.cpp \
+    diaryholder.cpp \
+    googlewrapper.cpp \
     main.cpp \
     mainwindow.cpp \
-    runguard.cpp
+    runguard.cpp \
+    settingsprovider.cpp \
+    theoreticaldiary.cpp
 
 HEADERS += \
+    aboutwindow.h \
+    diaryholder.h \
+    googlewrapper.h \
     mainwindow.h \
-    runguard.h
+    runguard.h \
+    settingsprovider.h \
+    theoreticaldiary.h
 
 FORMS += \
+    aboutwindow.ui \
     mainwindow.ui
 
 # Default rules for deployment.
@@ -47,6 +62,7 @@ RESOURCES += \
     diary.qrc
 
 DISTFILES += \
+    .gitmodules \
     LICENSE \
     README.md
 

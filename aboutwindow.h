@@ -15,38 +15,27 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ABOUTWINDOW_H
+#define ABOUTWINDOW_H
 
-#include "googlewrapper.h"
+#include <QDialog>
 
-#include <QMainWindow>
-
-QT_BEGIN_NAMESPACE
 namespace Ui {
-class MainWindow;
+class AboutWindow;
 }
-QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+class AboutWindow : public QDialog {
   Q_OBJECT
 
 public:
-  MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
-
-private:
-  Ui::MainWindow *ui;
+  explicit AboutWindow(QWidget *parent = nullptr);
+  ~AboutWindow();
 
 public slots:
-  void open_button_pressed();
-  void new_button_pressed();
-  void dl_button_pressed();
-  void import_button_pressed();
-  void flush_button_pressed();
-  void dump_button_pressed();
-  void about_button_pressed();
-  void toggle_advanced_options();
-  void quit_app();
+  void action_close();
+
+private:
+  Ui::AboutWindow *ui;
 };
-#endif // MAINWINDOW_H
+
+#endif // ABOUTWINDOW_H

@@ -1,0 +1,4 @@
+[submodule "/home/someretical/Documents/Repositories/theoretical-diary/theoretical-diary/external-libs/json"]
+	path = /home/someretical/Documents/Repositories/theoretical-diary/theoretical-diary/external-libs/json
+	url = https://github.com/nlohmann/json.git
+	branch = master

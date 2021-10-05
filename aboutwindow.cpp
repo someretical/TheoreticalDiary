@@ -15,38 +15,20 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#include "aboutwindow.h"
+#include "ui_aboutwindow.h"
 
-#include "googlewrapper.h"
+AboutWindow::AboutWindow(QWidget *parent)
+    : QDialog(parent), ui(new Ui::AboutWindow) {
+  ui->setupUi(this);
 
-#include <QMainWindow>
-
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
+  // Setup close action
+  auto close_window = this->findChild<QAction *>("action_close");
+  addAction(close_window);
+  connect(close_window, SIGNAL(triggered()), this, SLOT(action_close()),
+          Qt::QueuedConnection);
 }
-QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
-  Q_OBJECT
+AboutWindow::~AboutWindow() { delete ui; }
 
-public:
-  MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
-
-private:
-  Ui::MainWindow *ui;
-
-public slots:
-  void open_button_pressed();
-  void new_button_pressed();
-  void dl_button_pressed();
-  void import_button_pressed();
-  void flush_button_pressed();
-  void dump_button_pressed();
-  void about_button_pressed();
-  void toggle_advanced_options();
-  void quit_app();
-};
-#endif // MAINWINDOW_H
+void AboutWindow::action_close() { accept(); }

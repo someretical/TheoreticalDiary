@@ -16,6 +16,8 @@
  */
 
 #include "mainwindow.h"
+#include "aboutwindow.h"
+#include "theoreticaldiary.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -35,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
           SLOT(flush_button_pressed()));
   connect(ui->dump_button, SIGNAL(clicked()), this,
           SLOT(dump_button_pressed()));
+  connect(ui->about_button, SIGNAL(clicked()), this,
+          SLOT(about_button_pressed()));
 
   // Setup expandable options
   ui->options->hide();
@@ -62,12 +66,16 @@ void MainWindow::flush_button_pressed() {}
 
 void MainWindow::dump_button_pressed() {}
 
-void MainWindow::toggle_advanced_options()
-{
-    if (ui->options->isVisible())
-        ui->options->hide();
-    else
-        ui->options->show();
+void MainWindow::about_button_pressed() {
+  AboutWindow aboutwindow(this);
+  aboutwindow.exec();
+}
+
+void MainWindow::toggle_advanced_options() {
+  if (ui->options->isVisible())
+    ui->options->hide();
+  else
+    ui->options->show();
 }
 
 void MainWindow::quit_app() { qApp->quit(); }

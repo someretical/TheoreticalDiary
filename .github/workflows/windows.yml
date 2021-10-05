@@ -52,5 +52,5 @@ jobs:
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: release
+          name: win_x64_release
           path: ./release/

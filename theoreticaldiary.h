@@ -15,38 +15,25 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef THOERETICALDIARY_H
+#define THOERETICALDIARY_H
 
+#include "diaryholder.h"
 #include "googlewrapper.h"
+#include "settingsprovider.h"
 
-#include <QMainWindow>
+#include <QApplication>
+#include <QObject>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
-
-class MainWindow : public QMainWindow {
+class TheoreticalDiary : public QApplication {
   Q_OBJECT
 
 public:
-  MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
-
-private:
-  Ui::MainWindow *ui;
-
-public slots:
-  void open_button_pressed();
-  void new_button_pressed();
-  void dl_button_pressed();
-  void import_button_pressed();
-  void flush_button_pressed();
-  void dump_button_pressed();
-  void about_button_pressed();
-  void toggle_advanced_options();
-  void quit_app();
+  TheoreticalDiary(int &argc, char **argv);
+  ~TheoreticalDiary();
+  GoogleWrapper *gwrapper;
+  DiaryHolder *diary_holder;
+  SettingsProvider *settings_provider;
 };
-#endif // MAINWINDOW_H
+
+#endif // THOERETICALDIARY_H
