@@ -34,6 +34,20 @@ jobs:
           modules: 'qtnetworkauth'
           extra: --external 7z
 
+      - name: Build external-libs
+        run: |
+          git submodule update --init --recursive
+          cd external-libs/qt-secret
+          make -r DEFINE+=WITHOUT_GUI
+          make -j8
+          cd ../..
+          Rename-Item -Path external-libs/qt-secret/src/build/release -NewName external-libs/qt-secret/src/build/debug
+          cd external-libs/qt-secret/src/mini-gmp
+          qmake
+          make -j8
+          cd ../../../..
+          Rename-Item -Path external-libs/qt-secret/src/mini-gmp/src/build/release -NewName external-libs/qt-secret/src/mini-gmp/src/build/debug
+
       - name: Qmake and make
         run: qmake.exe theoretical-diary.pro -spec win32-g++ && mingw32-make.exe qmake_all
 

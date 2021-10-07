@@ -17,13 +17,18 @@
 
 #include "mainwindow.h"
 #include "aboutwindow.h"
+#include "autherrorwindow.h"
+#include "flushwindow.h"
 #include "theoreticaldiary.h"
 #include "ui_mainwindow.h"
+
+#include <QStandardPaths>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 
 {
+  responsive = true;
   ui->setupUi(this);
 
   // Setup normal buttons
@@ -54,28 +59,86 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() { delete ui; }
 
-void MainWindow::open_button_pressed() {}
+void MainWindow::open_button_pressed() {
+  if (!responsive)
+    return;
+}
 
-void MainWindow::new_button_pressed() {}
+void MainWindow::new_button_pressed() {
+  if (!responsive)
+    return;
+}
 
-void MainWindow::dl_button_pressed() {}
+void MainWindow::dl_button_pressed() {
+  if (!responsive)
+    return;
 
-void MainWindow::import_button_pressed() {}
+  responsive = false;
+  connect(TheoreticalDiary::instance()->gwrapper, SIGNAL(sig_auth_err()), this,
+          SLOT(show_auth_err()));
+  connect(TheoreticalDiary::instance()->gwrapper, SIGNAL(sig_auth_ok()), this,
+          SLOT(_auth_ok()));
+  TheoreticalDiary::instance()->gwrapper->authenticate();
+}
 
-void MainWindow::flush_button_pressed() {}
+void MainWindow::import_button_pressed() {
+  if (!responsive)
+    return;
+}
 
-void MainWindow::dump_button_pressed() {}
+void MainWindow::flush_button_pressed() {
+  if (!responsive)
+    return;
+
+  responsive = false;
+  QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+             "/credentials.json");
+  file.remove();
+
+  FlushWindow flush_window(this);
+  flush_window.exec();
+  responsive = true;
+}
+
+void MainWindow::dump_button_pressed() {
+  if (!responsive)
+    return;
+}
 
 void MainWindow::about_button_pressed() {
-  AboutWindow aboutwindow(this);
-  aboutwindow.exec();
+  if (!responsive)
+    return;
+
+  AboutWindow about_window(this);
+  about_window.exec();
 }
 
 void MainWindow::toggle_advanced_options() {
+  if (!responsive)
+    return;
+
   if (ui->options->isVisible())
     ui->options->hide();
   else
     ui->options->show();
+}
+
+void MainWindow::make_responsive() { responsive = true; }
+
+void MainWindow::show_auth_err() {
+  AuthErrorWindow auth_error_window(this);
+  auth_error_window.exec();
+
+  disconnect(TheoreticalDiary::instance()->gwrapper, SIGNAL(sig_auth_err()),
+             this, SLOT(show_auth_err()));
+  responsive = true;
+}
+
+void MainWindow::_auth_ok() {
+  qDebug() << "Auth successful";
+  responsive = true;
+  disconnect(TheoreticalDiary::instance()->gwrapper, SIGNAL(sig_auth_ok()),
+             this, SLOT(_auth_ok()));
 }
 
 void MainWindow::quit_app() { qApp->quit(); }

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
 
-INCLUDEPATH += .
+INCLUDEPATH += external-libs/json/single_include/nlohmann
 
 # The lib version of networkauth is installed by default.
 # To install the dev version needed for compiling, run $ sudo apt install libqt5networkauth5-dev
@@ -21,7 +21,10 @@ QT += core gui network networkauth
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11
+CONFIG += c++11 ordered
+
+include(external-libs/qt-secret/src/Qt-Secret.pri)
+include(external-libs/qtkeychain/qtkeychain.pri)
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -29,7 +32,10 @@ CONFIG += c++11
 
 SOURCES += \
     aboutwindow.cpp \
+    autherrorwindow.cpp \
     diaryholder.cpp \
+    encryptor.cpp \
+    flushwindow.cpp \
     googlewrapper.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -39,7 +45,10 @@ SOURCES += \
 
 HEADERS += \
     aboutwindow.h \
+    autherrorwindow.h \
     diaryholder.h \
+    encryptor.h \
+    flushwindow.h \
     googlewrapper.h \
     mainwindow.h \
     runguard.h \
@@ -48,6 +57,8 @@ HEADERS += \
 
 FORMS += \
     aboutwindow.ui \
+    autherrorwindow.ui \
+    flushwindow.ui \
     mainwindow.ui
 
 # Default rules for deployment.
@@ -55,11 +66,10 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-# Custom stuff
 RC_ICONS = images/icon.ico
 
 RESOURCES += \
-    diary.qrc
+    theoretical-diary.qrc
 
 DISTFILES += \
     .gitmodules \

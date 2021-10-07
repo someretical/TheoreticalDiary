@@ -109,39 +109,6 @@ QScrollBar::sub-line:vertical {
     <property name="spacing">
      <number>10</number>
     </property>
-    <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-     <widget class="QLabel" name="app_icon">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>500</width>
-        <height>500</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <stylestrategy>PreferDefault</stylestrategy>
-       </font>
-      </property>
-      <property name="text">
-       <string notr="true"/>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="diary.qrc">:/images/icon.svg</pixmap>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="1">
      <layout class="QVBoxLayout" name="right_half">
       <property name="spacing">
@@ -690,6 +657,39 @@ background-color: #99aab5;</string>
       </item>
      </layout>
     </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="app_icon">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>500</width>
+        <height>500</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <stylestrategy>PreferDefault</stylestrategy>
+       </font>
+      </property>
+      <property name="text">
+       <string notr="true"/>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="theoretical-diary.qrc">:/images/icon.svg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <action name="action_quit">
@@ -698,6 +698,16 @@ background-color: #99aab5;</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="action_download_diary">
+   <property name="text">
+    <string>download_diary</string>
+   </property>
+  </action>
+  <action name="action_open_diary">
+   <property name="text">
+    <string>open_diary</string>
    </property>
   </action>
  </widget>
@@ -712,7 +722,7 @@ background-color: #99aab5;</string>
   <tabstop>about_button</tabstop>
  </tabstops>
  <resources>
-  <include location="diary.qrc"/>
+  <include location="theoretical-diary.qrc"/>
  </resources>
  <connections>
   <connection>

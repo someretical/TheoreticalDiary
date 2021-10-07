@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FlushWindow</class>
+ <widget class="QDialog" name="FlushWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>100</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Flushed credentials</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog{
+background-color: rgb(35, 39, 42);
+}
+QPushButton {
+    border: none;
+    border-radius: 0px;
+    background-color: #414447;
+    color: rgb(153, 170, 181);
+}
+
+QPushButton:pressed {
+    border: none;
+    border-radius: 0px;
+    background-color: #2c2f33;
+}
+
+QPushButton:hover:!pressed
+{
+    border: none;
+    border-radius: 0px;
+    background-color: #56595c;
+}
+QScrollArea {
+border: none
+}
+
+QScrollBar::vertical {              
+        border: 1px solid #2c2f33;
+        background:rgb(153, 170, 181);
+        width:10px;    
+        margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle:vertical {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop: 0 #414447, stop: 0.5 #414447, stop:1 #414447);
+        min-height: 0px;
+}
+QScrollBar::add-line:vertical {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop: 0 #414447, stop: 0.5 #414447,  stop:1 #414447);
+        height: 0px;
+        subcontrol-position: bottom;
+        subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop: 0  #414447, stop: 0.5 #414447,  stop:1 #414447);
+        height: 0 px;
+        subcontrol-position: top;
+        subcontrol-origin: margin;
+}
+QPlainTextEdit {
+background-color: rgb(35, 39, 42);
+color: rgb(153, 170, 181);
+border: 1px solid rgb(153, 170, 181) 
+}
+QLabel {
+color: rgb(153, 170, 181)
+}
+
+</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>The Google OAuth2 credentials file has been deleted.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+    <widget class="QPushButton" name="ok_button">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Ok</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="action_close">
+   <property name="text">
+    <string>close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>ok_button</sender>
+   <signal>clicked()</signal>
+   <receiver>action_close</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>49</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

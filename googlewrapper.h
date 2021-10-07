@@ -18,15 +18,8 @@
 #ifndef GOOGLEWRAPPER_H
 #define GOOGLEWRAPPER_H
 
-#include <QDesktopServices>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QOAuth2AuthorizationCodeFlow>
-#include <QOAuthHttpServerReplyHandler>
 #include <QObject>
-#include <QUrl>
-#include <QUrlQuery>
+#include <QtNetworkAuth>
 
 class GoogleWrapper : public QObject {
   Q_OBJECT
@@ -36,9 +29,14 @@ public:
   ~GoogleWrapper();
   void authenticate();
 
+signals:
+  void sig_auth_err();
+  void sig_auth_ok();
+
 private:
   QOAuth2AuthorizationCodeFlow *google;
-  void auth_granted();
+  void auth_ok();
+  void auth_err();
 };
 
 #endif // GOOGLEWRAPPER_H

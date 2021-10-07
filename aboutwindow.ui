@@ -32,7 +32,7 @@
    <string>About</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="diary.qrc">
+   <iconset resource="theoretical-diary.qrc">
     <normaloff>:/images/icon.svg</normaloff>:/images/icon.svg</iconset>
   </property>
   <property name="styleSheet">
@@ -601,7 +601,7 @@ SOFTWARE.</string>
   </action>
  </widget>
  <resources>
-  <include location="diary.qrc"/>
+  <include location="theoretical-diary.qrc"/>
  </resources>
  <connections>
   <connection>

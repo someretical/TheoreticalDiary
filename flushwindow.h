@@ -15,42 +15,27 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef FLUSHWINDOW_H
+#define FLUSHWINDOW_H
 
-#include "googlewrapper.h"
+#include <QDialog>
 
-#include <QMainWindow>
-
-QT_BEGIN_NAMESPACE
 namespace Ui {
-class MainWindow;
+class FlushWindow;
 }
-QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+class FlushWindow : public QDialog {
   Q_OBJECT
 
 public:
-  MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
-  bool responsive;
-
-private:
-  Ui::MainWindow *ui;
+  explicit FlushWindow(QWidget *parent = nullptr);
+  ~FlushWindow();
 
 public slots:
-  void open_button_pressed();
-  void new_button_pressed();
-  void dl_button_pressed();
-  void import_button_pressed();
-  void flush_button_pressed();
-  void dump_button_pressed();
-  void about_button_pressed();
-  void toggle_advanced_options();
-  void make_responsive();
-  void show_auth_err();
-  void _auth_ok();
-  void quit_app();
+  void action_close();
+
+private:
+  Ui::FlushWindow *ui;
 };
-#endif // MAINWINDOW_H
+
+#endif // FLUSHWINDOW_H

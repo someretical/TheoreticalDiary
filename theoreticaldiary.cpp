@@ -17,12 +17,31 @@
 
 #include "theoreticaldiary.h"
 
+#include <QStandardPaths>
+
 TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
-    : QApplication(argc, argv) {}
+    : QApplication(argc, argv) {
+  gwrapper = new GoogleWrapper;
+  diary_holder = new DiaryHolder;
+  settings_provider = new SettingsProvider;
+
+  unsaved_changes = false;
+
+  QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+  if (!dir.exists())
+    dir.mkpath(".");
+}
 
 TheoreticalDiary::~TheoreticalDiary() {
-  // This has to be excluded for the app to exit properly
-  //  delete gwrapper;
-  //  delete diary_holder;
-  //  delete settings_provider;
+  delete gwrapper;
+  delete diary_holder;
+  delete settings_provider;
 }
+
+// static specifier is not needed here (if it was, it would cause a compiler
+// error) see https://stackoverflow.com/a/31305772
+TheoreticalDiary *TheoreticalDiary::instance() {
+  return static_cast<TheoreticalDiary *>(QApplication::instance());
+}
+
+void TheoreticalDiary::changes_made() { unsaved_changes = true; }

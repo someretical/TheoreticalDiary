@@ -31,9 +31,14 @@ class TheoreticalDiary : public QApplication {
 public:
   TheoreticalDiary(int &argc, char **argv);
   ~TheoreticalDiary();
+  static TheoreticalDiary *instance();
   GoogleWrapper *gwrapper;
   DiaryHolder *diary_holder;
   SettingsProvider *settings_provider;
+  bool unsaved_changes;
+
+public slots:
+  void changes_made();
 };
 
 #endif // THOERETICALDIARY_H

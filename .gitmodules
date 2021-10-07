@@ -1,4 +1,6 @@
-[submodule "external-libs/json"]
-	path = external-libs/json
-	url = https://github.com/nlohmann/json.git
-	branch = master
+[submodule "external-libs/qt-secret"]
+	path = external-libs/qt-secret
+	url = https://github.com/QuasarApp/Qt-Secret.git
+[submodule "external-libs/qtkeychain"]
+	path = external-libs/qtkeychain
+	url = https://github.com/frankosterfeld/qtkeychain.git

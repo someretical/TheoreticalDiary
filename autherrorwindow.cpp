@@ -15,42 +15,20 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#include "autherrorwindow.h"
+#include "ui_autherrorwindow.h"
 
-#include "googlewrapper.h"
+AuthErrorWindow::AuthErrorWindow(QWidget *parent)
+    : QDialog(parent), ui(new Ui::AuthErrorWindow) {
+  ui->setupUi(this);
 
-#include <QMainWindow>
-
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
+  // Setup close action
+  auto close_window = this->findChild<QAction *>("action_close");
+  addAction(close_window);
+  connect(close_window, SIGNAL(triggered()), this, SLOT(action_close()),
+          Qt::QueuedConnection);
 }
-QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
-  Q_OBJECT
+AuthErrorWindow::~AuthErrorWindow() { delete ui; }
 
-public:
-  MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
-  bool responsive;
-
-private:
-  Ui::MainWindow *ui;
-
-public slots:
-  void open_button_pressed();
-  void new_button_pressed();
-  void dl_button_pressed();
-  void import_button_pressed();
-  void flush_button_pressed();
-  void dump_button_pressed();
-  void about_button_pressed();
-  void toggle_advanced_options();
-  void make_responsive();
-  void show_auth_err();
-  void _auth_ok();
-  void quit_app();
-};
-#endif // MAINWINDOW_H
+void AuthErrorWindow::action_close() { accept(); }
