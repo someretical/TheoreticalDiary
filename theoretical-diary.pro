@@ -13,18 +13,20 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
 
-INCLUDEPATH += external-libs/json/single_include/nlohmann
+INCLUDEPATH += external-libs/json/single_include/nlohmann \
+    external-libs/cryptopp
 
-# The lib version of networkauth is installed by default.
-# To install the dev version needed for compiling, run $ sudo apt install libqt5networkauth5-dev
+unix:LIBS += \
+    -l:libcryptopp.a
+
+win32:LIBS += \
+    -l"external-libs/cryptopp/cryptlib"
+
 QT += core gui network networkauth
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11 ordered
-
-include(external-libs/qt-secret/src/Qt-Secret.pri)
-include(external-libs/qtkeychain/qtkeychain.pri)
+CONFIG += c++17
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -41,7 +43,8 @@ SOURCES += \
     mainwindow.cpp \
     runguard.cpp \
     settingsprovider.cpp \
-    theoreticaldiary.cpp
+    theoreticaldiary.cpp \
+    zipper.cpp
 
 HEADERS += \
     aboutwindow.h \
@@ -53,7 +56,8 @@ HEADERS += \
     mainwindow.h \
     runguard.h \
     settingsprovider.h \
-    theoreticaldiary.h
+    theoreticaldiary.h \
+    zipper.h
 
 FORMS += \
     aboutwindow.ui \
@@ -73,7 +77,8 @@ RESOURCES += \
 
 DISTFILES += \
     .gitmodules \
-    LICENSE \
+    CONTRIBUTORS.txt \
+    LICENSES.txt \
     README.md
 
 OTHER_FILES += \

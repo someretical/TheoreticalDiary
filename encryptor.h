@@ -18,9 +18,19 @@
 #ifndef ENCRYPTOR_H
 #define ENCRYPTOR_H
 
+#include <cryptlib.h>
+#include <cstddef>
+#include <string>
+#include <vector>
+
 class Encryptor {
 public:
-  Encryptor();
+  static void get_hash(std::string &password,
+                       std::vector<CryptoPP::byte> &output);
+  static void encrypt(std::vector<CryptoPP::byte> &key, std::string &decrypted,
+                      std::string &encrypted);
+  static bool decrypt(std::vector<CryptoPP::byte> &key, std::string &encrypted,
+                      std::string &decrypted);
 };
 
 #endif // ENCRYPTOR_H

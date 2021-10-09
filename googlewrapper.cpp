@@ -42,6 +42,15 @@ GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent) {
   google->setScope("https://www.googleapis.com/auth/userinfo.profile "
                    "https://www.googleapis.com/auth/drive.appdata");
 
+  // https://stackoverflow.com/a/63311694
+  google->setModifyParametersFunction(
+      [](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+        if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
+          QByteArray code = parameters->value("code").toByteArray();
+          (*parameters)["code"] = QUrl::fromPercentEncoding(code);
+        }
+      });
+
   connect(google, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
           [=](QUrl url) {
             QUrlQuery query(url);
@@ -100,6 +109,16 @@ void GoogleWrapper::authenticate() {
 void GoogleWrapper::auth_ok() {
   QJsonObject tokens;
   QJsonDocument doc;
+
+  QStringList scope_list = google->scope().split(" ");
+  QStringList required_list = {
+      "https://www.googleapis.com/auth/drive.appdata",
+      "https://www.googleapis.com/auth/userinfo.profile"};
+  std::sort(scope_list.begin(), scope_list.end());
+
+  if (scope_list != required_list)
+    return auth_err();
+
   tokens.insert("access_token", google->token());
   tokens.insert("refresh_token", google->refreshToken());
   doc.setObject(tokens);

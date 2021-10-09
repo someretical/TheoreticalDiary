@@ -22,6 +22,28 @@ AboutWindow::AboutWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::AboutWindow) {
   ui->setupUi(this);
 
+  // Fill in contributors and licenses
+  QString licenses;
+  QString licenses_path(":/LICENSES.txt");
+  QFile license_file(licenses_path);
+
+  licenses = license_file.open(QIODevice::ReadOnly)
+                 ? license_file.readAll()
+                 : QString("Unable to load licenses.");
+  license_file.close();
+
+  QString contribs;
+  QString contrib_path(":/CONTRIBUTORS.txt");
+  QFile contrib_file(contrib_path);
+
+  contribs = contrib_file.open(QIODevice::ReadOnly)
+                 ? contrib_file.readAll()
+                 : QString("Unable to load contributors.");
+  contrib_file.close();
+
+  ui->licenses_text->setPlainText(licenses);
+  ui->contributors_text->setPlainText(contribs);
+
   // Setup close action
   auto close_window = this->findChild<QAction *>("action_close");
   addAction(close_window);

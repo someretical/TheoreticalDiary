@@ -18,6 +18,7 @@
 #include "mainwindow.h"
 #include "aboutwindow.h"
 #include "autherrorwindow.h"
+#include "encryptor.h"
 #include "flushwindow.h"
 #include "theoreticaldiary.h"
 #include "ui_mainwindow.h"

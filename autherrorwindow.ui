@@ -28,8 +28,11 @@
     <height>200</height>
    </size>
   </property>
+  <property name="acceptDrops">
+   <bool>false</bool>
+  </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Authentication error</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog{

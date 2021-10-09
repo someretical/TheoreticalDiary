@@ -19,10 +19,15 @@
 #include "runguard.h"
 #include "theoreticaldiary.h"
 
+#include <QApplication>
+
 int main(int argc, char **argv) {
   // This is to fix fonts not scaling properly at different DPI
   // https://stackoverflow.com/a/36058882
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+  // Remove ? button in the title bar (only on Windows)
+  QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
   // Make sure only 1 instance of the app is running at all times
   // Courtesy of https://stackoverflow.com/a/28172162
