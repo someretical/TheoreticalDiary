@@ -20,8 +20,16 @@
 #include "theoreticaldiary.h"
 
 #include <QApplication>
+#include <QFontDatabase>
+#include <QStandardPaths>
 
 int main(int argc, char **argv) {
+  // Make sure only 1 instance of the app is running at all times
+  // Courtesy of https://stackoverflow.com/a/28172162
+  RunGuard guard("theoretical-diary");
+  if (!guard.tryToRun())
+    return 0;
+
   // This is to fix fonts not scaling properly at different DPI
   // https://stackoverflow.com/a/36058882
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -29,14 +37,23 @@ int main(int argc, char **argv) {
   // Remove ? button in the title bar (only on Windows)
   QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
-  // Make sure only 1 instance of the app is running at all times
-  // Courtesy of https://stackoverflow.com/a/28172162
-  RunGuard guard("theoretical-diary");
-  if (!guard.tryToRun())
-    return 0;
+  QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+  if (!dir.exists())
+    dir.mkpath(".");
 
   TheoreticalDiary a(argc, argv);
   MainWindow w;
+
+  // Windows does not have Ubuntu by default
+  QFontDatabase fdb;
+  fdb.addApplicationFont(":/fonts/Ubuntu-Regular.ttf");
+  fdb.addApplicationFont(":/fonts/Ubuntu-MediumItalic.ttf");
+  fdb.addApplicationFont(":/fonts/Ubuntu-Medium.ttf");
+  fdb.addApplicationFont(":/fonts/Ubuntu-LightItalic.ttf");
+  fdb.addApplicationFont(":/fonts/Ubuntu-Light.ttf");
+  fdb.addApplicationFont(":/fonts/Ubuntu-Italic.ttf");
+  fdb.addApplicationFont(":/fonts/Ubuntu-BoldItalic.ttf");
+  fdb.addApplicationFont(":/fonts/Ubuntu-Bold.ttf");
 
   w.show();
   return a.exec();

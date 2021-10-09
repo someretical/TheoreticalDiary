@@ -44,6 +44,15 @@ AboutWindow::AboutWindow(QWidget *parent)
   ui->licenses_text->setPlainText(licenses);
   ui->contributors_text->setPlainText(contribs);
 
+  QString version;
+  QString version_path(":/VERSION.txt");
+  QFile version_file(version_path);
+
+  version = version_file.open(QIODevice::ReadOnly) ? version_file.readAll()
+                                                   : QString("Unknown version");
+  version_file.close();
+  ui->version->setText(version);
+
   // Setup close action
   auto action = findChild<QAction *>("action_close");
   addAction(action);

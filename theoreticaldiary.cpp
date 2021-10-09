@@ -17,8 +17,6 @@
 
 #include "theoreticaldiary.h"
 
-#include <QStandardPaths>
-
 TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
     : QApplication(argc, argv) {
   gwrapper = new GoogleWrapper;

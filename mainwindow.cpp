@@ -34,6 +34,16 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   ui->options->hide();
 
+  QString version;
+  QString version_path(":/VERSION.txt");
+  QFile version_file(version_path);
+
+  version = version_file.open(QIODevice::ReadOnly)
+                ? QString("Version ") + version_file.readAll()
+                : QString("Unknown version");
+  version_file.close();
+  ui->version->setText(version);
+
   auto action = findChild<QAction *>("action_open");
   addAction(action);
   connect(action, &QAction::triggered, this, &MainWindow::open_diary);
@@ -164,7 +174,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
         "/credentials.json");
 
-    if (file.open(QIODevice::ReadWrite)) {
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       file.write(doc.toJson());
       file.close();
 

@@ -92,7 +92,7 @@ void GoogleWrapper::authenticate() {
   QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
              "/credentials.json");
 
-  if (file.open(QIODevice::ReadOnly)) {
+  if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QString data = file.readAll();
     file.close();
     QJsonDocument text = QJsonDocument::fromJson(data.toUtf8());
@@ -133,7 +133,7 @@ void GoogleWrapper::auth_ok() {
   QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
              "/credentials.json");
 
-  if (file.open(QIODevice::ReadWrite)) {
+  if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     file.write(doc.toJson());
     file.close();
 

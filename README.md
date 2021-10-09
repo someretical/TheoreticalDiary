@@ -18,7 +18,7 @@ The only thing that I will mention is that you should strongly consider using MS
 
 ### Linux
 
-The prebuilt binary is available in `theoretical-diary-linux.zip` (check the result of the latest successful Github actions for `linux.yml`). You will still need to install the runtime packages, just not the `-dev` ones.
+The prebuilt binary is available as `theoretical-diary-linux` (check the result of the latest successful Github actions for `linux.yml`). You will still need to install the runtime packages, just not the `-dev` ones.
 
 Only instructions for Ubuntu will be provided. If you're not using Ubuntu, you should be able to figure out how to install the dependencies anyway.
 

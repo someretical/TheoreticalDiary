@@ -36,7 +36,7 @@
     <normaloff>:/images/icon.svg</normaloff>:/images/icon.svg</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">QDialog{
+   <string notr="true">QDialog {
 background-color: rgb(35, 39, 42);
 }
 QPushButton {
@@ -148,7 +148,7 @@ color: rgb(153, 170, 181)
    <item alignment="Qt::AlignHCenter">
     <widget class="QLabel" name="version">
      <property name="text">
-      <string>0.0.1</string>
+      <string>Version placeholder</string>
      </property>
     </widget>
    </item>
@@ -186,7 +186,7 @@ color: rgb(153, 170, 181)
      </property>
      <property name="font">
       <font>
-       <pointsize>12</pointsize>
+       <pointsize>11</pointsize>
       </font>
      </property>
      <property name="plainText">
@@ -231,7 +231,7 @@ color: rgb(153, 170, 181)
      </property>
      <property name="font">
       <font>
-       <pointsize>12</pointsize>
+       <pointsize>11</pointsize>
       </font>
      </property>
      <property name="plainText">

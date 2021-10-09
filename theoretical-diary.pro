@@ -82,7 +82,16 @@ DISTFILES += \
     .gitmodules \
     CONTRIBUTORS.txt \
     LICENSES.txt \
-    README.md
+    README.md \
+    VERSION.txt \
+    fonts/Ubuntu-Bold.ttf \
+    fonts/Ubuntu-BoldItalic.ttf \
+    fonts/Ubuntu-Italic.ttf \
+    fonts/Ubuntu-Light.ttf \
+    fonts/Ubuntu-LightItalic.ttf \
+    fonts/Ubuntu-Medium.ttf \
+    fonts/Ubuntu-MediumItalic.ttf \
+    fonts/Ubuntu-Regular.ttf
 
 OTHER_FILES += \
     .clang-format \
