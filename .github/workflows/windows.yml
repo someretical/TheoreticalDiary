@@ -44,5 +44,5 @@ jobs:
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: release
-          path: x64_release
+          name: x64_release
+          path: release
