@@ -1,0 +1,32 @@
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    name: Shared build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with: 
+          submodules: 'recursive'
+      
+      - name: Install packages
+        run: |
+          sudo apt install qt5-default
+          sudo apt install libqt5networkauth5
+          sudo apt install libqt5networkauth5-dev
+          sudo apt install nlohmann-json3-dev
+
+      - name: Build cryptopp
+        run: sudo sh build-cryptopp.sh
+
+      - name: Qmake and make
+        run: |
+          qmake CONFIG+=release
+          make -j8
+      
+      - name: Upload to Github
+        uses: actions/upload-artifact@v2
+        with:
+          name: theoretical-diary-linux
+          path: ./theoretical-diary
