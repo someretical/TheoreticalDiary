@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FlushWindow</class>
- <widget class="QDialog" name="FlushWindow">
+ <class>PromptAuth</class>
+ <widget class="QDialog" name="PromptAuth">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>140</height>
+    <height>100</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>450</width>
+    <height>150</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Flush successful</string>
+   <string>Awaiting authentication...</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog{
@@ -94,56 +106,8 @@ color: rgb(153, 170, 181)
    </property>
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
     <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>400</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>400</width>
-       <height>16777215</height>
-      </size>
-     </property>
      <property name="text">
-      <string>The Google OAuth2 credentials file has been deleted.</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-    <widget class="QPushButton" name="ok_button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>40</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>15</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Ok</string>
+      <string>Please grant access to ALL required OAuth scopes.</string>
      </property>
     </widget>
    </item>
@@ -158,22 +122,5 @@ color: rgb(153, 170, 181)
   </action>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>ok_button</sender>
-   <signal>clicked()</signal>
-   <receiver>action_close</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>199</x>
-     <y>74</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

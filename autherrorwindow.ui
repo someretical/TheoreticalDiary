@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>200</height>
+    <width>450</width>
+    <height>180</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,14 +18,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>200</height>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
-    <height>200</height>
+    <width>450</width>
+    <height>230</height>
    </size>
   </property>
   <property name="acceptDrops">
@@ -98,21 +98,21 @@ color: rgb(153, 170, 181)
 </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QLabel" name="title">
-     <property name="font">
-      <font>
-       <pointsize>25</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Authentication error</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>15</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>15</number>
+   </property>
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
     <widget class="QLabel" name="text">
      <property name="sizePolicy">
@@ -123,18 +123,19 @@ color: rgb(153, 170, 181)
      </property>
      <property name="minimumSize">
       <size>
-       <width>375</width>
-       <height>70</height>
+       <width>420</width>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>375</width>
+       <width>420</width>
        <height>70</height>
       </size>
      </property>
      <property name="text">
-      <string>The application was unable to connect to Google Drive. Please make sure all OAuth2 scopes are enabled and the corresponding files exist on Google Drive.</string>
+      <string>The application was unable to connect to Google Drive.
+Please make sure all required OAuth2 scopes have been granted and the corresponding files exist on Google Drive.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

@@ -29,14 +29,22 @@ public:
   ~GoogleWrapper();
   void authenticate();
 
+  // The members below SHOULD be private. The caveats are outlined in the
+  // comments.
+
+  // This function is needed by PrompAuth
+  void auth_err();
+  // *google is needed by MainWindow::closeEvent
+  QOAuth2AuthorizationCodeFlow *google;
+
 signals:
   void sig_auth_err();
   void sig_auth_ok();
+  void sig_token_changed();
 
 private:
-  QOAuth2AuthorizationCodeFlow *google;
+  void token_changed();
   void auth_ok();
-  void auth_err();
 };
 
 #endif // GOOGLEWRAPPER_H

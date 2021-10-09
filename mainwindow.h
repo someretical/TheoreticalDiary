@@ -20,6 +20,7 @@
 
 #include "googlewrapper.h"
 
+#include <QCloseEvent>
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -34,21 +35,20 @@ class MainWindow : public QMainWindow {
 public:
   MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
-  bool responsive;
+  void closeEvent(QCloseEvent *event);
 
 private:
   Ui::MainWindow *ui;
 
 public slots:
-  void open_button_pressed();
-  void new_button_pressed();
-  void dl_button_pressed();
-  void import_button_pressed();
-  void flush_button_pressed();
-  void dump_button_pressed();
-  void about_button_pressed();
+  void open_diary();
+  void new_diary();
+  void dl_diary();
+  void import_diary();
+  void flush_credentials();
+  void dump_drive();
+  void about_app();
   void toggle_advanced_options();
-  void make_responsive();
   void show_auth_err();
   void _auth_ok();
   void quit_app();

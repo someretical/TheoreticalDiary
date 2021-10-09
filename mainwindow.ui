@@ -252,7 +252,7 @@ QScrollBar::sub-line:vertical {
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
+               <y>-94</y>
                <width>220</width>
                <height>485</height>
               </rect>
@@ -700,14 +700,47 @@ background-color: #99aab5;</string>
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="action_download_diary">
+  <action name="action_dl">
    <property name="text">
-    <string>download_diary</string>
+    <string>dl</string>
+   </property>
+   <property name="toolTip">
+    <string>dl</string>
    </property>
   </action>
-  <action name="action_open_diary">
+  <action name="action_open">
    <property name="text">
-    <string>open_diary</string>
+    <string>open</string>
+   </property>
+  </action>
+  <action name="action_new">
+   <property name="text">
+    <string>new</string>
+   </property>
+  </action>
+  <action name="action_import">
+   <property name="text">
+    <string>import</string>
+   </property>
+  </action>
+  <action name="action_options">
+   <property name="text">
+    <string>options</string>
+   </property>
+  </action>
+  <action name="action_flush">
+   <property name="text">
+    <string>flush</string>
+   </property>
+  </action>
+  <action name="action_dump">
+   <property name="text">
+    <string>dump</string>
+   </property>
+  </action>
+  <action name="action_about">
+   <property name="text">
+    <string>about</string>
    </property>
   </action>
  </widget>
@@ -734,6 +767,134 @@ background-color: #99aab5;</string>
     <hint type="sourcelabel">
      <x>654</x>
      <y>539</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>open_button</sender>
+   <signal>clicked()</signal>
+   <receiver>action_open</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>642</x>
+     <y>158</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dl_button</sender>
+   <signal>clicked()</signal>
+   <receiver>action_dl</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>642</x>
+     <y>278</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>new_button</sender>
+   <signal>clicked()</signal>
+   <receiver>action_new</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>642</x>
+     <y>218</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>import_button</sender>
+   <signal>clicked()</signal>
+   <receiver>action_import</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>642</x>
+     <y>338</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>options_button</sender>
+   <signal>clicked()</signal>
+   <receiver>action_options</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>642</x>
+     <y>398</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>about_button</sender>
+   <signal>clicked()</signal>
+   <receiver>action_about</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>642</x>
+     <y>603</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>flush_button</sender>
+   <signal>clicked()</signal>
+   <receiver>action_flush</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>642</x>
+     <y>389</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>642</x>
+     <y>449</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dump_button</sender>
+   <signal>clicked()</signal>
+   <receiver>action_dump</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>642</x>
+     <y>543</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

@@ -28,9 +28,11 @@
 #include <QtNetwork>
 #include <QtNetworkAuth>
 
+// Adapted from
 // https://github.com/chilarai/Qt-Google-OAuth/blob/master/googleauth.cpp
 GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent) {
   google = new QOAuth2AuthorizationCodeFlow(this);
+  google->blockSignals(true);
 
   google->setAuthorizationUrl(
       QUrl("https://accounts.google.com/o/oauth2/auth"));
@@ -47,6 +49,7 @@ GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent) {
       [](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
         if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
           QByteArray code = parameters->value("code").toByteArray();
+
           (*parameters)["code"] = QUrl::fromPercentEncoding(code);
         }
       });
@@ -73,15 +76,19 @@ GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent) {
           &GoogleWrapper::auth_err);
 
   // These changes should be committed to persistent storage
-  connect(google, &QOAuth2AuthorizationCodeFlow::tokenChanged,
-          TheoreticalDiary::instance(), &TheoreticalDiary::changes_made);
-  connect(google, &QOAuth2AuthorizationCodeFlow::refreshTokenChanged,
-          TheoreticalDiary::instance(), &TheoreticalDiary::changes_made);
+  connect(google, &QOAuth2AuthorizationCodeFlow::tokenChanged, this,
+          &GoogleWrapper::token_changed);
+  connect(google, &QOAuth2AuthorizationCodeFlow::refreshTokenChanged, this,
+          &GoogleWrapper::token_changed);
 }
 
 GoogleWrapper::~GoogleWrapper() { delete google; }
 
+void GoogleWrapper::token_changed() { emit sig_token_changed(); }
+
 void GoogleWrapper::authenticate() {
+  google->blockSignals(false);
+
   QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
              "/credentials.json");
 
@@ -130,10 +137,15 @@ void GoogleWrapper::auth_ok() {
     file.write(doc.toJson());
     file.close();
 
+    google->blockSignals(true);
     emit sig_auth_ok();
   } else {
     auth_err();
   }
 }
 
-void GoogleWrapper::auth_err() { emit sig_auth_err(); }
+void GoogleWrapper::auth_err() {
+  google->blockSignals(true);
+
+  emit sig_auth_err();
+}

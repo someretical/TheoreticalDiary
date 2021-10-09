@@ -20,126 +20,157 @@
 #include "autherrorwindow.h"
 #include "encryptor.h"
 #include "flushwindow.h"
+#include "promptauth.h"
 #include "theoreticaldiary.h"
 #include "ui_mainwindow.h"
 
+#include <QCloseEvent>
 #include <QStandardPaths>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 
 {
-  responsive = true;
   ui->setupUi(this);
-
-  // Setup normal buttons
-  connect(ui->open_button, SIGNAL(clicked()), this,
-          SLOT(open_button_pressed()));
-  connect(ui->new_button, SIGNAL(clicked()), this, SLOT(new_button_pressed()));
-  connect(ui->dl_button, SIGNAL(clicked()), this, SLOT(dl_button_pressed()));
-  connect(ui->import_button, SIGNAL(clicked()), this,
-          SLOT(import_button_pressed()));
-  connect(ui->flush_button, SIGNAL(clicked()), this,
-          SLOT(flush_button_pressed()));
-  connect(ui->dump_button, SIGNAL(clicked()), this,
-          SLOT(dump_button_pressed()));
-  connect(ui->about_button, SIGNAL(clicked()), this,
-          SLOT(about_button_pressed()));
-
-  // Setup expandable options
   ui->options->hide();
-  connect(ui->options_button, SIGNAL(clicked()), this,
-          SLOT(toggle_advanced_options()));
 
-  // Setup quit action
-  auto action_quit = this->findChild<QAction *>("action_quit");
-  addAction(action_quit);
-  connect(action_quit, SIGNAL(triggered()), this, SLOT(quit_app()),
+  auto action = findChild<QAction *>("action_open");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &MainWindow::open_diary);
+
+  action = findChild<QAction *>("action_new");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &MainWindow::new_diary);
+
+  action = findChild<QAction *>("action_dl");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &MainWindow::dl_diary);
+
+  action = findChild<QAction *>("action_import");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &MainWindow::import_diary);
+
+  action = findChild<QAction *>("action_options");
+  addAction(action);
+  connect(action, &QAction::triggered, this,
+          &MainWindow::toggle_advanced_options);
+
+  action = findChild<QAction *>("action_flush");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &MainWindow::flush_credentials);
+
+  action = findChild<QAction *>("action_dump");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &MainWindow::dump_drive);
+
+  action = findChild<QAction *>("action_about");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &MainWindow::about_app);
+
+  action = findChild<QAction *>("action_quit");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &MainWindow::quit_app,
           Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow() { delete ui; }
 
-void MainWindow::open_button_pressed() {
-  if (!responsive)
-    return;
-}
+void MainWindow::open_diary() {}
 
-void MainWindow::new_button_pressed() {
-  if (!responsive)
-    return;
-}
+void MainWindow::new_diary() {}
 
-void MainWindow::dl_button_pressed() {
-  if (!responsive)
-    return;
+void MainWindow::dl_diary() {
+  connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_auth_err,
+          this, &MainWindow::show_auth_err);
+  connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_auth_ok,
+          this, &MainWindow::_auth_ok);
 
-  responsive = false;
-  connect(TheoreticalDiary::instance()->gwrapper, SIGNAL(sig_auth_err()), this,
-          SLOT(show_auth_err()));
-  connect(TheoreticalDiary::instance()->gwrapper, SIGNAL(sig_auth_ok()), this,
-          SLOT(_auth_ok()));
+  /**
+   * window.exec blocks any code AFTER it from executing.
+   * window.show allows code after to run, but the new operator must be used.
+   *
+   * setAttribute(Qt::WA_DeleteOnClose, true);
+   * makes Qt handle the deletion (not us).
+   *
+   * setModal(true);
+   * makes the new window a child of the main window (not an entirely separate
+   * window).
+   */
+
+  PromptAuth *w = new PromptAuth(this);
+  w->setModal(true);
+  w->setAttribute(Qt::WA_DeleteOnClose, true);
+  w->show();
+
   TheoreticalDiary::instance()->gwrapper->authenticate();
 }
 
-void MainWindow::import_button_pressed() {
-  if (!responsive)
-    return;
-}
+void MainWindow::import_diary() {}
 
-void MainWindow::flush_button_pressed() {
-  if (!responsive)
-    return;
-
-  responsive = false;
+void MainWindow::flush_credentials() {
   QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
              "/credentials.json");
   file.remove();
 
-  FlushWindow flush_window(this);
-  flush_window.exec();
-  responsive = true;
+  FlushWindow w(this);
+  w.exec();
 }
 
-void MainWindow::dump_button_pressed() {
-  if (!responsive)
-    return;
-}
+void MainWindow::dump_drive() {}
 
-void MainWindow::about_button_pressed() {
-  if (!responsive)
-    return;
-
-  AboutWindow about_window(this);
-  about_window.exec();
+void MainWindow::about_app() {
+  AboutWindow w(this);
+  w.exec();
 }
 
 void MainWindow::toggle_advanced_options() {
-  if (!responsive)
-    return;
-
   if (ui->options->isVisible())
     ui->options->hide();
   else
     ui->options->show();
 }
 
-void MainWindow::make_responsive() { responsive = true; }
-
 void MainWindow::show_auth_err() {
-  AuthErrorWindow auth_error_window(this);
-  auth_error_window.exec();
+  disconnect(TheoreticalDiary::instance()->gwrapper,
+             &GoogleWrapper::sig_auth_err, this, &MainWindow::show_auth_err);
 
-  disconnect(TheoreticalDiary::instance()->gwrapper, SIGNAL(sig_auth_err()),
-             this, SLOT(show_auth_err()));
-  responsive = true;
+  AuthErrorWindow *w = new AuthErrorWindow(this);
+  w->setModal(true);
+  w->setAttribute(Qt::WA_DeleteOnClose, true);
+  w->show();
 }
 
 void MainWindow::_auth_ok() {
   qDebug() << "Auth successful";
-  responsive = true;
-  disconnect(TheoreticalDiary::instance()->gwrapper, SIGNAL(sig_auth_ok()),
-             this, SLOT(_auth_ok()));
+  disconnect(TheoreticalDiary::instance()->gwrapper,
+             &GoogleWrapper::sig_auth_ok, this, &MainWindow::_auth_ok);
 }
 
-void MainWindow::quit_app() { qApp->quit(); }
+void MainWindow::quit_app() { close(); }
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+  if (TheoreticalDiary::instance()->unsaved_changes) {
+    QJsonDocument doc;
+    QJsonObject tokens;
+
+    tokens.insert("access_token",
+                  TheoreticalDiary::instance()->gwrapper->google->token());
+    tokens.insert(
+        "refresh_token",
+        TheoreticalDiary::instance()->gwrapper->google->refreshToken());
+    doc.setObject(tokens);
+
+    QFile file(
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+        "/credentials.json");
+
+    if (file.open(QIODevice::ReadWrite)) {
+      file.write(doc.toJson());
+      file.close();
+
+      // If this fails, that's why the flush button is a thing :^)
+    }
+  }
+
+  event->accept();
+}

@@ -45,12 +45,12 @@ AboutWindow::AboutWindow(QWidget *parent)
   ui->contributors_text->setPlainText(contribs);
 
   // Setup close action
-  auto close_window = this->findChild<QAction *>("action_close");
-  addAction(close_window);
-  connect(close_window, SIGNAL(triggered()), this, SLOT(action_close()),
+  auto action = findChild<QAction *>("action_close");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &AboutWindow::action_close,
           Qt::QueuedConnection);
 }
 
 AboutWindow::~AboutWindow() { delete ui; }
 
-void AboutWindow::action_close() { accept(); }
+void AboutWindow::action_close(bool b) { accept(); }

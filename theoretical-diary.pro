@@ -41,6 +41,7 @@ SOURCES += \
     googlewrapper.cpp \
     main.cpp \
     mainwindow.cpp \
+    promptauth.cpp \
     runguard.cpp \
     settingsprovider.cpp \
     theoreticaldiary.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     flushwindow.h \
     googlewrapper.h \
     mainwindow.h \
+    promptauth.h \
     runguard.h \
     settingsprovider.h \
     theoreticaldiary.h \
@@ -63,7 +65,8 @@ FORMS += \
     aboutwindow.ui \
     autherrorwindow.ui \
     flushwindow.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    promptauth.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

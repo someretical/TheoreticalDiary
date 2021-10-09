@@ -35,9 +35,9 @@ int main(int argc, char **argv) {
   if (!guard.tryToRun())
     return 0;
 
-  TheoreticalDiary app(argc, argv);
-  MainWindow mainwindow;
+  TheoreticalDiary a(argc, argv);
+  MainWindow w;
 
-  mainwindow.show();
-  return app.exec();
+  w.show();
+  return a.exec();
 }

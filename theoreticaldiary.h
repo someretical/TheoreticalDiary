@@ -35,7 +35,7 @@ public:
   GoogleWrapper *gwrapper;
   DiaryHolder *diary_holder;
   SettingsProvider *settings_provider;
-  bool unsaved_changes;
+  bool *unsaved_changes;
 
 public slots:
   void changes_made();
