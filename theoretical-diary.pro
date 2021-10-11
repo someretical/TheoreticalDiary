@@ -79,11 +79,12 @@ RESOURCES += \
     theoretical-diary.qrc
 
 DISTFILES += \
-    .gitmodules \
-    CONTRIBUTORS.txt \
-    LICENSES.txt \
     README.md \
-    VERSION.txt \
+    styles/defaultwindow.qss \
+    styles/mainwindow.qss \
+    text/CONTRIBUTORS.txt \
+    text/LICENSES.txt \
+    text/VERSION.txt \
     fonts/Ubuntu-Bold.ttf \
     fonts/Ubuntu-BoldItalic.ttf \
     fonts/Ubuntu-Italic.ttf \
@@ -91,12 +92,14 @@ DISTFILES += \
     fonts/Ubuntu-LightItalic.ttf \
     fonts/Ubuntu-Medium.ttf \
     fonts/Ubuntu-MediumItalic.ttf \
-    fonts/Ubuntu-Regular.ttf
-
-OTHER_FILES += \
-    .clang-format \
-    .github/workflows/build.yml \
-    .gitignore \
+    fonts/Ubuntu-Regular.ttf \
     images/icon.ico \
     images/icon.png \
     images/icon.svg
+
+OTHER_FILES += \
+    .clang-format \
+    .github/workflows/linux.yml \
+    .github/workflows/windows.yml \
+    .gitignore \
+    .gitmodules

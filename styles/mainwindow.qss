@@ -1,0 +1,12 @@
+QWidget#scroll_contents {
+    background-color: #23272a;
+}
+
+QFrame {
+    border: none;
+}
+
+Line {
+    border: 2px rgb(153, 170, 181)rgb(153, 170, 181);
+    background-color: #99aab5;
+}

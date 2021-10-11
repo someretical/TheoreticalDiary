@@ -13,69 +13,6 @@
   <property name="windowTitle">
    <string>Flush successful</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QDialog{
-background-color: rgb(35, 39, 42);
-}
-QPushButton {
-    border: none;
-    border-radius: 0px;
-    background-color: #414447;
-    color: rgb(153, 170, 181);
-}
-
-QPushButton:pressed {
-    border: none;
-    border-radius: 0px;
-    background-color: #2c2f33;
-}
-
-QPushButton:hover:!pressed
-{
-    border: none;
-    border-radius: 0px;
-    background-color: #56595c;
-}
-QScrollArea {
-border: none
-}
-
-QScrollBar::vertical {              
-        border: 1px solid #2c2f33;
-        background:rgb(153, 170, 181);
-        width:10px;    
-        margin: 0px 0px 0px 0px;
-}
-QScrollBar::handle:vertical {
-        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop: 0 #414447, stop: 0.5 #414447, stop:1 #414447);
-        min-height: 0px;
-}
-QScrollBar::add-line:vertical {
-        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop: 0 #414447, stop: 0.5 #414447,  stop:1 #414447);
-        height: 0px;
-        subcontrol-position: bottom;
-        subcontrol-origin: margin;
-}
-QScrollBar::sub-line:vertical {
-        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop: 0  #414447, stop: 0.5 #414447,  stop:1 #414447);
-        height: 0 px;
-        subcontrol-position: top;
-        subcontrol-origin: margin;
-}
-QPlainTextEdit {
-background-color: rgb(35, 39, 42);
-color: rgb(153, 170, 181);
-border: 1px solid rgb(153, 170, 181) 
-}
-QLabel {
-color: rgb(153, 170, 181)
-}
-
-</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>0</number>
@@ -143,7 +80,7 @@ color: rgb(153, 170, 181)
       </font>
      </property>
      <property name="text">
-      <string>Ok</string>
+      <string>OK</string>
      </property>
     </widget>
    </item>

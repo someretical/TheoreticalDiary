@@ -22,34 +22,28 @@ AboutWindow::AboutWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::AboutWindow) {
   ui->setupUi(this);
 
-  // Fill in contributors and licenses
-  QString licenses;
-  QString licenses_path(":/LICENSES.txt");
-  QFile license_file(licenses_path);
+  QFile ss_file(":/styles/defaultwindow.qss");
+  ss_file.open(QIODevice::ReadOnly);
+  QString stylesheet = ss_file.readAll();
+  setStyleSheet(stylesheet);
 
-  licenses = license_file.open(QIODevice::ReadOnly)
-                 ? license_file.readAll()
-                 : QString("Unable to load licenses.");
+  // Fill in contributors and licenses
+  QFile license_file(":/text/LICENSES.txt");
+  license_file.open(QIODevice::ReadOnly);
+  QString licenses = license_file.readAll();
   license_file.close();
 
-  QString contribs;
-  QString contrib_path(":/CONTRIBUTORS.txt");
-  QFile contrib_file(contrib_path);
-
-  contribs = contrib_file.open(QIODevice::ReadOnly)
-                 ? contrib_file.readAll()
-                 : QString("Unable to load contributors.");
+  QFile contrib_file(":/text/CONTRIBUTORS.txt");
+  contrib_file.open(QIODevice::ReadOnly);
+  QString contribs = contrib_file.readAll();
   contrib_file.close();
 
   ui->licenses_text->setPlainText(licenses);
   ui->contributors_text->setPlainText(contribs);
 
-  QString version;
-  QString version_path(":/VERSION.txt");
-  QFile version_file(version_path);
-
-  version = version_file.open(QIODevice::ReadOnly) ? version_file.readAll()
-                                                   : QString("Unknown version");
+  QFile version_file(":/text/VERSION.txt");
+  version_file.open(QIODevice::ReadOnly);
+  QString version = version_file.readAll();
   version_file.close();
   ui->version->setText(version);
 
@@ -62,4 +56,4 @@ AboutWindow::AboutWindow(QWidget *parent)
 
 AboutWindow::~AboutWindow() { delete ui; }
 
-void AboutWindow::action_close(bool b) { accept(); }
+void AboutWindow::action_close() { accept(); }

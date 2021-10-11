@@ -18,9 +18,16 @@
 #include "flushwindow.h"
 #include "ui_flushwindow.h"
 
+#include <QFile>
+
 FlushWindow::FlushWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::FlushWindow) {
   ui->setupUi(this);
+
+  QFile ss_file(":/styles/defaultwindow.qss");
+  ss_file.open(QIODevice::ReadOnly);
+  QString stylesheet = ss_file.readAll();
+  setStyleSheet(stylesheet);
 
   // Setup close action
   auto action = findChild<QAction *>("action_close");
@@ -31,4 +38,4 @@ FlushWindow::FlushWindow(QWidget *parent)
 
 FlushWindow::~FlushWindow() { delete ui; }
 
-void FlushWindow::action_close(bool b) { accept(); }
+void FlushWindow::action_close() { accept(); }

@@ -35,69 +35,6 @@
    <iconset resource="theoretical-diary.qrc">
     <normaloff>:/images/icon.svg</normaloff>:/images/icon.svg</iconset>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QDialog {
-background-color: rgb(35, 39, 42);
-}
-QPushButton {
-    border: none;
-    border-radius: 0px;
-    background-color: #414447;
-    color: rgb(153, 170, 181);
-}
-
-QPushButton:pressed {
-    border: none;
-    border-radius: 0px;
-    background-color: #2c2f33;
-}
-
-QPushButton:hover:!pressed
-{
-    border: none;
-    border-radius: 0px;
-    background-color: #56595c;
-}
-QScrollArea {
-border: none
-}
-
-QScrollBar::vertical {              
-        border: 1px solid #2c2f33;
-        background:rgb(153, 170, 181);
-        width:10px;    
-        margin: 0px 0px 0px 0px;
-}
-QScrollBar::handle:vertical {
-        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop: 0 #414447, stop: 0.5 #414447, stop:1 #414447);
-        min-height: 0px;
-}
-QScrollBar::add-line:vertical {
-        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop: 0 #414447, stop: 0.5 #414447,  stop:1 #414447);
-        height: 0px;
-        subcontrol-position: bottom;
-        subcontrol-origin: margin;
-}
-QScrollBar::sub-line:vertical {
-        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop: 0  #414447, stop: 0.5 #414447,  stop:1 #414447);
-        height: 0 px;
-        subcontrol-position: top;
-        subcontrol-origin: margin;
-}
-QPlainTextEdit {
-background-color: rgb(35, 39, 42);
-color: rgb(153, 170, 181);
-border: 1px solid rgb(153, 170, 181) 
-}
-QLabel {
-color: rgb(153, 170, 181)
-}
-
-</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>5</number>
@@ -115,18 +52,6 @@ color: rgb(153, 170, 181)
     <number>15</number>
    </property>
    <item alignment="Qt::AlignHCenter">
-    <widget class="QLabel" name="about_label">
-     <property name="font">
-      <font>
-       <pointsize>20</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>About</string>
-     </property>
-    </widget>
-   </item>
-   <item alignment="Qt::AlignHCenter">
     <widget class="QLabel" name="about">
      <property name="text">
       <string>Theoretical diary is an app that let's you keep your own digital diary.</string>
@@ -137,7 +62,7 @@ color: rgb(153, 170, 181)
     <widget class="QLabel" name="version_label">
      <property name="font">
       <font>
-       <pointsize>20</pointsize>
+       <pointsize>15</pointsize>
       </font>
      </property>
      <property name="text">
@@ -156,7 +81,7 @@ color: rgb(153, 170, 181)
     <widget class="QLabel" name="contributors_label">
      <property name="font">
       <font>
-       <pointsize>20</pointsize>
+       <pointsize>15</pointsize>
       </font>
      </property>
      <property name="text">
@@ -184,11 +109,6 @@ color: rgb(153, 170, 181)
        <height>100</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
      <property name="plainText">
       <string/>
      </property>
@@ -201,7 +121,7 @@ color: rgb(153, 170, 181)
     <widget class="QLabel" name="licenses_label">
      <property name="font">
       <font>
-       <pointsize>20</pointsize>
+       <pointsize>15</pointsize>
       </font>
      </property>
      <property name="text">
@@ -228,11 +148,6 @@ color: rgb(153, 170, 181)
        <width>510</width>
        <height>200</height>
       </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
      </property>
      <property name="plainText">
       <string/>

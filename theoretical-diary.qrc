@@ -2,8 +2,9 @@
     <qresource prefix="/">
         <file>images/icon.ico</file>
         <file>images/icon.svg</file>
-        <file>CONTRIBUTORS.txt</file>
-        <file>LICENSES.txt</file>
+        <file>text/CONTRIBUTORS.txt</file>
+        <file>text/LICENSES.txt</file>
+        <file>text/VERSION.txt</file>
         <file>fonts/Ubuntu-Bold.ttf</file>
         <file>fonts/Ubuntu-BoldItalic.ttf</file>
         <file>fonts/Ubuntu-Italic.ttf</file>
@@ -12,6 +13,7 @@
         <file>fonts/Ubuntu-Medium.ttf</file>
         <file>fonts/Ubuntu-MediumItalic.ttf</file>
         <file>fonts/Ubuntu-Regular.ttf</file>
-        <file>VERSION.txt</file>
+        <file>styles/defaultwindow.qss</file>
+        <file>styles/mainwindow.qss</file>
     </qresource>
 </RCC>

@@ -1,6 +1,6 @@
 # theoretical-diary
 
-# About
+## About
 
 This app is still under development...
 

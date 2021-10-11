@@ -42,19 +42,21 @@ int main(int argc, char **argv) {
     dir.mkpath(".");
 
   TheoreticalDiary a(argc, argv);
-  MainWindow w;
 
   // Windows does not have Ubuntu by default
-  QFontDatabase fdb;
-  fdb.addApplicationFont(":/fonts/Ubuntu-Regular.ttf");
-  fdb.addApplicationFont(":/fonts/Ubuntu-MediumItalic.ttf");
-  fdb.addApplicationFont(":/fonts/Ubuntu-Medium.ttf");
-  fdb.addApplicationFont(":/fonts/Ubuntu-LightItalic.ttf");
-  fdb.addApplicationFont(":/fonts/Ubuntu-Light.ttf");
-  fdb.addApplicationFont(":/fonts/Ubuntu-Italic.ttf");
-  fdb.addApplicationFont(":/fonts/Ubuntu-BoldItalic.ttf");
-  fdb.addApplicationFont(":/fonts/Ubuntu-Bold.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Regular.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-MediumItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Medium.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-LightItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Light.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Italic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-BoldItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Bold.ttf");
+  QFont font("Ubuntu");
+  QApplication::setFont(font);
 
+  MainWindow w;
   w.show();
+
   return a.exec();
 }

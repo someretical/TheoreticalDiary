@@ -32,7 +32,7 @@ public:
   ~AuthErrorWindow();
 
 public slots:
-  void action_close(bool b);
+  void action_close();
 
 private:
   Ui::AuthErrorWindow *ui;

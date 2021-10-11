@@ -34,15 +34,21 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   ui->options->hide();
 
-  QString version;
-  QString version_path(":/VERSION.txt");
-  QFile version_file(version_path);
+  QFile ss_file(":/styles/defaultwindow.qss");
+  ss_file.open(QIODevice::ReadOnly);
+  QString stylesheet = ss_file.readAll();
 
-  version = version_file.open(QIODevice::ReadOnly)
-                ? QString("Version ") + version_file.readAll()
-                : QString("Unknown version");
+  QFile ss_file_2(":/styles/mainwindow.qss");
+  ss_file_2.open(QIODevice::ReadOnly);
+  QString stylesheet2 = ss_file_2.readAll();
+
+  setStyleSheet(stylesheet + stylesheet2);
+
+  QFile version_file(":/text/VERSION.txt");
+  version_file.open(QIODevice::ReadOnly);
+  QString version = version_file.readAll();
   version_file.close();
-  ui->version->setText(version);
+  ui->version->setText("Version " + version);
 
   auto action = findChild<QAction *>("action_open");
   addAction(action);

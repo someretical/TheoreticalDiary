@@ -33,6 +33,7 @@ jobs:
           qmake theoretical-diary.pro CONFIG+=release
           nmake qmake_all
           nmake
+          nmake clean
 
       - name: Link DLLs
         run: windeployqt release/theoretical-diary.exe --compiler-runtime
