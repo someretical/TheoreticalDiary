@@ -17,6 +17,41 @@
 
 #include "diaryholder.h"
 
-DiaryHolder::DiaryHolder() {}
+#include <cryptlib.h>
+#include <json.hpp>
+#include <string>
+#include <vector>
 
-DiaryHolder::~DiaryHolder() {}
+DiaryHolder::DiaryHolder() {
+  diary = new nlohmann::json;
+  key = new std::vector<CryptoPP::byte>();
+}
+
+DiaryHolder::~DiaryHolder() {
+  delete diary;
+  delete key;
+}
+
+bool DiaryHolder::validate(nlohmann::json &json) {
+  try {
+    if (!json.at("years") || !json.at("settings") || !json.at("metadata"))
+      return false;
+
+    return true;
+  } catch (const nlohmann::json::exception &e) {
+    return false;
+  }
+}
+
+bool DiaryHolder::load(std::string &raw) {
+  auto json = nlohmann::json::parse(raw, nullptr, false);
+  if (json.is_discarded())
+    return false;
+
+  if (!DiaryHolder::validate(json))
+    return false;
+
+  diary->merge_patch(json);
+
+  return true;
+}

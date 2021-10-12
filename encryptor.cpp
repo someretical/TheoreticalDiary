@@ -17,16 +17,13 @@
 
 #include "encryptor.h"
 
-#include <QDebug>
 #include <aes.h>
 #include <cryptlib.h>
 #include <cstddef>
 #include <files.h>
 #include <filters.h>
 #include <gcm.h>
-#include <hex.h>
 #include <osrng.h>
-#include <secblock.h>
 #include <sha.h>
 #include <string>
 #include <vector>
@@ -111,8 +108,8 @@ bool Encryptor::decrypt(std::vector<CryptoPP::byte> &key,
     decryption_filter.ChannelMessageEnd("");
 
     // Test the authenticity of the data.
-    bool failure = decryption_filter.GetLastResult();
-    if (!failure)
+    bool success = decryption_filter.GetLastResult();
+    if (!success)
       return false;
 
     // Allocate enough space for the decrypted content.

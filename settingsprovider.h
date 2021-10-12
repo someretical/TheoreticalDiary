@@ -18,14 +18,19 @@
 #ifndef SETTINGSPROVIDER_H
 #define SETTINGSPROVIDER_H
 
-#include <QObject>
+#include <string>
 
-class SettingsProvider : public QObject {
-  Q_OBJECT
-
+class SettingsProvider {
 public:
   SettingsProvider();
   ~SettingsProvider();
+  void load();
+  void init();
+  bool save();
+
+  std::string *bak1_id;
+  std::string *bak2_id;
+  bool *sync_enabled;
 };
 
 #endif // SETTINGSPROVIDER_H

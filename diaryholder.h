@@ -18,14 +18,21 @@
 #ifndef DIARYHOLDER_H
 #define DIARYHOLDER_H
 
-#include <QObject>
+#include <cryptlib.h>
+#include <json.hpp>
+#include <string>
+#include <vector>
 
-class DiaryHolder : public QObject {
-  Q_OBJECT
-
+class DiaryHolder {
 public:
   DiaryHolder();
   ~DiaryHolder();
+  bool load(std::string &raw);
+
+  static bool validate(nlohmann::json &json);
+
+  nlohmann::json *diary;
+  std::vector<CryptoPP::byte> *key;
 };
 
 #endif // DIARYHOLDER_H

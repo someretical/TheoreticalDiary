@@ -41,5 +41,5 @@ jobs:
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: theoretical-diary-x64.zip
+          name: theoretical-diary-x64
           path: release

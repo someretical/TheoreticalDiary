@@ -23,7 +23,6 @@
 #include <QDesktopServices>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonParseError>
 #include <QStandardPaths>
 #include <QtNetwork>
 #include <QtNetworkAuth>
@@ -47,7 +46,7 @@ GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent) {
   // https://stackoverflow.com/a/63311694
   google->setModifyParametersFunction(
       [](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
-        if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
+        if (QAbstractOAuth::Stage::RequestingAccessToken == stage) {
           QByteArray code = parameters->value("code").toByteArray();
 
           (*parameters)["code"] = QUrl::fromPercentEncoding(code);
@@ -86,9 +85,7 @@ GoogleWrapper::~GoogleWrapper() { delete google; }
 
 void GoogleWrapper::token_changed() { emit sig_token_changed(); }
 
-void GoogleWrapper::authenticate() {
-  google->blockSignals(false);
-
+bool GoogleWrapper::load_credentials() {
   QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
              "/credentials.json");
 
@@ -104,27 +101,21 @@ void GoogleWrapper::authenticate() {
         google->setToken(tokens["access_token"].toString());
         google->setRefreshToken(tokens["refresh_token"].toString());
 
-        emit sig_auth_ok();
-        return;
+        return true;
       }
     }
   }
 
-  google->grant();
+  return false;
 }
 
-void GoogleWrapper::auth_ok() {
+bool GoogleWrapper::save_credentials() {
+  // Both tokens need to exist. Only having one is useless.
+  if (0 == google->token().size() || 0 == google->refreshToken().size())
+    return false;
+
   QJsonObject tokens;
   QJsonDocument doc;
-
-  QStringList scope_list = google->scope().split(" ");
-  QStringList required_list = {
-      "https://www.googleapis.com/auth/drive.appdata",
-      "https://www.googleapis.com/auth/userinfo.profile"};
-  std::sort(scope_list.begin(), scope_list.end());
-
-  if (scope_list != required_list)
-    return auth_err();
 
   tokens.insert("access_token", google->token());
   tokens.insert("refresh_token", google->refreshToken());
@@ -137,6 +128,33 @@ void GoogleWrapper::auth_ok() {
     file.write(doc.toJson());
     file.close();
 
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void GoogleWrapper::authenticate() {
+  google->blockSignals(false);
+
+  if (load_credentials()) {
+    emit sig_auth_ok();
+  } else {
+    google->grant();
+  }
+}
+
+void GoogleWrapper::auth_ok() {
+  QStringList scope_list = google->scope().split(" ");
+  QStringList required_list = {
+      "https://www.googleapis.com/auth/drive.appdata",
+      "https://www.googleapis.com/auth/userinfo.profile"};
+  std::sort(scope_list.begin(), scope_list.end());
+
+  if (scope_list != required_list)
+    return auth_err();
+
+  if (save_credentials()) {
     google->blockSignals(true);
     emit sig_auth_ok();
   } else {

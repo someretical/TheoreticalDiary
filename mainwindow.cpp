@@ -23,6 +23,7 @@
 #include "promptauth.h"
 #include "theoreticaldiary.h"
 #include "ui_mainwindow.h"
+#include "zipper.h"
 
 #include <QCloseEvent>
 #include <QStandardPaths>
@@ -132,7 +133,40 @@ void MainWindow::flush_credentials() {
   w.exec();
 }
 
-void MainWindow::dump_drive() {}
+void MainWindow::dump_drive() {
+  std::string path =
+      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+          .toStdString() +
+      "/test.dat";
+  std::string pwd = "abc12345";
+  std::string text = "a very secret message";
+
+  std::vector<CryptoPP::byte> pwd_hash;
+  std::string encrypted;
+  Encryptor::get_hash(pwd, pwd_hash);
+  Encryptor::encrypt(pwd_hash, text, encrypted);
+
+  if (Zipper::zip(path, encrypted)) {
+    qDebug() << "Written to file";
+    qDebug() << "Encrypted:" << QString::fromStdString(encrypted);
+
+    std::string uncompressed;
+    std::string decrypted;
+
+    if (Zipper::unzip(path, uncompressed)) {
+      qDebug() << "Encrypted:" << QString::fromStdString(uncompressed);
+
+      Encryptor::decrypt(pwd_hash, uncompressed, decrypted);
+
+      qDebug() << "Uncompressed and decrypted:"
+               << QString::fromStdString(decrypted);
+    } else {
+      qDebug() << "Failed to unzip";
+    }
+  } else {
+    qDebug() << "Failed to write to file";
+  }
+}
 
 void MainWindow::about_app() {
   AboutWindow w(this);
@@ -166,26 +200,8 @@ void MainWindow::quit_app() { close(); }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
   if (TheoreticalDiary::instance()->unsaved_changes) {
-    QJsonDocument doc;
-    QJsonObject tokens;
-
-    tokens.insert("access_token",
-                  TheoreticalDiary::instance()->gwrapper->google->token());
-    tokens.insert(
-        "refresh_token",
-        TheoreticalDiary::instance()->gwrapper->google->refreshToken());
-    doc.setObject(tokens);
-
-    QFile file(
-        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
-        "/credentials.json");
-
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-      file.write(doc.toJson());
-      file.close();
-
-      // If this fails, that's why the flush button is a thing :^)
-    }
+    TheoreticalDiary::instance()->gwrapper->save_credentials();
+    TheoreticalDiary::instance()->settings_provider->save();
   }
 
   event->accept();

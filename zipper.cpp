@@ -17,7 +17,36 @@
 
 #include "zipper.h"
 
-zipper::zipper()
-{
+#include <files.h>
+#include <gzip.h>
+#include <string>
 
+/**
+ * Gzip string to file
+ */
+bool Zipper::zip(std::string &path, std::string &uncompressed) {
+  try {
+    CryptoPP::Gzip zipper(new CryptoPP::FileSink(path.data(), true));
+    zipper.Put((CryptoPP::byte *)uncompressed.data(), uncompressed.size());
+    zipper.MessageEnd();
+
+    return true;
+  } catch (const CryptoPP::Exception &e) {
+    return false;
+  }
+}
+
+/**
+ * Gunzip file to string
+ */
+bool Zipper::unzip(const std::string &path, std::string &uncompressed) {
+  try {
+    CryptoPP::FileSource fs(
+        path.data(), true,
+        new CryptoPP::Gunzip(new CryptoPP::StringSink(uncompressed)));
+
+    return true;
+  } catch (const CryptoPP::Exception &e) {
+    return false;
+  }
 }

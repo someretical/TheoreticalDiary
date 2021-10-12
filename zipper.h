@@ -18,11 +18,12 @@
 #ifndef ZIPPER_H
 #define ZIPPER_H
 
+#include <string>
 
-class zipper
-{
+class Zipper {
 public:
-    zipper();
+  static bool zip(std::string &path, std::string &uncompressed);
+  static bool unzip(const std::string &path, std::string &uncompressed);
 };
 
 #endif // ZIPPER_H

@@ -10,7 +10,7 @@ Check back later?
 
 ### Windows
 
-The prebuilt binaries are available in `theoretical-diary-x64.zip` (check the result of the latest successful Github actions for `windows.yml`)
+The prebuilt binaries are available in `theoretical-diary-x64` (check the result of the latest successful Github actions for `windows.yml`)
 
 If you want to build by yourself, GLHF. I'm not bothered to go through all the instructions since it's so complicated setting everything up.
 

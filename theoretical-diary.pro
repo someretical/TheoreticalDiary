@@ -79,6 +79,7 @@ RESOURCES += \
     theoretical-diary.qrc
 
 DISTFILES += \
+    LICENSE \
     README.md \
     styles/defaultwindow.qss \
     styles/mainwindow.qss \
