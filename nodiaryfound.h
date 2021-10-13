@@ -15,31 +15,27 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GOOGLEWRAPPER_H
-#define GOOGLEWRAPPER_H
+#ifndef NODIARYFOUND_H
+#define NODIARYFOUND_H
 
-#include <QObject>
-#include <QtNetworkAuth>
+#include <QDialog>
 
-class GoogleWrapper : public QObject {
+namespace Ui {
+class NoDiaryFound;
+}
+
+class NoDiaryFound : public QDialog {
   Q_OBJECT
 
 public:
-  GoogleWrapper(QObject *parent = nullptr);
-  ~GoogleWrapper();
-  void authenticate();
-  bool save_credentials();
-  bool load_credentials();
-  void auth_err();
+  explicit NoDiaryFound(QWidget *parent = nullptr);
+  ~NoDiaryFound();
 
-signals:
-  void sig_oauth2_callback(const int code);
-  void sig_token_changed();
+public slots:
+  void action_close();
 
 private:
-  QOAuth2AuthorizationCodeFlow *google;
-  void token_changed();
-  void auth_ok();
+  Ui::NoDiaryFound *ui;
 };
 
-#endif // GOOGLEWRAPPER_H
+#endif // NODIARYFOUND_H

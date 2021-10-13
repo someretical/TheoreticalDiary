@@ -12,10 +12,8 @@ PromptAuth::PromptAuth(QWidget *parent)
   QString stylesheet = ss_file.readAll();
   setStyleSheet(stylesheet);
 
-  connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_auth_ok,
-          this, &PromptAuth::auto_close);
-  connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_auth_err,
-          this, &PromptAuth::auto_close);
+  connect(TheoreticalDiary::instance()->gwrapper,
+          &GoogleWrapper::sig_oauth2_callback, this, &PromptAuth::auto_close);
 
   auto action = findChild<QAction *>("action_close");
   addAction(action);
@@ -29,7 +27,7 @@ void PromptAuth::reject() {
   TheoreticalDiary::instance()->gwrapper->auth_err();
   /**
    * The window does not need to be closed here since
-   * auth_err() actually emits sig_auth_err
+   * auth_err() actually emits sig_oauth2_complete
    * which is connected to auto_close() below
    * meaning, this window is closed anyway
    */

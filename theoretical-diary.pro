@@ -36,44 +36,56 @@ SOURCES += \
     aboutwindow.cpp \
     autherrorwindow.cpp \
     diaryholder.cpp \
+    diarywindow.cpp \
     encryptor.cpp \
     flushwindow.cpp \
     googlewrapper.cpp \
     main.cpp \
     mainwindow.cpp \
+    nodiaryfound.cpp \
     promptauth.cpp \
+    promptpassword.cpp \
     runguard.cpp \
     settingsprovider.cpp \
     theoreticaldiary.cpp \
+    unknowndiaryformat.cpp \
     zipper.cpp
 
 HEADERS += \
     aboutwindow.h \
     autherrorwindow.h \
     diaryholder.h \
+    diarywindow.h \
     encryptor.h \
     flushwindow.h \
     googlewrapper.h \
     mainwindow.h \
+    nodiaryfound.h \
     promptauth.h \
+    promptpassword.h \
     runguard.h \
     settingsprovider.h \
     theoreticaldiary.h \
+    unknowndiaryformat.h \
     zipper.h
 
 FORMS += \
     aboutwindow.ui \
     autherrorwindow.ui \
+    diarywindow.ui \
     flushwindow.ui \
     mainwindow.ui \
-    promptauth.ui
+    nodiaryfound.ui \
+    promptauth.ui \
+    promptpassword.ui \
+    unknowndiaryformat.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-RC_ICONS = images/icon.ico
+win32:RC_ICONS = images/icon.ico
 
 RESOURCES += \
     theoretical-diary.qrc
@@ -83,6 +95,7 @@ DISTFILES += \
     README.md \
     styles/defaultwindow.qss \
     styles/mainwindow.qss \
+    styles/promptpassword.qss \
     text/CONTRIBUTORS.txt \
     text/LICENSES.txt \
     text/VERSION.txt \

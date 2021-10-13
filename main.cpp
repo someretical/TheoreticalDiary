@@ -37,11 +37,11 @@ int main(int argc, char **argv) {
   // Remove ? button in the title bar (only on Windows)
   QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
+  TheoreticalDiary a(argc, argv);
+
   QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
   if (!dir.exists())
     dir.mkpath(".");
-
-  TheoreticalDiary a(argc, argv);
 
   // Windows does not have Ubuntu by default
   QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Regular.ttf");

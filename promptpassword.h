@@ -15,31 +15,35 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GOOGLEWRAPPER_H
-#define GOOGLEWRAPPER_H
+#ifndef PROMPTPASSWORD_H
+#define PROMPTPASSWORD_H
 
-#include <QObject>
-#include <QtNetworkAuth>
+#include <QDialog>
+#include <string>
 
-class GoogleWrapper : public QObject {
+namespace Ui {
+class PromptPassword;
+}
+
+class PromptPassword : public QDialog {
   Q_OBJECT
 
-public:
-  GoogleWrapper(QObject *parent = nullptr);
-  ~GoogleWrapper();
-  void authenticate();
-  bool save_credentials();
-  bool load_credentials();
-  void auth_err();
-
 signals:
-  void sig_oauth2_callback(const int code);
-  void sig_token_changed();
+  void sig_complete(const int code);
+
+public:
+  explicit PromptPassword(const std::string &uncompressed,
+                          QWidget *parent = nullptr);
+  ~PromptPassword();
+
+public slots:
+  void decrypt();
+  void close_window();
+  void toggle_pwd();
 
 private:
-  QOAuth2AuthorizationCodeFlow *google;
-  void token_changed();
-  void auth_ok();
+  Ui::PromptPassword *ui;
+  std::string *to_be_decrypted;
 };
 
-#endif // GOOGLEWRAPPER_H
+#endif // PROMPTPASSWORD_H

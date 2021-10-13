@@ -32,7 +32,14 @@ DiaryHolder::~DiaryHolder() {
   delete key;
 }
 
-bool DiaryHolder::validate(nlohmann::json &json) {
+void DiaryHolder::set_key(const std::vector<CryptoPP::byte> k) {
+  key->clear();
+
+  for (auto b : k)
+    key->push_back(b);
+}
+
+bool DiaryHolder::validate(const nlohmann::json &json) {
   try {
     if (!json.at("years") || !json.at("settings") || !json.at("metadata"))
       return false;
@@ -51,6 +58,7 @@ bool DiaryHolder::load(std::string &raw) {
   if (!DiaryHolder::validate(json))
     return false;
 
+  diary->clear();
   diary->merge_patch(json);
 
   return true;

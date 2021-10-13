@@ -22,7 +22,7 @@
 
 class Zipper {
 public:
-  static bool zip(std::string &path, std::string &uncompressed);
+  static bool zip(const std::string &path, std::string &uncompressed);
   static bool unzip(const std::string &path, std::string &uncompressed);
 };
 

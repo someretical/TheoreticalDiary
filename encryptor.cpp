@@ -37,7 +37,7 @@
  * Calculate a 256 bit hash using SHA256 to represent the password
  * 256 bits is needed because AES-GCM requires a 32 byte key
  */
-void Encryptor::get_hash(std::string &password,
+void Encryptor::get_hash(const std::string &password,
                          std::vector<CryptoPP::byte> &output) {
   CryptoPP::byte digest[CryptoPP::SHA256::DIGESTSIZE];
 
@@ -52,8 +52,8 @@ void Encryptor::get_hash(std::string &password,
 /**
  * Encrypts a string.
  */
-void Encryptor::encrypt(std::vector<CryptoPP::byte> &key,
-                        std::string &decrypted, std::string &encrypted) {
+void Encryptor::encrypt(const std::vector<CryptoPP::byte> &key,
+                        const std::string &decrypted, std::string &encrypted) {
   // Cryptographically secure source of entropy.
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(12);
@@ -77,7 +77,7 @@ void Encryptor::encrypt(std::vector<CryptoPP::byte> &key,
   encrypted.insert(0, token);
 }
 
-bool Encryptor::decrypt(std::vector<CryptoPP::byte> &key,
+bool Encryptor::decrypt(const std::vector<CryptoPP::byte> &key,
                         std::string &encrypted, std::string &decrypted) {
   try {
     // Retrive IV from encrypted message

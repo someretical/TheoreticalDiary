@@ -24,7 +24,7 @@
 /**
  * Gzip string to file
  */
-bool Zipper::zip(std::string &path, std::string &uncompressed) {
+bool Zipper::zip(const std::string &path, std::string &uncompressed) {
   try {
     CryptoPP::Gzip zipper(new CryptoPP::FileSink(path.data(), true));
     zipper.Put((CryptoPP::byte *)uncompressed.data(), uncompressed.size());

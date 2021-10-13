@@ -15,31 +15,27 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GOOGLEWRAPPER_H
-#define GOOGLEWRAPPER_H
+#ifndef UNKNOWNDIARYFORMAT_H
+#define UNKNOWNDIARYFORMAT_H
 
-#include <QObject>
-#include <QtNetworkAuth>
+#include <QDialog>
 
-class GoogleWrapper : public QObject {
+namespace Ui {
+class UnknownDiaryFormat;
+}
+
+class UnknownDiaryFormat : public QDialog {
   Q_OBJECT
 
 public:
-  GoogleWrapper(QObject *parent = nullptr);
-  ~GoogleWrapper();
-  void authenticate();
-  bool save_credentials();
-  bool load_credentials();
-  void auth_err();
+  explicit UnknownDiaryFormat(QWidget *parent = nullptr);
+  ~UnknownDiaryFormat();
 
-signals:
-  void sig_oauth2_callback(const int code);
-  void sig_token_changed();
+public slots:
+  void action_close();
 
 private:
-  QOAuth2AuthorizationCodeFlow *google;
-  void token_changed();
-  void auth_ok();
+  Ui::UnknownDiaryFormat *ui;
 };
 
-#endif // GOOGLEWRAPPER_H
+#endif // UNKNOWNDIARYFORMAT_H

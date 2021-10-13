@@ -42,6 +42,7 @@ private:
 
 public slots:
   void open_diary();
+  void prompt_pwd_callback(const int code);
   void new_diary();
   void dl_diary();
   void import_diary();
@@ -49,8 +50,7 @@ public slots:
   void dump_drive();
   void about_app();
   void toggle_advanced_options();
-  void show_auth_err();
-  void _auth_ok();
+  void oauth2_callback(const int code);
   void quit_app();
 };
 #endif // MAINWINDOW_H

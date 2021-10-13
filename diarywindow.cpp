@@ -15,31 +15,12 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GOOGLEWRAPPER_H
-#define GOOGLEWRAPPER_H
+#include "diarywindow.h"
+#include "ui_diarywindow.h"
 
-#include <QObject>
-#include <QtNetworkAuth>
+DiaryWindow::DiaryWindow(QWidget *parent)
+    : QWidget(parent), ui(new Ui::DiaryWindow) {
+  ui->setupUi(this);
+}
 
-class GoogleWrapper : public QObject {
-  Q_OBJECT
-
-public:
-  GoogleWrapper(QObject *parent = nullptr);
-  ~GoogleWrapper();
-  void authenticate();
-  bool save_credentials();
-  bool load_credentials();
-  void auth_err();
-
-signals:
-  void sig_oauth2_callback(const int code);
-  void sig_token_changed();
-
-private:
-  QOAuth2AuthorizationCodeFlow *google;
-  void token_changed();
-  void auth_ok();
-};
-
-#endif // GOOGLEWRAPPER_H
+DiaryWindow::~DiaryWindow() { delete ui; }

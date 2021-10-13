@@ -15,31 +15,27 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GOOGLEWRAPPER_H
-#define GOOGLEWRAPPER_H
+#include "unknowndiaryformat.h"
+#include "ui_unknowndiaryformat.h"
 
-#include <QObject>
-#include <QtNetworkAuth>
+#include <QFile>
 
-class GoogleWrapper : public QObject {
-  Q_OBJECT
+UnknownDiaryFormat::UnknownDiaryFormat(QWidget *parent)
+    : QDialog(parent), ui(new Ui::UnknownDiaryFormat) {
+  ui->setupUi(this);
 
-public:
-  GoogleWrapper(QObject *parent = nullptr);
-  ~GoogleWrapper();
-  void authenticate();
-  bool save_credentials();
-  bool load_credentials();
-  void auth_err();
+  QFile ss_file(":/styles/defaultwindow.qss");
+  ss_file.open(QIODevice::ReadOnly);
+  QString stylesheet = ss_file.readAll();
+  setStyleSheet(stylesheet);
 
-signals:
-  void sig_oauth2_callback(const int code);
-  void sig_token_changed();
+  // Setup close action
+  auto action = findChild<QAction *>("action_close");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &UnknownDiaryFormat::action_close,
+          Qt::QueuedConnection);
+}
 
-private:
-  QOAuth2AuthorizationCodeFlow *google;
-  void token_changed();
-  void auth_ok();
-};
+UnknownDiaryFormat::~UnknownDiaryFormat() { delete ui; }
 
-#endif // GOOGLEWRAPPER_H
+void UnknownDiaryFormat::action_close() { accept(); }

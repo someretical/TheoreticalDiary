@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AuthErrorWindow</class>
- <widget class="QDialog" name="AuthErrorWindow">
+ <class>NoDiaryFound</class>
+ <widget class="QDialog" name="NoDiaryFound">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>160</height>
+    <width>400</width>
+    <height>150</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -16,23 +16,8 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>0</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>450</width>
-    <height>230</height>
-   </size>
-  </property>
-  <property name="acceptDrops">
-   <bool>false</bool>
-  </property>
   <property name="windowTitle">
-   <string>Authentication error</string>
+   <string>No diary found</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -44,35 +29,13 @@
    <property name="topMargin">
     <number>15</number>
    </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
    <property name="bottomMargin">
     <number>15</number>
    </property>
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-    <widget class="QLabel" name="text">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>420</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>420</width>
-       <height>70</height>
-      </size>
-     </property>
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>The application was unable to connect to Google Drive.
-Please make sure all required OAuth2 scopes have been granted and the corresponding files exist on Google Drive.</string>
+      <string>No existing diary was found. please create a new diary or import/download an existing one.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -125,8 +88,8 @@ Please make sure all required OAuth2 scopes have been granted and the correspond
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>165</y>
+     <x>194</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

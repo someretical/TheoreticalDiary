@@ -25,12 +25,12 @@
 
 class Encryptor {
 public:
-  static void get_hash(std::string &password,
+  static void get_hash(const std::string &password,
                        std::vector<CryptoPP::byte> &output);
-  static void encrypt(std::vector<CryptoPP::byte> &key, std::string &decrypted,
-                      std::string &encrypted);
-  static bool decrypt(std::vector<CryptoPP::byte> &key, std::string &encrypted,
-                      std::string &decrypted);
+  static void encrypt(const std::vector<CryptoPP::byte> &key,
+                      const std::string &decrypted, std::string &encrypted);
+  static bool decrypt(const std::vector<CryptoPP::byte> &key,
+                      std::string &encrypted, std::string &decrypted);
 };
 
 #endif // ENCRYPTOR_H

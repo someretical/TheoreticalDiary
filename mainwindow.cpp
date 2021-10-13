@@ -18,15 +18,21 @@
 #include "mainwindow.h"
 #include "aboutwindow.h"
 #include "autherrorwindow.h"
+#include "diarywindow.h"
 #include "encryptor.h"
 #include "flushwindow.h"
+#include "nodiaryfound.h"
 #include "promptauth.h"
+#include "promptpassword.h"
 #include "theoreticaldiary.h"
 #include "ui_mainwindow.h"
+#include "unknowndiaryformat.h"
 #include "zipper.h"
 
 #include <QCloseEvent>
 #include <QStandardPaths>
+#include <fstream>
+#include <string>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -92,15 +98,60 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() { delete ui; }
 
-void MainWindow::open_diary() {}
+void MainWindow::open_diary() {
+  std::string uncompressed;
+
+  auto success = Zipper::unzip(
+      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+              .toStdString() +
+          "/diary.dat",
+      uncompressed);
+
+  if (!success) {
+    auto fallback = Zipper::unzip(
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+                .toStdString() +
+            "/diary.dat.bak",
+        uncompressed);
+
+    if (!fallback) {
+      NoDiaryFound *w = new NoDiaryFound(this);
+      w->setModal(true);
+      w->setAttribute(Qt::WA_DeleteOnClose, true);
+      w->show();
+      return;
+    }
+  }
+
+  success = TheoreticalDiary::instance()->diary_holder->load(uncompressed);
+
+  if (success) {
+    DiaryWindow w(this);
+    w.show();
+  } else {
+    PromptPassword w(uncompressed, this);
+    w.exec();
+  }
+}
+
+void MainWindow::prompt_pwd_callback(const int code) {
+  if (code) {
+    UnknownDiaryFormat *w = new UnknownDiaryFormat(this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
+  } else {
+    DiaryWindow w(this);
+    w.show();
+  }
+}
 
 void MainWindow::new_diary() {}
 
 void MainWindow::dl_diary() {
-  connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_auth_err,
-          this, &MainWindow::show_auth_err);
-  connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_auth_ok,
-          this, &MainWindow::_auth_ok);
+  connect(TheoreticalDiary::instance()->gwrapper,
+          &GoogleWrapper::sig_oauth2_callback, this,
+          &MainWindow::oauth2_callback);
 
   /**
    * window.exec blocks any code AFTER it from executing.
@@ -180,20 +231,19 @@ void MainWindow::toggle_advanced_options() {
     ui->options->show();
 }
 
-void MainWindow::show_auth_err() {
+void MainWindow::oauth2_callback(const int code) {
   disconnect(TheoreticalDiary::instance()->gwrapper,
-             &GoogleWrapper::sig_auth_err, this, &MainWindow::show_auth_err);
+             &GoogleWrapper::sig_oauth2_callback, this,
+             &MainWindow::oauth2_callback);
 
-  AuthErrorWindow *w = new AuthErrorWindow(this);
-  w->setModal(true);
-  w->setAttribute(Qt::WA_DeleteOnClose, true);
-  w->show();
-}
-
-void MainWindow::_auth_ok() {
-  qDebug() << "Auth successful";
-  disconnect(TheoreticalDiary::instance()->gwrapper,
-             &GoogleWrapper::sig_auth_ok, this, &MainWindow::_auth_ok);
+  if (code) {
+    AuthErrorWindow *w = new AuthErrorWindow(this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
+  } else {
+    qDebug() << "Auth successful";
+  }
 }
 
 void MainWindow::quit_app() { close(); }
