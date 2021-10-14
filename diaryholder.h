@@ -28,9 +28,10 @@ public:
   DiaryHolder();
   ~DiaryHolder();
   bool load(std::string &raw);
+  void init();
+  void set_key(const std::vector<CryptoPP::byte> k);
 
   static bool validate(const nlohmann::json &json);
-  void set_key(const std::vector<CryptoPP::byte> k);
 
   nlohmann::json *diary;
   std::vector<CryptoPP::byte> *key;

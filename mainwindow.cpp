@@ -18,6 +18,7 @@
 #include "mainwindow.h"
 #include "aboutwindow.h"
 #include "autherrorwindow.h"
+#include "confirmoverwrite.h"
 #include "diarywindow.h"
 #include "encryptor.h"
 #include "flushwindow.h"
@@ -30,9 +31,12 @@
 #include "zipper.h"
 
 #include <QCloseEvent>
+#include <QDir>
+#include <QFileDialog>
 #include <QStandardPaths>
 #include <fstream>
 #include <string>
+#include <sys/stat.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -146,7 +150,41 @@ void MainWindow::prompt_pwd_callback(const int code) {
   }
 }
 
-void MainWindow::new_diary() {}
+void MainWindow::create_new_diary() {
+  TheoreticalDiary::instance()->diary_holder->init();
+  TheoreticalDiary::instance()->changes_made();
+
+  DiaryWindow *w = new DiaryWindow(this);
+  w->setModal(true);
+  w->setAttribute(Qt::WA_DeleteOnClose, true);
+  w->show();
+}
+
+void MainWindow::confirm_overwrite_callback(const int code) {
+  if (code == 0) {
+    create_new_diary();
+  }
+}
+
+void MainWindow::new_diary() {
+  // Check if file exists https://stackoverflow.com/a/6296808
+  struct stat buf;
+  std::string path =
+      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+          .toStdString() +
+      "/diary.dat";
+
+  if (stat(path.c_str(), &buf) == 0) {
+    ConfirmOverwrite *w =
+        new ConfirmOverwrite(&MainWindow::confirm_overwrite_callback, this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
+    return;
+  }
+
+  create_new_diary();
+}
 
 void MainWindow::dl_diary() {
   connect(TheoreticalDiary::instance()->gwrapper,
@@ -173,7 +211,66 @@ void MainWindow::dl_diary() {
   TheoreticalDiary::instance()->gwrapper->authenticate();
 }
 
-void MainWindow::import_diary() {}
+void MainWindow::real_import_diary() {
+  auto filename = QFileDialog::getOpenFileName(
+      this, "Import diary", QDir::homePath(), "JSON file (*.json)", nullptr,
+      QFileDialog::DontUseNativeDialog);
+
+  if (filename.size() == 0)
+    return;
+
+  std::ifstream ifs(filename.toStdString());
+
+  if (ifs.fail()) {
+    // TODO maybe replace with a 'missing permissions' dialog
+    UnknownDiaryFormat *w = new UnknownDiaryFormat(this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
+    return;
+  }
+
+  std::string content((std::istreambuf_iterator<char>(ifs)),
+                      (std::istreambuf_iterator<char>()));
+  auto success = TheoreticalDiary::instance()->diary_holder->load(content);
+
+  if (success) {
+    DiaryWindow w(this);
+    w.show();
+  } else {
+    // same todo as above
+    UnknownDiaryFormat *w = new UnknownDiaryFormat(this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
+    return;
+  }
+}
+
+void MainWindow::import_diary_callback(const int code) {
+  if (code == 0) {
+    real_import_diary();
+  }
+}
+
+void MainWindow::import_diary() {
+  struct stat buf;
+  std::string path =
+      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+          .toStdString() +
+      "/diary.dat";
+
+  if (stat(path.c_str(), &buf) == 0) {
+    ConfirmOverwrite *w =
+        new ConfirmOverwrite(&MainWindow::import_diary_callback, this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
+    return;
+  }
+
+  create_new_diary();
+}
 
 void MainWindow::flush_credentials() {
   QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
@@ -225,10 +322,11 @@ void MainWindow::about_app() {
 }
 
 void MainWindow::toggle_advanced_options() {
-  if (ui->options->isVisible())
+  if (ui->options->isVisible()) {
     ui->options->hide();
-  else
+  } else {
     ui->options->show();
+  }
 }
 
 void MainWindow::oauth2_callback(const int code) {

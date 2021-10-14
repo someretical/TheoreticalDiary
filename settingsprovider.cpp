@@ -18,7 +18,6 @@
 #include "settingsprovider.h"
 #include "theoreticaldiary.h"
 
-#include <QDebug>
 #include <QStandardPaths>
 #include <fstream>
 #include <json.hpp>

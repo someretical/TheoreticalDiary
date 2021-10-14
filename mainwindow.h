@@ -36,13 +36,13 @@ public:
   MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
   void closeEvent(QCloseEvent *event);
+  void create_new_diary();
 
 private:
   Ui::MainWindow *ui;
 
 public slots:
   void open_diary();
-  void prompt_pwd_callback(const int code);
   void new_diary();
   void dl_diary();
   void import_diary();
@@ -50,7 +50,12 @@ public slots:
   void dump_drive();
   void about_app();
   void toggle_advanced_options();
-  void oauth2_callback(const int code);
   void quit_app();
+  void real_import_diary();
+
+  void prompt_pwd_callback(const int code);
+  void confirm_overwrite_callback(const int code);
+  void import_diary_callback(const int code);
+  void oauth2_callback(const int code);
 };
 #endif // MAINWINDOW_H

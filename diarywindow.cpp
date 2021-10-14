@@ -19,7 +19,7 @@
 #include "ui_diarywindow.h"
 
 DiaryWindow::DiaryWindow(QWidget *parent)
-    : QWidget(parent), ui(new Ui::DiaryWindow) {
+    : QDialog(parent), ui(new Ui::DiaryWindow) {
   ui->setupUi(this);
 }
 

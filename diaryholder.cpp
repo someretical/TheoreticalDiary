@@ -18,6 +18,7 @@
 #include "diaryholder.h"
 
 #include <cryptlib.h>
+#include <ctime>
 #include <json.hpp>
 #include <string>
 #include <vector>
@@ -30,6 +31,15 @@ DiaryHolder::DiaryHolder() {
 DiaryHolder::~DiaryHolder() {
   delete diary;
   delete key;
+}
+
+void DiaryHolder::init() {
+  diary->clear();
+
+  (*diary)["years"] = nlohmann::json::array();
+  (*diary)["settings"] = nlohmann::json::object();
+  (*diary)["metadata"] = nlohmann::json::object(
+      {{"version", 1}, {"last_updated", std::time(nullptr)}});
 }
 
 void DiaryHolder::set_key(const std::vector<CryptoPP::byte> k) {

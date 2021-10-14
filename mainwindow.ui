@@ -29,8 +29,7 @@
    </size>
   </property>
   <property name="font">
-   <font>
-   </font>
+   <font/>
   </property>
   <property name="windowTitle">
    <string>Theoretical Diary</string>
@@ -53,7 +52,7 @@
      <number>10</number>
     </property>
     <property name="rightMargin">
-     <number>10</number>
+     <number>0</number>
     </property>
     <property name="bottomMargin">
      <number>10</number>
@@ -106,7 +105,7 @@
           </property>
           <property name="font">
            <font>
-            <pointsize>25</pointsize>
+            <pointsize>26</pointsize>
            </font>
           </property>
           <property name="text">
@@ -211,7 +210,7 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
+               <y>-100</y>
                <width>214</width>
                <height>487</height>
               </rect>
@@ -251,7 +250,7 @@
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>15</pointsize>
+                  <pointsize>16</pointsize>
                  </font>
                 </property>
                 <property name="toolTip">
@@ -281,7 +280,7 @@
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>15</pointsize>
+                  <pointsize>16</pointsize>
                  </font>
                 </property>
                 <property name="toolTip">
@@ -311,7 +310,7 @@
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>15</pointsize>
+                  <pointsize>16</pointsize>
                  </font>
                 </property>
                 <property name="toolTip">
@@ -341,7 +340,7 @@
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>15</pointsize>
+                  <pointsize>16</pointsize>
                  </font>
                 </property>
                 <property name="toolTip">
@@ -371,7 +370,7 @@
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>15</pointsize>
+                  <pointsize>16</pointsize>
                  </font>
                 </property>
                 <property name="toolTip">
@@ -454,7 +453,7 @@ background-color: #99aab5;</string>
                    </property>
                    <property name="font">
                     <font>
-                     <pointsize>15</pointsize>
+                     <pointsize>16</pointsize>
                     </font>
                    </property>
                    <property name="toolTip">
@@ -484,7 +483,7 @@ background-color: #99aab5;</string>
                    </property>
                    <property name="font">
                     <font>
-                     <pointsize>15</pointsize>
+                     <pointsize>16</pointsize>
                     </font>
                    </property>
                    <property name="toolTip">
@@ -514,7 +513,7 @@ background-color: #99aab5;</string>
                    </property>
                    <property name="font">
                     <font>
-                     <pointsize>15</pointsize>
+                     <pointsize>16</pointsize>
                     </font>
                    </property>
                    <property name="toolTip">
@@ -585,7 +584,7 @@ background-color: #99aab5;</string>
           </property>
           <property name="font">
            <font>
-            <pointsize>15</pointsize>
+            <pointsize>16</pointsize>
            </font>
           </property>
           <property name="toolTip">

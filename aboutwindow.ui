@@ -62,7 +62,7 @@
     <widget class="QLabel" name="version_label">
      <property name="font">
       <font>
-       <pointsize>15</pointsize>
+       <pointsize>16</pointsize>
       </font>
      </property>
      <property name="text">
@@ -81,7 +81,7 @@
     <widget class="QLabel" name="contributors_label">
      <property name="font">
       <font>
-       <pointsize>15</pointsize>
+       <pointsize>16</pointsize>
       </font>
      </property>
      <property name="text">
@@ -121,7 +121,7 @@
     <widget class="QLabel" name="licenses_label">
      <property name="font">
       <font>
-       <pointsize>15</pointsize>
+       <pointsize>16</pointsize>
       </font>
      </property>
      <property name="text">
@@ -189,7 +189,7 @@
      </property>
      <property name="font">
       <font>
-       <pointsize>15</pointsize>
+       <pointsize>16</pointsize>
       </font>
      </property>
      <property name="text">

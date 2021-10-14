@@ -18,13 +18,13 @@
 #ifndef DIARYWINDOW_H
 #define DIARYWINDOW_H
 
-#include <QWidget>
+#include <QDialog>
 
 namespace Ui {
 class DiaryWindow;
 }
 
-class DiaryWindow : public QWidget {
+class DiaryWindow : public QDialog {
   Q_OBJECT
 
 public:
