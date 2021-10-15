@@ -44,12 +44,16 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     nodiaryfound.cpp \
+    placeholder.cpp \
     promptauth.cpp \
     promptpassword.cpp \
     runguard.cpp \
+    saveerror.cpp \
     settingsprovider.cpp \
     theoreticaldiary.cpp \
     unknowndiaryformat.cpp \
+    unsavedchanges.cpp \
+    updatepassword.cpp \
     zipper.cpp
 
 HEADERS += \
@@ -63,12 +67,16 @@ HEADERS += \
     googlewrapper.h \
     mainwindow.h \
     nodiaryfound.h \
+    placeholder.h \
     promptauth.h \
     promptpassword.h \
     runguard.h \
+    saveerror.h \
     settingsprovider.h \
     theoreticaldiary.h \
     unknowndiaryformat.h \
+    unsavedchanges.h \
+    updatepassword.h \
     zipper.h
 
 FORMS += \
@@ -79,9 +87,13 @@ FORMS += \
     flushwindow.ui \
     mainwindow.ui \
     nodiaryfound.ui \
+    placeholder.ui \
     promptauth.ui \
     promptpassword.ui \
-    unknowndiaryformat.ui
+    saveerror.ui \
+    unknowndiaryformat.ui \
+    unsavedchanges.ui \
+    updatepassword.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -99,6 +111,7 @@ DISTFILES += \
     styles/defaultwindow.qss \
     styles/mainwindow.qss \
     styles/promptpassword.qss \
+    styles/updatepassword.qss \
     text/CONTRIBUTORS.txt \
     text/LICENSES.txt \
     text/VERSION.txt \

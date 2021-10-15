@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ConfirmOverwriteBase</class>
- <widget class="QDialog" name="ConfirmOverwriteBase">
+ <class>UnsavedChangesBase</class>
+ <widget class="QDialog" name="UnsavedChangesBase">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Confirm overwrite</string>
+   <string>Unsaved changes</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -38,16 +38,7 @@
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>A diary already exists. Are you sure you want to overwrite it?</string>
-     </property>
-     <property name="scaledContents">
-      <bool>false</bool>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+      <string>Are you sure you want to quit without saving?</string>
      </property>
     </widget>
    </item>
@@ -133,10 +124,6 @@
    </property>
   </action>
  </widget>
- <tabstops>
-  <tabstop>no_button</tabstop>
-  <tabstop>yes_button</tabstop>
- </tabstops>
  <resources/>
  <connections>
   <connection>

@@ -15,31 +15,25 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYWINDOW_H
-#define DIARYWINDOW_H
+#include "saveerror.h"
+#include "ui_saveerror.h"
 
-#include <QDialog>
+#include <QAction>
+#include <QFile>
 
-namespace Ui {
-class DiaryWindow;
+SaveError::SaveError(QWidget *parent) : QDialog(parent), ui(new Ui::SaveError) {
+  ui->setupUi(this);
+
+  QFile ss_file(":/styles/defaultwindow.qss");
+  ss_file.open(QIODevice::ReadOnly);
+  QString stylesheet = ss_file.readAll();
+  setStyleSheet(stylesheet);
+
+  auto action = findChild<QAction *>("action_close");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &SaveError::action_close);
 }
 
-class DiaryWindow : public QDialog {
-  Q_OBJECT
+SaveError::~SaveError() { delete ui; }
 
-public:
-  explicit DiaryWindow(QWidget *parent = nullptr);
-  ~DiaryWindow();
-
-public slots:
-  void reject();
-  void action_save();
-  void update_password();
-
-  void confirm_close_callback(const int code);
-
-private:
-  Ui::DiaryWindow *ui;
-};
-
-#endif // DIARYWINDOW_H
+void SaveError::action_close() { accept(); }

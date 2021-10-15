@@ -15,31 +15,28 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYWINDOW_H
-#define DIARYWINDOW_H
+#ifndef UPDATEPASSWORD_H
+#define UPDATEPASSWORD_H
 
 #include <QDialog>
 
 namespace Ui {
-class DiaryWindow;
+class UpdatePassword;
 }
 
-class DiaryWindow : public QDialog {
+class UpdatePassword : public QDialog {
   Q_OBJECT
-
 public:
-  explicit DiaryWindow(QWidget *parent = nullptr);
-  ~DiaryWindow();
+  explicit UpdatePassword(QWidget *parent = nullptr);
+  ~UpdatePassword();
 
 public slots:
-  void reject();
-  void action_save();
-  void update_password();
-
-  void confirm_close_callback(const int code);
+  void toggle_password();
+  void action_close();
+  void attempt_change();
 
 private:
-  Ui::DiaryWindow *ui;
+  Ui::UpdatePassword *ui;
 };
 
-#endif // DIARYWINDOW_H
+#endif // UPDATEPASSWORD_H

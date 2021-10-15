@@ -16,5 +16,6 @@
         <file>styles/defaultwindow.qss</file>
         <file>styles/mainwindow.qss</file>
         <file>styles/promptpassword.qss</file>
+        <file>styles/updatepassword.qss</file>
     </qresource>
 </RCC>

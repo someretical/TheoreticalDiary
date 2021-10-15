@@ -15,31 +15,27 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYWINDOW_H
-#define DIARYWINDOW_H
+#ifndef SAVEERROR_H
+#define SAVEERROR_H
 
 #include <QDialog>
 
 namespace Ui {
-class DiaryWindow;
+class SaveError;
 }
 
-class DiaryWindow : public QDialog {
+class SaveError : public QDialog {
   Q_OBJECT
 
 public:
-  explicit DiaryWindow(QWidget *parent = nullptr);
-  ~DiaryWindow();
+  explicit SaveError(QWidget *parent = nullptr);
+  ~SaveError();
 
 public slots:
-  void reject();
-  void action_save();
-  void update_password();
-
-  void confirm_close_callback(const int code);
+  void action_close();
 
 private:
-  Ui::DiaryWindow *ui;
+  Ui::SaveError *ui;
 };
 
-#endif // DIARYWINDOW_H
+#endif // SAVEERROR_H

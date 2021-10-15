@@ -15,14 +15,14 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "confirmoverwrite.h"
-#include "mainwindow.h"
-#include "ui_confirmoverwrite.h"
+#include "unsavedchanges.h"
+#include "ui_unsavedchanges.h"
 
+#include <QAction>
 #include <QFile>
 
-ConfirmOverwriteBase::ConfirmOverwriteBase(QWidget *parent)
-    : QDialog(parent), ui(new Ui::ConfirmOverwriteBase) {
+UnsavedChangesBase::UnsavedChangesBase(QWidget *parent)
+    : QDialog(parent), ui(new Ui::UnsavedChangesBase) {
   ui->setupUi(this);
 
   QFile ss_file(":/styles/defaultwindow.qss");
@@ -32,23 +32,23 @@ ConfirmOverwriteBase::ConfirmOverwriteBase(QWidget *parent)
 
   auto action = findChild<QAction *>("action_no");
   addAction(action);
-  connect(action, &QAction::triggered, this, &ConfirmOverwriteBase::action_no,
+  connect(action, &QAction::triggered, this, &UnsavedChangesBase::action_no,
           Qt::QueuedConnection);
 
   action = findChild<QAction *>("action_yes");
   addAction(action);
-  connect(action, &QAction::triggered, this, &ConfirmOverwriteBase::action_yes,
+  connect(action, &QAction::triggered, this, &UnsavedChangesBase::action_yes,
           Qt::QueuedConnection);
 }
 
-ConfirmOverwriteBase::~ConfirmOverwriteBase() { delete ui; }
+UnsavedChangesBase::~UnsavedChangesBase() { delete ui; }
 
-void ConfirmOverwriteBase::action_no() {
+void UnsavedChangesBase::action_no() {
   emit sig_complete(1);
   accept();
 }
 
-void ConfirmOverwriteBase::action_yes() {
+void UnsavedChangesBase::action_yes() {
   emit sig_complete(0);
   accept();
 }

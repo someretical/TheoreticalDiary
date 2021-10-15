@@ -15,31 +15,24 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYWINDOW_H
-#define DIARYWINDOW_H
+#ifndef PLACEHOLDER_H
+#define PLACEHOLDER_H
 
 #include <QDialog>
 
 namespace Ui {
-class DiaryWindow;
+class Placeholder;
 }
 
-class DiaryWindow : public QDialog {
+class Placeholder : public QDialog {
   Q_OBJECT
 
 public:
-  explicit DiaryWindow(QWidget *parent = nullptr);
-  ~DiaryWindow();
-
-public slots:
-  void reject();
-  void action_save();
-  void update_password();
-
-  void confirm_close_callback(const int code);
+  explicit Placeholder(QWidget *parent = nullptr);
+  ~Placeholder();
 
 private:
-  Ui::DiaryWindow *ui;
+  Ui::Placeholder *ui;
 };
 
-#endif // DIARYWINDOW_H
+#endif // PLACEHOLDER_H

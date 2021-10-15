@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AuthErrorWindow</class>
- <widget class="QDialog" name="AuthErrorWindow">
+ <class>SaveError</class>
+ <widget class="QDialog" name="SaveError">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
+    <width>400</width>
     <height>175</height>
    </rect>
   </property>
@@ -16,23 +16,8 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>0</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>450</width>
-    <height>230</height>
-   </size>
-  </property>
-  <property name="acceptDrops">
-   <bool>false</bool>
-  </property>
   <property name="windowTitle">
-   <string>Authentication error</string>
+   <string>Save error</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -51,28 +36,9 @@
     <number>15</number>
    </property>
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-    <widget class="QLabel" name="text">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>420</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>420</width>
-       <height>70</height>
-      </size>
-     </property>
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>The application was unable to connect to Google Drive.
-Please make sure all required OAuth2 scopes have been granted and the corresponding files exist on Google Drive.</string>
+      <string>The diary was unable to be saved. Please ensure the app is able to read and write from %APPDATA%/theoretical-diary</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -84,12 +50,6 @@ Please make sure all required OAuth2 scopes have been granted and the correspond
    </item>
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
     <widget class="QPushButton" name="ok_button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
      <property name="minimumSize">
       <size>
        <width>200</width>
@@ -126,7 +86,7 @@ Please make sure all required OAuth2 scopes have been granted and the correspond
    <hints>
     <hint type="sourcelabel">
      <x>199</x>
-     <y>165</y>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

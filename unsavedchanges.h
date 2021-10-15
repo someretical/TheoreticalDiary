@@ -15,31 +15,41 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYWINDOW_H
-#define DIARYWINDOW_H
+#ifndef UNSAVEDCHANGESBASE_H
+#define UNSAVEDCHANGESBASE_H
 
 #include <QDialog>
 
 namespace Ui {
-class DiaryWindow;
+class UnsavedChangesBase;
 }
 
-class DiaryWindow : public QDialog {
+class UnsavedChangesBase : public QDialog {
   Q_OBJECT
 
+signals:
+  void sig_complete(const int code);
+
 public:
-  explicit DiaryWindow(QWidget *parent = nullptr);
-  ~DiaryWindow();
+  explicit UnsavedChangesBase(QWidget *parent = nullptr);
+  ~UnsavedChangesBase();
 
 public slots:
-  void reject();
-  void action_save();
-  void update_password();
-
-  void confirm_close_callback(const int code);
+  void action_no();
+  void action_yes();
 
 private:
-  Ui::DiaryWindow *ui;
+  Ui::UnsavedChangesBase *ui;
 };
 
-#endif // DIARYWINDOW_H
+template <class C> class UnsavedChanges : public UnsavedChangesBase {
+public:
+  UnsavedChanges(void (C::*slot)(const int), QWidget *parent)
+      : UnsavedChangesBase(parent) {
+    connect(this, &UnsavedChanges::sig_complete, qobject_cast<C *>(parent),
+            slot);
+  }
+  ~UnsavedChanges() {}
+};
+
+#endif // UNSAVEDCHANGESBASE_H

@@ -1,35 +1,61 @@
-#ifndef CONFIRMOVERWRITE_H
-#define CONFIRMOVERWRITE_H
+/**
+ * This file is part of theoretical-diary.
+ *
+ * theoretical-diary is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * theoretical-diary is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-#include "mainwindow.h"
+#ifndef CONFIRMOVERWRITEBASE_H
+#define CONFIRMOVERWRITEBASE_H
 
 #include <QDialog>
+#include <QObject>
 
 namespace Ui {
-class ConfirmOverwrite;
+class ConfirmOverwriteBase;
 }
 
-class ConfirmOverwrite : public QDialog {
+class ConfirmOverwriteBase : public QDialog {
   Q_OBJECT
 
 signals:
   void sig_complete(const int code);
 
 public:
-  /**
-   * So function pointers can never be null.
-   * That means they don't need to and can't be passed as references.
-   * Also function pointers aren't actually pointers :^)
-   * The more you know...
-   */
-  explicit ConfirmOverwrite(void (MainWindow::*slot)(const int),
-                            QWidget *parent = nullptr);
-  ~ConfirmOverwrite();
+  explicit ConfirmOverwriteBase(QWidget *parent = nullptr);
+  ~ConfirmOverwriteBase();
   void action_no();
   void action_yes();
 
 private:
-  Ui::ConfirmOverwrite *ui;
+  Ui::ConfirmOverwriteBase *ui;
 };
 
-#endif // CONFIRMOVERWRITE_H
+template <class C> class ConfirmOverwrite : public ConfirmOverwriteBase {
+public:
+  /**
+   * This legit took 2 days to figure out FML
+   * So it turns out Q_OBJECT macro cannot be used with templates
+   * That means we have to extend the base confirmoverwrite window
+   * So the extended class does not need the Q_OBJECT macro
+   * See https://stackoverflow.com/a/44817392 for more info
+   */
+  ConfirmOverwrite(void (C::*slot)(const int), QWidget *parent)
+      : ConfirmOverwriteBase(parent) {
+    connect(this, &ConfirmOverwriteBase::sig_complete,
+            qobject_cast<C *>(parent), slot);
+  }
+  ~ConfirmOverwrite() {}
+};
+
+#endif // CONFIRMOVERWRITEBASE_H

@@ -23,6 +23,7 @@
 #include "encryptor.h"
 #include "flushwindow.h"
 #include "nodiaryfound.h"
+#include "placeholder.h"
 #include "promptauth.h"
 #include "promptpassword.h"
 #include "theoreticaldiary.h"
@@ -119,7 +120,7 @@ void MainWindow::open_diary() {
         uncompressed);
 
     if (!fallback) {
-      NoDiaryFound *w = new NoDiaryFound(this);
+      auto *w = new NoDiaryFound(this);
       w->setModal(true);
       w->setAttribute(Qt::WA_DeleteOnClose, true);
       w->show();
@@ -130,8 +131,10 @@ void MainWindow::open_diary() {
   success = TheoreticalDiary::instance()->diary_holder->load(uncompressed);
 
   if (success) {
-    DiaryWindow w(this);
-    w.show();
+    auto *w = new DiaryWindow(this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
   } else {
     PromptPassword w(uncompressed, this);
     w.exec();
@@ -140,13 +143,15 @@ void MainWindow::open_diary() {
 
 void MainWindow::prompt_pwd_callback(const int code) {
   if (code) {
-    UnknownDiaryFormat *w = new UnknownDiaryFormat(this);
+    auto *w = new UnknownDiaryFormat(this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     w->show();
   } else {
-    DiaryWindow w(this);
-    w.show();
+    auto *w = new DiaryWindow(this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
   }
 }
 
@@ -154,7 +159,7 @@ void MainWindow::create_new_diary() {
   TheoreticalDiary::instance()->diary_holder->init();
   TheoreticalDiary::instance()->changes_made();
 
-  DiaryWindow *w = new DiaryWindow(this);
+  auto *w = new DiaryWindow(this);
   w->setModal(true);
   w->setAttribute(Qt::WA_DeleteOnClose, true);
   w->show();
@@ -175,8 +180,8 @@ void MainWindow::new_diary() {
       "/diary.dat";
 
   if (stat(path.c_str(), &buf) == 0) {
-    ConfirmOverwrite *w =
-        new ConfirmOverwrite(&MainWindow::confirm_overwrite_callback, this);
+    auto *w = new ConfirmOverwrite<MainWindow>(
+        &MainWindow::confirm_overwrite_callback, this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     w->show();
@@ -203,7 +208,7 @@ void MainWindow::dl_diary() {
    * window).
    */
 
-  PromptAuth *w = new PromptAuth(this);
+  auto *w = new PromptAuth(this);
   w->setModal(true);
   w->setAttribute(Qt::WA_DeleteOnClose, true);
   w->show();
@@ -212,9 +217,10 @@ void MainWindow::dl_diary() {
 }
 
 void MainWindow::real_import_diary() {
+  QString selected_filter("JSON file (*.json)");
   auto filename = QFileDialog::getOpenFileName(
-      this, "Import diary", QDir::homePath(), "JSON file (*.json)", nullptr,
-      QFileDialog::DontUseNativeDialog);
+      this, "Import diary", QDir::homePath(), "JSON file (*.json)",
+      &selected_filter, QFileDialog::DontUseNativeDialog);
 
   if (filename.size() == 0)
     return;
@@ -223,7 +229,7 @@ void MainWindow::real_import_diary() {
 
   if (ifs.fail()) {
     // TODO maybe replace with a 'missing permissions' dialog
-    UnknownDiaryFormat *w = new UnknownDiaryFormat(this);
+    auto *w = new UnknownDiaryFormat(this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     w->show();
@@ -239,7 +245,7 @@ void MainWindow::real_import_diary() {
     w.show();
   } else {
     // same todo as above
-    UnknownDiaryFormat *w = new UnknownDiaryFormat(this);
+    auto *w = new UnknownDiaryFormat(this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     w->show();
@@ -261,8 +267,8 @@ void MainWindow::import_diary() {
       "/diary.dat";
 
   if (stat(path.c_str(), &buf) == 0) {
-    ConfirmOverwrite *w =
-        new ConfirmOverwrite(&MainWindow::import_diary_callback, this);
+    auto *w = new ConfirmOverwrite<MainWindow>(
+        &MainWindow::import_diary_callback, this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     w->show();
@@ -282,38 +288,10 @@ void MainWindow::flush_credentials() {
 }
 
 void MainWindow::dump_drive() {
-  std::string path =
-      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
-          .toStdString() +
-      "/test.dat";
-  std::string pwd = "abc12345";
-  std::string text = "a very secret message";
-
-  std::vector<CryptoPP::byte> pwd_hash;
-  std::string encrypted;
-  Encryptor::get_hash(pwd, pwd_hash);
-  Encryptor::encrypt(pwd_hash, text, encrypted);
-
-  if (Zipper::zip(path, encrypted)) {
-    qDebug() << "Written to file";
-    qDebug() << "Encrypted:" << QString::fromStdString(encrypted);
-
-    std::string uncompressed;
-    std::string decrypted;
-
-    if (Zipper::unzip(path, uncompressed)) {
-      qDebug() << "Encrypted:" << QString::fromStdString(uncompressed);
-
-      Encryptor::decrypt(pwd_hash, uncompressed, decrypted);
-
-      qDebug() << "Uncompressed and decrypted:"
-               << QString::fromStdString(decrypted);
-    } else {
-      qDebug() << "Failed to unzip";
-    }
-  } else {
-    qDebug() << "Failed to write to file";
-  }
+  auto *w = new Placeholder(this);
+  w->setModal(true);
+  w->setAttribute(Qt::WA_DeleteOnClose, true);
+  w->show();
 }
 
 void MainWindow::about_app() {
@@ -335,12 +313,15 @@ void MainWindow::oauth2_callback(const int code) {
              &MainWindow::oauth2_callback);
 
   if (code) {
-    AuthErrorWindow *w = new AuthErrorWindow(this);
+    auto *w = new AuthErrorWindow(this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     w->show();
   } else {
-    qDebug() << "Auth successful";
+    auto *w = new Placeholder(this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
   }
 }
 

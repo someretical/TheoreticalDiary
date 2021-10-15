@@ -85,8 +85,7 @@ void PromptPassword::decrypt() {
   auto success = Encryptor::decrypt(hash, copy, decrypted);
 
   if (!success) {
-    ui->password_box->setText("");
-    return ui->wrong_password->setText("Wrong password");
+    return ui->wrong_password->setText("Wrong password.");
   }
 
   success = TheoreticalDiary::instance()->diary_holder->load(decrypted);

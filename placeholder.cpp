@@ -15,31 +15,19 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYWINDOW_H
-#define DIARYWINDOW_H
+#include "placeholder.h"
+#include "ui_placeholder.h"
 
-#include <QDialog>
+#include <QFile>
 
-namespace Ui {
-class DiaryWindow;
+Placeholder::Placeholder(QWidget *parent)
+    : QDialog(parent), ui(new Ui::Placeholder) {
+  ui->setupUi(this);
+
+  QFile ss_file(":/styles/defaultwindow.qss");
+  ss_file.open(QIODevice::ReadOnly);
+  QString stylesheet = ss_file.readAll();
+  setStyleSheet(stylesheet);
 }
 
-class DiaryWindow : public QDialog {
-  Q_OBJECT
-
-public:
-  explicit DiaryWindow(QWidget *parent = nullptr);
-  ~DiaryWindow();
-
-public slots:
-  void reject();
-  void action_save();
-  void update_password();
-
-  void confirm_close_callback(const int code);
-
-private:
-  Ui::DiaryWindow *ui;
-};
-
-#endif // DIARYWINDOW_H
+Placeholder::~Placeholder() { delete ui; }
