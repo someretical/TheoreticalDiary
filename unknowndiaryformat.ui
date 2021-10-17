@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
-    <height>125</height>
+    <width>400</width>
+    <height>150</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -27,7 +27,7 @@
     <number>0</number>
    </property>
    <property name="topMargin">
-    <number>15</number>
+    <number>20</number>
    </property>
    <property name="rightMargin">
     <number>0</number>
@@ -70,17 +70,26 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>200</width>
-       <height>40</height>
+       <width>50</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>50</width>
+       <height>20</height>
       </size>
      </property>
      <property name="font">
       <font>
-       <pointsize>16</pointsize>
+       <pointsize>12</pointsize>
       </font>
      </property>
      <property name="text">
       <string>OK</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

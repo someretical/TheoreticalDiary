@@ -39,21 +39,30 @@ int main(int argc, char **argv) {
 
   TheoreticalDiary a(argc, argv);
 
+  // Create app directory
   QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
   if (!dir.exists())
     dir.mkpath(".");
 
-  // Windows does not have Ubuntu by default
-  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Regular.ttf");
-  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-MediumItalic.ttf");
-  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Medium.ttf");
-  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-LightItalic.ttf");
-  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Light.ttf");
-  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Italic.ttf");
-  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-BoldItalic.ttf");
-  QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Bold.ttf");
-  QFont font("Ubuntu");
-  QApplication::setFont(font);
+  // Load fonts
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Black.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-BlackItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Bold.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-BoldItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Italic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Light.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-LightItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Medium.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-MediumItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Regular.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Thin.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-ThinItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Condensed-Bold.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Condensed-BoldItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Condensed-Italic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Condensed-Light.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Condensed-LightItalic.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Roboto-Condensed-Regular.ttf");
 
   MainWindow w;
   w.show();

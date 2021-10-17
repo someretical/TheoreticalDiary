@@ -1,12 +1,14 @@
-QWidget#scroll_contents {
-    background-color: #23272a;
+QFrame#buttons {
+  background-color: #232629;
+  border-radius: 4px;
+  padding: 15px;
+  line-height: 13px;
+  text-transform: uppercase;
 }
 
-QFrame {
-    border: none;
-}
-
-Line {
-    border: 2px rgb(153, 170, 181)rgb(153, 170, 181);
-    background-color: #99aab5;
+QFrame#info {
+  background-color: #232629;
+  border-radius: 4px;
+  padding: 15px;
+  line-height: 13px;
 }

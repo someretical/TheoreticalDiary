@@ -44,9 +44,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 {
   ui->setupUi(this);
-  ui->options->hide();
 
-  QFile ss_file(":/styles/defaultwindow.qss");
+  QFile ss_file(":/styles/material_cyan_dark.qss");
   ss_file.open(QIODevice::ReadOnly);
   QString stylesheet = ss_file.readAll();
 
@@ -77,11 +76,6 @@ MainWindow::MainWindow(QWidget *parent)
   action = findChild<QAction *>("action_import");
   addAction(action);
   connect(action, &QAction::triggered, this, &MainWindow::import_diary);
-
-  action = findChild<QAction *>("action_options");
-  addAction(action);
-  connect(action, &QAction::triggered, this,
-          &MainWindow::toggle_advanced_options);
 
   action = findChild<QAction *>("action_flush");
   addAction(action);
@@ -217,10 +211,8 @@ void MainWindow::dl_diary() {
 }
 
 void MainWindow::real_import_diary() {
-  QString selected_filter("JSON file (*.json)");
   auto filename = QFileDialog::getOpenFileName(
-      this, "Import diary", QDir::homePath(), "JSON file (*.json)",
-      &selected_filter, QFileDialog::DontUseNativeDialog);
+      this, "Import diary", QDir::homePath(), "JSON file (*.json)");
 
   if (filename.size() == 0)
     return;
@@ -275,7 +267,7 @@ void MainWindow::import_diary() {
     return;
   }
 
-  create_new_diary();
+  real_import_diary();
 }
 
 void MainWindow::flush_credentials() {
@@ -297,14 +289,6 @@ void MainWindow::dump_drive() {
 void MainWindow::about_app() {
   AboutWindow w(this);
   w.exec();
-}
-
-void MainWindow::toggle_advanced_options() {
-  if (ui->options->isVisible()) {
-    ui->options->hide();
-  } else {
-    ui->options->show();
-  }
 }
 
 void MainWindow::oauth2_callback(const int code) {

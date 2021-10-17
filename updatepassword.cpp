@@ -20,6 +20,7 @@
 #include "theoreticaldiary.h"
 #include "ui_updatepassword.h"
 
+#include <QAction>
 #include <QFile>
 #include <cryptlib.h>
 #include <vector>
@@ -29,15 +30,10 @@ UpdatePassword::UpdatePassword(QWidget *parent)
   ui->setupUi(this);
   ui->alert_text->setText("");
 
-  QFile ss_file(":/styles/defaultwindow.qss");
+  QFile ss_file(":/styles/updatepassword.qss");
   ss_file.open(QIODevice::ReadOnly);
   QString stylesheet = ss_file.readAll();
-
-  QFile ss_file_2(":/styles/updatepassword.qss");
-  ss_file_2.open(QIODevice::ReadOnly);
-  QString stylesheet2 = ss_file_2.readAll();
-
-  setStyleSheet(stylesheet + stylesheet2);
+  setStyleSheet(stylesheet);
 
   auto action = findChild<QAction *>("action_change");
   addAction(action);
@@ -74,13 +70,13 @@ void UpdatePassword::attempt_change() {
   }
 
   if (ui->first_password->text().size() == 0) {
-    return ui->alert_text->setText(
-        "The password must be at least 1 character long.");
+    TheoreticalDiary::instance()->diary_holder->key->clear();
+  } else {
+    std::vector<CryptoPP::byte> hash;
+    Encryptor::get_hash(ui->first_password->text().toStdString(), hash);
+    TheoreticalDiary::instance()->diary_holder->set_key(hash);
   }
 
-  std::vector<CryptoPP::byte> hash;
-  Encryptor::get_hash(ui->first_password->text().toStdString(), hash);
-  TheoreticalDiary::instance()->diary_holder->set_key(hash);
   TheoreticalDiary::instance()->changes_made();
 
   accept();

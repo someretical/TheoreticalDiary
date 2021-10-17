@@ -38,7 +38,7 @@
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>The diary was unable to be saved. Please ensure the app is able to read and write from %APPDATA%/theoretical-diary</string>
+      <string>The diary was unable to be saved. Please ensure the app has read/write permissions.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -52,17 +52,26 @@
     <widget class="QPushButton" name="ok_button">
      <property name="minimumSize">
       <size>
-       <width>200</width>
-       <height>40</height>
+       <width>50</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>50</width>
+       <height>20</height>
       </size>
      </property>
      <property name="font">
       <font>
-       <pointsize>16</pointsize>
+       <pointsize>12</pointsize>
       </font>
      </property>
      <property name="text">
       <string>OK</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

@@ -18,12 +18,14 @@
 #include "diarywindow.h"
 #include "encryptor.h"
 #include "saveerror.h"
+#include "theoreticalcalendar.h"
 #include "theoreticaldiary.h"
 #include "ui_diarywindow.h"
 #include "unsavedchanges.h"
 #include "updatepassword.h"
 #include "zipper.h"
 
+#include <QAction>
 #include <ctime>
 #include <fstream>
 #include <string>
@@ -32,10 +34,14 @@ DiaryWindow::DiaryWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::DiaryWindow) {
   ui->setupUi(this);
 
-  QFile ss_file(":/styles/defaultwindow.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
+  calendar = new TheoreticalCalendar(this);
+  ui->calender_box->addWidget(calendar, Qt::AlignHCenter | Qt::AlignTop);
+
+  // QFile ss_file(":/styles/diarywindow.qss");
+  // ss_file.open(QIODevice::ReadOnly);
+  // QString stylesheet = ss_file.readAll();
+
+  // setStyleSheet(stylesheet);
 
   auto action = findChild<QAction *>("action_save");
   addAction(action);
@@ -50,7 +56,10 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   connect(action, &QAction::triggered, this, &DiaryWindow::update_password);
 }
 
-DiaryWindow::~DiaryWindow() { delete ui; }
+DiaryWindow::~DiaryWindow() {
+  delete ui;
+  delete calendar;
+}
 
 void DiaryWindow::reject() {
   if (*(TheoreticalDiary::instance()->unsaved_changes)) {

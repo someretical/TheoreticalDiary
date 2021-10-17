@@ -18,11 +18,15 @@
 #include "aboutwindow.h"
 #include "ui_aboutwindow.h"
 
+#include <QAction>
+#include <QFile>
+#include <QString>
+
 AboutWindow::AboutWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::AboutWindow) {
   ui->setupUi(this);
 
-  QFile ss_file(":/styles/defaultwindow.qss");
+  QFile ss_file(":/styles/aboutwindow.qss");
   ss_file.open(QIODevice::ReadOnly);
   QString stylesheet = ss_file.readAll();
   setStyleSheet(stylesheet);

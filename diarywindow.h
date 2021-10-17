@@ -18,6 +18,8 @@
 #ifndef DIARYWINDOW_H
 #define DIARYWINDOW_H
 
+#include "theoreticalcalendar.h"
+
 #include <QDialog>
 
 namespace Ui {
@@ -40,6 +42,7 @@ public slots:
 
 private:
   Ui::DiaryWindow *ui;
+  TheoreticalCalendar *calendar;
 };
 
 #endif // DIARYWINDOW_H

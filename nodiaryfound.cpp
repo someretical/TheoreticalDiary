@@ -19,16 +19,10 @@
 #include "ui_nodiaryfound.h"
 
 #include <QAction>
-#include <QFile>
 
 NoDiaryFound::NoDiaryFound(QWidget *parent)
     : QDialog(parent), ui(new Ui::NoDiaryFound) {
   ui->setupUi(this);
-
-  QFile ss_file(":/styles/defaultwindow.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
 
   // Setup close action
   auto action = findChild<QAction *>("action_close");

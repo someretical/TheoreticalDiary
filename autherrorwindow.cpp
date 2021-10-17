@@ -18,16 +18,11 @@
 #include "autherrorwindow.h"
 #include "ui_autherrorwindow.h"
 
-#include <QFile>
+#include <QAction>
 
 AuthErrorWindow::AuthErrorWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::AuthErrorWindow) {
   ui->setupUi(this);
-
-  QFile ss_file(":/styles/defaultwindow.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
 
   // Setup close action
   auto action = findChild<QAction *>("action_close");

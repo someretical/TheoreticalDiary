@@ -19,15 +19,9 @@
 #include "ui_saveerror.h"
 
 #include <QAction>
-#include <QFile>
 
 SaveError::SaveError(QWidget *parent) : QDialog(parent), ui(new Ui::SaveError) {
   ui->setupUi(this);
-
-  QFile ss_file(":/styles/defaultwindow.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
 
   auto action = findChild<QAction *>("action_close");
   addAction(action);

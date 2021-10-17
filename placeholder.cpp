@@ -18,16 +18,8 @@
 #include "placeholder.h"
 #include "ui_placeholder.h"
 
-#include <QFile>
-
 Placeholder::Placeholder(QWidget *parent)
     : QDialog(parent), ui(new Ui::Placeholder) {
-  ui->setupUi(this);
-
-  QFile ss_file(":/styles/defaultwindow.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
-}
+  ui->setupUi(this); }
 
 Placeholder::~Placeholder() { delete ui; }

@@ -49,7 +49,6 @@ public slots:
   void flush_credentials();
   void dump_drive();
   void about_app();
-  void toggle_advanced_options();
   void quit_app();
   void real_import_diary();
 

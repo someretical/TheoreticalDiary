@@ -19,16 +19,11 @@
 #include "mainwindow.h"
 #include "ui_confirmoverwrite.h"
 
-#include <QFile>
+#include <QAction>
 
 ConfirmOverwriteBase::ConfirmOverwriteBase(QWidget *parent)
     : QDialog(parent), ui(new Ui::ConfirmOverwriteBase) {
   ui->setupUi(this);
-
-  QFile ss_file(":/styles/defaultwindow.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
 
   auto action = findChild<QAction *>("action_no");
   addAction(action);

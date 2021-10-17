@@ -3,14 +3,11 @@
 #include "theoreticaldiary.h"
 #include "ui_promptauth.h"
 
+#include <QAction>
+
 PromptAuth::PromptAuth(QWidget *parent)
     : QDialog(parent), ui(new Ui::PromptAuth) {
   ui->setupUi(this);
-
-  QFile ss_file(":/styles/defaultwindow.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
 
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, this, &PromptAuth::auto_close);

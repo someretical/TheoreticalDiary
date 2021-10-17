@@ -12,6 +12,7 @@ jobs:
       
       - name: Install packages
         run: |
+          sudo apt-get update
           sudo apt install qt5-default
           sudo apt install libqt5networkauth5
           sudo apt install libqt5networkauth5-dev

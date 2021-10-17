@@ -2,9 +2,26 @@ QMainWindow {
     background-color: #23272a;
 }
 
-Line {
-    border: 2px #99aab5;
-    background-color: #99aab5;
+QComboBox::drop-down {
+    border: none;
+    background-color: #56595c;
+    color: #99aab5;  
+}
+
+QComboBox::down-arrow {
+    image: url(:images/dropdown.svg);
+    width: 14px;
+    height: 14px;
+}
+
+QComboBox, QAbstractItemView {
+    border: none;
+    border-radius: 0px;
+    background-color: #56595c;
+    color: #99aab5;
+
+    selection-background-color: #414447;
+    selection-color: #99aab5;
 }
 
 QDialog {
@@ -64,6 +81,35 @@ QScrollBar::sub-line:vertical {
     subcontrol-origin: margin;
 }
 
+QScrollBar::horizontal {
+    border: 1px solid #2c2f33;
+    background: #99aab5;
+    height: 10px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+    stop: 0 #414447, stop: 0.5 #414447, stop:1 #414447);
+    min-width: 0px;
+}
+
+QScrollBar::add-line:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+    stop: 0 #414447, stop: 0.5 #414447,  stop:1 #414447);
+    width: 0px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+    stop: 0  #414447, stop: 0.5 #414447,  stop:1 #414447);
+    width: 0 px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
 QPlainTextEdit {
     background-color: #23272a;
     color: #99aab5;
@@ -72,4 +118,32 @@ QPlainTextEdit {
 
 QLabel {
     color: #99aab5;
+}
+
+QCheckBox {
+    spacing: 5px;
+}
+
+QCheckBox::indicator:unchecked {
+    image: url(:/images/check_box_empty.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(:/images/check_box_empty.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(:/images/check_box_empty.svg);
+}
+
+QCheckBox::indicator:checked {
+    image: url(:/images/check_box_filled.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(:/images/check_box_filled.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+    image: url(:/images/check_box_filled.svg);
 }

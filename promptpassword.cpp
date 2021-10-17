@@ -21,6 +21,7 @@
 #include "theoreticaldiary.h"
 #include "ui_promptpassword.h"
 
+#include <QAction>
 #include <QFile>
 #include <cryptlib.h>
 #include <string>
@@ -32,15 +33,11 @@ PromptPassword::PromptPassword(const std::string &uncompressed, QWidget *parent)
 
   to_be_decrypted = new std::string(uncompressed);
 
-  QFile ss_file(":/styles/defaultwindow.qss");
+  QFile ss_file(":/styles/promptpassword.qss");
   ss_file.open(QIODevice::ReadOnly);
   QString stylesheet = ss_file.readAll();
 
-  QFile ss_file_2(":/styles/promptpassword.qss");
-  ss_file_2.open(QIODevice::ReadOnly);
-  QString stylesheet2 = ss_file_2.readAll();
-
-  setStyleSheet(stylesheet + stylesheet2);
+  setStyleSheet(stylesheet);
 
   auto action = findChild<QAction *>("action_decrypt");
   addAction(action);
