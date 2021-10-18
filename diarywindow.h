@@ -21,6 +21,7 @@
 #include "theoreticalcalendar.h"
 
 #include <QDialog>
+#include <string>
 
 namespace Ui {
 class DiaryWindow;
@@ -32,6 +33,7 @@ class DiaryWindow : public QDialog {
 public:
   explicit DiaryWindow(QWidget *parent = nullptr);
   ~DiaryWindow();
+  static std::string get_day_suffix(const int day);
 
 public slots:
   void reject();
@@ -39,10 +41,12 @@ public slots:
   void update_password();
 
   void confirm_close_callback(const int code);
+  void update_info(const int year, const int month, const int day);
 
 private:
   Ui::DiaryWindow *ui;
   TheoreticalCalendar *calendar;
+  int *previous_selection;
 };
 
 #endif // DIARYWINDOW_H

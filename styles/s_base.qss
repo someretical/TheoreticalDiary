@@ -1,0 +1,21 @@
+CalendarButton {
+  color: #FFFFFF;
+  border: 2px solid #232629;
+  text-transform: uppercase;
+  margin: 0px;
+  font-weight: bold;
+  height: 41px;
+  text-align: top right;
+  padding: 5px 5px;
+}
+
+CalendarButton:pressed {
+  color: #FFFFFF;
+  border: 2px solid #232629;
+  text-transform: uppercase;
+  margin: 0px;
+  font-weight: bold;
+  height: 41px;
+  text-align: top right;
+  padding: 5px 5px;  
+}

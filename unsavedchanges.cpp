@@ -19,10 +19,16 @@
 #include "ui_unsavedchanges.h"
 
 #include <QAction>
+#include <QFile>
 
 UnsavedChangesBase::UnsavedChangesBase(QWidget *parent)
     : QDialog(parent), ui(new Ui::UnsavedChangesBase) {
   ui->setupUi(this);
+
+  QFile ss_file(":/styles/confirmoverwrite.qss");
+  ss_file.open(QIODevice::ReadOnly);
+  QString stylesheet = ss_file.readAll();
+  setStyleSheet(stylesheet);
 
   auto action = findChild<QAction *>("action_no");
   addAction(action);

@@ -5,7 +5,6 @@
         <file>text/CONTRIBUTORS.txt</file>
         <file>text/LICENSES.txt</file>
         <file>text/VERSION.txt</file>
-        <file>styles/defaultwindow.qss</file>
         <file>styles/mainwindow.qss</file>
         <file>styles/promptpassword.qss</file>
         <file>styles/updatepassword.qss</file>
@@ -101,5 +100,14 @@
         <file>fonts/RobotoCondensed-Regular.ttf</file>
         <file>styles/material_cyan_dark.qss</file>
         <file>styles/aboutwindow.qss</file>
+        <file>styles/confirmoverwrite.qss</file>
+        <file>styles/s_default.qss</file>
+        <file>styles/s_very_bad.qss</file>
+        <file>styles/s_bad.qss</file>
+        <file>styles/s_good.qss</file>
+        <file>styles/s_ok.qss</file>
+        <file>styles/s_selected.qss</file>
+        <file>styles/s_very_good.qss</file>
+        <file>styles/s_base.qss</file>
     </qresource>
 </RCC>

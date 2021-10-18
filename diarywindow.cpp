@@ -26,22 +26,48 @@
 #include "zipper.h"
 
 #include <QAction>
+#include <QDate>
+#include <QString>
 #include <ctime>
 #include <fstream>
 #include <string>
+
+// https://stackoverflow.com/a/9130114
+std::string DiaryWindow::get_day_suffix(const int day) {
+  switch (day) {
+  case 1:
+  case 21:
+  case 31:
+    return "st";
+  case 2:
+  case 22:
+    return "nd";
+  case 3:
+  case 23:
+    return "rd";
+  default:
+    return "th";
+  }
+}
 
 DiaryWindow::DiaryWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::DiaryWindow) {
   ui->setupUi(this);
 
+  previous_selection = new int[3]{-1, -1, -1};
+
+  QFile ss_file(":/styles/diarywindow.qss");
+  ss_file.open(QIODevice::ReadOnly);
+  QString stylesheet = ss_file.readAll();
+  // For some reason, calling this->setStyleSheet() has no effect on the
+  // contents of the tab widget. So we have to call it on the tab widget
+  // specifically.
+  ui->editor->setStyleSheet(stylesheet);
+
   calendar = new TheoreticalCalendar(this);
   ui->calender_box->addWidget(calendar, Qt::AlignHCenter | Qt::AlignTop);
 
-  // QFile ss_file(":/styles/diarywindow.qss");
-  // ss_file.open(QIODevice::ReadOnly);
-  // QString stylesheet = ss_file.readAll();
-
-  // setStyleSheet(stylesheet);
+  ui->status_text->setText("");
 
   auto action = findChild<QAction *>("action_save");
   addAction(action);
@@ -59,6 +85,24 @@ DiaryWindow::DiaryWindow(QWidget *parent)
 DiaryWindow::~DiaryWindow() {
   delete ui;
   delete calendar;
+  delete[] previous_selection;
+}
+
+void DiaryWindow::update_info(const int year, const int month, const int day) {
+  if (year == previous_selection[0] && month == previous_selection[1] &&
+      day == previous_selection[2])
+    return;
+
+  previous_selection[0] = year;
+  previous_selection[1] = month;
+  previous_selection[2] = day;
+
+  QDate new_date(year, month, day);
+
+  ui->date_placeholder->setText(
+      QString::number(day) +
+      QString::fromStdString(DiaryWindow::get_day_suffix(day)) +
+      new_date.toString(" MMMM yyyy"));
 }
 
 void DiaryWindow::reject() {

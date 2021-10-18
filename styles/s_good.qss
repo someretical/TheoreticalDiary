@@ -1,0 +1,9 @@
+CalendarButton {
+  color: #000000;
+  background-color: rgba(148, 228, 201, 0.8);
+}
+
+CalendarButton:pressed {
+  color: #000000;
+  background-color: rgba(148, 228, 201, 0.5);
+}

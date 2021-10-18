@@ -200,13 +200,20 @@ DISTFILES += \
     images/primary/uparrow2.svg \
     images/primary/vline.svg \
     styles/aboutwindow.qss \
-    styles/defaultwindow.qss \
+    styles/confirmoverwrite.qss \
     styles/diarywindow.qss \
     styles/filedialog.qss \
     styles/mainwindow.qss \
     styles/material_cyan_dark.qss \
     styles/promptpassword.qss \
+    styles/s_bad.qss \
+    styles/s_base.qss \
     styles/s_default.qss \
+    styles/s_good.qss \
+    styles/s_ok.qss \
+    styles/s_selected.qss \
+    styles/s_very_bad.qss \
+    styles/s_very_good.qss \
     styles/theoreticalcalendar.qss \
     styles/updatepassword.qss \
     text/CONTRIBUTORS.txt \

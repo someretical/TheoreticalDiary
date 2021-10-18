@@ -1,0 +1,7 @@
+CalendarButton {
+  border: 2px solid #FFFFFF;
+}
+
+CalendarButton:pressed {
+  border: 2px solid #FFFFFF;
+}

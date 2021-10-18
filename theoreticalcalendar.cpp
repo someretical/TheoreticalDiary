@@ -1,10 +1,27 @@
+/**
+ * This file is part of theoretical-diary.
+ *
+ * theoretical-diary is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * theoretical-diary is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "theoreticalcalendar.h"
+#include "diarywindow.h"
 #include "theoreticaldiary.h"
 #include "ui_theoreticalcalendar.h"
 
 #include <QAction>
 #include <QDate>
-#include <QDebug>
 #include <QFile>
 #include <QIcon>
 #include <QLayoutItem>
@@ -12,8 +29,7 @@
 #include <QSpacerItem>
 #include <QString>
 #include <memory>
-
-#define BUTTON_SIZE 60
+#include <random>
 
 TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
     : QWidget(parent), ui(new Ui::TheoreticalCalendar) {
@@ -30,19 +46,36 @@ TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
   star_icon = new QIcon(":/images/star.svg");
 
   // Different rated days have different stylesheets
+  QFile _s_base(":/styles/s_base.qss");
+  _s_base.open(QIODevice::ReadOnly);
+  s_base = new QString(_s_base.readAll());
+
   QFile _s_default(":/styles/s_default.qss");
+  _s_default.open(QIODevice::ReadOnly);
   s_default = new QString(_s_default.readAll());
+
   QFile _s_very_bad(":/styles/s_very_bad.qss");
+  _s_very_bad.open(QIODevice::ReadOnly);
   s_very_bad = new QString(_s_very_bad.readAll());
+
   QFile _s_bad(":/styles/s_bad.qss");
+  _s_bad.open(QIODevice::ReadOnly);
   s_bad = new QString(_s_bad.readAll());
+
   QFile _s_ok(":/styles/s_ok.qss");
+  _s_ok.open(QIODevice::ReadOnly);
   s_ok = new QString(_s_ok.readAll());
+
   QFile _s_good(":/styles/s_good.qss");
+  _s_good.open(QIODevice::ReadOnly);
   s_good = new QString(_s_good.readAll());
+
   QFile _s_very_good(":/styles/s_very_good.qss");
+  _s_very_good.open(QIODevice::ReadOnly);
   s_very_good = new QString(_s_very_good.readAll());
+
   QFile _s_selected(":/styles/s_selected.qss");
+  _s_selected.open(QIODevice::ReadOnly);
   s_selected = new QString(_s_selected.readAll());
 
   auto action = findChild<QAction *>("action_next_month");
@@ -59,6 +92,9 @@ TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
   connect(ui->year_edit, &QDateEdit::dateChanged, this,
           &TheoreticalCalendar::date_changed);
 
+  connect(this, &TheoreticalCalendar::sig_update_info,
+          qobject_cast<DiaryWindow *>(parent), &DiaryWindow::update_info);
+
   current_month_offset = new int(0);
   last_selected_index = new int(0);
   change_month(0, 0, true);
@@ -70,6 +106,7 @@ TheoreticalCalendar::~TheoreticalCalendar() {
   delete star_icon;
   delete current_month_offset;
   delete last_selected_index;
+  delete s_base;
   delete s_default;
   delete s_very_bad;
   delete s_bad;
@@ -81,37 +118,37 @@ TheoreticalCalendar::~TheoreticalCalendar() {
 
 void TheoreticalCalendar::set_button_stylesheet(CalendarButton &button,
                                                 const bool selected) {
-  QString final;
+  QString stylesheet(*s_base);
 
   switch (*button.rating) {
   case 0:
-    final.append(s_default);
+    stylesheet.append(s_default);
     break;
   case 1:
-    final.append(s_very_bad);
+    stylesheet.append(s_very_bad);
     break;
   case 2:
-    final.append(s_bad);
+    stylesheet.append(s_bad);
     break;
   case 3:
-    final.append(s_ok);
+    stylesheet.append(s_ok);
     break;
   case 4:
-    final.append(s_good);
+    stylesheet.append(s_good);
     break;
   case 5:
-    final.append(s_very_good);
+    stylesheet.append(s_very_good);
     break;
   }
 
   if (selected) {
-    final.append(s_selected);
+    stylesheet.append(s_selected);
   }
 
-  // button.setStyleSheet(final);
+  button.setStyleSheet(stylesheet);
 }
 
-// Renders a month, does not rerender the selected date
+// Renders a month
 void TheoreticalCalendar::change_month(const int year, const int month,
                                        const bool reset) {
   // Remove everything from current grid
@@ -139,7 +176,7 @@ void TheoreticalCalendar::change_month(const int year, const int month,
     // Set the year choose to the current year
     ui->year_edit->setDate(*first_created);
   } else {
-    *last_selected_index = *current_month_offset + 1;
+    *last_selected_index = *current_month_offset;
     ui->month_chooser->setCurrentIndex(first_day->month() - 1);
     ui->year_edit->setDate(*first_day);
   }
@@ -148,21 +185,28 @@ void TheoreticalCalendar::change_month(const int year, const int month,
 
   // Re render given month, select 1st day of month
 
+  // Placeholder RNG to simulate colours
+  std::random_device dev;
+  std::mt19937 rng(dev());
+  std::uniform_int_distribution<std::mt19937::result_type> dist(0, 5);
+
   // Render spacers for first row padding
   for (int i = 0; i < *current_month_offset; ++i) {
-    auto spacer = new QSpacerItem(BUTTON_SIZE, BUTTON_SIZE, QSizePolicy::Fixed,
-                                  QSizePolicy::Fixed);
-    ui->dates->addItem(spacer, 0, i, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
+    auto spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum);
+    ui->dates->addItem(spacer, 0, i, 1, 1);
   }
 
   // Render rest of first row
   int days_added = 0;
   for (int i = *current_month_offset; i < 7; ++i, ++days_added) {
-    auto button = new CalendarButton(
-        &TheoreticalCalendar::clicked_on, i - *current_month_offset, 1 /*temp*/,
-        *star_icon, QString::number(i - *current_month_offset + 1), this);
+    int rating = dist(rng);
+    QIcon *star = nullptr;
 
-    ui->dates->addWidget(button, 0, i, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
+    auto button = new CalendarButton(
+        &TheoreticalCalendar::clicked_on, i - *current_month_offset, rating,
+        star, QString::number(i - *current_month_offset + 1), this);
+    set_button_stylesheet(*button, false);
+    ui->dates->addWidget(button, 0, i, 1, 1);
   }
 
   // Render main block
@@ -176,19 +220,20 @@ void TheoreticalCalendar::change_month(const int year, const int month,
       current_row_length = 0;
     }
 
+    int rating = dist(rng);
+    QIcon *star = star_icon;
+
     auto button =
-        new CalendarButton(&TheoreticalCalendar::clicked_on, i, 1 /*temp*/,
-                           *star_icon, QString::number(i + 1), this);
-    ui->dates->addWidget(button, row, current_row_length, 1, 1,
-                         Qt::AlignHCenter | Qt::AlignTop);
+        new CalendarButton(&TheoreticalCalendar::clicked_on, i, rating, star,
+                           QString::number(i + 1), this);
+    set_button_stylesheet(*button, false);
+    ui->dates->addWidget(button, row, current_row_length, 1, 1);
   }
 
   // Fill in last row with spacers
   while (current_row_length < 7) {
-    auto spacer = new QSpacerItem(BUTTON_SIZE, BUTTON_SIZE, QSizePolicy::Fixed,
-                                  QSizePolicy::Fixed);
-    ui->dates->addItem(spacer, row, current_row_length++, 1, 1,
-                       Qt::AlignHCenter | Qt::AlignTop);
+    auto spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum);
+    ui->dates->addItem(spacer, row, current_row_length++, 1, 1);
   }
 
   rerender_day(*last_selected_index, true);
@@ -204,6 +249,11 @@ void TheoreticalCalendar::rerender_day(const int index, const bool selected) {
 
   // Set the stylesheet for the particular index again
   set_button_stylesheet(*button, selected);
+
+  // Update info
+  emit sig_update_info(ui->year_edit->date().year(),
+                       ui->month_chooser->currentIndex() + 1,
+                       *(button->base_0_day) + 1);
 }
 
 void TheoreticalCalendar::clicked_on(const int base_0_day) {
@@ -212,8 +262,6 @@ void TheoreticalCalendar::clicked_on(const int base_0_day) {
     rerender_day(base_0_day + *current_month_offset, true);
 
     *last_selected_index = base_0_day + *current_month_offset;
-
-    // Update info pane
   }
 }
 
@@ -244,14 +292,14 @@ void TheoreticalCalendar::date_changed(const QDate &date) {
 // CalendarButton class
 CalendarButton::CalendarButton(void (TheoreticalCalendar::*slot)(const int),
                                const int __base_0_day, const int _rating,
-                               const QIcon &icon, const QString &base_1_day,
+                               const QIcon *icon, const QString &base_1_day,
                                QWidget *parent)
-    : QPushButton(icon, base_1_day, parent) {
-  setFixedWidth(BUTTON_SIZE);
-  setFixedHeight(BUTTON_SIZE);
-  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  setFlat(true);
+    : QPushButton(base_1_day, parent) {
+  setFlat(false);
   setAutoDefault(true);
+
+  if (icon != nullptr)
+    setIcon(*icon);
 
   base_0_day = new int(__base_0_day);
   rating = new int(_rating);
