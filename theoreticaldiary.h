@@ -20,10 +20,31 @@
 
 #include "diaryholder.h"
 #include "googlewrapper.h"
-#include "settingsprovider.h"
 
 #include <QApplication>
 #include <QObject>
+#include <json.hpp>
+#include <string>
+
+namespace td {
+struct LocalSettings {
+  std::string bak1_id;
+  std::string bak2_id;
+  bool sync_enabled;
+};
+
+inline void to_json(nlohmann::json &j, const LocalSettings &s) {
+  j = nlohmann::json{{"bak1_id", s.bak1_id},
+                     {"bak2_id", s.bak2_id},
+                     {"sync_enabled", s.sync_enabled}};
+}
+
+inline void from_json(const nlohmann::json &j, LocalSettings &s) {
+  j.at("bak1_id").get_to<std::string>(s.bak1_id);
+  j.at("bak2_id").get_to<std::string>(s.bak2_id);
+  j.at("sync_enabled").get_to<bool>(s.sync_enabled);
+}
+} // namespace td
 
 class TheoreticalDiary : public QApplication {
   Q_OBJECT
@@ -32,9 +53,13 @@ public:
   TheoreticalDiary(int &argc, char **argv);
   ~TheoreticalDiary();
   static TheoreticalDiary *instance();
+
+  void load_settings();
+  bool save_settings();
+
   GoogleWrapper *gwrapper;
   DiaryHolder *diary_holder;
-  SettingsProvider *settings_provider;
+  td::LocalSettings *local_settings;
   bool *unsaved_changes;
 
 public slots:

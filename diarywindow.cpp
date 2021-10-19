@@ -16,6 +16,7 @@
  */
 
 #include "diarywindow.h"
+#include "diaryholder.h"
 #include "encryptor.h"
 #include "saveerror.h"
 #include "theoreticalcalendar.h"
@@ -120,13 +121,12 @@ void DiaryWindow::confirm_close_callback(const int code) {
 
   *(TheoreticalDiary::instance()->unsaved_changes) = false;
   TheoreticalDiary::instance()->diary_holder->key->clear();
-  TheoreticalDiary::instance()->diary_holder->diary->clear();
+  *(TheoreticalDiary::instance()->diary_holder->diary) = td::Diary();
 
   accept();
 }
 
 void DiaryWindow::action_save() {
-  auto stringified = TheoreticalDiary::instance()->diary_holder->diary->dump();
   auto key = TheoreticalDiary::instance()->diary_holder->key;
 
   std::string primary_path =
@@ -149,14 +149,15 @@ void DiaryWindow::action_save() {
   src.close();
 
   // Update last_updated
-  (*TheoreticalDiary::instance()
-        ->diary_holder->diary)["metadata"]["last_updated"] = std::time(nullptr);
+  TheoreticalDiary::instance()->diary_holder->diary->metadata.last_updated =
+      std::time(nullptr);
+  nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
 
   // If there is a password set, encrypt the diary
   if (key->size() == 32) {
-    Encryptor::encrypt(*key, stringified, final);
+    Encryptor::encrypt(*key, j.dump(), final);
   } else {
-    final = stringified;
+    final = j.dump();
   }
 
   auto success = Zipper::zip(primary_path, final);

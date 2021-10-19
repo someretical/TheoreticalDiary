@@ -314,7 +314,7 @@ void MainWindow::quit_app() { close(); }
 void MainWindow::closeEvent(QCloseEvent *event) {
   if (TheoreticalDiary::instance()->unsaved_changes) {
     TheoreticalDiary::instance()->gwrapper->save_credentials();
-    TheoreticalDiary::instance()->settings_provider->save();
+    TheoreticalDiary::instance()->save_settings();
   }
 
   event->accept();

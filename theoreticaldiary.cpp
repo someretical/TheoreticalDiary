@@ -17,11 +17,16 @@
 
 #include "theoreticaldiary.h"
 
+#include <QStandardPaths>
+#include <fstream>
+#include <json.hpp>
+#include <string>
+
 TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
     : QApplication(argc, argv) {
   gwrapper = new GoogleWrapper;
   diary_holder = new DiaryHolder;
-  settings_provider = new SettingsProvider;
+  local_settings = new td::LocalSettings{"", "", false};
   unsaved_changes = new bool(false);
 
   connect(gwrapper, &GoogleWrapper::sig_token_changed, this,
@@ -31,7 +36,7 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
 TheoreticalDiary::~TheoreticalDiary() {
   delete gwrapper;
   delete diary_holder;
-  delete settings_provider;
+  delete local_settings;
   delete unsaved_changes;
 }
 
@@ -42,3 +47,37 @@ TheoreticalDiary *TheoreticalDiary::instance() {
 }
 
 void TheoreticalDiary::changes_made() { *unsaved_changes = true; }
+
+void TheoreticalDiary::load_settings() {
+  std::ifstream ifs(
+      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+          .toStdString() +
+      "/settings.json");
+  if (ifs.fail())
+    return;
+
+  std::string content((std::istreambuf_iterator<char>(ifs)),
+                      (std::istreambuf_iterator<char>()));
+  auto json = nlohmann::json::parse(content, nullptr, false);
+  if (json.is_discarded())
+    return;
+
+  *local_settings = json.get<td::LocalSettings>();
+}
+
+bool TheoreticalDiary::save_settings() {
+  nlohmann::json stringified = *local_settings;
+
+  std::ofstream ifs(
+      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+          .toStdString() +
+      "/settings.json");
+
+  if (ifs.fail())
+    return false;
+
+  ifs << stringified.dump();
+  ifs.close();
+
+  return true;
+}

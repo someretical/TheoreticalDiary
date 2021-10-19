@@ -20,11 +20,12 @@
 #include <cryptlib.h>
 #include <ctime>
 #include <json.hpp>
+#include <map>
 #include <string>
 #include <vector>
 
 DiaryHolder::DiaryHolder() {
-  diary = new nlohmann::json;
+  diary = new td::Diary;
   key = new std::vector<CryptoPP::byte>();
 }
 
@@ -34,12 +35,12 @@ DiaryHolder::~DiaryHolder() {
 }
 
 void DiaryHolder::init() {
-  diary->clear();
+  td::Diary new_diary;
+  new_diary.years = td::YearMap();
+  new_diary.settings = td::Settings();
+  new_diary.metadata = td::Metadata{1, std::time(nullptr)};
 
-  (*diary)["years"] = nlohmann::json::array();
-  (*diary)["settings"] = nlohmann::json::object();
-  (*diary)["metadata"] = nlohmann::json::object(
-      {{"version", 1}, {"last_updated", std::time(nullptr)}});
+  *diary = new_diary;
 }
 
 void DiaryHolder::set_key(const std::vector<CryptoPP::byte> k) {
@@ -49,30 +50,13 @@ void DiaryHolder::set_key(const std::vector<CryptoPP::byte> k) {
     key->push_back(b);
 }
 
-bool DiaryHolder::validate(const nlohmann::json &json) {
-  try {
-    if (!json.contains("years") || !json.contains("settings") ||
-        !json.contains("metadata"))
-      return false;
-
-    return true;
-  } catch (const nlohmann::json::exception &e) {
-    return false;
-  }
-
-  return false;
-}
-
 bool DiaryHolder::load(std::string &raw) {
   auto json = nlohmann::json::parse(raw, nullptr, false);
   if (json.is_discarded())
     return false;
 
-  if (!DiaryHolder::validate(json))
-    return false;
-
-  diary->clear();
-  diary->merge_patch(json);
+  auto loaded = json.get<td::Diary>();
+  *diary = loaded;
 
   return true;
 }

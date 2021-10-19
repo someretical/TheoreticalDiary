@@ -28,8 +28,9 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QString>
+#include <algorithm>
+#include <json.hpp>
 #include <memory>
-#include <random>
 
 TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
     : QWidget(parent), ui(new Ui::TheoreticalCalendar) {
@@ -43,7 +44,8 @@ TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
   setStyleSheet(stylesheet);
 
   // Load star icon
-  star_icon = new QIcon(":/images/star.svg");
+  star_white = new QIcon(":/images/star_black.svg");
+  star_black = new QIcon(":/images/star_white.svg");
 
   // Different rated days have different stylesheets
   QFile _s_base(":/styles/s_base.qss");
@@ -103,7 +105,8 @@ TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
 TheoreticalCalendar::~TheoreticalCalendar() {
   delete ui;
   delete first_created;
-  delete star_icon;
+  delete star_white;
+  delete star_black;
   delete current_month_offset;
   delete last_selected_index;
   delete s_base;
@@ -148,95 +151,173 @@ void TheoreticalCalendar::set_button_stylesheet(CalendarButton &button,
   button.setStyleSheet(stylesheet);
 }
 
+void TheoreticalCalendar::add_known_day(
+    const std::vector<nlohmann::json>::iterator &entry, const int row,
+    const int col) {
+  int day = entry->at("day");
+  bool important = entry->at("important");
+  int rating = entry->at("rating");
+  QIcon *icon = !important
+                    ? nullptr
+                    : rating == 1 || rating == 5 ? star_white : star_black;
+
+  auto button =
+      new CalendarButton(&TheoreticalCalendar::clicked_on, day, rating, icon,
+                         QString::number(day + 1), this);
+  set_button_stylesheet(*button, false);
+  ui->dates->addWidget(button, row, col, 1, 1);
+}
+
+void TheoreticalCalendar::add_unknown_day(const int base_0_day, const int row,
+                                          const int col) {
+  auto button =
+      new CalendarButton(&TheoreticalCalendar::clicked_on, base_0_day, 0,
+                         nullptr, QString::number(base_0_day + 1), this);
+  set_button_stylesheet(*button, false);
+  ui->dates->addWidget(button, row, col, 1, 1);
+}
+
 // Renders a month
 void TheoreticalCalendar::change_month(const int year, const int month,
                                        const bool reset) {
-  // Remove everything from current grid
-  QLayoutItem *child;
-  while ((child = ui->dates->takeAt(0)) != 0) {
-    delete child->widget();
-    delete child;
-  }
+  //  // Remove everything from current grid
+  //  QLayoutItem *child;
+  //  while ((child = ui->dates->takeAt(0)) != 0) {
+  //    delete child->widget();
+  //    delete child;
+  //  }
 
-  // Set helper variables
-  std::unique_ptr<QDate> first_day(
-      new QDate((reset ? first_created->year() : year),
-                (reset ? first_created->month() : month), 1));
+  //  // Set helper variables
+  //  std::unique_ptr<QDate> first_day(
+  //      new QDate((reset ? first_created->year() : year),
+  //                (reset ? first_created->month() : month), 1));
 
-  // dayOfWeek() returns a number from 1 to 7
-  *current_month_offset = first_day->dayOfWeek() - 1;
+  //  // dayOfWeek() returns a number from 1 to 7
+  //  *current_month_offset = first_day->dayOfWeek() - 1;
 
-  ui->month_chooser->blockSignals(true);
-  ui->year_edit->blockSignals(true);
-  if (reset) {
-    // Initialise it now to prevent change_month() from dereferencing a nullptr
-    *last_selected_index = first_created->day() - 1 + *current_month_offset;
-    // Set the dropdown menu to be the current month
-    ui->month_chooser->setCurrentIndex(first_created->month() - 1);
-    // Set the year choose to the current year
-    ui->year_edit->setDate(*first_created);
-  } else {
-    *last_selected_index = *current_month_offset;
-    ui->month_chooser->setCurrentIndex(first_day->month() - 1);
-    ui->year_edit->setDate(*first_day);
-  }
-  ui->month_chooser->blockSignals(false);
-  ui->year_edit->blockSignals(false);
+  //  ui->month_chooser->blockSignals(true);
+  //  ui->year_edit->blockSignals(true);
+  //  if (reset) {
+  //    // Initialise it now to prevent change_month() from dereferencing a
+  //    nullptr *last_selected_index = first_created->day() - 1 +
+  //    *current_month_offset;
+  //    // Set the dropdown menu to be the current month
+  //    ui->month_chooser->setCurrentIndex(first_created->month() - 1);
+  //    // Set the year choose to the current year
+  //    ui->year_edit->setDate(*first_created);
+  //  } else {
+  //    *last_selected_index = *current_month_offset;
+  //    ui->month_chooser->setCurrentIndex(first_day->month() - 1);
+  //    ui->year_edit->setDate(*first_day);
+  //  }
+  //  ui->month_chooser->blockSignals(false);
+  //  ui->year_edit->blockSignals(false);
 
-  // Re render given month, select 1st day of month
+  //  // Re render given month, select 1st day of month
 
-  // Placeholder RNG to simulate colours
-  std::random_device dev;
-  std::mt19937 rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> dist(0, 5);
+  //  // Render spacers for first row padding
+  //  for (int i = 0; i < *current_month_offset; ++i) {
+  //    auto spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum);
+  //    ui->dates->addItem(spacer, 0, i, 1, 1);
+  //  }
 
-  // Render spacers for first row padding
-  for (int i = 0; i < *current_month_offset; ++i) {
-    auto spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum);
-    ui->dates->addItem(spacer, 0, i, 1, 1);
-  }
+  //  // Get indexes for year, month objects in their vectors
+  //  int indexes[2] = {-1, -1};
+  //  auto year_vector =
+  //      TheoreticalDiary::instance()->diary_holder->diary->at("years");
 
-  // Render rest of first row
-  int days_added = 0;
-  for (int i = *current_month_offset; i < 7; ++i, ++days_added) {
-    int rating = dist(rng);
-    QIcon *star = nullptr;
+  //  auto year_holder = std::find_if(
+  //      year_vector.begin(), year_vector.end(),
+  //      [&](const nlohmann::json &year_obj) {
+  //        auto y = year_obj.find("year");
+  //        return y != year_obj.end() && y.value() ==
+  //        ui->year_edit->date().year();
+  //      });
+  //  if (year_holder != year_vector.end())
+  //    indexes[0] = std::distance(year_vector.begin(), year_holder);
 
-    auto button = new CalendarButton(
-        &TheoreticalCalendar::clicked_on, i - *current_month_offset, rating,
-        star, QString::number(i - *current_month_offset + 1), this);
-    set_button_stylesheet(*button, false);
-    ui->dates->addWidget(button, 0, i, 1, 1);
-  }
+  //  if (-1 != indexes[0]) {
+  //    auto month_vector = year_holder->at("months");
+  //    auto month_holder =
+  //        std::find_if(month_vector.begin(), month_vector.end(),
+  //                     [&](const nlohmann::json &month_obj) {
+  //                       auto m = month_obj.find("month");
+  //                       return m != month_obj.end() &&
+  //                              m.value() == ui->year_edit->date().month();
+  //                     });
 
-  // Render main block
-  int row = 0 != current_month_offset ? 1 : 0;
-  int current_row_length = 0;
+  //    if (month_holder != month_vector.end())
+  //      indexes[1] = std::distance(month_vector.begin(), month_holder);
+  //  }
 
-  for (int i = days_added; i < first_day->daysInMonth();
-       ++i, ++current_row_length) {
-    if (7 == current_row_length) {
-      ++row;
-      current_row_length = 0;
-    }
+  //  // Render rest of first row + main block
+  //  int days_added = 0;
+  //  int row = 0 != current_month_offset ? 1 : 0;
+  //  int current_row_length = 0;
 
-    int rating = dist(rng);
-    QIcon *star = star_icon;
+  //  if (-1 != indexes[0] && -1 != indexes[1]) {
+  //    std::vector<nlohmann::json> day_vector =
+  //        year_holder->at("months")[indexes[1]].at("days");
 
-    auto button =
-        new CalendarButton(&TheoreticalCalendar::clicked_on, i, rating, star,
-                           QString::number(i + 1), this);
-    set_button_stylesheet(*button, false);
-    ui->dates->addWidget(button, row, current_row_length, 1, 1);
-  }
+  //    for (int i = *current_month_offset; i < 7; ++i, ++days_added) {
+  //      auto entry =
+  //          std::find_if(day_vector.begin(), day_vector.end(),
+  //                       [&](const nlohmann::json &day_obj) {
+  //                         auto d = day_obj.find("day");
+  //                         return d != day_obj.end() &&
+  //                                d.value() == i - *current_month_offset + 1;
+  //                       });
 
-  // Fill in last row with spacers
-  while (current_row_length < 7) {
-    auto spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum);
-    ui->dates->addItem(spacer, row, current_row_length++, 1, 1);
-  }
+  //      if (entry != day_vector.end()) {
+  //        add_known_day(entry, 0, i);
+  //      } else {
+  //        add_unknown_day(i - *current_month_offset, 0, i);
+  //      }
+  //    }
 
-  rerender_day(*last_selected_index, true);
+  //    for (int i = days_added; i < first_day->daysInMonth();
+  //         ++i, ++current_row_length) {
+  //      if (7 == current_row_length) {
+  //        ++row;
+  //        current_row_length = 0;
+  //      }
+
+  //      std::vector<nlohmann::json>::iterator entry =
+  //          std::find_if(day_vector.begin(), day_vector.end(),
+  //                       [&](const nlohmann::json &day_obj) {
+  //                         auto d = day_obj.find("day");
+  //                         return d != day_obj.end() && d.value() == i;
+  //                       });
+
+  //      if (entry != day_vector.end()) {
+  //        add_known_day(entry, row, current_row_length);
+  //      } else {
+  //        add_unknown_day(i, row, current_row_length);
+  //      }
+  //    }
+  //  } else {
+  //    for (int i = *current_month_offset; i < 7; ++i, ++days_added) {
+  //      add_unknown_day(i - *current_month_offset, 0, i);
+  //    }
+
+  //    for (int i = days_added; i < first_day->daysInMonth();
+  //         ++i, ++current_row_length) {
+  //      if (7 == current_row_length) {
+  //        ++row;
+  //        current_row_length = 0;
+  //      }
+
+  //      add_unknown_day(i, row, current_row_length);
+  //    }
+  //  }
+
+  //  // Fill in last row with spacers
+  //  while (current_row_length < 7) {
+  //    auto spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum);
+  //    ui->dates->addItem(spacer, row, current_row_length++, 1, 1);
+  //  }
+
+  //  rerender_day(*last_selected_index, true);
 }
 
 void TheoreticalCalendar::rerender_day(const int index, const bool selected) {
@@ -254,6 +335,31 @@ void TheoreticalCalendar::rerender_day(const int index, const bool selected) {
   emit sig_update_info(ui->year_edit->date().year(),
                        ui->month_chooser->currentIndex() + 1,
                        *(button->base_0_day) + 1);
+}
+
+// This overload should only be called when updating/deleting an entry
+void TheoreticalCalendar::rerender_day(
+    const std::vector<nlohmann::json>::iterator &entry) {
+  // Get x, y coords of button from 1-31
+  int base_1_day = entry->at("day");
+  int y = (int)((base_1_day + *current_month_offset - 1) / 7);
+  int x = (base_1_day + *current_month_offset - 1) % 7;
+
+  auto button =
+      dynamic_cast<CalendarButton *>(ui->dates->itemAtPosition(y, x)->widget());
+  bool important = entry->at("important");
+  int rating = entry->at("rating");
+  QIcon *icon = !important
+                    ? nullptr
+                    : rating == 1 || rating == 5 ? star_white : star_black;
+
+  *(button->rating) = rating;
+  set_button_stylesheet(*button, true);
+  if (nullptr != icon) {
+    button->setIcon(*icon);
+  } else {
+    button->setIcon(QIcon());
+  }
 }
 
 void TheoreticalCalendar::clicked_on(const int base_0_day) {
@@ -298,7 +404,7 @@ CalendarButton::CalendarButton(void (TheoreticalCalendar::*slot)(const int),
   setFlat(false);
   setAutoDefault(true);
 
-  if (icon != nullptr)
+  if (nullptr != icon)
     setIcon(*icon);
 
   base_0_day = new int(__base_0_day);

@@ -23,6 +23,8 @@
 #include <QPushButton>
 #include <QString>
 #include <QWidget>
+#include <json.hpp>
+#include <vector>
 
 namespace Ui {
 class TheoreticalCalendar;
@@ -65,7 +67,11 @@ public:
   void set_button_stylesheet(CalendarButton &button, const bool selected);
   void change_month(const int year, const int month = 1,
                     const bool reset = false);
+  void add_known_day(const std::vector<nlohmann::json>::iterator &entry,
+                     const int row, const int col);
+  void add_unknown_day(const int base_0_day, const int row, const int col);
   void rerender_day(const int index, const bool selected = false);
+  void rerender_day(const std::vector<nlohmann::json>::iterator &entry);
 
   QString *s_base;
   QString *s_default;
@@ -79,7 +85,8 @@ public:
   int *current_month_offset;
   int *last_selected_index;
 
-  QIcon *star_icon;
+  QIcon *star_white;
+  QIcon *star_black;
   QDate *first_created;
 
 public slots:

@@ -49,7 +49,6 @@ SOURCES += \
     promptpassword.cpp \
     runguard.cpp \
     saveerror.cpp \
-    settingsprovider.cpp \
     theoreticalcalendar.cpp \
     theoreticaldiary.cpp \
     unknowndiaryformat.cpp \
@@ -73,7 +72,6 @@ HEADERS += \
     promptpassword.h \
     runguard.h \
     saveerror.h \
-    settingsprovider.h \
     theoreticalcalendar.h \
     theoreticaldiary.h \
     unknowndiaryformat.h \
