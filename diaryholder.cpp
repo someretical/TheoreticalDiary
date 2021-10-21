@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+#define CURRENT_SAVE_VERSION 2
+
 DiaryHolder::DiaryHolder() {
   diary = new td::Diary;
   key = new std::vector<CryptoPP::byte>();
@@ -38,7 +40,7 @@ void DiaryHolder::init() {
   td::Diary new_diary;
   new_diary.years = td::YearMap();
   new_diary.settings = td::Settings();
-  new_diary.metadata = td::Metadata{1, std::time(nullptr)};
+  new_diary.metadata = td::Metadata{CURRENT_SAVE_VERSION, std::time(nullptr)};
 
   *diary = new_diary;
 }
@@ -55,8 +57,12 @@ bool DiaryHolder::load(std::string &raw) {
   if (json.is_discarded())
     return false;
 
-  auto loaded = json.get<td::Diary>();
-  *diary = loaded;
+  try {
+    auto loaded = json.get<td::Diary>();
+    *diary = loaded;
+  } catch (const nlohmann::json::exception &e) {
+    return false;
+  }
 
   return true;
 }

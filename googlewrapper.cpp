@@ -138,7 +138,7 @@ void GoogleWrapper::authenticate() {
   google->blockSignals(false);
 
   if (load_credentials()) {
-    emit sig_oauth2_callback(0);
+    emit sig_oauth2_callback(td::Res::Yes);
   } else {
     google->grant();
   }
@@ -156,7 +156,7 @@ void GoogleWrapper::auth_ok() {
 
   if (save_credentials()) {
     google->blockSignals(true);
-    emit sig_oauth2_callback(0);
+    emit sig_oauth2_callback(td::Res::Yes);
   } else {
     auth_err();
   }
@@ -165,5 +165,5 @@ void GoogleWrapper::auth_ok() {
 void GoogleWrapper::auth_err() {
   google->blockSignals(true);
 
-  emit sig_oauth2_callback(1);
+  emit sig_oauth2_callback(td::Res::No);
 }

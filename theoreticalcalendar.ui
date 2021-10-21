@@ -127,6 +127,9 @@
               <pointsize>16</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="toolTip">
              <string>Previous month.</string>
             </property>
@@ -181,6 +184,9 @@
              <font>
               <pointsize>16</pointsize>
              </font>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="maxVisibleItems">
              <number>12</number>
@@ -288,6 +294,9 @@
               <pointsize>14</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>IBeamCursor</cursorShape>
+            </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::UpDownArrows</enum>
             </property>
@@ -336,6 +345,9 @@
              <font>
               <pointsize>16</pointsize>
              </font>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="toolTip">
              <string>Next month.</string>

@@ -18,6 +18,8 @@
 #ifndef UNSAVEDCHANGESBASE_H
 #define UNSAVEDCHANGESBASE_H
 
+#include "theoreticaldiary.h"
+
 #include <QDialog>
 
 namespace Ui {
@@ -28,7 +30,7 @@ class UnsavedChangesBase : public QDialog {
   Q_OBJECT
 
 signals:
-  void sig_complete(const int code);
+  void sig_complete(const td::Res code);
 
 public:
   explicit UnsavedChangesBase(QWidget *parent = nullptr);
@@ -44,7 +46,7 @@ private:
 
 template <class C> class UnsavedChanges : public UnsavedChangesBase {
 public:
-  UnsavedChanges(void (C::*slot)(const int), QWidget *parent)
+  UnsavedChanges(void (C::*slot)(const td::Res), QWidget *parent)
       : UnsavedChangesBase(parent) {
     connect(this, &UnsavedChanges::sig_complete, qobject_cast<C *>(parent),
             slot);

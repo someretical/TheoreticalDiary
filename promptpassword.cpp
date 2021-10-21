@@ -88,11 +88,11 @@ void PromptPassword::decrypt() {
   success = TheoreticalDiary::instance()->diary_holder->load(decrypted);
 
   if (!success) {
-    emit sig_complete(1);
+    emit sig_complete(td::Res::No);
     accept();
   }
 
   TheoreticalDiary::instance()->diary_holder->set_key(hash);
-  emit sig_complete(0);
+  emit sig_complete(td::Res::Yes);
   accept();
 }

@@ -97,6 +97,9 @@
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
        <property name="text">
         <string>No</string>
        </property>
@@ -129,6 +132,9 @@
         <font>
          <pointsize>11</pointsize>
         </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="text">
         <string>Yes</string>

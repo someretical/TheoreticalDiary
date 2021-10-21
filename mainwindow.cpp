@@ -22,6 +22,7 @@
 #include "diarywindow.h"
 #include "encryptor.h"
 #include "flushwindow.h"
+#include "missingpermissions.h"
 #include "nodiaryfound.h"
 #include "placeholder.h"
 #include "promptauth.h"
@@ -135,8 +136,8 @@ void MainWindow::open_diary() {
   }
 }
 
-void MainWindow::prompt_pwd_callback(const int code) {
-  if (code) {
+void MainWindow::prompt_pwd_callback(const td::Res code) {
+  if (td::Res::No == code) {
     auto *w = new UnknownDiaryFormat(this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -159,8 +160,8 @@ void MainWindow::create_new_diary() {
   w->show();
 }
 
-void MainWindow::confirm_overwrite_callback(const int code) {
-  if (code == 0) {
+void MainWindow::confirm_overwrite_callback(const td::Res code) {
+  if (td::Res::Yes == code) {
     create_new_diary();
   }
 }
@@ -211,8 +212,8 @@ void MainWindow::dl_diary() {
 }
 
 void MainWindow::real_import_diary() {
-  auto filename = QFileDialog::getOpenFileName(
-      this, "Import diary", QDir::homePath(), "JSON file (*.json)");
+  auto filename =
+      QFileDialog::getOpenFileName(this, "Import diary", QDir::homePath());
 
   if (filename.size() == 0)
     return;
@@ -220,8 +221,7 @@ void MainWindow::real_import_diary() {
   std::ifstream ifs(filename.toStdString());
 
   if (ifs.fail()) {
-    // TODO maybe replace with a 'missing permissions' dialog
-    auto *w = new UnknownDiaryFormat(this);
+    auto *w = new MissingPermissions(this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     w->show();
@@ -236,7 +236,6 @@ void MainWindow::real_import_diary() {
     DiaryWindow w(this);
     w.show();
   } else {
-    // same todo as above
     auto *w = new UnknownDiaryFormat(this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -245,8 +244,8 @@ void MainWindow::real_import_diary() {
   }
 }
 
-void MainWindow::import_diary_callback(const int code) {
-  if (code == 0) {
+void MainWindow::import_diary_callback(const td::Res code) {
+  if (td::Res::Yes == code) {
     real_import_diary();
   }
 }
@@ -291,12 +290,12 @@ void MainWindow::about_app() {
   w.exec();
 }
 
-void MainWindow::oauth2_callback(const int code) {
+void MainWindow::oauth2_callback(const td::Res code) {
   disconnect(TheoreticalDiary::instance()->gwrapper,
              &GoogleWrapper::sig_oauth2_callback, this,
              &MainWindow::oauth2_callback);
 
-  if (code) {
+  if (td::Res::No == code) {
     auto *w = new AuthErrorWindow(this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);

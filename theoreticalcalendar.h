@@ -18,12 +18,17 @@
 #ifndef THEORETICALCALENDAR_H
 #define THEORETICALCALENDAR_H
 
+#include "diaryholder.h"
+#include "diarywindow.h"
+#include "theoreticaldiary.h"
+
 #include <QDate>
 #include <QIcon>
 #include <QPushButton>
 #include <QString>
 #include <QWidget>
 #include <json.hpp>
+#include <optional>
 #include <vector>
 
 namespace Ui {
@@ -33,22 +38,29 @@ class TheoreticalCalendar;
 // Forward declaration of TheoreticalCalendar to fix cyclical reference
 class TheoreticalCalendar;
 
+namespace td {
+struct CalendarButtonData {
+  int day;
+  std::optional<TheoreticalCalendar *> parent;
+  std::optional<bool> important;
+  std::optional<td::Rating> rating;
+  std::optional<bool> selected;
+};
+} // namespace td
+
 // CalendarButton class
 class CalendarButton : public QPushButton {
   Q_OBJECT
 
 signals:
-  void sig_clicked(const int code);
+  void sig_clicked(const int day);
 
 public:
-  explicit CalendarButton(void (TheoreticalCalendar::*slot)(const int),
-                          const int __base_0_day, const int _rating,
-                          const QIcon *icon, const QString &text,
-                          QWidget *parent = nullptr);
+  explicit CalendarButton(const td::CalendarButtonData &d);
   ~CalendarButton();
+  void update_aesthetic(const td::CalendarButtonData &d);
 
-  int *base_0_day;
-  int *rating;
+  td::CalendarButtonData *data;
 
 public slots:
   void clicked_on();
@@ -59,19 +71,15 @@ class TheoreticalCalendar : public QWidget {
   Q_OBJECT
 
 signals:
-  void sig_update_info(const int year, const int month, const int day);
+  void sig_update_info(const QDate date);
 
 public:
   explicit TheoreticalCalendar(QWidget *parent = nullptr);
   ~TheoreticalCalendar();
-  void set_button_stylesheet(CalendarButton &button, const bool selected);
-  void change_month(const int year, const int month = 1,
-                    const bool reset = false);
-  void add_known_day(const std::vector<nlohmann::json>::iterator &entry,
-                     const int row, const int col);
-  void add_unknown_day(const int base_0_day, const int row, const int col);
-  void rerender_day(const int index, const bool selected = false);
-  void rerender_day(const std::vector<nlohmann::json>::iterator &entry);
+  void render_month(const QDate &first_day,
+                    const std::optional<td::EntryMap *> &map);
+  void rerender_day(const td::CalendarButtonData d);
+  void change_month(const QDate first_day);
 
   QString *s_base;
   QString *s_default;
@@ -81,16 +89,16 @@ public:
   QString *s_good;
   QString *s_very_good;
   QString *s_selected;
+  QString *s_star_white;
+  QString *s_star_black;
 
   int *current_month_offset;
-  int *last_selected_index;
+  int *last_selected_day;
 
-  QIcon *star_white;
-  QIcon *star_black;
   QDate *first_created;
 
 public slots:
-  void clicked_on(const int base_0_day);
+  void clicked_on(const int day);
   void dropdown_changed(const int index);
   void date_changed(const QDate &date);
   void next_month();

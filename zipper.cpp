@@ -21,6 +21,8 @@
 #include <gzip.h>
 #include <string>
 
+// TODO zip THEN encrypt
+
 /**
  * Gzip string to file
  */

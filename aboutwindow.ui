@@ -109,6 +109,9 @@
        <height>100</height>
       </size>
      </property>
+     <property name="cursor" stdset="0">
+      <cursorShape>IBeamCursor</cursorShape>
+     </property>
      <property name="plainText">
       <string/>
      </property>
@@ -148,6 +151,9 @@
        <width>510</width>
        <height>200</height>
       </size>
+     </property>
+     <property name="cursor" stdset="0">
+      <cursorShape>IBeamCursor</cursorShape>
      </property>
      <property name="plainText">
       <string/>
@@ -197,6 +203,9 @@
       <font>
        <pointsize>11</pointsize>
       </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
      </property>
      <property name="text">
       <string>OK</string>

@@ -24,62 +24,50 @@
 #include <vector>
 
 namespace td {
-enum Rating { VeryBad = 1, Bad, Ok, Good, VeryGood };
-
-enum Month {
-  January = 1,
-  February,
-  March,
-  April,
-  May,
-  June,
-  July,
-  August,
-  September,
-  October,
-  November,
-  December
-};
+enum Rating { Unknown, VeryBad, Bad, Ok, Good, VeryGood };
 
 struct Entry {
   int day;
+  bool important;
   Rating rating;
   std::string message;
 };
+typedef std::map<int, Entry> EntryMap;
 
 inline void to_json(nlohmann::json &j, const Entry &e) {
-  j = nlohmann::json{
-      {"day", e.day}, {"rating", e.rating}, {"message", e.message}};
+  j = nlohmann::json{{"day", e.day},
+                     {"important", e.important},
+                     {"rating", e.rating},
+                     {"message", e.message}};
 }
 
 inline void from_json(const nlohmann::json &j, Entry &e) {
   j.at("day").get_to<int>(e.day);
+  j.at("important").get_to<bool>(e.important);
   j.at("rating").get_to<Rating>(e.rating);
   j.at("message").get_to<std::string>(e.message);
 }
 
-typedef std::map<Month, Entry> EntryMap;
-
 struct MonthContainer {
-  Month month;
+  int month;
   EntryMap days;
 };
+typedef std::map<int, MonthContainer> MonthMap;
 
 inline void to_json(nlohmann::json &j, const MonthContainer &m) {
   j = nlohmann::json{{"month", m.month}, {"days", m.days}};
 }
 
 inline void from_json(const nlohmann::json &j, MonthContainer &m) {
-  j.at("month").get_to<Month>(m.month);
+  j.at("month").get_to<int>(m.month);
   j.at("days").get_to<EntryMap>(m.days);
 }
-
-typedef std::map<int, MonthContainer> MonthMap;
 
 struct YearContainer {
   int year;
   MonthMap months;
 };
+typedef std::map<int, YearContainer> YearMap;
 
 inline void to_json(nlohmann::json &j, const YearContainer &y) {
   j = nlohmann::json{{"year", y.year}, {"months", y.months}};
@@ -111,8 +99,6 @@ inline void to_json(nlohmann::json &j, const Settings &s) {
 }
 
 inline void from_json(const nlohmann::json &j, Settings &s) {}
-
-typedef std::map<int, YearContainer> YearMap;
 
 struct Diary {
   YearMap years;

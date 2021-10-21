@@ -111,5 +111,7 @@
         <file>styles/s_base.qss</file>
         <file>images/star_white.svg</file>
         <file>images/star_black.svg</file>
+        <file>styles/s_star_white.qss</file>
+        <file>styles/s_star_black.qss</file>
     </qresource>
 </RCC>

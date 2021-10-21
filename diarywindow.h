@@ -18,8 +18,13 @@
 #ifndef DIARYWINDOW_H
 #define DIARYWINDOW_H
 
-#include "theoreticalcalendar.h"
+class TheoreticalCalendar;
 
+#include "diaryholder.h"
+#include "theoreticalcalendar.h"
+#include "theoreticaldiary.h"
+
+#include <QDate>
 #include <QDialog>
 #include <string>
 
@@ -34,19 +39,27 @@ public:
   explicit DiaryWindow(QWidget *parent = nullptr);
   ~DiaryWindow();
   static std::string get_day_suffix(const int day);
+  void update_info_pane(const QDate &new_date);
+
+  QDate *current_date;
 
 public slots:
   void reject();
   void action_save();
   void update_password();
+  void reset_date();
+  void delete_entry();
+  void update_entry();
+  void export_diary();
 
-  void confirm_close_callback(const int code);
-  void update_info(const int year, const int month, const int day);
+  void confirm_close_callback(const td::Res code);
+  void confirm_delete_callback(const td::Res code);
 
 private:
+  void _update_info_pane(const td::Entry &entry);
+
   Ui::DiaryWindow *ui;
   TheoreticalCalendar *calendar;
-  int *previous_selection;
 };
 
 #endif // DIARYWINDOW_H

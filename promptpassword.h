@@ -18,6 +18,8 @@
 #ifndef PROMPTPASSWORD_H
 #define PROMPTPASSWORD_H
 
+#include "theoreticaldiary.h"
+
 #include <QDialog>
 #include <string>
 
@@ -29,7 +31,7 @@ class PromptPassword : public QDialog {
   Q_OBJECT
 
 signals:
-  void sig_complete(const int code);
+  void sig_complete(const td::Res code);
 
 public:
   explicit PromptPassword(const std::string &uncompressed,

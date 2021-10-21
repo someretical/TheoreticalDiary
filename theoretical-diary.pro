@@ -35,6 +35,7 @@ CONFIG += c++17
 SOURCES += \
     aboutwindow.cpp \
     autherrorwindow.cpp \
+    confirmdelete.cpp \
     confirmoverwrite.cpp \
     diaryholder.cpp \
     diarywindow.cpp \
@@ -43,6 +44,7 @@ SOURCES += \
     googlewrapper.cpp \
     main.cpp \
     mainwindow.cpp \
+    missingpermissions.cpp \
     nodiaryfound.cpp \
     placeholder.cpp \
     promptauth.cpp \
@@ -59,6 +61,7 @@ SOURCES += \
 HEADERS += \
     aboutwindow.h \
     autherrorwindow.h \
+    confirmdelete.h \
     confirmoverwrite.h \
     diaryholder.h \
     diarywindow.h \
@@ -66,6 +69,7 @@ HEADERS += \
     flushwindow.h \
     googlewrapper.h \
     mainwindow.h \
+    missingpermissions.h \
     nodiaryfound.h \
     placeholder.h \
     promptauth.h \
@@ -82,10 +86,12 @@ HEADERS += \
 FORMS += \
     aboutwindow.ui \
     autherrorwindow.ui \
+    confirmdelete.ui \
     confirmoverwrite.ui \
     diarywindow.ui \
     flushwindow.ui \
     mainwindow.ui \
+    missingpermissions.ui \
     nodiaryfound.ui \
     placeholder.ui \
     promptauth.ui \
@@ -210,6 +216,8 @@ DISTFILES += \
     styles/s_good.qss \
     styles/s_ok.qss \
     styles/s_selected.qss \
+    styles/s_star_black.qss \
+    styles/s_star_white.qss \
     styles/s_very_bad.qss \
     styles/s_very_good.qss \
     styles/theoreticalcalendar.qss \

@@ -15,37 +15,20 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GOOGLEWRAPPER_H
-#define GOOGLEWRAPPER_H
+#include "missingpermissions.h"
+#include "ui_missingpermissions.h"
 
-namespace td {
-enum Res : int;
+MissingPermissions::MissingPermissions(QWidget *parent)
+    : QDialog(parent), ui(new Ui::MissingPermissions) {
+  ui->setupUi(this);
+
+  // Setup close action
+  auto action = findChild<QAction *>("action_close");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &MissingPermissions::action_close,
+          Qt::QueuedConnection);
 }
 
-#include "theoreticaldiary.h"
+MissingPermissions::~MissingPermissions() { delete ui; }
 
-#include <QObject>
-#include <QtNetworkAuth>
-
-class GoogleWrapper : public QObject {
-  Q_OBJECT
-
-public:
-  GoogleWrapper(QObject *parent = nullptr);
-  ~GoogleWrapper();
-  void authenticate();
-  bool save_credentials();
-  bool load_credentials();
-  void auth_err();
-
-signals:
-  void sig_oauth2_callback(const td::Res code);
-  void sig_token_changed();
-
-private:
-  QOAuth2AuthorizationCodeFlow *google;
-  void token_changed();
-  void auth_ok();
-};
-
-#endif // GOOGLEWRAPPER_H
+void MissingPermissions::action_close() { accept(); }

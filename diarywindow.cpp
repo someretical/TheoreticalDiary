@@ -16,8 +16,10 @@
  */
 
 #include "diarywindow.h"
+#include "confirmdelete.h"
 #include "diaryholder.h"
 #include "encryptor.h"
+#include "missingpermissions.h"
 #include "saveerror.h"
 #include "theoreticalcalendar.h"
 #include "theoreticaldiary.h"
@@ -28,34 +30,16 @@
 
 #include <QAction>
 #include <QDate>
+#include <QFileDialog>
 #include <QString>
-#include <ctime>
 #include <fstream>
+#include <json.hpp>
+#include <optional>
 #include <string>
-
-// https://stackoverflow.com/a/9130114
-std::string DiaryWindow::get_day_suffix(const int day) {
-  switch (day) {
-  case 1:
-  case 21:
-  case 31:
-    return "st";
-  case 2:
-  case 22:
-    return "nd";
-  case 3:
-  case 23:
-    return "rd";
-  default:
-    return "th";
-  }
-}
 
 DiaryWindow::DiaryWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::DiaryWindow) {
   ui->setupUi(this);
-
-  previous_selection = new int[3]{-1, -1, -1};
 
   QFile ss_file(":/styles/diarywindow.qss");
   ss_file.open(QIODevice::ReadOnly);
@@ -64,6 +48,9 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   // contents of the tab widget. So we have to call it on the tab widget
   // specifically.
   ui->editor->setStyleSheet(stylesheet);
+
+  QDate d = QDate::currentDate();
+  current_date = new QDate(d.year(), d.month(), d.day());
 
   calendar = new TheoreticalCalendar(this);
   ui->calender_box->addWidget(calendar, Qt::AlignHCenter | Qt::AlignTop);
@@ -81,54 +68,239 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   action = findChild<QAction *>("action_update_password");
   addAction(action);
   connect(action, &QAction::triggered, this, &DiaryWindow::update_password);
+
+  action = findChild<QAction *>("action_reset");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &DiaryWindow::reset_date);
+
+  action = findChild<QAction *>("action_update_entry");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &DiaryWindow::update_entry);
+
+  action = findChild<QAction *>("action_delete_entry");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &DiaryWindow::delete_entry);
+
+  action = findChild<QAction *>("action_export");
+  addAction(action);
+  connect(action, &QAction::triggered, this, &DiaryWindow::export_diary);
+
+  action = findChild<QAction *>("action_changes_made");
+  addAction(action);
+  connect(action, &QAction::triggered, TheoreticalDiary::instance(),
+          &TheoreticalDiary::changes_made);
 }
 
 DiaryWindow::~DiaryWindow() {
   delete ui;
   delete calendar;
-  delete[] previous_selection;
+  delete current_date;
 }
 
-void DiaryWindow::update_info(const int year, const int month, const int day) {
-  if (year == previous_selection[0] && month == previous_selection[1] &&
-      day == previous_selection[2])
+// Refocus calendar on current date.
+void DiaryWindow::reset_date() {
+  calendar->change_month(*calendar->first_created);
+}
+
+// Create dialog confirming deleting the currently selected entry.
+void DiaryWindow::delete_entry() {
+  auto *w = new ConfirmDelete<DiaryWindow>(
+      &DiaryWindow::confirm_delete_callback, this);
+  w->setModal(true);
+  w->setAttribute(Qt::WA_DeleteOnClose, true);
+  w->show();
+  return;
+}
+
+void DiaryWindow::confirm_delete_callback(const td::Res code) {
+  if (td::Res::No == code)
     return;
 
-  previous_selection[0] = year;
-  previous_selection[1] = month;
-  previous_selection[2] = day;
+  auto year_map = &TheoreticalDiary::instance()->diary_holder->diary->years;
+  auto year_iter = year_map->find(current_date->year());
 
-  QDate new_date(year, month, day);
+  if (year_iter != year_map->end()) {
+    auto month_map = &year_iter->second.months;
+    auto month_iter = month_map->find(current_date->month());
 
-  ui->date_placeholder->setText(
-      QString::number(day) +
-      QString::fromStdString(DiaryWindow::get_day_suffix(day)) +
-      new_date.toString(" MMMM yyyy"));
+    if (month_iter != month_map->end()) {
+      month_iter->second.days.erase(current_date->day());
+    }
+  }
+
+  td::CalendarButtonData d{current_date->day(), std::nullopt,
+                           std::make_optional<bool>(false),
+                           std::make_optional<td::Rating>(td::Rating::Unknown),
+                           std::make_optional<bool>(true)};
+  calendar->rerender_day(d);
+
+  td::Entry e{0, false, td::Rating::Unknown, ""};
+  _update_info_pane(e);
 }
 
+void DiaryWindow::update_entry() {
+  if (td::Rating::Unknown ==
+      static_cast<td::Rating>(ui->rating_dropdown->currentIndex())) {
+    return ui->status_text->setText("Missing rating");
+  }
+
+  // Find/create path to new entry
+  // https://stackoverflow.com/a/101980
+
+  // Find/create YearContainer within Diary.years
+  auto year_map = &TheoreticalDiary::instance()->diary_holder->diary->years;
+  td::YearMap::iterator year_iter = year_map->lower_bound(current_date->year());
+
+  if (year_iter == year_map->end() ||
+      year_map->key_comp()(current_date->year(), year_iter->first)) {
+    td::YearContainer year_container{current_date->year(), td::MonthMap()};
+
+    year_iter = year_map->insert(
+        year_iter,
+        td::YearMap::value_type(current_date->year(), year_container));
+  } // else { /* K, V already exist */ }
+
+  // Find/create MonthContainer within the YearContainer.months
+  auto month_map = &(year_iter->second.months);
+  td::MonthMap::iterator month_iter =
+      month_map->lower_bound(current_date->month());
+
+  if (month_iter == month_map->end() ||
+      month_map->key_comp()(current_date->month(), month_iter->first)) {
+    td::MonthContainer month_container{current_date->month(), td::EntryMap()};
+
+    month_iter = month_map->insert(
+        month_iter,
+        td::MonthMap::value_type(current_date->month(), month_container));
+  } // else { /* K, V already exist */ }
+
+  td::Entry new_entry = {
+      current_date->day(), ui->is_important->isChecked(),
+      static_cast<td::Rating>(ui->rating_dropdown->currentIndex()),
+      ui->text_entry->toPlainText().toStdString()};
+
+  // Find/create Entry within the MonthContainer.days
+  auto entry_map = &(month_iter->second.days);
+  td::EntryMap::iterator entry_iter =
+      entry_map->lower_bound(current_date->day());
+
+  if (entry_iter == entry_map->end() ||
+      entry_map->key_comp()(current_date->day(), entry_iter->first)) {
+    entry_iter = entry_map->insert(
+        entry_iter, td::EntryMap::value_type(current_date->day(), new_entry));
+  } else {
+    entry_iter->second = new_entry;
+  }
+
+  td::CalendarButtonData data{
+      current_date->day(), std::nullopt,
+      std::make_optional<bool>(ui->is_important->isChecked()),
+      std::make_optional<td::Rating>(
+          static_cast<td::Rating>(ui->rating_dropdown->currentIndex())),
+      std::nullopt};
+  calendar->rerender_day(data);
+}
+
+void DiaryWindow::export_diary() {
+  auto filename =
+      QFileDialog::getSaveFileName(this, "Export diary", QDir::homePath());
+
+  if (filename.size() == 0)
+    return;
+
+  std::ofstream dst(filename.toStdString());
+
+  if (dst.fail()) {
+    auto *w = new MissingPermissions(this);
+    w->setModal(true);
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
+    return;
+  }
+
+  nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
+  dst << j.dump(4);
+  dst.close();
+}
+
+// Internal method for updating the non heading part of the info pane.
+void DiaryWindow::_update_info_pane(const td::Entry &entry) {
+  ui->rating_dropdown->blockSignals(true);
+  ui->is_important->blockSignals(true);
+  ui->text_entry->blockSignals(true);
+
+  ui->rating_dropdown->setCurrentIndex(static_cast<int>(entry.rating));
+  ui->is_important->setChecked(entry.important);
+  ui->text_entry->setPlainText(QString::fromStdString(entry.message));
+
+  ui->rating_dropdown->blockSignals(false);
+  ui->is_important->blockSignals(false);
+  ui->text_entry->blockSignals(false);
+}
+
+// Updates the heading of the info pane and the rest of the info pane if the
+// entry exists.
+void DiaryWindow::update_info_pane(const QDate &new_date) {
+  ui->status_text->setText("");
+
+  // Don't bother updating if the user spam clicks the same day.
+  if (current_date->year() == new_date.year() &&
+      current_date->month() == new_date.month() &&
+      current_date->day() == new_date.day())
+    return;
+
+  *current_date = new_date;
+
+  ui->date_placeholder->setText(
+      QString::number(new_date.day()) +
+      QString::fromStdString(DiaryWindow::get_day_suffix(new_date.day())) +
+      new_date.toString(" MMMM yyyy"));
+
+  // Get iterators
+  auto year_map = TheoreticalDiary::instance()->diary_holder->diary->years;
+  auto year_iter = year_map.find(new_date.year());
+
+  if (year_iter != year_map.end()) {
+    auto month_map = year_iter->second.months;
+    auto month_iter = month_map.find(new_date.month());
+
+    if (month_iter != month_map.end()) {
+      auto entry_map = month_iter->second.days;
+      auto entry_iter = entry_map.find(new_date.day());
+
+      if (entry_iter != entry_map.end())
+        return _update_info_pane(entry_iter->second);
+    }
+  }
+
+  _update_info_pane(td::Entry{-1, false, td::Rating::Unknown, ""});
+}
+
+// Called when the user presses the X button or the quit button.
 void DiaryWindow::reject() {
-  if (*(TheoreticalDiary::instance()->unsaved_changes)) {
+  if (*TheoreticalDiary::instance()->unsaved_changes) {
     UnsavedChanges<DiaryWindow> w(&DiaryWindow::confirm_close_callback, this);
     w.exec();
   } else {
-    confirm_close_callback(0);
+    confirm_close_callback(td::Res::Yes);
   }
 }
 
-void DiaryWindow::confirm_close_callback(const int code) {
-  if (code == 1)
+void DiaryWindow::confirm_close_callback(const td::Res code) {
+  if (td::Res::No == code)
     return;
 
-  *(TheoreticalDiary::instance()->unsaved_changes) = false;
+  // Reset values just to be safe.
+  *TheoreticalDiary::instance()->unsaved_changes = false;
   TheoreticalDiary::instance()->diary_holder->key->clear();
-  *(TheoreticalDiary::instance()->diary_holder->diary) = td::Diary();
+  *TheoreticalDiary::instance()->diary_holder->diary = td::Diary();
 
+  // accept() does NOT trigger reject so there is no infinite loop here.
   accept();
 }
 
+// Save the current entry to disk.
 void DiaryWindow::action_save() {
-  auto key = TheoreticalDiary::instance()->diary_holder->key;
-
   std::string primary_path =
       QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
           .toStdString() +
@@ -139,7 +311,7 @@ void DiaryWindow::action_save() {
       "/diary.dat.bak";
   std::string final;
 
-  // Backup existing diary first
+  // Backup existing diary first.
   std::ifstream src(primary_path, std::ios::binary);
   if (!src.fail()) {
     std::ofstream dst(backup_path, std::ios::binary);
@@ -148,28 +320,48 @@ void DiaryWindow::action_save() {
   }
   src.close();
 
-  // Update last_updated
+  // Update last_updated.
   TheoreticalDiary::instance()->diary_holder->diary->metadata.last_updated =
       std::time(nullptr);
   nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
 
-  // If there is a password set, encrypt the diary
+  // If there is a password set, encrypt the diary.
+  auto key = TheoreticalDiary::instance()->diary_holder->key;
   if (key->size() == 32) {
     Encryptor::encrypt(*key, j.dump(), final);
   } else {
     final = j.dump();
   }
 
+  // Zip file up, check for any permission errors.
   auto success = Zipper::zip(primary_path, final);
   if (!success) {
     SaveError w(this);
     w.exec();
   } else {
-    *(TheoreticalDiary::instance()->unsaved_changes) = false;
+    *TheoreticalDiary::instance()->unsaved_changes = false;
   }
 }
 
 void DiaryWindow::update_password() {
   UpdatePassword w(this);
   w.exec();
+}
+
+// https://stackoverflow.com/a/9130114
+std::string DiaryWindow::get_day_suffix(const int day) {
+  switch (day) {
+  case 1:
+  case 21:
+  case 31:
+    return "st";
+  case 2:
+  case 22:
+    return "nd";
+  case 3:
+  case 23:
+    return "rd";
+  default:
+    return "th";
+  }
 }

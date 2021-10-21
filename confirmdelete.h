@@ -15,47 +15,41 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef CONFIRMDELETE_H
+#define CONFIRMDELETE_H
 
-#include "googlewrapper.h"
 #include "theoreticaldiary.h"
 
-#include <QCloseEvent>
-#include <QMainWindow>
+#include <QDialog>
 
-QT_BEGIN_NAMESPACE
 namespace Ui {
-class MainWindow;
+class ConfirmDeleteBase;
 }
-QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+class ConfirmDeleteBase : public QDialog {
   Q_OBJECT
 
+signals:
+  void sig_complete(const td::Res code);
+
 public:
-  MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
-  void closeEvent(QCloseEvent *event);
-  void create_new_diary();
+  explicit ConfirmDeleteBase(QWidget *parent = nullptr);
+  ~ConfirmDeleteBase();
+  void action_no();
+  void action_yes();
 
 private:
-  Ui::MainWindow *ui;
-
-public slots:
-  void open_diary();
-  void new_diary();
-  void dl_diary();
-  void import_diary();
-  void flush_credentials();
-  void dump_drive();
-  void about_app();
-  void quit_app();
-  void real_import_diary();
-
-  void prompt_pwd_callback(const td::Res code);
-  void confirm_overwrite_callback(const td::Res code);
-  void import_diary_callback(const td::Res code);
-  void oauth2_callback(const td::Res code);
+  Ui::ConfirmDeleteBase *ui;
 };
-#endif // MAINWINDOW_H
+
+template <class C> class ConfirmDelete : public ConfirmDeleteBase {
+public:
+  ConfirmDelete(void (C::*slot)(const td::Res), QWidget *parent)
+      : ConfirmDeleteBase(parent) {
+    connect(this, &ConfirmDeleteBase::sig_complete, qobject_cast<C *>(parent),
+            slot);
+  }
+  ~ConfirmDelete() {}
+};
+
+#endif // CONFIRMDELETE_H

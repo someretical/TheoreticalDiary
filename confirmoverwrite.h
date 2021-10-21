@@ -18,6 +18,8 @@
 #ifndef CONFIRMOVERWRITEBASE_H
 #define CONFIRMOVERWRITEBASE_H
 
+#include "theoreticaldiary.h"
+
 #include <QDialog>
 #include <QObject>
 
@@ -29,7 +31,7 @@ class ConfirmOverwriteBase : public QDialog {
   Q_OBJECT
 
 signals:
-  void sig_complete(const int code);
+  void sig_complete(const td::Res code);
 
 public:
   explicit ConfirmOverwriteBase(QWidget *parent = nullptr);
@@ -50,7 +52,7 @@ public:
    * So the extended class does not need the Q_OBJECT macro
    * See https://stackoverflow.com/a/44817392 for more info
    */
-  ConfirmOverwrite(void (C::*slot)(const int), QWidget *parent)
+  ConfirmOverwrite(void (C::*slot)(const td::Res), QWidget *parent)
       : ConfirmOverwriteBase(parent) {
     connect(this, &ConfirmOverwriteBase::sig_complete,
             qobject_cast<C *>(parent), slot);

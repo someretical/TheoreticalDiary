@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ConfirmOverwriteBase</class>
- <widget class="QDialog" name="ConfirmOverwriteBase">
+ <class>ConfirmDeleteBase</class>
+ <widget class="QDialog" name="ConfirmDeleteBase">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Confirm overwrite</string>
+   <string>Confirm delete</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -35,10 +35,10 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+   <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>A diary already exists. Are you sure you want to overwrite it?</string>
+      <string>Are you sure you want to delete this entry?</string>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -156,24 +156,17 @@
     </layout>
    </item>
   </layout>
-  <action name="action_no">
-   <property name="text">
-    <string>no</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+W</string>
-   </property>
-  </action>
   <action name="action_yes">
    <property name="text">
     <string>yes</string>
    </property>
   </action>
+  <action name="action_no">
+   <property name="text">
+    <string>no</string>
+   </property>
+  </action>
  </widget>
- <tabstops>
-  <tabstop>no_button</tabstop>
-  <tabstop>yes_button</tabstop>
- </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -183,7 +176,7 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>114</x>
+     <x>227</x>
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
@@ -199,7 +192,7 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>284</x>
+     <x>332</x>
      <y>109</y>
     </hint>
     <hint type="destinationlabel">

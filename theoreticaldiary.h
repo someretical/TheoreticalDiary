@@ -18,6 +18,8 @@
 #ifndef THOERETICALDIARY_H
 #define THOERETICALDIARY_H
 
+class GoogleWrapper;
+
 #include "diaryholder.h"
 #include "googlewrapper.h"
 
@@ -44,6 +46,8 @@ inline void from_json(const nlohmann::json &j, LocalSettings &s) {
   j.at("bak2_id").get_to<std::string>(s.bak2_id);
   j.at("sync_enabled").get_to<bool>(s.sync_enabled);
 }
+
+enum Res : int { Yes, No };
 } // namespace td
 
 class TheoreticalDiary : public QApplication {

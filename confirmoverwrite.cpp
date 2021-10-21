@@ -17,6 +17,7 @@
 
 #include "confirmoverwrite.h"
 #include "mainwindow.h"
+#include "theoreticaldiary.h"
 #include "ui_confirmoverwrite.h"
 
 #include <QAction>
@@ -44,11 +45,11 @@ ConfirmOverwriteBase::ConfirmOverwriteBase(QWidget *parent)
 ConfirmOverwriteBase::~ConfirmOverwriteBase() { delete ui; }
 
 void ConfirmOverwriteBase::action_no() {
-  emit sig_complete(1);
+  emit sig_complete(td::Res::No);
   accept();
 }
 
 void ConfirmOverwriteBase::action_yes() {
-  emit sig_complete(0);
+  emit sig_complete(td::Res::Yes);
   accept();
 }

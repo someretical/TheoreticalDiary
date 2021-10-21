@@ -166,6 +166,9 @@
               <pointsize>11</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="toolTip">
              <string>Information about this program.</string>
             </property>
@@ -198,6 +201,9 @@
              <font>
               <pointsize>11</pointsize>
              </font>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="toolTip">
              <string>Dump the contents of the Google Drive backup folder.</string>
@@ -232,6 +238,9 @@
               <pointsize>11</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="toolTip">
              <string>Download a diary backup from Google Drive.</string>
             </property>
@@ -265,6 +274,9 @@
               <pointsize>11</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="toolTip">
              <string>Delete the Google OAuth2 credentials file.</string>
             </property>
@@ -297,6 +309,9 @@
              <font>
               <pointsize>11</pointsize>
              </font>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="toolTip">
              <string>Open a local diary.</string>
@@ -337,6 +352,9 @@
               <pointsize>11</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="toolTip">
              <string>Create a new local diary.</string>
             </property>
@@ -370,6 +388,9 @@
               <pointsize>11</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="toolTip">
              <string>Exit the application.</string>
             </property>
@@ -402,6 +423,9 @@
              <font>
               <pointsize>11</pointsize>
              </font>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="toolTip">
              <string>Import an uncompressed and unencrypted JSON diary.</string>
