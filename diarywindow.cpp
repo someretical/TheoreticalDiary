@@ -304,11 +304,11 @@ void DiaryWindow::action_save() {
   std::string primary_path =
       QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
-      "/diary.dat";
+      "/TheoreticalDiary/diary.dat";
   std::string backup_path =
       QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
-      "/diary.dat.bak";
+      "/TheoreticalDiary/diary.dat.bak";
   std::string final;
 
   // Backup existing diary first.

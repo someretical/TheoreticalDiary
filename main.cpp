@@ -41,7 +41,8 @@ int main(int argc, char **argv) {
   TheoreticalDiary a(argc, argv);
 
   // Create app directory
-  QDir dir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+  QDir dir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+           "/TheoreticalDiary");
   if (!dir.exists())
     dir.mkpath(".");
 
@@ -65,7 +66,8 @@ int main(int argc, char **argv) {
   QFontDatabase::addApplicationFont(":/fonts/Roboto-Condensed-LightItalic.ttf");
   QFontDatabase::addApplicationFont(":/fonts/Roboto-Condensed-Regular.ttf");
 
-  QApplication::setWindowIcon(QIcon(":/images/icons/hicolor/scalable/apps/theoretical-diary.svg"));
+  QApplication::setWindowIcon(
+      QIcon(":/images/icons/hicolor/256/apps/theoretical-diary.png"));
 
   MainWindow w;
   w.show();

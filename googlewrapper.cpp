@@ -87,7 +87,7 @@ void GoogleWrapper::token_changed() { emit sig_token_changed(); }
 
 bool GoogleWrapper::load_credentials() {
   QFile file(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
-             "/credentials.json");
+             "/TheoreticalDiary/credentials.json");
 
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QString data = file.readAll();
@@ -122,7 +122,7 @@ bool GoogleWrapper::save_credentials() {
   doc.setObject(tokens);
 
   QFile file(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
-             "/credentials.json");
+             "/TheoreticalDiary/credentials.json");
 
   if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     file.write(doc.toJson());

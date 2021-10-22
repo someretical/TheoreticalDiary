@@ -52,7 +52,7 @@ void TheoreticalDiary::load_settings() {
   std::ifstream ifs(
       QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
-      "/settings.json");
+      "/TheoreticalDiary/settings.json");
   if (ifs.fail())
     return;
 
@@ -71,7 +71,7 @@ bool TheoreticalDiary::save_settings() {
   std::ofstream ifs(
       QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
-      "/settings.json");
+      "/TheoreticalDiary/settings.json");
 
   if (ifs.fail())
     return false;
