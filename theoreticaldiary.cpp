@@ -50,7 +50,7 @@ void TheoreticalDiary::changes_made() { *unsaved_changes = true; }
 
 void TheoreticalDiary::load_settings() {
   std::ifstream ifs(
-      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/settings.json");
   if (ifs.fail())
@@ -69,7 +69,7 @@ bool TheoreticalDiary::save_settings() {
   nlohmann::json stringified = *local_settings;
 
   std::ofstream ifs(
-      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/settings.json");
 

@@ -83,7 +83,7 @@
        <string notr="true"/>
       </property>
       <property name="pixmap">
-       <pixmap resource="theoretical-diary.qrc">:/images/icon.svg</pixmap>
+       <pixmap resource="theoretical-diary.qrc">:/images/icons/hicolor/scalable/apps/theoretical-diary.svg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>

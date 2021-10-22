@@ -302,11 +302,11 @@ void DiaryWindow::confirm_close_callback(const td::Res code) {
 // Save the current entry to disk.
 void DiaryWindow::action_save() {
   std::string primary_path =
-      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/diary.dat";
   std::string backup_path =
-      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/diary.dat.bak";
   std::string final;

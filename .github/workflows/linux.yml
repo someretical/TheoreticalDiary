@@ -3,7 +3,7 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     name: Shared build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -17,6 +17,8 @@ jobs:
           sudo apt install libqt5networkauth5
           sudo apt install libqt5networkauth5-dev
           sudo apt install nlohmann-json3-dev
+          sudo apt install patchelf
+          sudo apt install tree
 
       - name: Build cryptopp
         run: sudo sh build-cryptopp.sh
@@ -25,9 +27,26 @@ jobs:
         run: |
           qmake CONFIG+=release
           make -j8
+          make install INSTALL_ROOT=AppDir
+          
+      - name: Build AppImage
+        run: |
+          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x ./linuxdeploy-x86_64.AppImage
+          chmod +x ./linuxdeploy-plugin-qt-x86_64.AppImage
+          mkdir -p AppDir/usr/bin
+          mv AppDir/opt/theoretical-diary/bin/theoretical-diary AppDir/usr/bin
+          rm -r AppDir/opt
+          mkdir -p AppDir/usr/share/applications
+          mv ./theoretical-diary.desktop AppDir/usr/share/applications
+          mkdir -p AppDir/usr/share/icons
+          mv images/icons/* AppDir/usr/share/icons
+          export OUTPUT=theoretical-diary.AppImage
+          ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
       
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
           name: theoretical-diary-linux
-          path: ./theoretical-diary
+          path: ./theoretical-diary.AppImage

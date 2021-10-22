@@ -102,14 +102,14 @@ void MainWindow::open_diary() {
   std::string uncompressed;
 
   auto success = Zipper::unzip(
-      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
               .toStdString() +
           "/diary.dat",
       uncompressed);
 
   if (!success) {
     auto fallback = Zipper::unzip(
-        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
                 .toStdString() +
             "/diary.dat.bak",
         uncompressed);
@@ -170,7 +170,7 @@ void MainWindow::new_diary() {
   // Check if file exists https://stackoverflow.com/a/6296808
   struct stat buf;
   std::string path =
-      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/diary.dat";
 
@@ -253,7 +253,7 @@ void MainWindow::import_diary_callback(const td::Res code) {
 void MainWindow::import_diary() {
   struct stat buf;
   std::string path =
-      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/diary.dat";
 
@@ -270,7 +270,7 @@ void MainWindow::import_diary() {
 }
 
 void MainWindow::flush_credentials() {
-  QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+  QFile file(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
              "/credentials.json");
   file.remove();
 

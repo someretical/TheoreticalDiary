@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>images/icon.ico</file>
-        <file>images/icon.svg</file>
         <file>text/CONTRIBUTORS.txt</file>
         <file>text/LICENSES.txt</file>
         <file>text/VERSION.txt</file>
@@ -113,5 +112,6 @@
         <file>images/star_black.svg</file>
         <file>styles/s_star_white.qss</file>
         <file>styles/s_star_black.qss</file>
+        <file>images/icons/hicolor/scalable/apps/theoretical-diary.svg</file>
     </qresource>
 </RCC>

@@ -86,7 +86,7 @@ GoogleWrapper::~GoogleWrapper() { delete google; }
 void GoogleWrapper::token_changed() { emit sig_token_changed(); }
 
 bool GoogleWrapper::load_credentials() {
-  QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+  QFile file(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
              "/credentials.json");
 
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -121,7 +121,7 @@ bool GoogleWrapper::save_credentials() {
   tokens.insert("refresh_token", google->refreshToken());
   doc.setObject(tokens);
 
-  QFile file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+  QFile file(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
              "/credentials.json");
 
   if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
