@@ -30,8 +30,10 @@
 
 #include <QAction>
 #include <QDate>
+#include <QDateTime>
 #include <QFileDialog>
 #include <QString>
+#include <ctime>
 #include <fstream>
 #include <json.hpp>
 #include <optional>
@@ -41,13 +43,18 @@ DiaryWindow::DiaryWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::DiaryWindow) {
   ui->setupUi(this);
 
-  QFile ss_file(":/styles/diarywindow.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
+  QFile s(":/styles/diarywindow.qss");
+  s.open(QIODevice::ReadOnly);
+  QString s_ = s.readAll();
+  setStyleSheet(s_);
+
+  QFile s1(":/styles/diaryeditor.qss");
+  s1.open(QIODevice::ReadOnly);
+  QString s1_ = s1.readAll();
   // For some reason, calling this->setStyleSheet() has no effect on the
   // contents of the tab widget. So we have to call it on the tab widget
   // specifically.
-  ui->editor->setStyleSheet(stylesheet);
+  ui->editor->setStyleSheet(s1_);
 
   QDate d = QDate::currentDate();
   current_date = new QDate(d.year(), d.month(), d.day());
@@ -57,6 +64,8 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   ui->calender_box->addWidget(calendar, Qt::AlignHCenter | Qt::AlignTop);
 
   ui->status_text->setText("");
+  // Don't need to clear last_edited text here since initializing
+  // TheoreticalCalendar will already set it.
 
   auto action = findChild<QAction *>("action_save");
   addAction(action);
@@ -130,7 +139,7 @@ void DiaryWindow::delete_entry() {
                            std::make_optional<bool>(true)};
   calendar->rerender_day(d);
 
-  td::Entry e{0, false, td::Rating::Unknown, ""};
+  td::Entry e{0, false, td::Rating::Unknown, "", 0};
   _update_info_pane(e);
 
   TheoreticalDiary::instance()->changes_made();
@@ -176,7 +185,7 @@ void DiaryWindow::update_entry() {
   td::Entry new_entry = {
       current_date->day(), ui->is_important->isChecked(),
       static_cast<td::Rating>(ui->rating_dropdown->currentIndex()),
-      ui->text_entry->toPlainText().toStdString()};
+      ui->text_entry->toPlainText().toStdString(), std::time(nullptr)};
 
   // Find/create Entry within the MonthContainer.days
   auto entry_map = &(month_iter->second.days);
@@ -198,6 +207,8 @@ void DiaryWindow::update_entry() {
           static_cast<td::Rating>(ui->rating_dropdown->currentIndex())),
       std::nullopt};
   calendar->rerender_day(data);
+
+  TheoreticalDiary::instance()->changes_made();
   *current_date_changed = false;
 }
 
@@ -226,6 +237,16 @@ void DiaryWindow::_update_info_pane(const td::Entry &entry) {
   ui->rating_dropdown->blockSignals(true);
   ui->is_important->blockSignals(true);
   ui->text_entry->blockSignals(true);
+
+  if (0 == entry.last_updated) {
+    ui->last_edited->setText("");
+  } else {
+    QDateTime last_edited;
+    last_edited.setTime_t(entry.last_updated);
+    // Thanks stackoverflow ;)
+    ui->last_edited->setText("Last edited " +
+                             last_edited.toString("dd MMM ''yy 'at' h:mm ap"));
+  }
 
   ui->rating_dropdown->setCurrentIndex(static_cast<int>(entry.rating));
   ui->is_important->setChecked(entry.important);
@@ -271,7 +292,7 @@ void DiaryWindow::update_info_pane(const QDate &new_date) {
     }
   }
 
-  _update_info_pane(td::Entry{-1, false, td::Rating::Unknown, ""});
+  _update_info_pane(td::Entry{-1, false, td::Rating::Unknown, "", 0});
 }
 
 // Called when the user presses the X button or the quit button.

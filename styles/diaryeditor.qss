@@ -1,0 +1,17 @@
+QFrame#editor_frame {
+  background-color: #232629;
+  border-radius: 4px;
+  padding: 15px;
+}
+
+QPlainTextEdit#text_entry {
+  background-color: #232629;
+  border: 2px solid #4dd0e1;
+  border-radius: 4px;
+  padding: 8px;
+  height: 18px;
+}
+
+QLabel#status_text {
+  color: #FF0000;
+}

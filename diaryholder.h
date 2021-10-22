@@ -31,6 +31,7 @@ struct Entry {
   bool important;
   Rating rating;
   std::string message;
+  time_t last_updated;
 };
 typedef std::map<int, Entry> EntryMap;
 
@@ -38,7 +39,8 @@ inline void to_json(nlohmann::json &j, const Entry &e) {
   j = nlohmann::json{{"day", e.day},
                      {"important", e.important},
                      {"rating", e.rating},
-                     {"message", e.message}};
+                     {"message", e.message},
+                     {"last_updated", e.last_updated}};
 }
 
 inline void from_json(const nlohmann::json &j, Entry &e) {
@@ -46,6 +48,7 @@ inline void from_json(const nlohmann::json &j, Entry &e) {
   j.at("important").get_to<bool>(e.important);
   j.at("rating").get_to<Rating>(e.rating);
   j.at("message").get_to<std::string>(e.message);
+  j.at("last_updated").get_to<time_t>(e.last_updated);
 }
 
 struct MonthContainer {
@@ -92,13 +95,17 @@ inline void from_json(const nlohmann::json &j, Metadata &m) {
   j.at("last_updated").get_to<time_t>(m.last_updated);
 }
 
-struct Settings {};
+struct Settings {
+  bool sync;
+};
 
 inline void to_json(nlohmann::json &j, const Settings &s) {
-  j = nlohmann::json{};
+  j = nlohmann::json{{"sync", s.sync}};
 }
 
-inline void from_json(const nlohmann::json &j, Settings &s) {}
+inline void from_json(const nlohmann::json &j, Settings &s) {
+  j.at("sync").get_to<bool>(s.sync);
+}
 
 struct Diary {
   YearMap years;

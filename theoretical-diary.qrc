@@ -115,5 +115,6 @@
         <file>images/icons/hicolor/scalable/apps/theoretical-diary.svg</file>
         <file>images/icons/hicolor/256x256/apps/theoretical-diary.png</file>
         <file>images/icon.png</file>
+        <file>styles/diaryeditor.qss</file>
     </qresource>
 </RCC>

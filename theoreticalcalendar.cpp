@@ -372,11 +372,19 @@ void CalendarButton::update_aesthetic(const td::CalendarButtonData &d) {
       std::make_optional<td::Rating>(d.rating.value_or(*data->rating));
 
   if (true == *data->important && td::Rating::Unknown != *data->rating) {
-    if (td::Rating::VeryBad == *data->rating ||
-        td::Rating::VeryGood == *data->rating) {
+    switch (*data->rating) {
+    case td::Rating::VeryBad:
+      // Fall through
+    case td::Rating::Bad:
+      // Fall through
+    case td::Rating::Ok:
       stylesheet.append(*(*data->parent)->s_star_white);
-    } else {
+      break;
+    case td::Rating::Good:
+      // Fall through
+    case td::Rating::VeryGood:
       stylesheet.append(*(*data->parent)->s_star_black);
+      break;
     }
   }
 

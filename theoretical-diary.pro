@@ -208,6 +208,7 @@ DISTFILES += \
     images/primary/vline.svg \
     styles/aboutwindow.qss \
     styles/confirmoverwrite.qss \
+    styles/diaryeditor.qss \
     styles/diarywindow.qss \
     styles/filedialog.qss \
     styles/mainwindow.qss \

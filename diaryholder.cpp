@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#define CURRENT_SAVE_VERSION 2
+#define CURRENT_SAVE_VERSION 3
 
 DiaryHolder::DiaryHolder() {
   diary = new td::Diary;
@@ -39,7 +39,7 @@ DiaryHolder::~DiaryHolder() {
 void DiaryHolder::init() {
   td::Diary new_diary;
   new_diary.years = td::YearMap();
-  new_diary.settings = td::Settings();
+  new_diary.settings = td::Settings{false};
   new_diary.metadata = td::Metadata{CURRENT_SAVE_VERSION, std::time(nullptr)};
 
   *diary = new_diary;
