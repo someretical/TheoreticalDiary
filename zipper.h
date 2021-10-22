@@ -22,8 +22,8 @@
 
 class Zipper {
 public:
-  static bool zip(const std::string &path, std::string &uncompressed);
-  static bool unzip(const std::string &path, std::string &uncompressed);
+  static void zip(std::string &compressed, std::string &decompressed);
+  static bool unzip(std::string &compressed, std::string &decompressed);
 };
 
 #endif // ZIPPER_H

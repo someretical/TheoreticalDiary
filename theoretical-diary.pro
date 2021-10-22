@@ -35,6 +35,7 @@ CONFIG += c++17
 SOURCES += \
     aboutwindow.cpp \
     autherrorwindow.cpp \
+    changepanealert.cpp \
     confirmdelete.cpp \
     confirmoverwrite.cpp \
     diaryholder.cpp \
@@ -61,6 +62,7 @@ SOURCES += \
 HEADERS += \
     aboutwindow.h \
     autherrorwindow.h \
+    changepanealert.h \
     confirmdelete.h \
     confirmoverwrite.h \
     diaryholder.h \
@@ -86,6 +88,7 @@ HEADERS += \
 FORMS += \
     aboutwindow.ui \
     autherrorwindow.ui \
+    changepanealert.ui \
     confirmdelete.ui \
     confirmoverwrite.ui \
     diarywindow.ui \

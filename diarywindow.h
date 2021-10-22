@@ -42,6 +42,7 @@ public:
   void update_info_pane(const QDate &new_date);
 
   QDate *current_date;
+  bool *current_date_changed;
 
 public slots:
   void reject();
@@ -51,9 +52,7 @@ public slots:
   void delete_entry();
   void update_entry();
   void export_diary();
-
-  void confirm_close_callback(const td::Res code);
-  void confirm_delete_callback(const td::Res code);
+  void changes_made();
 
 private:
   void _update_info_pane(const td::Entry &entry);

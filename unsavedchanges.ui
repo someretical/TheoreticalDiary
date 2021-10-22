@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>UnsavedChangesBase</class>
- <widget class="QDialog" name="UnsavedChangesBase">
+ <class>UnsavedChanges</class>
+ <widget class="QDialog" name="UnsavedChanges">
   <property name="geometry">
    <rect>
     <x>0</x>

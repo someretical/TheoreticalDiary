@@ -58,8 +58,7 @@ bool DiaryHolder::load(std::string &raw) {
     return false;
 
   try {
-    auto loaded = json.get<td::Diary>();
-    *diary = loaded;
+    *diary = json.get<td::Diary>();
   } catch (const nlohmann::json::exception &e) {
     return false;
   }

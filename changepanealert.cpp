@@ -15,16 +15,15 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "confirmoverwrite.h"
-#include "mainwindow.h"
+#include "changepanealert.h"
 #include "theoreticaldiary.h"
-#include "ui_confirmoverwrite.h"
+#include "ui_changepanealert.h"
 
 #include <QAction>
 #include <QFile>
 
-ConfirmOverwrite::ConfirmOverwrite(QWidget *parent)
-    : QDialog(parent), ui(new Ui::ConfirmOverwrite) {
+ChangePaneAlert::ChangePaneAlert(QWidget *parent)
+    : QDialog(parent), ui(new Ui::ChangePaneAlert) {
   ui->setupUi(this);
 
   QFile ss_file(":/styles/confirmoverwrite.qss");
@@ -34,13 +33,13 @@ ConfirmOverwrite::ConfirmOverwrite(QWidget *parent)
 
   auto action = findChild<QAction *>("action_no");
   addAction(action);
-  connect(action, &QAction::triggered, this, &ConfirmOverwrite::reject,
+  connect(action, &QAction::triggered, this, &ChangePaneAlert::reject,
           Qt::QueuedConnection);
 
   action = findChild<QAction *>("action_yes");
   addAction(action);
-  connect(action, &QAction::triggered, this, &ConfirmOverwrite::accept,
+  connect(action, &QAction::triggered, this, &ChangePaneAlert::accept,
           Qt::QueuedConnection);
 }
 
-ConfirmOverwrite::~ConfirmOverwrite() { delete ui; }
+ChangePaneAlert::~ChangePaneAlert() { delete ui; }

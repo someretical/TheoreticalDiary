@@ -21,43 +21,20 @@
 #include "theoreticaldiary.h"
 
 #include <QDialog>
-#include <QObject>
 
 namespace Ui {
-class ConfirmOverwriteBase;
+class ConfirmOverwrite;
 }
 
-class ConfirmOverwriteBase : public QDialog {
+class ConfirmOverwrite : public QDialog {
   Q_OBJECT
 
-signals:
-  void sig_complete(const td::Res code);
-
 public:
-  explicit ConfirmOverwriteBase(QWidget *parent = nullptr);
-  ~ConfirmOverwriteBase();
-  void action_no();
-  void action_yes();
+  explicit ConfirmOverwrite(QWidget *parent = nullptr);
+  ~ConfirmOverwrite();
 
 private:
-  Ui::ConfirmOverwriteBase *ui;
-};
-
-template <class C> class ConfirmOverwrite : public ConfirmOverwriteBase {
-public:
-  /**
-   * This legit took 2 days to figure out FML
-   * So it turns out Q_OBJECT macro cannot be used with templates
-   * That means we have to extend the base confirmoverwrite window
-   * So the extended class does not need the Q_OBJECT macro
-   * See https://stackoverflow.com/a/44817392 for more info
-   */
-  ConfirmOverwrite(void (C::*slot)(const td::Res), QWidget *parent)
-      : ConfirmOverwriteBase(parent) {
-    connect(this, &ConfirmOverwriteBase::sig_complete,
-            qobject_cast<C *>(parent), slot);
-  }
-  ~ConfirmOverwrite() {}
+  Ui::ConfirmOverwrite *ui;
 };
 
 #endif // CONFIRMOVERWRITEBASE_H

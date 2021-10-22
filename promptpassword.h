@@ -30,22 +30,19 @@ class PromptPassword;
 class PromptPassword : public QDialog {
   Q_OBJECT
 
-signals:
-  void sig_complete(const td::Res code);
-
 public:
-  explicit PromptPassword(const std::string &uncompressed,
+  explicit PromptPassword(const std::string &e, std::string *d,
                           QWidget *parent = nullptr);
   ~PromptPassword();
 
 public slots:
   void decrypt();
-  void close_window();
   void toggle_pwd();
 
 private:
   Ui::PromptPassword *ui;
-  std::string *to_be_decrypted;
+  std::string *encrypted;
+  std::string **decrypted;
 };
 
 #endif // PROMPTPASSWORD_H

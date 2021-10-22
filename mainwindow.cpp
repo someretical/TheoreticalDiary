@@ -33,12 +33,16 @@
 #include "zipper.h"
 
 #include <QCloseEvent>
+#include <QDialog>
 #include <QDir>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <cstddef>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <sys/stat.h>
+#include <vector>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -99,70 +103,76 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::open_diary() {
-  std::string uncompressed;
+  std::string encrypted;
 
-  auto success = Zipper::unzip(
+  // Attempt to load file contents
+  std::ifstream diary_file(
       QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-              .toStdString() +
-          "/TheoreticalDiary/diary.dat",
-      uncompressed);
+          .toStdString() +
+      "/TheoreticalDiary/diary.dat");
 
-  if (!success) {
-    auto fallback = Zipper::unzip(
+  if (!diary_file.fail()) {
+    encrypted.assign((std::istreambuf_iterator<char>(diary_file)),
+                     (std::istreambuf_iterator<char>()));
+  } else {
+    std::ifstream backup_file(
         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-                .toStdString() +
-            "/TheoreticalDiary/diary.dat.bak",
-        uncompressed);
+            .toStdString() +
+        "/TheoreticalDiary/diary.dat.bak");
 
-    if (!fallback) {
-      auto *w = new NoDiaryFound(this);
-      w->setModal(true);
-      w->setAttribute(Qt::WA_DeleteOnClose, true);
-      w->show();
+    if (!backup_file.fail()) {
+      encrypted.assign((std::istreambuf_iterator<char>(backup_file)),
+                       (std::istreambuf_iterator<char>()));
+    } else {
+      // No valid file found
+      NoDiaryFound w(this);
+      w.exec();
       return;
     }
   }
 
-  success = TheoreticalDiary::instance()->diary_holder->load(uncompressed);
+  // If the user did not set a password, the password will be the string "a"
+  std::vector<CryptoPP::byte> default_hash;
+  Encryptor::get_hash("a", default_hash);
 
-  if (success) {
-    auto *w = new DiaryWindow(this);
-    w->setModal(true);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
-    w->show();
-  } else {
-    PromptPassword w(uncompressed, this);
+  // VERY IMPORTANT
+  // Encryptor::decrypt function erases the IV from encrypted so a copy of
+  // encrypted should be passed to it!!!
+  std::string copy = encrypted;
+  std::string decrypted;
+  if (Encryptor::decrypt(default_hash, copy, decrypted)) {
+    // Attempt to Gunzip the decrypted content and parse the JSON
+    std::string decompressed;
+
+    if (!Zipper::unzip(decrypted, decompressed) ||
+        !TheoreticalDiary::instance()->diary_holder->load(decompressed)) {
+      UnknownDiaryFormat w(this);
+      w.exec();
+      return;
+    }
+
+    TheoreticalDiary::instance()->diary_holder->set_key(default_hash);
+
+    // Go straight to diary editor window
+    DiaryWindow w(this);
     w.exec();
-  }
-}
-
-void MainWindow::prompt_pwd_callback(const td::Res code) {
-  if (td::Res::No == code) {
-    auto *w = new UnknownDiaryFormat(this);
-    w->setModal(true);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
-    w->show();
   } else {
-    auto *w = new DiaryWindow(this);
-    w->setModal(true);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
-    w->show();
-  }
-}
+    // Prompt password
+    std::string decrypted;
+    PromptPassword w(encrypted, &decrypted, this);
+    if (w.exec() != QDialog::Accepted)
+      return;
 
-void MainWindow::create_new_diary() {
-  TheoreticalDiary::instance()->diary_holder->init();
-  TheoreticalDiary::instance()->changes_made();
-
-  auto *w = new DiaryWindow(this);
-  w->setModal(true);
-  w->setAttribute(Qt::WA_DeleteOnClose, true);
-  w->show();
-}
-
-void MainWindow::confirm_overwrite_callback(const td::Res code) {
-  if (td::Res::Yes == code) {
-    create_new_diary();
+    // Attempt to Gunzip
+    std::string decompressed;
+    if (!Zipper::unzip(decrypted, decompressed) ||
+        !TheoreticalDiary::instance()->diary_holder->load(decompressed)) {
+      UnknownDiaryFormat w(this);
+      w.exec();
+    } else {
+      DiaryWindow w(this);
+      w.exec();
+    }
   }
 }
 
@@ -175,15 +185,22 @@ void MainWindow::new_diary() {
       "/TheoreticalDiary/diary.dat";
 
   if (stat(path.c_str(), &buf) == 0) {
-    auto *w = new ConfirmOverwrite<MainWindow>(
-        &MainWindow::confirm_overwrite_callback, this);
-    w->setModal(true);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
-    w->show();
-    return;
+    ConfirmOverwrite w(this);
+
+    if (w.exec() != QDialog::Accepted)
+      return;
   }
 
-  create_new_diary();
+  TheoreticalDiary::instance()->diary_holder->init();
+  TheoreticalDiary::instance()->changes_made();
+
+  // Set default password
+  std::vector<CryptoPP::byte> default_hash;
+  Encryptor::get_hash("a", default_hash);
+  TheoreticalDiary::instance()->diary_holder->set_key(default_hash);
+
+  DiaryWindow w2(this);
+  w2.exec();
 }
 
 void MainWindow::dl_diary() {
@@ -211,45 +228,6 @@ void MainWindow::dl_diary() {
   TheoreticalDiary::instance()->gwrapper->authenticate();
 }
 
-void MainWindow::real_import_diary() {
-  auto filename =
-      QFileDialog::getOpenFileName(this, "Import diary", QDir::homePath());
-
-  if (filename.size() == 0)
-    return;
-
-  std::ifstream ifs(filename.toStdString());
-
-  if (ifs.fail()) {
-    auto *w = new MissingPermissions(this);
-    w->setModal(true);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
-    w->show();
-    return;
-  }
-
-  std::string content((std::istreambuf_iterator<char>(ifs)),
-                      (std::istreambuf_iterator<char>()));
-  auto success = TheoreticalDiary::instance()->diary_holder->load(content);
-
-  if (success) {
-    DiaryWindow w(this);
-    w.show();
-  } else {
-    auto *w = new UnknownDiaryFormat(this);
-    w->setModal(true);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
-    w->show();
-    return;
-  }
-}
-
-void MainWindow::import_diary_callback(const td::Res code) {
-  if (td::Res::Yes == code) {
-    real_import_diary();
-  }
-}
-
 void MainWindow::import_diary() {
   struct stat buf;
   std::string path =
@@ -258,20 +236,45 @@ void MainWindow::import_diary() {
       "/TheoreticalDiary/diary.dat";
 
   if (stat(path.c_str(), &buf) == 0) {
-    auto *w = new ConfirmOverwrite<MainWindow>(
-        &MainWindow::import_diary_callback, this);
-    w->setModal(true);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
-    w->show();
+    ConfirmOverwrite w(this);
+
+    if (w.exec() != QDialog::Accepted)
+      return;
+  }
+
+  auto filename =
+      QFileDialog::getOpenFileName(this, "Import diary", QDir::homePath());
+  if (filename.size() == 0)
+    return;
+
+  std::ifstream ifs(filename.toStdString());
+  if (ifs.fail()) {
+    MissingPermissions w(this);
+    w.exec();
     return;
   }
 
-  real_import_diary();
+  std::string content((std::istreambuf_iterator<char>(ifs)),
+                      (std::istreambuf_iterator<char>()));
+  if (TheoreticalDiary::instance()->diary_holder->load(content)) {
+    // Set default password
+    std::vector<CryptoPP::byte> default_hash;
+    Encryptor::get_hash("a", default_hash);
+    TheoreticalDiary::instance()->diary_holder->set_key(default_hash);
+    TheoreticalDiary::instance()->changes_made();
+
+    DiaryWindow w(this);
+    w.exec();
+  } else {
+    UnknownDiaryFormat w(this);
+    w.exec();
+  }
 }
 
 void MainWindow::flush_credentials() {
-  QFile file(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
-             "/TheoreticalDiary/credentials.json");
+  QFile file(
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+      "/TheoreticalDiary/credentials.json");
   file.remove();
 
   FlushWindow w(this);
@@ -279,10 +282,8 @@ void MainWindow::flush_credentials() {
 }
 
 void MainWindow::dump_drive() {
-  auto *w = new Placeholder(this);
-  w->setModal(true);
-  w->setAttribute(Qt::WA_DeleteOnClose, true);
-  w->show();
+  Placeholder w(this);
+  w.exec();
 }
 
 void MainWindow::about_app() {

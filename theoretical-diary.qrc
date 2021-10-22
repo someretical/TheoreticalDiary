@@ -114,5 +114,6 @@
         <file>styles/s_star_black.qss</file>
         <file>images/icons/hicolor/scalable/apps/theoretical-diary.svg</file>
         <file>images/icons/hicolor/256x256/apps/theoretical-diary.png</file>
+        <file>images/icon.png</file>
     </qresource>
 </RCC>

@@ -305,11 +305,8 @@
             <property name="rightMargin">
              <number>0</number>
             </property>
-            <property name="horizontalSpacing">
+            <property name="spacing">
              <number>0</number>
-            </property>
-            <property name="verticalSpacing">
-             <number>20</number>
             </property>
             <item row="3" column="0">
              <layout class="QGridLayout" name="gridLayout_4">
@@ -450,69 +447,6 @@
               <property name="verticalSpacing">
                <number>15</number>
               </property>
-              <item row="0" column="0" alignment="Qt::AlignLeft|Qt::AlignVCenter">
-               <widget class="QLabel" name="label_2">
-                <property name="font">
-                 <font>
-                  <pointsize>11</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Rating</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0" alignment="Qt::AlignLeft|Qt::AlignVCenter">
-               <widget class="QLabel" name="label_3">
-                <property name="font">
-                 <font>
-                  <pointsize>11</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Important?</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" alignment="Qt::AlignTop">
-               <widget class="QPlainTextEdit" name="text_entry">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>250</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>12</pointsize>
-                 </font>
-                </property>
-                <property name="cursor" stdset="0">
-                 <cursorShape>IBeamCursor</cursorShape>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <property name="plainText">
-                 <string notr="true"/>
-                </property>
-                <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-                </property>
-                <property name="placeholderText">
-                 <string>None</string>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="1" alignment="Qt::AlignLeft|Qt::AlignVCenter">
                <widget class="QComboBox" name="rating_dropdown">
                 <property name="sizePolicy">
@@ -573,15 +507,15 @@
                 </item>
                </widget>
               </item>
-              <item row="5" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-               <widget class="QLabel" name="status_text">
+              <item row="2" column="0" alignment="Qt::AlignLeft|Qt::AlignVCenter">
+               <widget class="QLabel" name="label_3">
                 <property name="font">
                  <font>
-                  <pointsize>10</pointsize>
+                  <pointsize>11</pointsize>
                  </font>
                 </property>
                 <property name="text">
-                 <string>Status text</string>
+                 <string>Important?</string>
                 </property>
                </widget>
               </item>
@@ -620,6 +554,45 @@
                 </item>
                </layout>
               </item>
+              <item row="3" column="1" alignment="Qt::AlignTop">
+               <widget class="QPlainTextEdit" name="text_entry">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>230</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
+                <property name="cursor" stdset="0">
+                 <cursorShape>IBeamCursor</cursorShape>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <property name="plainText">
+                 <string notr="true"/>
+                </property>
+                <property name="textInteractionFlags">
+                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                </property>
+                <property name="placeholderText">
+                 <string>None</string>
+                </property>
+               </widget>
+              </item>
               <item row="2" column="1" alignment="Qt::AlignLeft|Qt::AlignVCenter">
                <widget class="QCheckBox" name="is_important">
                 <property name="font">
@@ -635,21 +608,29 @@
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
-               <spacer name="verticalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+              <item row="0" column="0" alignment="Qt::AlignLeft|Qt::AlignVCenter">
+               <widget class="QLabel" name="label_2">
+                <property name="font">
+                 <font>
+                  <pointsize>11</pointsize>
+                 </font>
                 </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
+                <property name="text">
+                 <string>Rating</string>
                 </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>0</width>
-                  <height>20</height>
-                 </size>
+               </widget>
+              </item>
+              <item row="4" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+               <widget class="QLabel" name="status_text">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
                 </property>
-               </spacer>
+                <property name="text">
+                 <string>Status text</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -717,6 +698,11 @@
   <action name="action_changes_made">
    <property name="text">
     <string>changes_made</string>
+   </property>
+  </action>
+  <action name="action_user_edit_pane">
+   <property name="text">
+    <string>user_edit_pane</string>
    </property>
   </action>
  </widget>

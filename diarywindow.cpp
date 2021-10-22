@@ -51,6 +51,7 @@ DiaryWindow::DiaryWindow(QWidget *parent)
 
   QDate d = QDate::currentDate();
   current_date = new QDate(d.year(), d.month(), d.day());
+  current_date_changed = new bool(false);
 
   calendar = new TheoreticalCalendar(this);
   ui->calender_box->addWidget(calendar, Qt::AlignHCenter | Qt::AlignTop);
@@ -87,15 +88,17 @@ DiaryWindow::DiaryWindow(QWidget *parent)
 
   action = findChild<QAction *>("action_changes_made");
   addAction(action);
-  connect(action, &QAction::triggered, TheoreticalDiary::instance(),
-          &TheoreticalDiary::changes_made);
+  connect(action, &QAction::triggered, this, &DiaryWindow::changes_made);
 }
 
 DiaryWindow::~DiaryWindow() {
   delete ui;
   delete calendar;
   delete current_date;
+  delete current_date_changed;
 }
+
+void DiaryWindow::changes_made() { *current_date_changed = true; }
 
 // Refocus calendar on current date.
 void DiaryWindow::reset_date() {
@@ -104,16 +107,9 @@ void DiaryWindow::reset_date() {
 
 // Create dialog confirming deleting the currently selected entry.
 void DiaryWindow::delete_entry() {
-  auto *w = new ConfirmDelete<DiaryWindow>(
-      &DiaryWindow::confirm_delete_callback, this);
-  w->setModal(true);
-  w->setAttribute(Qt::WA_DeleteOnClose, true);
-  w->show();
-  return;
-}
+  ConfirmDelete w(this);
 
-void DiaryWindow::confirm_delete_callback(const td::Res code) {
-  if (td::Res::No == code)
+  if (w.exec() != QDialog::Accepted)
     return;
 
   auto year_map = &TheoreticalDiary::instance()->diary_holder->diary->years;
@@ -136,6 +132,9 @@ void DiaryWindow::confirm_delete_callback(const td::Res code) {
 
   td::Entry e{0, false, td::Rating::Unknown, ""};
   _update_info_pane(e);
+
+  TheoreticalDiary::instance()->changes_made();
+  *current_date_changed = false;
 }
 
 void DiaryWindow::update_entry() {
@@ -199,6 +198,7 @@ void DiaryWindow::update_entry() {
           static_cast<td::Rating>(ui->rating_dropdown->currentIndex())),
       std::nullopt};
   calendar->rerender_day(data);
+  *current_date_changed = false;
 }
 
 void DiaryWindow::export_diary() {
@@ -210,17 +210,15 @@ void DiaryWindow::export_diary() {
 
   std::ofstream dst(filename.toStdString());
 
-  if (dst.fail()) {
-    auto *w = new MissingPermissions(this);
-    w->setModal(true);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
-    w->show();
+  if (!dst.fail()) {
+    nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
+    dst << j.dump(4);
+    dst.close();
     return;
   }
 
-  nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
-  dst << j.dump(4);
-  dst.close();
+  MissingPermissions w(this);
+  w.exec();
 }
 
 // Internal method for updating the non heading part of the info pane.
@@ -278,17 +276,12 @@ void DiaryWindow::update_info_pane(const QDate &new_date) {
 
 // Called when the user presses the X button or the quit button.
 void DiaryWindow::reject() {
-  if (*TheoreticalDiary::instance()->unsaved_changes) {
-    UnsavedChanges<DiaryWindow> w(&DiaryWindow::confirm_close_callback, this);
-    w.exec();
-  } else {
-    confirm_close_callback(td::Res::Yes);
-  }
-}
+  if (*TheoreticalDiary::instance()->unsaved_changes || *current_date_changed) {
+    UnsavedChanges w(this);
 
-void DiaryWindow::confirm_close_callback(const td::Res code) {
-  if (td::Res::No == code)
-    return;
+    if (w.exec() != QDialog::Accepted)
+      return;
+  }
 
   // Reset values just to be safe.
   *TheoreticalDiary::instance()->unsaved_changes = false;
@@ -309,7 +302,6 @@ void DiaryWindow::action_save() {
       QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/TheoreticalDiary/diary.dat.bak";
-  std::string final;
 
   // Backup existing diary first.
   std::ifstream src(primary_path, std::ios::binary);
@@ -325,21 +317,27 @@ void DiaryWindow::action_save() {
       std::time(nullptr);
   nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
 
-  // If there is a password set, encrypt the diary.
-  auto key = TheoreticalDiary::instance()->diary_holder->key;
-  if (key->size() == 32) {
-    Encryptor::encrypt(*key, j.dump(), final);
-  } else {
-    final = j.dump();
-  }
+  // Gzip JSON
+  std::string compressed;
+  std::string decompressed = j.dump();
+  Zipper::zip(compressed, decompressed);
 
-  // Zip file up, check for any permission errors.
-  auto success = Zipper::zip(primary_path, final);
-  if (!success) {
+  // Encrypt
+  std::string encrypted;
+  Encryptor::encrypt(*TheoreticalDiary::instance()->diary_holder->key,
+                     compressed, encrypted);
+
+  // Write to file
+  std::ofstream diary_file(primary_path, std::ios::binary);
+  if (!diary_file.fail()) {
+    diary_file << encrypted;
+    diary_file.close();
+    *TheoreticalDiary::instance()->unsaved_changes = false;
+    *current_date_changed = false;
+
+  } else {
     SaveError w(this);
     w.exec();
-  } else {
-    *TheoreticalDiary::instance()->unsaved_changes = false;
   }
 }
 

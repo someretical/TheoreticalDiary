@@ -23,33 +23,18 @@
 #include <QDialog>
 
 namespace Ui {
-class ConfirmDeleteBase;
+class ConfirmDelete;
 }
 
-class ConfirmDeleteBase : public QDialog {
+class ConfirmDelete : public QDialog {
   Q_OBJECT
 
-signals:
-  void sig_complete(const td::Res code);
-
 public:
-  explicit ConfirmDeleteBase(QWidget *parent = nullptr);
-  ~ConfirmDeleteBase();
-  void action_no();
-  void action_yes();
+  explicit ConfirmDelete(QWidget *parent = nullptr);
+  ~ConfirmDelete();
 
 private:
-  Ui::ConfirmDeleteBase *ui;
-};
-
-template <class C> class ConfirmDelete : public ConfirmDeleteBase {
-public:
-  ConfirmDelete(void (C::*slot)(const td::Res), QWidget *parent)
-      : ConfirmDeleteBase(parent) {
-    connect(this, &ConfirmDeleteBase::sig_complete, qobject_cast<C *>(parent),
-            slot);
-  }
-  ~ConfirmDelete() {}
+  Ui::ConfirmDelete *ui;
 };
 
 #endif // CONFIRMDELETE_H

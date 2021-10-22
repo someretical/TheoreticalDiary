@@ -18,6 +18,8 @@
 #ifndef THEORETICALCALENDAR_H
 #define THEORETICALCALENDAR_H
 
+class DiaryWindow;
+
 #include "diaryholder.h"
 #include "diarywindow.h"
 #include "theoreticaldiary.h"
@@ -80,6 +82,8 @@ public:
                     const std::optional<td::EntryMap *> &map);
   void rerender_day(const td::CalendarButtonData d);
   void change_month(const QDate first_day);
+
+  DiaryWindow **p;
 
   QString *s_base;
   QString *s_default;

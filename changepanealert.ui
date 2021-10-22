@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ConfirmOverwrite</class>
- <widget class="QDialog" name="ConfirmOverwrite">
+ <class>ChangePaneAlert</class>
+ <widget class="QDialog" name="ChangePaneAlert">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>450</width>
     <height>150</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Confirm overwrite</string>
+   <string>Unsaved changes</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -37,8 +37,20 @@
    </property>
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
     <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="text">
-      <string>A diary already exists. Are you sure you want to overwrite it?</string>
+      <string>You have unsaved changes for the current selected date. Switching will discard these changes.</string>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -91,13 +103,13 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>75</width>
+         <width>125</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>75</width>
+         <width>125</width>
          <height>20</height>
         </size>
        </property>
@@ -110,7 +122,7 @@
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="text">
-        <string>No</string>
+        <string>Stay</string>
        </property>
        <property name="flat">
         <bool>true</bool>
@@ -127,13 +139,13 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>75</width>
+         <width>125</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>75</width>
+         <width>125</width>
          <height>20</height>
         </size>
        </property>
@@ -146,7 +158,7 @@
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="text">
-        <string>Yes</string>
+        <string>Switch</string>
        </property>
        <property name="flat">
         <bool>false</bool>
@@ -156,6 +168,11 @@
     </layout>
    </item>
   </layout>
+  <action name="action_yes">
+   <property name="text">
+    <string>yes</string>
+   </property>
+  </action>
   <action name="action_no">
    <property name="text">
     <string>no</string>
@@ -164,26 +181,17 @@
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="action_yes">
-   <property name="text">
-    <string>yes</string>
-   </property>
-  </action>
  </widget>
- <tabstops>
-  <tabstop>no_button</tabstop>
-  <tabstop>yes_button</tabstop>
- </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>no_button</sender>
+   <sender>yes_button</sender>
    <signal>clicked()</signal>
-   <receiver>action_no</receiver>
+   <receiver>action_yes</receiver>
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>114</x>
+     <x>317</x>
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
@@ -193,13 +201,13 @@
    </hints>
   </connection>
   <connection>
-   <sender>yes_button</sender>
+   <sender>no_button</sender>
    <signal>clicked()</signal>
-   <receiver>action_yes</receiver>
+   <receiver>action_no</receiver>
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>284</x>
+     <x>162</x>
      <y>109</y>
     </hint>
     <hint type="destinationlabel">

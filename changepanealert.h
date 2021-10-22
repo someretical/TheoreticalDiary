@@ -15,26 +15,26 @@
  * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef UNSAVEDCHANGESBASE_H
-#define UNSAVEDCHANGESBASE_H
+#ifndef CHANGEPANEALERT_H
+#define CHANGEPANEALERT_H
 
 #include "theoreticaldiary.h"
 
 #include <QDialog>
 
 namespace Ui {
-class UnsavedChanges;
+class ChangePaneAlert;
 }
 
-class UnsavedChanges : public QDialog {
+class ChangePaneAlert : public QDialog {
   Q_OBJECT
 
 public:
-  explicit UnsavedChanges(QWidget *parent = nullptr);
-  ~UnsavedChanges();
+  explicit ChangePaneAlert(QWidget *parent = nullptr);
+  ~ChangePaneAlert();
 
 private:
-  Ui::UnsavedChanges *ui;
+  Ui::ChangePaneAlert *ui;
 };
 
-#endif // UNSAVEDCHANGESBASE_H
+#endif // CHANGEPANEALERT_H

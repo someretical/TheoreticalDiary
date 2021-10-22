@@ -16,6 +16,7 @@
  */
 
 #include "theoreticalcalendar.h"
+#include "changepanealert.h"
 #include "diaryholder.h"
 #include "diarywindow.h"
 #include "theoreticaldiary.h"
@@ -37,9 +38,10 @@ TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
     : QWidget(parent), ui(new Ui::TheoreticalCalendar) {
   ui->setupUi(this);
 
-  auto p = qobject_cast<DiaryWindow *>(parent);
-  first_created = new QDate(p->current_date->year(), p->current_date->month(),
-                            p->current_date->day());
+  p = new DiaryWindow *(qobject_cast<DiaryWindow *>(parent));
+  first_created =
+      new QDate((**p).current_date->year(), (**p).current_date->month(),
+                (**p).current_date->day());
   current_month_offset = new int(0);
   last_selected_day = new int(0);
 
@@ -111,11 +113,12 @@ TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
   // DiaryWindow::update_pane_info that compares the dates of p->current_date
   // and first_created so no uncessary resources are spent searching if the user
   // clicks on the same button loads of times.
-  p->current_date->setDate(0, 0, 0);
+  (**p).current_date->setDate(0, 0, 0);
   change_month(*first_created);
 }
 
 TheoreticalCalendar::~TheoreticalCalendar() {
+  delete p;
   delete ui;
   delete first_created;
   delete current_month_offset;
@@ -202,6 +205,15 @@ void TheoreticalCalendar::render_month(
 }
 
 void TheoreticalCalendar::change_month(const QDate date) {
+  if (*(**p).current_date_changed) {
+    ChangePaneAlert w(this);
+
+    if (w.exec() != QDialog::Accepted)
+      return;
+
+    *(**p).current_date_changed = false;
+  }
+
   // Remove everything from current grid
   QLayoutItem *child;
   while ((child = ui->dates->takeAt(0)) != 0) {
@@ -272,6 +284,15 @@ void TheoreticalCalendar::clicked_on(const int day) {
   // Don't respond to spam clicks on same button.
   if (day == *last_selected_day)
     return;
+
+  if (*(**p).current_date_changed) {
+    ChangePaneAlert w(this);
+
+    if (w.exec() != QDialog::Accepted)
+      return;
+
+    *(**p).current_date_changed = false;
+  }
 
   td::CalendarButtonData old{*last_selected_day, std::nullopt, std::nullopt,
                              std::nullopt, std::make_optional<bool>(false)};

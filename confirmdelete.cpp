@@ -22,8 +22,8 @@
 #include <QAction>
 #include <QFile>
 
-ConfirmDeleteBase::ConfirmDeleteBase(QWidget *parent)
-    : QDialog(parent), ui(new Ui::ConfirmDeleteBase) {
+ConfirmDelete::ConfirmDelete(QWidget *parent)
+    : QDialog(parent), ui(new Ui::ConfirmDelete) {
   ui->setupUi(this);
 
   QFile ss_file(":/styles/confirmoverwrite.qss");
@@ -33,23 +33,13 @@ ConfirmDeleteBase::ConfirmDeleteBase(QWidget *parent)
 
   auto action = findChild<QAction *>("action_no");
   addAction(action);
-  connect(action, &QAction::triggered, this, &ConfirmDeleteBase::action_no,
+  connect(action, &QAction::triggered, this, &ConfirmDelete::reject,
           Qt::QueuedConnection);
 
   action = findChild<QAction *>("action_yes");
   addAction(action);
-  connect(action, &QAction::triggered, this, &ConfirmDeleteBase::action_yes,
+  connect(action, &QAction::triggered, this, &ConfirmDelete::accept,
           Qt::QueuedConnection);
 }
 
-ConfirmDeleteBase::~ConfirmDeleteBase() { delete ui; }
-
-void ConfirmDeleteBase::action_no() {
-  emit sig_complete(td::Res::No);
-  accept();
-}
-
-void ConfirmDeleteBase::action_yes() {
-  emit sig_complete(td::Res::Yes);
-  accept();
-}
+ConfirmDelete::~ConfirmDelete() { delete ui; }

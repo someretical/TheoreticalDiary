@@ -21,32 +21,17 @@
 #include <gzip.h>
 #include <string>
 
-// TODO zip THEN encrypt
-
-/**
- * Gzip string to file
- */
-bool Zipper::zip(const std::string &path, std::string &uncompressed) {
-  try {
-    CryptoPP::Gzip zipper(new CryptoPP::FileSink(path.data(), true));
-    zipper.Put((CryptoPP::byte *)uncompressed.data(), uncompressed.size());
-    zipper.MessageEnd();
-
-    return true;
-  } catch (const CryptoPP::Exception &e) {
-    return false;
-  }
+void Zipper::zip(std::string &compressed, std::string &decompressed) {
+  CryptoPP::Gzip zipper(new CryptoPP::StringSink(compressed));
+  zipper.Put((CryptoPP::byte *)decompressed.data(), decompressed.size());
+  zipper.MessageEnd();
 }
 
-/**
- * Gunzip file to string
- */
-bool Zipper::unzip(const std::string &path, std::string &uncompressed) {
+bool Zipper::unzip(std::string &compressed, std::string &decompressed) {
   try {
-    CryptoPP::FileSource fs(
-        path.data(), true,
-        new CryptoPP::Gunzip(new CryptoPP::StringSink(uncompressed)));
-
+    CryptoPP::Gunzip unzipper(new CryptoPP::StringSink(decompressed));
+    unzipper.Put((CryptoPP::byte *)compressed.data(), compressed.size());
+    unzipper.MessageEnd();
     return true;
   } catch (const CryptoPP::Exception &e) {
     return false;

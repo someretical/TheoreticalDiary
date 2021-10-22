@@ -65,18 +65,25 @@ void UpdatePassword::action_close() { accept(); }
 void UpdatePassword::attempt_change() {
   ui->alert_text->setText("");
 
-  if (ui->first_password->text() != ui->second_password->text()) {
+  if (ui->first_password->text() != ui->second_password->text())
     return ui->alert_text->setText("The passwords do not match.");
-  }
 
-  if (ui->first_password->text().size() == 0) {
-    TheoreticalDiary::instance()->diary_holder->key->clear();
-  } else {
-    std::vector<CryptoPP::byte> hash;
-    Encryptor::get_hash(ui->first_password->text().toStdString(), hash);
-    TheoreticalDiary::instance()->diary_holder->set_key(hash);
-  }
+  if (1 == ui->first_password->text().length())
+    return ui->alert_text->setText(
+        "Passwords need to be 0 or at least 2 characters long.");
 
+  if (32 < ui->first_password->text().length())
+    return ui->alert_text->setText(
+        "The maximum length for a password is 32 characters.");
+
+  // Get hash of password
+  std::vector<CryptoPP::byte> hash;
+  Encryptor::get_hash(0 == ui->first_password->text().length()
+                          ? "a"
+                          : ui->first_password->text().toStdString(),
+                      hash);
+
+  TheoreticalDiary::instance()->diary_holder->set_key(hash);
   TheoreticalDiary::instance()->changes_made();
 
   accept();

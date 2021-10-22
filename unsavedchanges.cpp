@@ -21,8 +21,8 @@
 #include <QAction>
 #include <QFile>
 
-UnsavedChangesBase::UnsavedChangesBase(QWidget *parent)
-    : QDialog(parent), ui(new Ui::UnsavedChangesBase) {
+UnsavedChanges::UnsavedChanges(QWidget *parent)
+    : QDialog(parent), ui(new Ui::UnsavedChanges) {
   ui->setupUi(this);
 
   QFile ss_file(":/styles/confirmoverwrite.qss");
@@ -32,23 +32,13 @@ UnsavedChangesBase::UnsavedChangesBase(QWidget *parent)
 
   auto action = findChild<QAction *>("action_no");
   addAction(action);
-  connect(action, &QAction::triggered, this, &UnsavedChangesBase::action_no,
+  connect(action, &QAction::triggered, this, &UnsavedChanges::reject,
           Qt::QueuedConnection);
 
   action = findChild<QAction *>("action_yes");
   addAction(action);
-  connect(action, &QAction::triggered, this, &UnsavedChangesBase::action_yes,
+  connect(action, &QAction::triggered, this, &UnsavedChanges::accept,
           Qt::QueuedConnection);
 }
 
-UnsavedChangesBase::~UnsavedChangesBase() { delete ui; }
-
-void UnsavedChangesBase::action_no() {
-  emit sig_complete(td::Res::No);
-  accept();
-}
-
-void UnsavedChangesBase::action_yes() {
-  emit sig_complete(td::Res::Yes);
-  accept();
-}
+UnsavedChanges::~UnsavedChanges() { delete ui; }

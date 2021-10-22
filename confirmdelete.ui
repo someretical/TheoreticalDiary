@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ConfirmDeleteBase</class>
- <widget class="QDialog" name="ConfirmDeleteBase">
+ <class>ConfirmDelete</class>
+ <widget class="QDialog" name="ConfirmDelete">
   <property name="geometry">
    <rect>
     <x>0</x>

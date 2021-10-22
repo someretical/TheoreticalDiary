@@ -51,11 +51,7 @@ public slots:
   void dump_drive();
   void about_app();
   void quit_app();
-  void real_import_diary();
 
-  void prompt_pwd_callback(const td::Res code);
-  void confirm_overwrite_callback(const td::Res code);
-  void import_diary_callback(const td::Res code);
   void oauth2_callback(const td::Res code);
 };
 #endif // MAINWINDOW_H
