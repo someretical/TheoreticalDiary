@@ -28,9 +28,6 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
   diary_holder = new DiaryHolder;
   local_settings = new td::LocalSettings{"", "", false};
   unsaved_changes = new bool(false);
-
-  connect(gwrapper, &GoogleWrapper::sig_token_changed, this,
-          &TheoreticalDiary::changes_made);
 }
 
 TheoreticalDiary::~TheoreticalDiary() {

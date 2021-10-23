@@ -40,11 +40,9 @@ public:
 
 signals:
   void sig_oauth2_callback(const td::Res code);
-  void sig_token_changed();
 
 private:
   QOAuth2AuthorizationCodeFlow *google;
-  void token_changed();
   void auth_ok();
 };
 

@@ -57,17 +57,12 @@ GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent) {
           [=](QUrl url) {
             QUrlQuery query(url);
 
-            query.addQueryItem("prompt",
-                               "consent"); // Param required to get data
-            query.addQueryItem("access_type",
-                               "offline"); // Needed for Refresh Token (as
-                                           // AccessToken expires shortly)
+            query.addQueryItem("prompt", "consent");
+            query.addQueryItem("access_type", "offline");
+
             url.setQuery(query);
             QDesktopServices::openUrl(url);
           });
-
-  auto reply_handler = new QOAuthHttpServerReplyHandler(5476, this);
-  google->setReplyHandler(reply_handler);
 
   connect(google, &QOAuth2AuthorizationCodeFlow::granted, this,
           &GoogleWrapper::auth_ok);
@@ -75,19 +70,21 @@ GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent) {
           &GoogleWrapper::auth_err);
 
   // These changes should be committed to persistent storage
-  connect(google, &QOAuth2AuthorizationCodeFlow::tokenChanged, this,
-          &GoogleWrapper::token_changed);
-  connect(google, &QOAuth2AuthorizationCodeFlow::refreshTokenChanged, this,
-          &GoogleWrapper::token_changed);
+  connect(google, &QOAuth2AuthorizationCodeFlow::tokenChanged,
+          TheoreticalDiary::instance(), &TheoreticalDiary::changes_made);
+  connect(google, &QOAuth2AuthorizationCodeFlow::refreshTokenChanged,
+          TheoreticalDiary::instance(), &TheoreticalDiary::changes_made);
+
+  auto rh = new QOAuthHttpServerReplyHandler(8888, this);
+  google->setReplyHandler(rh);
 }
 
 GoogleWrapper::~GoogleWrapper() { delete google; }
 
-void GoogleWrapper::token_changed() { emit sig_token_changed(); }
-
 bool GoogleWrapper::load_credentials() {
-  QFile file(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
-             "/TheoreticalDiary/credentials.json");
+  QFile file(
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+      "/TheoreticalDiary/credentials.json");
 
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QString data = file.readAll();
@@ -121,8 +118,9 @@ bool GoogleWrapper::save_credentials() {
   tokens.insert("refresh_token", google->refreshToken());
   doc.setObject(tokens);
 
-  QFile file(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
-             "/TheoreticalDiary/credentials.json");
+  QFile file(
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+      "/TheoreticalDiary/credentials.json");
 
   if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     file.write(doc.toJson());
