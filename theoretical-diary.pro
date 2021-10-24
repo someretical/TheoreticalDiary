@@ -38,6 +38,7 @@ SOURCES += \
     changepanealert.cpp \
     confirmdelete.cpp \
     confirmoverwrite.cpp \
+    diaryentrylist.cpp \
     diaryholder.cpp \
     diarywindow.cpp \
     encryptor.cpp \
@@ -65,6 +66,7 @@ HEADERS += \
     changepanealert.h \
     confirmdelete.h \
     confirmoverwrite.h \
+    diaryentrylist.h \
     diaryholder.h \
     diarywindow.h \
     encryptor.h \
@@ -91,6 +93,7 @@ FORMS += \
     changepanealert.ui \
     confirmdelete.ui \
     confirmoverwrite.ui \
+    diaryentrylist.ui \
     diarywindow.ui \
     flushwindow.ui \
     mainwindow.ui \
@@ -118,97 +121,17 @@ RESOURCES += \
 DISTFILES += \
     LICENSE \
     README.md \
-    fonts/Roboto-Black.ttf \
-    fonts/Roboto-BlackItalic.ttf \
-    fonts/Roboto-Bold.ttf \
-    fonts/Roboto-BoldItalic.ttf \
-    fonts/Roboto-Italic.ttf \
-    fonts/Roboto-Light.ttf \
-    fonts/Roboto-LightItalic.ttf \
-    fonts/Roboto-Medium.ttf \
-    fonts/Roboto-MediumItalic.ttf \
-    fonts/Roboto-Regular.ttf \
-    fonts/Roboto-Thin.ttf \
-    fonts/Roboto-ThinItalic.ttf \
-    fonts/RobotoCondensed-Bold.ttf \
-    fonts/RobotoCondensed-BoldItalic.ttf \
-    fonts/RobotoCondensed-Italic.ttf \
-    fonts/RobotoCondensed-Light.ttf \
-    fonts/RobotoCondensed-LightItalic.ttf \
-    fonts/RobotoCondensed-Regular.ttf \
-    images/disabled/base.svg \
-    images/disabled/branch-closed.svg \
-    images/disabled/branch-end.svg \
-    images/disabled/branch-more.svg \
-    images/disabled/branch-open.svg \
-    images/disabled/checkbox_checked.svg \
-    images/disabled/checkbox_checked_invert.svg \
-    images/disabled/checkbox_indeterminate.svg \
-    images/disabled/checkbox_indeterminate_invert.svg \
-    images/disabled/checkbox_unchecked.svg \
-    images/disabled/checkbox_unchecked_invert.svg \
-    images/disabled/checklist.svg \
-    images/disabled/checklist_indeterminate.svg \
-    images/disabled/checklist_indeterminate_invert.svg \
-    images/disabled/checklist_invert.svg \
-    images/disabled/close.svg \
-    images/disabled/downarrow.svg \
-    images/disabled/downarrow2.svg \
-    images/disabled/float.svg \
-    images/disabled/leftarrow.svg \
-    images/disabled/leftarrow2.svg \
-    images/disabled/radiobutton_checked.svg \
-    images/disabled/radiobutton_unchecked.svg \
-    images/disabled/rightarrow.svg \
-    images/disabled/rightarrow2.svg \
-    images/disabled/sizegrip.svg \
-    images/disabled/slider.svg \
-    images/disabled/splitter-horizontal.svg \
-    images/disabled/splitter-vertical.svg \
-    images/disabled/tab_close.svg \
-    images/disabled/toolbar-handle-horizontal.svg \
-    images/disabled/toolbar-handle-vertical.svg \
-    images/disabled/uparrow.svg \
-    images/disabled/uparrow2.svg \
-    images/disabled/vline.svg \
-    images/primary/base.svg \
-    images/primary/branch-closed.svg \
-    images/primary/branch-end.svg \
-    images/primary/branch-more.svg \
-    images/primary/branch-open.svg \
-    images/primary/checkbox_checked.svg \
-    images/primary/checkbox_checked_invert.svg \
-    images/primary/checkbox_indeterminate.svg \
-    images/primary/checkbox_indeterminate_invert.svg \
-    images/primary/checkbox_unchecked.svg \
-    images/primary/checkbox_unchecked_invert.svg \
-    images/primary/checklist.svg \
-    images/primary/checklist_indeterminate.svg \
-    images/primary/checklist_indeterminate_invert.svg \
-    images/primary/checklist_invert.svg \
-    images/primary/close.svg \
-    images/primary/downarrow.svg \
-    images/primary/downarrow2.svg \
-    images/primary/float.svg \
-    images/primary/leftarrow.svg \
-    images/primary/leftarrow2.svg \
-    images/primary/radiobutton_checked.svg \
-    images/primary/radiobutton_unchecked.svg \
-    images/primary/rightarrow.svg \
-    images/primary/rightarrow2.svg \
-    images/primary/sizegrip.svg \
-    images/primary/slider.svg \
-    images/primary/splitter-horizontal.svg \
-    images/primary/splitter-vertical.svg \
-    images/primary/tab_close.svg \
-    images/primary/toolbar-handle-horizontal.svg \
-    images/primary/toolbar-handle-vertical.svg \
-    images/primary/uparrow.svg \
-    images/primary/uparrow2.svg \
-    images/primary/vline.svg \
     styles/aboutwindow.qss \
     styles/confirmoverwrite.qss \
+    styles/day_label_bad.qss \
+    styles/day_label_base.qss \
+    styles/day_label_good.qss \
+    styles/day_label_ok.qss \
+    styles/day_label_starred.qss \
+    styles/day_label_very_bad.qss \
+    styles/day_label_very_good.qss \
     styles/diaryeditor.qss \
+    styles/diaryentrylist.qss \
     styles/diarywindow.qss \
     styles/filedialog.qss \
     styles/mainwindow.qss \
@@ -229,17 +152,6 @@ DISTFILES += \
     text/CONTRIBUTORS.txt \
     text/LICENSES.txt \
     text/VERSION.txt \
-    fonts/Ubuntu-Bold.ttf \
-    fonts/Ubuntu-BoldItalic.ttf \
-    fonts/Ubuntu-Italic.ttf \
-    fonts/Ubuntu-Light.ttf \
-    fonts/Ubuntu-LightItalic.ttf \
-    fonts/Ubuntu-Medium.ttf \
-    fonts/Ubuntu-MediumItalic.ttf \
-    fonts/Ubuntu-Regular.ttf \
-    images/icon.ico \
-    images/icon.png \
-    images/icon.svg
 
 OTHER_FILES += \
     .clang-format \

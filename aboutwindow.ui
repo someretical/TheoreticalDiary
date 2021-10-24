@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -49,6 +49,11 @@
    </property>
    <item alignment="Qt::AlignHCenter">
     <widget class="QLabel" name="about">
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Theoretical diary is an app that let's you keep your own digital diary.</string>
      </property>
@@ -68,6 +73,11 @@
    </item>
    <item alignment="Qt::AlignHCenter">
     <widget class="QLabel" name="version">
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Version placeholder</string>
      </property>
@@ -104,6 +114,11 @@
        <width>550</width>
        <height>100</height>
       </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
      </property>
      <property name="cursor" stdset="0">
       <cursorShape>IBeamCursor</cursorShape>
@@ -147,6 +162,11 @@
        <width>510</width>
        <height>200</height>
       </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
      </property>
      <property name="cursor" stdset="0">
       <cursorShape>IBeamCursor</cursorShape>

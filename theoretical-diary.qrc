@@ -116,5 +116,13 @@
         <file>images/icons/hicolor/256x256/apps/theoretical-diary.png</file>
         <file>images/icon.png</file>
         <file>styles/diaryeditor.qss</file>
+        <file>styles/diaryentrylist.qss</file>
+        <file>styles/day_label_bad.qss</file>
+        <file>styles/day_label_base.qss</file>
+        <file>styles/day_label_good.qss</file>
+        <file>styles/day_label_ok.qss</file>
+        <file>styles/day_label_starred.qss</file>
+        <file>styles/day_label_very_bad.qss</file>
+        <file>styles/day_label_very_good.qss</file>
     </qresource>
 </RCC>

@@ -17,6 +17,7 @@
 
 #include "diarywindow.h"
 #include "confirmdelete.h"
+#include "diaryentrylist.h"
 #include "diaryholder.h"
 #include "encryptor.h"
 #include "missingpermissions.h"
@@ -48,6 +49,7 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   QString s_ = s.readAll();
   setStyleSheet(s_);
 
+  // Setup diary editor tab
   QFile s1(":/styles/diaryeditor.qss");
   s1.open(QIODevice::ReadOnly);
   QString s1_ = s1.readAll();
@@ -56,8 +58,7 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   // specifically.
   ui->editor->setStyleSheet(s1_);
 
-  QDate d = QDate::currentDate();
-  current_date = new QDate(d.year(), d.month(), d.day());
+  current_date = new QDate(QDate::currentDate());
   current_date_changed = new bool(false);
 
   calendar = new TheoreticalCalendar(this);
@@ -67,6 +68,16 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   // Don't need to clear last_edited text here since initializing
   // TheoreticalCalendar will already set it.
 
+  // Setup diary entry list tab
+  QFile s2(":/styles/diaryentrylist.qss");
+  s2.open(QIODevice::ReadOnly);
+  QString s2_ = s2.readAll();
+  ui->entries->setStyleSheet(s2_);
+
+  entry_list = new DiaryEntryList(this);
+  ui->entry_box->addWidget(entry_list);
+
+  // Setup actions
   auto action = findChild<QAction *>("action_save");
   addAction(action);
   connect(action, &QAction::triggered, this, &DiaryWindow::action_save);
@@ -98,6 +109,9 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   action = findChild<QAction *>("action_changes_made");
   addAction(action);
   connect(action, &QAction::triggered, this, &DiaryWindow::changes_made);
+
+  connect(ui->tabs, &QTabWidget::currentChanged, this,
+          &DiaryWindow::tab_changed);
 }
 
 DiaryWindow::~DiaryWindow() {
@@ -108,6 +122,21 @@ DiaryWindow::~DiaryWindow() {
 }
 
 void DiaryWindow::changes_made() { *current_date_changed = true; }
+
+void DiaryWindow::tab_changed() {
+  switch (ui->tabs->currentIndex()) {
+  // List tab
+  case 1:
+    entry_list->rerender_current_month();
+    break;
+  // Stats tab
+  case 2:
+    break;
+  // Pixels tab
+  case 3:
+    break;
+  }
+}
 
 // Refocus calendar on current date.
 void DiaryWindow::reset_date() {

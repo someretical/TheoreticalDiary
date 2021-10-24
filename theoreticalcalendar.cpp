@@ -26,6 +26,7 @@
 #include <QCursor>
 #include <QDate>
 #include <QFile>
+#include <QFont>
 #include <QIcon>
 #include <QLayoutItem>
 #include <QPushButton>
@@ -342,6 +343,10 @@ CalendarButton::CalendarButton(const td::CalendarButtonData &d)
 
   setAutoDefault(true);
   setCursor(QCursor(Qt::PointingHandCursor));
+
+  QFont f = font();
+  f.setPointSize(11);
+  setFont(f);
 
   data = new td::CalendarButtonData();
   *data = d;

@@ -34,6 +34,11 @@
    </property>
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
     <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>No existing diary was found. please create a new diary or import/download an existing one.</string>
      </property>

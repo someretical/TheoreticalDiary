@@ -43,6 +43,11 @@
    </property>
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
     <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Please grant access to ALL required OAuth scopes.</string>
      </property>

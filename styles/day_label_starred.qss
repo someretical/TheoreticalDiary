@@ -1,0 +1,3 @@
+QLabel {
+  border: 2px solid #FFFFFF;
+}

@@ -37,6 +37,11 @@
    </property>
    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
     <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>The diary was unable to be saved. Please ensure the app has read/write permissions.</string>
      </property>

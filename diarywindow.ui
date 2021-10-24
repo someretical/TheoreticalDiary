@@ -24,7 +24,7 @@
     <number>50</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>50</number>
    </property>
    <property name="rightMargin">
     <number>50</number>
@@ -226,7 +226,7 @@
       <bool>false</bool>
      </property>
      <property name="tabPosition">
-      <enum>QTabWidget::East</enum>
+      <enum>QTabWidget::North</enum>
      </property>
      <property name="tabShape">
       <enum>QTabWidget::Rounded</enum>
@@ -249,13 +249,13 @@
         <number>20</number>
        </property>
        <property name="topMargin">
-        <number>50</number>
+        <number>30</number>
        </property>
        <property name="rightMargin">
         <number>20</number>
        </property>
        <property name="bottomMargin">
-        <number>50</number>
+        <number>30</number>
        </property>
        <item>
         <layout class="QHBoxLayout" name="calender_box">
@@ -657,6 +657,30 @@
       <attribute name="title">
        <string>Entries</string>
       </attribute>
+      <layout class="QGridLayout" name="gridLayout_8">
+       <property name="leftMargin">
+        <number>50</number>
+       </property>
+       <property name="topMargin">
+        <number>30</number>
+       </property>
+       <property name="rightMargin">
+        <number>50</number>
+       </property>
+       <property name="bottomMargin">
+        <number>30</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="entry_box">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+        </layout>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="stats">
       <attribute name="title">
@@ -728,6 +752,20 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>tabs</tabstop>
+  <tabstop>sync_button</tabstop>
+  <tabstop>export_button</tabstop>
+  <tabstop>password_button</tabstop>
+  <tabstop>save_button</tabstop>
+  <tabstop>quit_button</tabstop>
+  <tabstop>rating_dropdown</tabstop>
+  <tabstop>is_important</tabstop>
+  <tabstop>text_entry</tabstop>
+  <tabstop>reset_button</tabstop>
+  <tabstop>clear_button</tabstop>
+  <tabstop>update_button</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

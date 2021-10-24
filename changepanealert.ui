@@ -49,6 +49,11 @@
        <height>0</height>
       </size>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>You have unsaved changes for the current selected date. Switching will discard these changes.</string>
      </property>

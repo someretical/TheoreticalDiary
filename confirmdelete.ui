@@ -37,6 +37,11 @@
    </property>
    <item>
     <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Are you sure you want to delete this entry?</string>
      </property>

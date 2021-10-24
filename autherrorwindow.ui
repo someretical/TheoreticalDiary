@@ -70,6 +70,11 @@
        <height>70</height>
       </size>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>The application was unable to connect to Google Drive.
 Please make sure all required OAuth2 scopes have been granted and the corresponding files exist on Google Drive.</string>

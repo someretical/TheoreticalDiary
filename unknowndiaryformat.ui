@@ -49,6 +49,11 @@
        <height>20</height>
       </size>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>The app was unable to parse the diary.</string>
      </property>

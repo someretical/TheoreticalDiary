@@ -20,6 +20,7 @@
 
 class TheoreticalCalendar;
 
+#include "diaryentrylist.h"
 #include "diaryholder.h"
 #include "theoreticalcalendar.h"
 #include "theoreticaldiary.h"
@@ -53,12 +54,14 @@ public slots:
   void update_entry();
   void export_diary();
   void changes_made();
+  void tab_changed();
 
 private:
   void _update_info_pane(const td::Entry &entry);
 
   Ui::DiaryWindow *ui;
   TheoreticalCalendar *calendar;
+  DiaryEntryList *entry_list;
 };
 
 #endif // DIARYWINDOW_H
