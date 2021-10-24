@@ -9,6 +9,7 @@
 #include <QMouseEvent>
 #include <QString>
 #include <QWidget>
+#include <optional>
 #include <string>
 
 namespace Ui {
@@ -22,7 +23,7 @@ public:
   explicit DiaryEntryList(QWidget *parent = nullptr);
   ~DiaryEntryList();
   void change_month(const QDate date);
-  void render_month(std::optional<td::EntryMap *>);
+  void render_month(std::optional<td::EntryMap *> entries);
   void rerender_current_month();
   QLabel *create_day_label(std::pair<const int, const td::Entry> const i);
 
