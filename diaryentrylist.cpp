@@ -1,3 +1,20 @@
+/**
+ * This file is part of theoretical-diary.
+ *
+ * theoretical-diary is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * theoretical-diary is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "diaryentrylist.h"
 #include "diaryholder.h"
 #include "diarywindow.h"
@@ -11,6 +28,7 @@
 #include <QLabel>
 #include <QScrollBar>
 #include <QSpacerItem>
+#include <QString>
 #include <QWidget>
 #include <optional>
 #include <sstream>
@@ -25,33 +43,40 @@ DiaryEntryList::DiaryEntryList(QWidget *parent)
   first_created = new QDate(*qobject_cast<DiaryWindow *>(parent)->current_date);
 
   // Load styles
-  QFile _s_base(":/styles/day_label_base.qss");
-  _s_base.open(QIODevice::ReadOnly);
-  s_base = new QString(_s_base.readAll());
+  QFile file(":/styles/day_label_base.qss");
+  file.open(QIODevice::ReadOnly);
+  s_base = new QString(file.readAll());
+  file.close();
 
-  QFile _s_very_bad(":/styles/day_label_very_bad.qss");
-  _s_very_bad.open(QIODevice::ReadOnly);
-  s_very_bad = new QString(_s_very_bad.readAll());
+  file.setFileName(":/styles/day_label_very_bad.qss");
+  file.open(QIODevice::ReadOnly);
+  s_very_bad = new QString(file.readAll());
+  file.close();
 
-  QFile _s_bad(":/styles/day_label_bad.qss");
-  _s_bad.open(QIODevice::ReadOnly);
-  s_bad = new QString(_s_bad.readAll());
+  file.setFileName(":/styles/day_label_bad.qss");
+  file.open(QIODevice::ReadOnly);
+  s_bad = new QString(file.readAll());
+  file.close();
 
-  QFile _s_ok(":/styles/day_label_ok.qss");
-  _s_ok.open(QIODevice::ReadOnly);
-  s_ok = new QString(_s_ok.readAll());
+  file.setFileName(":/styles/day_label_ok.qss");
+  file.open(QIODevice::ReadOnly);
+  s_ok = new QString(file.readAll());
+  file.close();
 
-  QFile _s_good(":/styles/day_label_good.qss");
-  _s_good.open(QIODevice::ReadOnly);
-  s_good = new QString(_s_good.readAll());
+  file.setFileName(":/styles/day_label_good.qss");
+  file.open(QIODevice::ReadOnly);
+  s_good = new QString(file.readAll());
+  file.close();
 
-  QFile _s_very_good(":/styles/day_label_very_good.qss");
-  _s_very_good.open(QIODevice::ReadOnly);
-  s_very_good = new QString(_s_very_good.readAll());
+  file.setFileName(":/styles/day_label_very_good.qss");
+  file.open(QIODevice::ReadOnly);
+  s_very_good = new QString(file.readAll());
+  file.close();
 
-  QFile _s_starred(":/styles/day_label_starred.qss");
-  _s_starred.open(QIODevice::ReadOnly);
-  s_starred = new QString(_s_starred.readAll());
+  file.setFileName(":/styles/day_label_starred.qss");
+  file.open(QIODevice::ReadOnly);
+  s_starred = new QString(file.readAll());
+  file.close();
 
   // Setup actions
   auto action = findChild<QAction *>("action_next_month");
@@ -153,13 +178,13 @@ void DiaryEntryList::render_month(std::optional<td::EntryMap *> entries) {
     label->setFont(f);
     label->setAlignment(Qt::AlignCenter);
 
-    return ui->dates->addWidget(qobject_cast<QWidget *>(label), 0, 0, 1, 1);
+    return ui->dates->addWidget(label, 0, 0);
   }
 
   int row_counter = 0;
-  for (auto const &i : **entries) {
+  for (const auto &i : **entries) {
     // Don't add any days that don't have text entries
-    if (0 == i.second.message.size())
+    if (i.second.message.empty())
       continue;
 
     auto message = new ClickableLabel(i.second.day, i.second.message, this);

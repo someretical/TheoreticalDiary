@@ -42,11 +42,12 @@ void Encryptor::get_hash(const std::string &password,
   CryptoPP::byte digest[CryptoPP::SHA256::DIGESTSIZE];
 
   CryptoPP::SHA256 hash;
-  hash.CalculateDigest(digest, (CryptoPP::byte *)password.data(),
-                       password.size());
+  hash.CalculateDigest(
+      digest, reinterpret_cast<const CryptoPP::byte *>(password.data()),
+      password.size());
 
-  for (auto byte : digest)
-    output.push_back(byte);
+  output.insert(output.end(), &digest[0],
+                &digest[CryptoPP::SHA256::DIGESTSIZE]);
 }
 
 /**
@@ -65,8 +66,9 @@ void Encryptor::encrypt(const std::vector<CryptoPP::byte> &key,
   // Put content to be encrypted in the encryption AND authentication channel.
   CryptoPP::AuthenticatedEncryptionFilter encryption_filter(
       encryptor, new CryptoPP::StringSink(encrypted), false, TAG_SIZE);
-  encryption_filter.ChannelPut("", (const CryptoPP::byte *)decrypted.data(),
-                               decrypted.size());
+  encryption_filter.ChannelPut(
+      "", reinterpret_cast<const CryptoPP::byte *>(decrypted.data()),
+      decrypted.size());
   encryption_filter.ChannelMessageEnd("");
 
   /**
@@ -100,11 +102,12 @@ bool Encryptor::decrypt(const std::vector<CryptoPP::byte> &key,
         TAG_SIZE);
 
     // There is only data in the encrypted and authenticated channel.
-    decryption_filter.ChannelPut("", (const CryptoPP::byte *)mac_value.data(),
-                                 mac_value.size());
-    decryption_filter.ChannelPut("",
-                                 (const CryptoPP::byte *)encrypted_data.data(),
-                                 encrypted_data.size());
+    decryption_filter.ChannelPut(
+        "", reinterpret_cast<const CryptoPP::byte *>(mac_value.data()),
+        mac_value.size());
+    decryption_filter.ChannelPut(
+        "", reinterpret_cast<const CryptoPP::byte *>(encrypted_data.data()),
+        encrypted_data.size());
     decryption_filter.ChannelMessageEnd("");
 
     // Test the authenticity of the data.
@@ -115,11 +118,12 @@ bool Encryptor::decrypt(const std::vector<CryptoPP::byte> &key,
     // Allocate enough space for the decrypted content.
     std::size_t n = (std::size_t)-1;
     decryption_filter.SetRetrievalChannel("");
-    n = (std::size_t)decryption_filter.MaxRetrievable();
+    n = static_cast<std::size_t>(decryption_filter.MaxRetrievable());
     decrypted.resize(n);
 
     if (n > 0)
-      decryption_filter.Get((CryptoPP::byte *)decrypted.data(), n);
+      decryption_filter.Get(
+          reinterpret_cast<CryptoPP::byte *>(decrypted.data()), n);
 
     return true;
   } catch (CryptoPP::HashVerificationFilter::HashVerificationFailed &e) {

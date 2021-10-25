@@ -23,7 +23,6 @@
 #include <QSystemSemaphore>
 
 class RunGuard {
-
 public:
   RunGuard(const QString &key);
   ~RunGuard();

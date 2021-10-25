@@ -23,14 +23,16 @@
 
 void Zipper::zip(std::string &compressed, std::string &decompressed) {
   CryptoPP::Gzip zipper(new CryptoPP::StringSink(compressed));
-  zipper.Put((CryptoPP::byte *)decompressed.data(), decompressed.size());
+  zipper.Put(reinterpret_cast<CryptoPP::byte *>(decompressed.data()),
+             decompressed.size());
   zipper.MessageEnd();
 }
 
 bool Zipper::unzip(std::string &compressed, std::string &decompressed) {
   try {
     CryptoPP::Gunzip unzipper(new CryptoPP::StringSink(decompressed));
-    unzipper.Put((CryptoPP::byte *)compressed.data(), compressed.size());
+    unzipper.Put(reinterpret_cast<CryptoPP::byte *>(compressed.data()),
+                 compressed.size());
     unzipper.MessageEnd();
     return true;
   } catch (const CryptoPP::Exception &e) {

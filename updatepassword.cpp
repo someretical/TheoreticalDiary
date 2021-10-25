@@ -30,10 +30,11 @@ UpdatePassword::UpdatePassword(QWidget *parent)
   ui->setupUi(this);
   ui->alert_text->setText("");
 
-  QFile ss_file(":/styles/updatepassword.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
+  QFile file(":/styles/updatepassword.qss");
+  file.open(QIODevice::ReadOnly);
+  QString str = file.readAll();
+  file.close();
+  setStyleSheet(str);
 
   auto action = findChild<QAction *>("action_change");
   addAction(action);
@@ -70,11 +71,11 @@ void UpdatePassword::attempt_change() {
 
   if (1 == ui->first_password->text().length())
     return ui->alert_text->setText(
-        "Passwords need to be 0 or at least 2 characters long.");
+        "Passwords need to be 0 or >= 2 characters long.");
 
   if (32 < ui->first_password->text().length())
     return ui->alert_text->setText(
-        "The maximum length for a password is 32 characters.");
+        "Passwords must be <= 32 characters.");
 
   // Get hash of password
   std::vector<CryptoPP::byte> hash;

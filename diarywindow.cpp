@@ -44,19 +44,21 @@ DiaryWindow::DiaryWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::DiaryWindow) {
   ui->setupUi(this);
 
-  QFile s(":/styles/diarywindow.qss");
-  s.open(QIODevice::ReadOnly);
-  QString s_ = s.readAll();
-  setStyleSheet(s_);
+  QFile file(":/styles/diarywindow.qss");
+  file.open(QIODevice::ReadOnly);
+  QString str = file.readAll();
+  file.close();
+  setStyleSheet(str);
 
   // Setup diary editor tab
-  QFile s1(":/styles/diaryeditor.qss");
-  s1.open(QIODevice::ReadOnly);
-  QString s1_ = s1.readAll();
+  file.setFileName(":/styles/diaryeditor.qss");
+  file.open(QIODevice::ReadOnly);
+  str = file.readAll();
+  file.close();
   // For some reason, calling this->setStyleSheet() has no effect on the
   // contents of the tab widget. So we have to call it on the tab widget
   // specifically.
-  ui->editor->setStyleSheet(s1_);
+  ui->editor->setStyleSheet(str);
 
   current_date = new QDate(QDate::currentDate());
   current_date_changed = new bool(false);
@@ -69,10 +71,11 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   // TheoreticalCalendar will already set it.
 
   // Setup diary entry list tab
-  QFile s2(":/styles/diaryentrylist.qss");
-  s2.open(QIODevice::ReadOnly);
-  QString s2_ = s2.readAll();
-  ui->entries->setStyleSheet(s2_);
+  file.setFileName(":/styles/diaryentrylist.qss");
+  file.open(QIODevice::ReadOnly);
+  str = file.readAll();
+  file.close();
+  ui->entries->setStyleSheet(str);
 
   entry_list = new DiaryEntryList(this);
   ui->entry_box->addWidget(entry_list);
@@ -186,7 +189,7 @@ void DiaryWindow::update_entry() {
 
   // Find/create YearContainer within Diary.years
   auto year_map = &TheoreticalDiary::instance()->diary_holder->diary->years;
-  td::YearMap::iterator year_iter = year_map->lower_bound(current_date->year());
+  auto year_iter = year_map->lower_bound(current_date->year());
 
   if (year_iter == year_map->end() ||
       year_map->key_comp()(current_date->year(), year_iter->first)) {
@@ -199,8 +202,7 @@ void DiaryWindow::update_entry() {
 
   // Find/create MonthContainer within the YearContainer.months
   auto month_map = &(year_iter->second.months);
-  td::MonthMap::iterator month_iter =
-      month_map->lower_bound(current_date->month());
+  auto month_iter = month_map->lower_bound(current_date->month());
 
   if (month_iter == month_map->end() ||
       month_map->key_comp()(current_date->month(), month_iter->first)) {
@@ -218,8 +220,7 @@ void DiaryWindow::update_entry() {
 
   // Find/create Entry within the MonthContainer.days
   auto entry_map = &(month_iter->second.days);
-  td::EntryMap::iterator entry_iter =
-      entry_map->lower_bound(current_date->day());
+  auto entry_iter = entry_map->lower_bound(current_date->day());
 
   if (entry_iter == entry_map->end() ||
       entry_map->key_comp()(current_date->day(), entry_iter->first)) {
@@ -236,6 +237,7 @@ void DiaryWindow::update_entry() {
           static_cast<td::Rating>(ui->rating_dropdown->currentIndex())),
       std::nullopt};
   calendar->rerender_day(data);
+  _update_info_pane(new_entry);
 
   TheoreticalDiary::instance()->changes_made();
   *current_date_changed = false;
@@ -245,7 +247,7 @@ void DiaryWindow::export_diary() {
   auto filename =
       QFileDialog::getSaveFileName(this, "Export diary", QDir::homePath());
 
-  if (filename.size() == 0)
+  if (filename.isEmpty())
     return;
 
   std::ofstream dst(filename.toStdString());
@@ -335,8 +337,7 @@ void DiaryWindow::reject() {
 
   // Reset values just to be safe.
   *TheoreticalDiary::instance()->unsaved_changes = false;
-  TheoreticalDiary::instance()->diary_holder->key->clear();
-  *TheoreticalDiary::instance()->diary_holder->diary = td::Diary();
+  TheoreticalDiary::instance()->diary_holder->init();
 
   // accept() does NOT trigger reject so there is no infinite loop here.
   accept();

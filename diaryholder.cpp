@@ -28,7 +28,7 @@
 
 DiaryHolder::DiaryHolder() {
   diary = new td::Diary;
-  key = new std::vector<CryptoPP::byte>();
+  key = new std::vector<CryptoPP::byte>;
 }
 
 DiaryHolder::~DiaryHolder() {
@@ -37,25 +37,22 @@ DiaryHolder::~DiaryHolder() {
 }
 
 void DiaryHolder::init() {
-  td::Diary new_diary;
-  new_diary.years = td::YearMap();
-  new_diary.settings = td::Settings{false};
-  new_diary.metadata = td::Metadata{CURRENT_SAVE_VERSION, std::time(nullptr)};
-
-  *diary = new_diary;
+  key->clear();
+  *diary = td::Diary{td::YearMap(),
+                     td::Metadata{CURRENT_SAVE_VERSION, std::time(nullptr)},
+                     td::Settings{false}};
 }
 
 void DiaryHolder::set_key(const std::vector<CryptoPP::byte> k) {
-  key->clear();
-
-  for (auto b : k)
-    key->push_back(b);
+  key->assign(k.begin(), k.end());
 }
 
 bool DiaryHolder::load(std::string &raw) {
   auto json = nlohmann::json::parse(raw, nullptr, false);
   if (json.is_discarded())
     return false;
+
+  // Here is where updating save versions will occur
 
   try {
     *diary = json.get<td::Diary>();

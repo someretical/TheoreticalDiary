@@ -123,6 +123,8 @@ inline void from_json(const nlohmann::json &j, Diary &d) {
   j.at("metadata").get_to<Metadata>(d.metadata);
   j.at("settings").get_to<Settings>(d.settings);
 }
+
+namespace OldVersions {}
 } // namespace td
 
 class DiaryHolder {

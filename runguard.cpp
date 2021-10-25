@@ -18,9 +18,9 @@
 #include "runguard.h"
 
 #include <QCryptographicHash>
+#include <QString>
 
 namespace {
-
 QString generateKeyHash(const QString &key, const QString &salt) {
   QByteArray data;
 
@@ -30,8 +30,7 @@ QString generateKeyHash(const QString &key, const QString &salt) {
 
   return data;
 }
-
-} // namespace
+}
 
 RunGuard::RunGuard(const QString &key)
     : key(key), memLockKey(generateKeyHash(key, "_memLockKey")),

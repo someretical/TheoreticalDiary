@@ -34,13 +34,14 @@ PromptPassword::PromptPassword(const std::string &e, std::string *d,
   ui->wrong_password->setText("");
 
   encrypted = new std::string(e);
+  // Pointer to a pointer to a string
   decrypted = new std::string *(d);
 
-  QFile ss_file(":/styles/promptpassword.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-
-  setStyleSheet(stylesheet);
+  QFile file(":/styles/promptpassword.qss");
+  file.open(QIODevice::ReadOnly);
+  QString str = file.readAll();
+  file.close();
+  setStyleSheet(str);
 
   auto action = findChild<QAction *>("action_decrypt");
   addAction(action);
@@ -77,7 +78,7 @@ void PromptPassword::decrypt() {
   Encryptor::get_hash(ui->password_box->text().toStdString(), hash);
 
   std::string d;
-  std::string copy(*encrypted);
+  std::string copy = *encrypted;
 
   if (!Encryptor::decrypt(hash, copy, d))
     return ui->wrong_password->setText("Wrong password.");

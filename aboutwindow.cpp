@@ -26,30 +26,30 @@ AboutWindow::AboutWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::AboutWindow) {
   ui->setupUi(this);
 
-  QFile ss_file(":/styles/aboutwindow.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
+  QFile file(":/styles/aboutwindow.qss");
+  file.open(QIODevice::ReadOnly);
+  QString str = file.readAll();
+  file.close();
+  setStyleSheet(str);
 
   // Fill in contributors and licenses
-  QFile license_file(":/text/LICENSES.txt");
-  license_file.open(QIODevice::ReadOnly);
-  QString licenses = license_file.readAll();
-  license_file.close();
+  file.setFileName(":/text/LICENSES.txt");
+  file.open(QIODevice::ReadOnly);
+  str = file.readAll();
+  file.close();
+  ui->licenses_text->setPlainText(str);
 
-  QFile contrib_file(":/text/CONTRIBUTORS.txt");
-  contrib_file.open(QIODevice::ReadOnly);
-  QString contribs = contrib_file.readAll();
-  contrib_file.close();
+  file.setFileName(":/text/CONTRIBUTORS.txt");
+  file.open(QIODevice::ReadOnly);
+  str = file.readAll();
+  file.close();
+  ui->contributors_text->setPlainText(str);
 
-  ui->licenses_text->setPlainText(licenses);
-  ui->contributors_text->setPlainText(contribs);
-
-  QFile version_file(":/text/VERSION.txt");
-  version_file.open(QIODevice::ReadOnly);
-  QString version = version_file.readAll();
-  version_file.close();
-  ui->version->setText(version);
+  file.setFileName(":/text/VERSION.txt");
+  file.open(QIODevice::ReadOnly);
+  str = file.readAll();
+  file.close();
+  ui->version->setText(str);
 
   // Setup close action
   auto action = findChild<QAction *>("action_close");

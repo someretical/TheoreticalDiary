@@ -108,7 +108,7 @@ bool GoogleWrapper::load_credentials() {
 
 bool GoogleWrapper::save_credentials() {
   // Both tokens need to exist. Only having one is useless.
-  if (0 == google->token().size() || 0 == google->refreshToken().size())
+  if (google->token().isEmpty() || google->refreshToken().isEmpty())
     return false;
 
   QJsonObject tokens;

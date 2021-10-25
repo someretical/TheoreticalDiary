@@ -50,21 +50,24 @@ MainWindow::MainWindow(QWidget *parent)
 {
   ui->setupUi(this);
 
-  QFile ss_file(":/styles/material_cyan_dark.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
+  // Set styles
+  QFile file1(":/styles/material_cyan_dark.qss");
+  file1.open(QIODevice::ReadOnly);
+  QString str1 = file1.readAll();
+  file1.close();
 
-  QFile ss_file_2(":/styles/mainwindow.qss");
-  ss_file_2.open(QIODevice::ReadOnly);
-  QString stylesheet2 = ss_file_2.readAll();
+  QFile file2(":/styles/mainwindow.qss");
+  file2.open(QIODevice::ReadOnly);
+  QString str2 = file2.readAll();
+  file2.close();
+  setStyleSheet(str1 + str2);
 
-  setStyleSheet(stylesheet + stylesheet2);
-
-  QFile version_file(":/text/VERSION.txt");
-  version_file.open(QIODevice::ReadOnly);
-  QString version = version_file.readAll();
-  version_file.close();
-  ui->version->setText("Version " + version);
+  // Set version number
+  file1.setFileName(":/text/VERSION.txt");
+  file1.open(QIODevice::ReadOnly);
+  str1 = file1.readAll();
+  file1.close();
+  ui->version->setText("Version " + str1);
 
   auto action = findChild<QAction *>("action_open");
   addAction(action);
@@ -143,7 +146,6 @@ void MainWindow::open_diary() {
   if (Encryptor::decrypt(default_hash, copy, decrypted)) {
     // Attempt to Gunzip the decrypted content and parse the JSON
     std::string decompressed;
-
     if (!Zipper::unzip(decrypted, decompressed) ||
         !TheoreticalDiary::instance()->diary_holder->load(decompressed)) {
       UnknownDiaryFormat w(this);
@@ -177,13 +179,13 @@ void MainWindow::open_diary() {
 }
 
 void MainWindow::new_diary() {
-  // Check if file exists https://stackoverflow.com/a/6296808
   struct stat buf;
   std::string path =
       QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/TheoreticalDiary/diary.dat";
 
+  // Check if file exists https://stackoverflow.com/a/6296808
   if (stat(path.c_str(), &buf) == 0) {
     ConfirmOverwrite w(this);
 
@@ -244,7 +246,7 @@ void MainWindow::import_diary() {
 
   auto filename =
       QFileDialog::getOpenFileName(this, "Import diary", QDir::homePath());
-  if (filename.size() == 0)
+  if (filename.isEmpty())
     return;
 
   std::ifstream ifs(filename.toStdString());

@@ -26,10 +26,11 @@ ConfirmDelete::ConfirmDelete(QWidget *parent)
     : QDialog(parent), ui(new Ui::ConfirmDelete) {
   ui->setupUi(this);
 
-  QFile ss_file(":/styles/confirmoverwrite.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
+  QFile file(":/styles/confirmoverwrite.qss");
+  file.open(QIODevice::ReadOnly);
+  QString str = file.readAll();
+  file.close();
+  setStyleSheet(str);
 
   auto action = findChild<QAction *>("action_no");
   addAction(action);

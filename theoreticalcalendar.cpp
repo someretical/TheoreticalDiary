@@ -40,57 +40,66 @@ TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
   ui->setupUi(this);
 
   p = new DiaryWindow *(qobject_cast<DiaryWindow *>(parent));
-  first_created =
-      new QDate((**p).current_date->year(), (**p).current_date->month(),
-                (**p).current_date->day());
+  first_created = new QDate(*(**p).current_date);
   current_month_offset = new int(0);
   last_selected_day = new int(0);
 
-  QFile ss_file(":/styles/theoreticalcalendar.qss");
-  ss_file.open(QIODevice::ReadOnly);
-  QString stylesheet = ss_file.readAll();
-  setStyleSheet(stylesheet);
+  QFile file(":/styles/theoreticalcalendar.qss");
+  file.open(QIODevice::ReadOnly);
+  QString str = file.readAll();
+  file.close();
+  setStyleSheet(str);
 
   // Different rated days have different stylesheets
-  QFile _s_base(":/styles/s_base.qss");
-  _s_base.open(QIODevice::ReadOnly);
-  s_base = new QString(_s_base.readAll());
+  file.setFileName(":/styles/s_base.qss");
+  file.open(QIODevice::ReadOnly);
+  s_base = new QString(file.readAll());
+  file.close();
 
-  QFile _s_default(":/styles/s_default.qss");
-  _s_default.open(QIODevice::ReadOnly);
-  s_default = new QString(_s_default.readAll());
+  file.setFileName(":/styles/s_default.qss");
+  file.open(QIODevice::ReadOnly);
+  s_default = new QString(file.readAll());
+  file.close();
 
-  QFile _s_very_bad(":/styles/s_very_bad.qss");
-  _s_very_bad.open(QIODevice::ReadOnly);
-  s_very_bad = new QString(_s_very_bad.readAll());
+  file.setFileName(":/styles/s_very_bad.qss");
+  file.open(QIODevice::ReadOnly);
+  s_very_bad = new QString(file.readAll());
+  file.close();
 
-  QFile _s_bad(":/styles/s_bad.qss");
-  _s_bad.open(QIODevice::ReadOnly);
-  s_bad = new QString(_s_bad.readAll());
+  file.setFileName(":/styles/s_bad.qss");
+  file.open(QIODevice::ReadOnly);
+  s_bad = new QString(file.readAll());
+  file.close();
 
-  QFile _s_ok(":/styles/s_ok.qss");
-  _s_ok.open(QIODevice::ReadOnly);
-  s_ok = new QString(_s_ok.readAll());
+  file.setFileName(":/styles/s_ok.qss");
+  file.open(QIODevice::ReadOnly);
+  s_ok = new QString(file.readAll());
+  file.close();
 
-  QFile _s_good(":/styles/s_good.qss");
-  _s_good.open(QIODevice::ReadOnly);
-  s_good = new QString(_s_good.readAll());
+  file.setFileName(":/styles/s_good.qss");
+  file.open(QIODevice::ReadOnly);
+  s_good = new QString(file.readAll());
+  file.close();
 
-  QFile _s_very_good(":/styles/s_very_good.qss");
-  _s_very_good.open(QIODevice::ReadOnly);
-  s_very_good = new QString(_s_very_good.readAll());
+  file.setFileName(":/styles/s_very_good.qss");
+  file.open(QIODevice::ReadOnly);
+  s_very_good = new QString(file.readAll());
+  file.close();
 
-  QFile _s_selected(":/styles/s_selected.qss");
-  _s_selected.open(QIODevice::ReadOnly);
-  s_selected = new QString(_s_selected.readAll());
+  file.setFileName(":/styles/s_selected.qss");
+  file.open(QIODevice::ReadOnly);
+  s_selected = new QString(file.readAll());
+  file.close();
 
-  QFile _s_star_white(":/styles/s_star_white.qss");
-  _s_star_white.open(QIODevice::ReadOnly);
-  s_star_white = new QString(_s_star_white.readAll());
+  file.setFileName(":/styles/s_star_white.qss");
+  file.open(QIODevice::ReadOnly);
+  s_star_white = new QString(file.readAll());
+  file.close();
 
-  QFile _s_star_black(":/styles/s_star_black.qss");
-  _s_star_black.open(QIODevice::ReadOnly);
-  s_star_black = new QString(_s_star_black.readAll());
+  file.setFileName(":/styles/s_star_black.qss");
+  file.open(QIODevice::ReadOnly);
+  s_star_black = new QString(file.readAll());
+  file.close();
 
   auto action = findChild<QAction *>("action_next_month");
   addAction(action);
@@ -269,7 +278,7 @@ void TheoreticalCalendar::change_month(const QDate date) {
 void TheoreticalCalendar::rerender_day(const td::CalendarButtonData d) {
   // Get x, y coords of button from 1-42
   int x = (d.day + *current_month_offset - 1) % 7;
-  int y = (int)((d.day + *current_month_offset - 1) / 7);
+  int y = static_cast<int>((d.day + *current_month_offset - 1) / 7);
 
   auto button =
       qobject_cast<CalendarButton *>(ui->dates->itemAtPosition(y, x)->widget());
@@ -348,7 +357,7 @@ CalendarButton::CalendarButton(const td::CalendarButtonData &d)
   f.setPointSize(11);
   setFont(f);
 
-  data = new td::CalendarButtonData();
+  data = new td::CalendarButtonData;
   *data = d;
   setText(QString::number(data->day));
 
@@ -376,7 +385,7 @@ void CalendarButton::update_aesthetic(const td::CalendarButtonData &d) {
   data->rating =
       std::make_optional<td::Rating>(d.rating.value_or(*data->rating));
 
-  if (true == *data->important && td::Rating::Unknown != *data->rating) {
+  if (*data->important && td::Rating::Unknown != *data->rating) {
     switch (*data->rating) {
     case td::Rating::VeryBad:
       // Fall through
