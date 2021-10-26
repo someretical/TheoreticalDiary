@@ -79,7 +79,7 @@ public:
   explicit TheoreticalCalendar(QWidget *parent = nullptr);
   ~TheoreticalCalendar();
   void render_month(const QDate &first_day,
-                    const std::optional<td::EntryMap *> &map);
+                    const std::optional<td::MonthMap *> &map);
   void rerender_day(const td::CalendarButtonData d);
   void change_month(const QDate first_day);
 

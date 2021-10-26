@@ -784,7 +784,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Roboto - https://fonts.google.com/specimen/Roboto
 
-
 Apache License
 Version 2.0, January 2004
 http://www.apache.org/licenses/

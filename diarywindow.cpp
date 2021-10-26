@@ -153,15 +153,15 @@ void DiaryWindow::delete_entry() {
   if (w.exec() != QDialog::Accepted)
     return;
 
-  auto year_map = &TheoreticalDiary::instance()->diary_holder->diary->years;
-  auto year_iter = year_map->find(current_date->year());
+  auto log_map = &TheoreticalDiary::instance()->diary_holder->diary->log;
+  auto log_iter = log_map->find(current_date->year());
 
-  if (year_iter != year_map->end()) {
-    auto month_map = &year_iter->second.months;
-    auto month_iter = month_map->find(current_date->month());
+  if (log_iter != log_map->end()) {
+    auto year_map = &log_iter->second;
+    auto year_iter = year_map->find(current_date->month());
 
-    if (month_iter != month_map->end()) {
-      month_iter->second.days.erase(current_date->day());
+    if (year_iter != year_map->end()) {
+      year_iter->second.erase(current_date->day());
     }
   }
 
@@ -171,7 +171,7 @@ void DiaryWindow::delete_entry() {
                            std::make_optional<bool>(true)};
   calendar->rerender_day(d);
 
-  td::Entry e{0, false, td::Rating::Unknown, "", 0};
+  td::Entry e{false, td::Rating::Unknown, "", 0};
   _update_info_pane(e);
 
   TheoreticalDiary::instance()->changes_made();
@@ -187,47 +187,41 @@ void DiaryWindow::update_entry() {
   // Find/create path to new entry
   // https://stackoverflow.com/a/101980
 
-  // Find/create YearContainer within Diary.years
-  auto year_map = &TheoreticalDiary::instance()->diary_holder->diary->years;
-  auto year_iter = year_map->lower_bound(current_date->year());
+  // Find/create YearMap
+  auto log_map = &TheoreticalDiary::instance()->diary_holder->diary->log;
+  auto log_iter = log_map->lower_bound(current_date->year());
+
+  if (log_iter == log_map->end() ||
+      log_map->key_comp()(current_date->year(), log_iter->first))
+    log_iter =
+        log_map->insert(log_iter, td::DiaryLog::value_type(current_date->year(),
+                                                           td::YearMap()));
+
+  // Find/create MonthMap
+  auto year_map = &log_iter->second;
+  auto year_iter = year_map->lower_bound(current_date->month());
 
   if (year_iter == year_map->end() ||
-      year_map->key_comp()(current_date->year(), year_iter->first)) {
-    td::YearContainer year_container{current_date->year(), td::MonthMap()};
-
+      year_map->key_comp()(current_date->month(), year_iter->first))
     year_iter = year_map->insert(
         year_iter,
-        td::YearMap::value_type(current_date->year(), year_container));
-  } // else { /* K, V already exist */ }
+        td::YearMap::value_type(current_date->month(), td::MonthMap()));
 
-  // Find/create MonthContainer within the YearContainer.months
-  auto month_map = &(year_iter->second.months);
-  auto month_iter = month_map->lower_bound(current_date->month());
-
-  if (month_iter == month_map->end() ||
-      month_map->key_comp()(current_date->month(), month_iter->first)) {
-    td::MonthContainer month_container{current_date->month(), td::EntryMap()};
-
-    month_iter = month_map->insert(
-        month_iter,
-        td::MonthMap::value_type(current_date->month(), month_container));
-  } // else { /* K, V already exist */ }
-
+  // Find/create Entry
   td::Entry new_entry = {
-      current_date->day(), ui->is_important->isChecked(),
+      ui->is_important->isChecked(),
       static_cast<td::Rating>(ui->rating_dropdown->currentIndex()),
       ui->text_entry->toPlainText().toStdString(), std::time(nullptr)};
 
-  // Find/create Entry within the MonthContainer.days
-  auto entry_map = &(month_iter->second.days);
-  auto entry_iter = entry_map->lower_bound(current_date->day());
+  auto month_map = &year_iter->second;
+  auto month_iter = month_map->lower_bound(current_date->day());
 
-  if (entry_iter == entry_map->end() ||
-      entry_map->key_comp()(current_date->day(), entry_iter->first)) {
-    entry_iter = entry_map->insert(
-        entry_iter, td::EntryMap::value_type(current_date->day(), new_entry));
+  if (month_iter == month_map->end() ||
+      month_map->key_comp()(current_date->day(), month_iter->first)) {
+    month_iter = month_map->insert(
+        month_iter, td::MonthMap::value_type(current_date->day(), new_entry));
   } else {
-    entry_iter->second = new_entry;
+    month_iter->second = new_entry;
   }
 
   td::CalendarButtonData data{
@@ -307,23 +301,23 @@ void DiaryWindow::update_info_pane(const QDate &new_date) {
       new_date.toString(" MMMM yyyy"));
 
   // Get iterators
-  auto year_map = TheoreticalDiary::instance()->diary_holder->diary->years;
-  auto year_iter = year_map.find(new_date.year());
+  auto log_map = TheoreticalDiary::instance()->diary_holder->diary->log;
+  auto log_iter = log_map.find(new_date.year());
 
-  if (year_iter != year_map.end()) {
-    auto month_map = year_iter->second.months;
-    auto month_iter = month_map.find(new_date.month());
+  if (log_iter != log_map.end()) {
+    auto year_map = &log_iter->second;
+    auto year_iter = year_map->find(new_date.month());
 
-    if (month_iter != month_map.end()) {
-      auto entry_map = month_iter->second.days;
-      auto entry_iter = entry_map.find(new_date.day());
+    if (year_iter != year_map->end()) {
+      auto month_map = &year_iter->second;
+      auto month_iter = month_map->find(new_date.day());
 
-      if (entry_iter != entry_map.end())
-        return _update_info_pane(entry_iter->second);
+      if (month_iter != month_map->end())
+        return _update_info_pane(month_iter->second);
     }
   }
 
-  _update_info_pane(td::Entry{-1, false, td::Rating::Unknown, "", 0});
+  _update_info_pane(td::Entry{false, td::Rating::Unknown, "", 0});
 }
 
 // Called when the user presses the X button or the quit button.

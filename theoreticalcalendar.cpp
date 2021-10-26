@@ -146,7 +146,7 @@ TheoreticalCalendar::~TheoreticalCalendar() {
 }
 
 void TheoreticalCalendar::render_month(
-    const QDate &first_day, const std::optional<td::EntryMap *> &map) {
+    const QDate &first_day, const std::optional<td::MonthMap *> &map) {
   int days_added = 0;
   int row = 1;
   int current_row_length = 0;
@@ -253,20 +253,20 @@ void TheoreticalCalendar::change_month(const QDate date) {
   }
 
   // Get iterators
-  auto year_map = &TheoreticalDiary::instance()->diary_holder->diary->years;
-  auto year_iter = year_map->find(ui->year_edit->date().year());
+  auto log_map = &TheoreticalDiary::instance()->diary_holder->diary->log;
+  auto log_iter = log_map->find(ui->year_edit->date().year());
 
-  if (year_iter == year_map->end()) {
+  if (log_iter == log_map->end()) {
     render_month(first_day, std::nullopt);
   } else {
-    auto month_map = &year_iter->second.months;
-    auto month_iter = month_map->find(ui->year_edit->date().month());
+    auto year_map = &log_iter->second;
+    auto year_iter = year_map->find(ui->year_edit->date().month());
 
-    if (month_iter == month_map->end()) {
+    if (year_iter == year_map->end()) {
       render_month(first_day, std::nullopt);
     } else {
-      render_month(first_day, std::make_optional<td::EntryMap *>(
-                                  &month_iter->second.days));
+      render_month(first_day, std::make_optional<td::MonthMap *>(
+                                  &year_iter->second));
     }
   }
 

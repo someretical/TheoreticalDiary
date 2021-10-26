@@ -27,59 +27,29 @@ namespace td {
 enum Rating { Unknown, VeryBad, Bad, Ok, Good, VeryGood };
 
 struct Entry {
-  int day;
   bool important;
   Rating rating;
   std::string message;
   time_t last_updated;
 };
-typedef std::map<int, Entry> EntryMap;
 
 inline void to_json(nlohmann::json &j, const Entry &e) {
-  j = nlohmann::json{{"day", e.day},
-                     {"important", e.important},
+  j = nlohmann::json{{"important", e.important},
                      {"rating", e.rating},
                      {"message", e.message},
                      {"last_updated", e.last_updated}};
 }
 
 inline void from_json(const nlohmann::json &j, Entry &e) {
-  j.at("day").get_to<int>(e.day);
   j.at("important").get_to<bool>(e.important);
   j.at("rating").get_to<Rating>(e.rating);
   j.at("message").get_to<std::string>(e.message);
   j.at("last_updated").get_to<time_t>(e.last_updated);
 }
 
-struct MonthContainer {
-  int month;
-  EntryMap days;
-};
-typedef std::map<int, MonthContainer> MonthMap;
-
-inline void to_json(nlohmann::json &j, const MonthContainer &m) {
-  j = nlohmann::json{{"month", m.month}, {"days", m.days}};
-}
-
-inline void from_json(const nlohmann::json &j, MonthContainer &m) {
-  j.at("month").get_to<int>(m.month);
-  j.at("days").get_to<EntryMap>(m.days);
-}
-
-struct YearContainer {
-  int year;
-  MonthMap months;
-};
-typedef std::map<int, YearContainer> YearMap;
-
-inline void to_json(nlohmann::json &j, const YearContainer &y) {
-  j = nlohmann::json{{"year", y.year}, {"months", y.months}};
-}
-
-inline void from_json(const nlohmann::json &j, YearContainer &y) {
-  j.at("year").get_to<int>(y.year);
-  j.at("months").get_to<MonthMap>(y.months);
-}
+typedef std::map<int, Entry> MonthMap;
+typedef std::map<int, MonthMap> YearMap;
+typedef std::map<int, YearMap> DiaryLog;
 
 struct Metadata {
   int version;
@@ -108,18 +78,18 @@ inline void from_json(const nlohmann::json &j, Settings &s) {
 }
 
 struct Diary {
-  YearMap years;
+  DiaryLog log;
   Metadata metadata;
   Settings settings;
 };
 
 inline void to_json(nlohmann::json &j, const Diary &d) {
   j = nlohmann::json{
-      {"years", d.years}, {"metadata", d.metadata}, {"settings", d.settings}};
+      {"log", d.log}, {"metadata", d.metadata}, {"settings", d.settings}};
 }
 
 inline void from_json(const nlohmann::json &j, Diary &d) {
-  j.at("years").get_to<YearMap>(d.years);
+  j.at("log").get_to<DiaryLog>(d.log);
   j.at("metadata").get_to<Metadata>(d.metadata);
   j.at("settings").get_to<Settings>(d.settings);
 }

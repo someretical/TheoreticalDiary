@@ -126,7 +126,7 @@ void DiaryEntryList::reset_month() {
 
 QLabel *DiaryEntryList::create_day_label(
     std::pair<const int, const td::Entry> const i) {
-  auto day = new QLabel(QString::number(i.second.day), this);
+  auto day = new QLabel(QString::number(i.first), this);
 
   QFont f = day->font();
   f.setPointSize(14);
@@ -169,7 +169,7 @@ QLabel *DiaryEntryList::create_day_label(
   return day;
 }
 
-void DiaryEntryList::render_month(std::optional<td::EntryMap *> entries) {
+void DiaryEntryList::render_month(std::optional<td::MonthMap *> entries) {
   if (!entries) {
     auto label =
         new QLabel("It seems there are no entries yet for this month...", this);
@@ -187,7 +187,7 @@ void DiaryEntryList::render_month(std::optional<td::EntryMap *> entries) {
     if (i.second.message.empty())
       continue;
 
-    auto message = new ClickableLabel(i.second.day, i.second.message, this);
+    auto message = new ClickableLabel(i.first, i.second.message, this);
 
     ui->dates->addWidget(create_day_label(i), row_counter, 0);
     ui->dates->addWidget(message, row_counter++, 1);
@@ -213,20 +213,19 @@ void DiaryEntryList::change_month(const QDate date) {
   ui->year_edit->blockSignals(false);
 
   // Get list of entries
-  auto year_map = &TheoreticalDiary::instance()->diary_holder->diary->years;
-  auto year_iter = year_map->find(ui->year_edit->date().year());
+  auto log_map = &TheoreticalDiary::instance()->diary_holder->diary->log;
+  auto log_iter = log_map->find(ui->year_edit->date().year());
 
-  if (year_iter == year_map->end()) {
+  if (log_iter == log_map->end()) {
     render_month(std::nullopt);
   } else {
-    auto month_map = &year_iter->second.months;
-    auto month_iter = month_map->find(ui->year_edit->date().month());
+    auto year_map = &log_iter->second;
+    auto year_iter = year_map->find(ui->year_edit->date().month());
 
-    if (month_iter == month_map->end()) {
+    if (year_iter == year_map->end()) {
       render_month(std::nullopt);
     } else {
-      render_month(
-          std::make_optional<td::EntryMap *>(&month_iter->second.days));
+      render_month(std::make_optional<td::MonthMap *>(&year_iter->second));
     }
   }
 
