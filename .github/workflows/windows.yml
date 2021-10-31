@@ -26,20 +26,20 @@ jobs:
       - name: Build cryptopp
         run: |
           cd external-libs/cryptopp 
-          nmake /f cryptest.nmake CXXFLAGS="/DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MD"
+          nmake /f cryptest.nmake CXXFLAGS="/DNDEBUG /D_NDEBUG /Oi /Oy /O3 /MD /openmp"
 
       - name: qmake and nmake
         run: |
-          qmake theoretical-diary.pro CONFIG+=release
+          qmake theoreticaldiary.pro CONFIG+=release
           nmake qmake_all
           nmake
           nmake clean
 
       - name: Link DLLs
-        run: windeployqt release/theoretical-diary.exe --compiler-runtime
+        run: windeployqt release/theoreticaldiary.exe --compiler-runtime
 
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: theoretical-diary-x64
+          name: theoreticaldiary-x64
           path: release

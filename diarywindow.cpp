@@ -1,25 +1,24 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "diarywindow.h"
 #include "confirmdelete.h"
 #include "diaryentrylist.h"
 #include "diaryholder.h"
-#include "encryptor.h"
 #include "missingpermissions.h"
 #include "saveerror.h"
 #include "theoreticalcalendar.h"
@@ -30,28 +29,25 @@
 #include "zipper.h"
 
 #include <QAction>
-#include <QDate>
 #include <QDateTime>
 #include <QFileDialog>
 #include <QString>
-#include <ctime>
 #include <fstream>
 #include <json.hpp>
 #include <optional>
-#include <string>
 
 DiaryWindow::DiaryWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::DiaryWindow) {
   ui->setupUi(this);
 
-  QFile file(":/styles/diarywindow.qss");
+  QFile file(":/diarywindow.qss");
   file.open(QIODevice::ReadOnly);
   QString str = file.readAll();
   file.close();
   setStyleSheet(str);
 
   // Setup diary editor tab
-  file.setFileName(":/styles/diaryeditor.qss");
+  file.setFileName(":/diaryeditor.qss");
   file.open(QIODevice::ReadOnly);
   str = file.readAll();
   file.close();
@@ -71,7 +67,7 @@ DiaryWindow::DiaryWindow(QWidget *parent)
   // TheoreticalCalendar will already set it.
 
   // Setup diary entry list tab
-  file.setFileName(":/styles/diaryentrylist.qss");
+  file.setFileName(":/diaryentrylist.qss");
   file.open(QIODevice::ReadOnly);
   str = file.readAll();
   file.close();
@@ -330,8 +326,9 @@ void DiaryWindow::reject() {
   }
 
   // Reset values just to be safe.
-  *TheoreticalDiary::instance()->unsaved_changes = false;
   TheoreticalDiary::instance()->diary_holder->init();
+  TheoreticalDiary::instance()->encryptor->reset();
+  *TheoreticalDiary::instance()->unsaved_changes = false;
 
   // accept() does NOT trigger reject so there is no infinite loop here.
   accept();
@@ -359,7 +356,7 @@ void DiaryWindow::action_save() {
 
   // Update last_updated.
   TheoreticalDiary::instance()->diary_holder->diary->metadata.last_updated =
-      std::time(nullptr);
+      QDateTime::currentSecsSinceEpoch();
   nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
 
   // Gzip JSON
@@ -369,17 +366,16 @@ void DiaryWindow::action_save() {
 
   // Encrypt
   std::string encrypted;
-  Encryptor::encrypt(*TheoreticalDiary::instance()->diary_holder->key,
-                     compressed, encrypted);
+  TheoreticalDiary::instance()->encryptor->encrypt(compressed, encrypted);
 
   // Write to file
-  std::ofstream diary_file(primary_path, std::ios::binary);
-  if (!diary_file.fail()) {
-    diary_file << encrypted;
-    diary_file.close();
+  std::ofstream ofs(primary_path, std::ios::binary);
+  if (!ofs.fail()) {
+    ofs << encrypted;
+    ofs.close();
+
     *TheoreticalDiary::instance()->unsaved_changes = false;
     *current_date_changed = false;
-
   } else {
     SaveError w(this);
     w.exec();

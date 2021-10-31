@@ -1,22 +1,21 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "promptpassword.h"
-#include "encryptor.h"
 #include "mainwindow.h"
 #include "theoreticaldiary.h"
 #include "ui_promptpassword.h"
@@ -25,7 +24,6 @@
 #include <QAction>
 #include <QFile>
 #include <cryptlib.h>
-#include <string>
 
 PromptPassword::PromptPassword(const std::string &e, std::string *d,
                                QWidget *parent)
@@ -37,7 +35,7 @@ PromptPassword::PromptPassword(const std::string &e, std::string *d,
   // Pointer to a pointer to a string
   decrypted = new std::string *(d);
 
-  QFile file(":/styles/promptpassword.qss");
+  QFile file(":/promptpassword.qss");
   file.open(QIODevice::ReadOnly);
   QString str = file.readAll();
   file.close();
@@ -72,19 +70,19 @@ void PromptPassword::toggle_pwd() {
 
 void PromptPassword::decrypt() {
   ui->wrong_password->setText("");
+  QCoreApplication::processEvents();
 
-  // Attempt to decrypt
-  std::vector<CryptoPP::byte> hash;
-  Encryptor::get_hash(ui->password_box->text().toStdString(), hash);
-
-  std::string d;
   std::string copy = *encrypted;
 
-  if (!Encryptor::decrypt(hash, copy, d))
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  auto res = TheoreticalDiary::instance()->encryptor->decrypt(
+      copy, ui->password_box->text().toStdString());
+  QApplication::restoreOverrideCursor();
+
+  if (!res)
     return ui->wrong_password->setText("Wrong password.");
 
-  TheoreticalDiary::instance()->diary_holder->set_key(hash);
-  **decrypted = d;
+  **decrypted = *res;
 
   accept();
 }

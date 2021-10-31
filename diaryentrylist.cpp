@@ -1,18 +1,18 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "diaryentrylist.h"
@@ -22,17 +22,11 @@
 #include "ui_diaryentrylist.h"
 
 #include <QAction>
-#include <QDate>
 #include <QFile>
 #include <QGridLayout>
-#include <QLabel>
 #include <QScrollBar>
 #include <QSpacerItem>
-#include <QString>
-#include <QWidget>
-#include <optional>
 #include <sstream>
-#include <string>
 
 #define LONGEST_LINE_LENGTH 100
 
@@ -43,37 +37,37 @@ DiaryEntryList::DiaryEntryList(QWidget *parent)
   first_created = new QDate(*qobject_cast<DiaryWindow *>(parent)->current_date);
 
   // Load styles
-  QFile file(":/styles/day_label_base.qss");
+  QFile file(":/day_label_base.qss");
   file.open(QIODevice::ReadOnly);
   s_base = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/day_label_very_bad.qss");
+  file.setFileName(":/day_label_very_bad.qss");
   file.open(QIODevice::ReadOnly);
   s_very_bad = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/day_label_bad.qss");
+  file.setFileName(":/day_label_bad.qss");
   file.open(QIODevice::ReadOnly);
   s_bad = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/day_label_ok.qss");
+  file.setFileName(":/day_label_ok.qss");
   file.open(QIODevice::ReadOnly);
   s_ok = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/day_label_good.qss");
+  file.setFileName(":/day_label_good.qss");
   file.open(QIODevice::ReadOnly);
   s_good = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/day_label_very_good.qss");
+  file.setFileName(":/day_label_very_good.qss");
   file.open(QIODevice::ReadOnly);
   s_very_good = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/day_label_starred.qss");
+  file.setFileName(":/day_label_starred.qss");
   file.open(QIODevice::ReadOnly);
   s_starred = new QString(file.readAll());
   file.close();
@@ -169,7 +163,8 @@ QLabel *DiaryEntryList::create_day_label(
   return day;
 }
 
-void DiaryEntryList::render_month(std::optional<td::MonthMap *> entries) {
+void DiaryEntryList::render_month(
+    const std::optional<td::MonthMap *> &entries) {
   if (!entries) {
     auto label =
         new QLabel("It seems there are no entries yet for this month...", this);

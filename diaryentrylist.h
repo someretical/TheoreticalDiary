@@ -1,18 +1,18 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef DIARYENTRYLIST_H
@@ -40,9 +40,9 @@ public:
   explicit DiaryEntryList(QWidget *parent = nullptr);
   ~DiaryEntryList();
   void change_month(const QDate date);
-  void render_month(std::optional<td::MonthMap *> entries);
+  void render_month(const std::optional<td::MonthMap *> &entries);
   void rerender_current_month();
-  QLabel *create_day_label(std::pair<const int, const td::Entry> const i);
+  QLabel *create_day_label(const std::pair<const int, const td::Entry> i);
 
 public slots:
   void dropdown_changed(const int index);

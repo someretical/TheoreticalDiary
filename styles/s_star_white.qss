@@ -2,12 +2,12 @@ CalendarButton {
   background-position: center;
   background-repeat: no-repeat;
   background-origin: content;
-  background-image: url(:/images/star_white.svg);
+  background-image: url(:/star_white.svg);
 }
 
 CalendarButton:pressed {
   background-position: center;
   background-repeat: no-repeat;
   background-origin: content;
-  background-image: url(:/images/star_white.svg);
+  background-image: url(:/star_white.svg);
 }

@@ -1,18 +1,18 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "theoreticalcalendar.h"
@@ -24,14 +24,10 @@
 
 #include <QAction>
 #include <QCursor>
-#include <QDate>
 #include <QFile>
 #include <QFont>
-#include <QIcon>
 #include <QLayoutItem>
-#include <QPushButton>
 #include <QSpacerItem>
-#include <QString>
 #include <algorithm>
 #include <memory>
 
@@ -44,59 +40,59 @@ TheoreticalCalendar::TheoreticalCalendar(QWidget *parent)
   current_month_offset = new int(0);
   last_selected_day = new int(0);
 
-  QFile file(":/styles/theoreticalcalendar.qss");
+  QFile file(":/theoreticalcalendar.qss");
   file.open(QIODevice::ReadOnly);
   QString str = file.readAll();
   file.close();
   setStyleSheet(str);
 
   // Different rated days have different stylesheets
-  file.setFileName(":/styles/s_base.qss");
+  file.setFileName(":/s_base.qss");
   file.open(QIODevice::ReadOnly);
   s_base = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/s_default.qss");
+  file.setFileName(":/s_default.qss");
   file.open(QIODevice::ReadOnly);
   s_default = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/s_very_bad.qss");
+  file.setFileName(":/s_very_bad.qss");
   file.open(QIODevice::ReadOnly);
   s_very_bad = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/s_bad.qss");
+  file.setFileName(":/s_bad.qss");
   file.open(QIODevice::ReadOnly);
   s_bad = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/s_ok.qss");
+  file.setFileName(":/s_ok.qss");
   file.open(QIODevice::ReadOnly);
   s_ok = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/s_good.qss");
+  file.setFileName(":/s_good.qss");
   file.open(QIODevice::ReadOnly);
   s_good = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/s_very_good.qss");
+  file.setFileName(":/s_very_good.qss");
   file.open(QIODevice::ReadOnly);
   s_very_good = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/s_selected.qss");
+  file.setFileName(":/s_selected.qss");
   file.open(QIODevice::ReadOnly);
   s_selected = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/s_star_white.qss");
+  file.setFileName(":/s_star_white.qss");
   file.open(QIODevice::ReadOnly);
   s_star_white = new QString(file.readAll());
   file.close();
 
-  file.setFileName(":/styles/s_star_black.qss");
+  file.setFileName(":/s_star_black.qss");
   file.open(QIODevice::ReadOnly);
   s_star_black = new QString(file.readAll());
   file.close();
@@ -152,7 +148,7 @@ void TheoreticalCalendar::render_month(
   int current_row_length = 0;
 
   for (int i = *current_month_offset; i < 7; ++i, ++days_added) {
-    if (map.has_value()) {
+    if (map) {
       auto entry_iter = (*map)->find(i - *current_month_offset + 1);
 
       if (entry_iter != (*map)->end()) {
@@ -265,8 +261,8 @@ void TheoreticalCalendar::change_month(const QDate date) {
     if (year_iter == year_map->end()) {
       render_month(first_day, std::nullopt);
     } else {
-      render_month(first_day, std::make_optional<td::MonthMap *>(
-                                  &year_iter->second));
+      render_month(first_day,
+                   std::make_optional<td::MonthMap *>(&year_iter->second));
     }
   }
 

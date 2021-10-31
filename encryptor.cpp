@@ -1,95 +1,131 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "encryptor.h"
 
 #include <aes.h>
-#include <cryptlib.h>
-#include <cstddef>
 #include <files.h>
 #include <filters.h>
 #include <gcm.h>
 #include <osrng.h>
-#include <sha.h>
-#include <string>
-#include <vector>
+#include <scrypt.h>
 
-// This code was adapted from the AES-GCM-Test.zip file from
+// The encryption algorithm was adapted from the AES-GCM-Test.zip file from
 // https://www.cryptopp.com/wiki/Advanced_Encryption_Standard#Downloads
+// The hashing algorithm was adopted from
+// https://www.cryptopp.com/wiki/Scrypt#OpenMP
 
-#define TAG_SIZE 16
+// Sizes are in BYTES not bits
+const int TAG_SIZE = 16;
+const int SALT_SIZE = 64;
+const int KEY_SIZE = 32;
+const int IV_SIZE = 12;
 
-/**
- * Calculate a 256 bit hash using SHA256 to represent the password
- * 256 bits is needed because AES-GCM requires a 32 byte key
- */
-void Encryptor::get_hash(const std::string &password,
-                         std::vector<CryptoPP::byte> &output) {
-  CryptoPP::byte digest[CryptoPP::SHA256::DIGESTSIZE];
+Encryptor::Encryptor() {
+  salt = new CryptoPP::SecByteBlock(SALT_SIZE);
+  key = new CryptoPP::SecByteBlock(KEY_SIZE);
+}
 
-  CryptoPP::SHA256 hash;
-  hash.CalculateDigest(
-      digest, reinterpret_cast<const CryptoPP::byte *>(password.data()),
-      password.size());
+Encryptor::~Encryptor() {
+  delete salt;
+  delete key;
+}
 
-  output.insert(output.end(), &digest[0],
-                &digest[CryptoPP::SHA256::DIGESTSIZE]);
+void Encryptor::reset() {
+  salt->Assign(CryptoPP::SecByteBlock(SALT_SIZE));
+  key->Assign(CryptoPP::SecByteBlock(KEY_SIZE));
+}
+
+void Encryptor::regenerate_salt() {
+  CryptoPP::AutoSeededRandomPool prng;
+  prng.GenerateBlock(salt->data(), SALT_SIZE);
+}
+
+void Encryptor::set_key(const std::string &plaintext) {
+  CryptoPP::SecByteBlock byte_block(
+      reinterpret_cast<const CryptoPP::byte *>(plaintext.data()),
+      plaintext.size());
+  CryptoPP::Scrypt scrypt;
+
+  // This is supposed to be computationally expensive to make it hard to brute
+  // force attack. It SHOULD take ~1 second to get the key.
+  scrypt.DeriveKey(key->data(), KEY_SIZE, byte_block.data(), byte_block.size(),
+                   salt->data(), SALT_SIZE, 1 << 17, 8, 16);
 }
 
 /**
- * Encrypts a string.
+ * Layout of encrypted string:
+ *
+ * [SALT_SIZE bytes for the salt]
+ * [IV_SIZE bytes for the IV]
+ * [... actual encrypted content]
+ *
+ * The salt is regenerated every time the password is changed.
+ * The IV is different every time.
  */
-void Encryptor::encrypt(const std::vector<CryptoPP::byte> &key,
-                        const std::string &decrypted, std::string &encrypted) {
-  // Cryptographically secure source of entropy.
-  CryptoPP::AutoSeededRandomPool prng;
-  CryptoPP::SecByteBlock iv(12);
-  prng.GenerateBlock(iv, iv.size());
 
+// Requires a salt be already set
+void Encryptor::encrypt(const std::string &plaintext, std::string &encrypted) {
+  CryptoPP::AutoSeededRandomPool prng;
+  CryptoPP::SecByteBlock iv(IV_SIZE);
   CryptoPP::GCM<CryptoPP::AES>::Encryption encryptor;
-  encryptor.SetKeyWithIV(key.data(), key.size(), iv, iv.size());
+
+  prng.GenerateBlock(iv, IV_SIZE);
+  encryptor.SetKeyWithIV(key->data(), KEY_SIZE, iv, IV_SIZE);
 
   // Put content to be encrypted in the encryption AND authentication channel.
   CryptoPP::AuthenticatedEncryptionFilter encryption_filter(
       encryptor, new CryptoPP::StringSink(encrypted), false, TAG_SIZE);
   encryption_filter.ChannelPut(
-      "", reinterpret_cast<const CryptoPP::byte *>(decrypted.data()),
-      decrypted.size());
+      "", reinterpret_cast<const CryptoPP::byte *>(plaintext.data()),
+      plaintext.size());
   encryption_filter.ChannelMessageEnd("");
 
-  /**
-   * The IV needs to be prepended to the encrypted content.
-   * It does not need to be encrypted.
-   */
-  std::string token(reinterpret_cast<const char *>(&iv[0]), iv.size());
-  encrypted.insert(0, token);
+  // Prepend the IV
+  std::string iv_str(reinterpret_cast<const char *>(iv.data()), IV_SIZE);
+  encrypted.insert(0, iv_str);
+
+  // Prepend the salt
+  std::string salt_str(reinterpret_cast<const char *>(salt->data()), SALT_SIZE);
+  encrypted.insert(0, salt_str);
 }
 
-bool Encryptor::decrypt(const std::vector<CryptoPP::byte> &key,
-                        std::string &encrypted, std::string &decrypted) {
+// Requires a salt be already set
+std::optional<std::string>
+Encryptor::decrypt(std::string &encrypted, const std::string &plaintext_key) {
   try {
-    // Retrive IV from encrypted message
-    std::string token = encrypted.substr(0, 12);
-    encrypted.erase(0, 12);
+    // Retrieve the salt
+    std::string salt_str = encrypted.substr(0, SALT_SIZE);
+
+    salt->Assign(CryptoPP::SecByteBlock(
+        reinterpret_cast<const CryptoPP::byte *>(salt_str.data()), SALT_SIZE));
+    encrypted.erase(0, SALT_SIZE);
+
+    // Retrieve the IV
+    std::string iv_str = encrypted.substr(0, IV_SIZE);
+    encrypted.erase(0, IV_SIZE);
+
+    // Set the key
+    set_key(plaintext_key);
 
     CryptoPP::GCM<CryptoPP::AES>::Decryption decryptor;
     CryptoPP::SecByteBlock iv(
-        reinterpret_cast<const CryptoPP::byte *>(&token[0]), token.size());
-    decryptor.SetKeyWithIV(key.data(), key.size(), iv, iv.size());
+        reinterpret_cast<const CryptoPP::byte *>(iv_str.data()), IV_SIZE);
+    decryptor.SetKeyWithIV(key->data(), KEY_SIZE, iv, IV_SIZE);
 
     std::string encrypted_data =
         encrypted.substr(0, encrypted.size() - TAG_SIZE);
@@ -113,20 +149,21 @@ bool Encryptor::decrypt(const std::vector<CryptoPP::byte> &key,
     // Test the authenticity of the data.
     bool success = decryption_filter.GetLastResult();
     if (!success)
-      return false;
+      return std::nullopt;
 
     // Allocate enough space for the decrypted content.
     std::size_t n = (std::size_t)-1;
     decryption_filter.SetRetrievalChannel("");
     n = static_cast<std::size_t>(decryption_filter.MaxRetrievable());
-    decrypted.resize(n);
+    std::string plaintext;
+    plaintext.resize(n);
 
     if (n > 0)
       decryption_filter.Get(
-          reinterpret_cast<CryptoPP::byte *>(decrypted.data()), n);
+          reinterpret_cast<CryptoPP::byte *>(plaintext.data()), n);
 
-    return true;
-  } catch (CryptoPP::HashVerificationFilter::HashVerificationFailed &e) {
-    return false;
+    return std::make_optional<std::string>(plaintext);
+  } catch (const CryptoPP::HashVerificationFilter::HashVerificationFailed &e) {
+    return std::nullopt;
   }
 }

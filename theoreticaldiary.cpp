@@ -1,38 +1,70 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "theoreticaldiary.h"
 
+#include <QFontDatabase>
+#include <QIcon>
 #include <QStandardPaths>
 #include <fstream>
-#include <json.hpp>
-#include <string>
 
 TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
     : QApplication(argc, argv) {
-  gwrapper = new GoogleWrapper;
-  diary_holder = new DiaryHolder;
+  gwrapper = new GoogleWrapper(this);
+  diary_holder = new DiaryHolder();
+  encryptor = new Encryptor();
   local_settings = new td::LocalSettings{"", "", false};
   unsaved_changes = new bool(false);
+
+  // Create app directory
+  QDir dir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+           "/TheoreticalDiary");
+  if (!dir.exists())
+    dir.mkpath(".");
+
+  // Load fonts
+  QFontDatabase::addApplicationFont(":/Roboto-Black.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-BlackItalic.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Bold.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-BoldItalic.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Italic.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Light.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-LightItalic.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Medium.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-MediumItalic.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Regular.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Thin.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-ThinItalic.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Condensed-Bold.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Condensed-BoldItalic.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Condensed-Italic.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Condensed-Light.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Condensed-LightItalic.ttf");
+  QFontDatabase::addApplicationFont(":/Roboto-Condensed-Regular.ttf");
+
+  setOrganizationName("someretical");
+  setApplicationName("Theoretical Diary");
+  setWindowIcon(QIcon(":/icons/hicolor/256/apps/theoreticaldiary.png"));
 }
 
 TheoreticalDiary::~TheoreticalDiary() {
   delete gwrapper;
   delete diary_holder;
+  delete encryptor;
   delete local_settings;
   delete unsaved_changes;
 }
@@ -53,8 +85,13 @@ void TheoreticalDiary::load_settings() {
   if (ifs.fail())
     return;
 
-  std::string content((std::istreambuf_iterator<char>(ifs)),
-                      (std::istreambuf_iterator<char>()));
+  std::string content;
+  ifs.seekg(0, std::ios::end);
+  content.resize(ifs.tellg());
+  ifs.seekg(0, std::ios::beg);
+  ifs.read(content.data(), content.size());
+  ifs.close();
+
   auto json = nlohmann::json::parse(content, nullptr, false);
   if (json.is_discarded())
     return;
@@ -65,16 +102,16 @@ void TheoreticalDiary::load_settings() {
 bool TheoreticalDiary::save_settings() {
   nlohmann::json json = *local_settings;
 
-  std::ofstream ifs(
+  std::ofstream ofs(
       QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/TheoreticalDiary/settings.json");
 
-  if (ifs.fail())
+  if (ofs.fail())
     return false;
 
-  ifs << json.dump();
-  ifs.close();
+  ofs << json.dump();
+  ofs.close();
 
   return true;
 }

@@ -20,7 +20,11 @@ jobs:
           sudo apt install patchelf
 
       - name: Build cryptopp
-        run: sudo sh build-cryptopp.sh
+        run: |
+          cd external-libs/cryptopp
+          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp -lgomp" make -j8 dynamic cryptest.exe
+          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp -lgomp" make -j8 libcryptopp.a libcryptopp.so cryptest.exe
+          sudo make install PREFIX=/usr/local
 
       - name: Qmake and make
         run: |
@@ -34,18 +38,15 @@ jobs:
           wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x ./linuxdeploy-x86_64.AppImage
           chmod +x ./linuxdeploy-plugin-qt-x86_64.AppImage
-          mkdir -p AppDir/usr/bin
-          mv AppDir/opt/theoretical-diary/bin/theoretical-diary AppDir/usr/bin
-          rm -r AppDir/opt
-          mkdir -p AppDir/usr/share/applications
-          mv ./theoretical-diary.desktop AppDir/usr/share/applications
-          mkdir -p AppDir/usr/share/icons
-          mv images/icons/* AppDir/usr/share/icons
-          export OUTPUT=theoretical-diary.AppImage
-          ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
-      
+          mkdir -p AppDir/usr/share/metainfo
+          cp ./io.github.someretical.theoreticaldiary.appdata.xml AppDir/usr/share/metainfo/io.github.someretical.theoreticaldiary.appdata.xml
+          export OUTPUT=TheoreticalDiary.AppImage
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+          sudo ldconfig /usr/local/lib
+          ./linuxdeploy-x86_64.AppImage -eAppDir/opt/theoreticaldiary/bin/theoreticaldiary -dio.github.someretical.theoreticaldiary.desktop -iimages/icons/hicolor/256x256/apps/theoreticaldiary.png --appdir AppDir --plugin qt --output appimage
+
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: theoretical-diary-linux
-          path: ./theoretical-diary.AppImage
+          name: theoreticaldiary-linux
+          path: ./TheoreticalDiary.AppImage

@@ -1,18 +1,18 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "updatepassword.h"
@@ -30,7 +30,7 @@ UpdatePassword::UpdatePassword(QWidget *parent)
   ui->setupUi(this);
   ui->alert_text->setText("");
 
-  QFile file(":/styles/updatepassword.qss");
+  QFile file(":/updatepassword.qss");
   file.open(QIODevice::ReadOnly);
   QString str = file.readAll();
   file.close();
@@ -65,27 +65,26 @@ void UpdatePassword::action_close() { accept(); }
 
 void UpdatePassword::attempt_change() {
   ui->alert_text->setText("");
+  QCoreApplication::processEvents();
 
   if (ui->first_password->text() != ui->second_password->text())
     return ui->alert_text->setText("The passwords do not match.");
 
-  if (1 == ui->first_password->text().length())
+  auto length = ui->first_password->text().length();
+
+  if (1 == length)
     return ui->alert_text->setText(
         "Passwords need to be 0 or >= 2 characters long.");
 
-  if (32 < ui->first_password->text().length())
-    return ui->alert_text->setText(
-        "Passwords must be <= 32 characters.");
+  if (32 < length)
+    return ui->alert_text->setText("Passwords must be <= 32 characters.");
 
-  // Get hash of password
-  std::vector<CryptoPP::byte> hash;
-  Encryptor::get_hash(0 == ui->first_password->text().length()
-                          ? "a"
-                          : ui->first_password->text().toStdString(),
-                      hash);
-
-  TheoreticalDiary::instance()->diary_holder->set_key(hash);
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  TheoreticalDiary::instance()->encryptor->regenerate_salt();
+  TheoreticalDiary::instance()->encryptor->set_key(
+      0 == length ? "a" : ui->first_password->text().toStdString());
   TheoreticalDiary::instance()->changes_made();
+  QApplication::restoreOverrideCursor();
 
   accept();
 }

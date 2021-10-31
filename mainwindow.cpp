@@ -1,18 +1,18 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "mainwindow.h"
@@ -20,8 +20,8 @@
 #include "autherrorwindow.h"
 #include "confirmoverwrite.h"
 #include "diarywindow.h"
-#include "encryptor.h"
 #include "flushwindow.h"
+#include "googlewrapper.h"
 #include "missingpermissions.h"
 #include "nodiaryfound.h"
 #include "placeholder.h"
@@ -32,17 +32,17 @@
 #include "unknowndiaryformat.h"
 #include "zipper.h"
 
-#include <QCloseEvent>
+#include <QDate>
 #include <QDialog>
 #include <QDir>
 #include <QFileDialog>
 #include <QStandardPaths>
-#include <cstddef>
 #include <fstream>
+#include <json.hpp>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <sys/stat.h>
-#include <vector>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -51,19 +51,19 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
 
   // Set styles
-  QFile file1(":/styles/material_cyan_dark.qss");
+  QFile file1(":/material_cyan_dark.qss");
   file1.open(QIODevice::ReadOnly);
   QString str1 = file1.readAll();
   file1.close();
 
-  QFile file2(":/styles/mainwindow.qss");
+  QFile file2(":/mainwindow.qss");
   file2.open(QIODevice::ReadOnly);
   QString str2 = file2.readAll();
   file2.close();
   setStyleSheet(str1 + str2);
 
   // Set version number
-  file1.setFileName(":/text/VERSION.txt");
+  file1.setFileName(":/VERSION.txt");
   file1.open(QIODevice::ReadOnly);
   str1 = file1.readAll();
   file1.close();
@@ -109,23 +109,32 @@ void MainWindow::open_diary() {
   std::string encrypted;
 
   // Attempt to load file contents
-  std::ifstream diary_file(
+  std::ifstream first(
       QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
           .toStdString() +
       "/TheoreticalDiary/diary.dat");
 
-  if (!diary_file.fail()) {
-    encrypted.assign((std::istreambuf_iterator<char>(diary_file)),
-                     (std::istreambuf_iterator<char>()));
+  if (!first.fail()) {
+    // Taken from
+    // https://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
+    // Resizing the string upfront increases performance
+    first.seekg(0, std::ios::end);
+    encrypted.resize(first.tellg());
+    first.seekg(0, std::ios::beg);
+    first.read(encrypted.data(), encrypted.size());
+    first.close();
   } else {
-    std::ifstream backup_file(
+    std::ifstream second(
         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
             .toStdString() +
         "/TheoreticalDiary/diary.dat.bak");
 
-    if (!backup_file.fail()) {
-      encrypted.assign((std::istreambuf_iterator<char>(backup_file)),
-                       (std::istreambuf_iterator<char>()));
+    if (!second.fail()) {
+      second.seekg(0, std::ios::end);
+      encrypted.resize(second.tellg());
+      second.seekg(0, std::ios::beg);
+      second.read(encrypted.data(), encrypted.size());
+      second.close();
     } else {
       // No valid file found
       NoDiaryFound w(this);
@@ -135,27 +144,22 @@ void MainWindow::open_diary() {
   }
 
   // If the user did not set a password, the password will be the string "a"
-  std::vector<CryptoPP::byte> default_hash;
-  Encryptor::get_hash("a", default_hash);
-
-  // VERY IMPORTANT
-  // Encryptor::decrypt function erases the IV from encrypted so a copy of
-  // encrypted should be passed to it!!!
+  // Note that the decrypt function modifies the string passed to it!
   std::string copy = encrypted;
-  std::string decrypted;
-  if (Encryptor::decrypt(default_hash, copy, decrypted)) {
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  auto res = TheoreticalDiary::instance()->encryptor->decrypt(copy, "a");
+  QApplication::restoreOverrideCursor();
+
+  if (res) {
     // Attempt to Gunzip the decrypted content and parse the JSON
     std::string decompressed;
-    if (!Zipper::unzip(decrypted, decompressed) ||
+    if (!Zipper::unzip(*res, decompressed) ||
         !TheoreticalDiary::instance()->diary_holder->load(decompressed)) {
       UnknownDiaryFormat w(this);
       w.exec();
       return;
     }
 
-    TheoreticalDiary::instance()->diary_holder->set_key(default_hash);
-
-    // Go straight to diary editor window
     DiaryWindow w(this);
     w.exec();
   } else {
@@ -193,22 +197,34 @@ void MainWindow::new_diary() {
       return;
   }
 
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   TheoreticalDiary::instance()->diary_holder->init();
+  TheoreticalDiary::instance()->encryptor->regenerate_salt();
+  TheoreticalDiary::instance()->encryptor->set_key("a");
   TheoreticalDiary::instance()->changes_made();
-
-  // Set default password
-  std::vector<CryptoPP::byte> default_hash;
-  Encryptor::get_hash("a", default_hash);
-  TheoreticalDiary::instance()->diary_holder->set_key(default_hash);
+  QApplication::restoreOverrideCursor();
 
   DiaryWindow w2(this);
   w2.exec();
 }
 
 void MainWindow::dl_diary() {
+  struct stat buf;
+  std::string path =
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+          .toStdString() +
+      "/TheoreticalDiary/diary.dat";
+
+  if (stat(path.c_str(), &buf) == 0) {
+    ConfirmOverwrite w(this);
+
+    if (w.exec() != QDialog::Accepted)
+      return;
+  }
+
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, this,
-          &MainWindow::oauth2_callback);
+          &MainWindow::download_callback);
 
   /**
    * window.exec blocks any code AFTER it from executing.
@@ -256,14 +272,19 @@ void MainWindow::import_diary() {
     return;
   }
 
-  std::string content((std::istreambuf_iterator<char>(ifs)),
-                      (std::istreambuf_iterator<char>()));
+  std::string content;
+  ifs.seekg(0, std::ios::end);
+  content.resize(ifs.tellg());
+  ifs.seekg(0, std::ios::beg);
+  ifs.read(content.data(), content.size());
+  ifs.close();
+
   if (TheoreticalDiary::instance()->diary_holder->load(content)) {
-    // Set default password
-    std::vector<CryptoPP::byte> default_hash;
-    Encryptor::get_hash("a", default_hash);
-    TheoreticalDiary::instance()->diary_holder->set_key(default_hash);
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    TheoreticalDiary::instance()->encryptor->regenerate_salt();
+    TheoreticalDiary::instance()->encryptor->set_key("a");
     TheoreticalDiary::instance()->changes_made();
+    QApplication::restoreOverrideCursor();
 
     DiaryWindow w(this);
     w.exec();
@@ -279,6 +300,8 @@ void MainWindow::flush_credentials() {
       "/TheoreticalDiary/credentials.json");
   file.remove();
 
+  *TheoreticalDiary::instance()->gwrapper->contains_valid_info = false;
+
   FlushWindow w(this);
   w.exec();
 }
@@ -293,29 +316,80 @@ void MainWindow::about_app() {
   w.exec();
 }
 
-void MainWindow::oauth2_callback(const td::Res code) {
+void MainWindow::download_callback(const td::Res code) {
   disconnect(TheoreticalDiary::instance()->gwrapper,
              &GoogleWrapper::sig_oauth2_callback, this,
-             &MainWindow::oauth2_callback);
+             &MainWindow::download_callback);
 
   if (td::Res::No == code) {
     auto *w = new AuthErrorWindow(this);
     w->setModal(true);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     w->show();
-  } else {
-    auto *w = new Placeholder(this);
-    w->setModal(true);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
-    w->show();
+    return;
   }
+
+  //  // Google drive testing
+  //  auto file = new QFile();
+  //  auto params = new QVariantMap();
+
+  //  // diary.dat 17f3nXYByqW7Xf0WD5ujSe8uwiAGRiLbONSWd9V8LKynnmIS2
+  //  // diary.dat.bak 1X0BVcUn3SeMgkilRAn0qx2EalW3HvvSWhbINhlxy4MbM4Tvm
+  //  // List files
+
+  //  params->insert("spaces", "appDataFolder");
+
+  //  auto reply1 = TheoreticalDiary::instance()->gwrapper->google->get(
+  //      QUrl("https://www.googleapis.com/drive/v3/files"), *params);
+
+  //  connect(reply1, &QNetworkReply::finished, [=]() {
+  //    params->clear();
+  //    if (QNetworkReply::NoError != reply1->error()) {
+  //      qDebug() << "network err1" << reply1->error();
+  //      return;
+  //    }
+
+  //    auto json =
+  //        nlohmann::json::parse(reply1->readAll().toStdString(), nullptr,
+  //        false);
+  //    if (json.is_discarded()) {
+  //      qDebug() << "failed to parse json";
+  //      return;
+  //    }
+
+  //    auto vec = json.at("files");
+  //    auto res = std::find_if(
+  //        vec.begin(), vec.end(), [](const nlohmann::json &file_obj) {
+  //          auto it = file_obj.find("name");
+  //          return it != file_obj.end() && it.value() == "diary.dat";
+  //        });
+
+  //    if (res == vec.end()) {
+  //      qDebug() << "failed to find diary.dat";
+  //      return;
+  //    }
+
+  //    qDebug() << "successfully found fileID";
+  //    reply1->deleteLater();
+  //  });
+
+  //
+  //
+  // Download files
+  //  TheoreticalDiary::instance()->gwrapper->google->refreshAccessToken();
+  //  new DriveDownloader(
+  //      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+  //          "/TheoreticalDiary/test_download.dat",
+  //      "17f3nXYByqW7Xf0WD5ujSe8uwiAGRiLbONSWd9V8LKynnmIS2", this);
 }
 
 void MainWindow::quit_app() { close(); }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
   if (TheoreticalDiary::instance()->unsaved_changes) {
-    TheoreticalDiary::instance()->gwrapper->save_credentials();
+    if (*TheoreticalDiary::instance()->gwrapper->contains_valid_info)
+      TheoreticalDiary::instance()->gwrapper->save_credentials();
+
     TheoreticalDiary::instance()->save_settings();
   }
 

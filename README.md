@@ -14,11 +14,11 @@ A digital diary with (planned) Google Drive backups. This app is a work in progr
 
 ### Windows
 
-For Windows, the prebuilt binaries are available in `theoretical-diary-x64` (check the result of the latest successful Github actions for [`windows.yml`](https://github.com/someretical/theoretical-diary/actions/workflows/windows.yml)). The only platform it is guaranteed to work on is Windows 10 x64.
+For Windows, the prebuilt binaries are available in `theoreticaldiary-x64` (check the result of the latest successful Github actions for [`windows.yml`](https://github.com/someretical/theoretical-diary/actions/workflows/windows.yml)). The only platform it is guaranteed to work on is Windows 10 x64.
 
 ### Linux
 
-For Linux, the prebuilt app image is available in `theoretical-diary-linux` (check the result of the latest successful Github actions for [`linux.yml`](https://github.com/someretical/theoretical-diary/actions/workflows/linux.yml)). Due to package version requirements, the app image will only work from Ubuntu 20.04  onwards.
+For Linux, the prebuilt app image is available in `theoreticaldiary-linux` (check the result of the latest successful Github actions for [`linux.yml`](https://github.com/someretical/theoretical-diary/actions/workflows/linux.yml)). Due to package version requirements, the app image will only work from Ubuntu 20.04  onwards.
 
 ### MacOS
 

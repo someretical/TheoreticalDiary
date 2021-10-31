@@ -1,18 +1,18 @@
 /**
- * This file is part of theoretical-diary.
+ * This file is part of Theoretical Diary.
  *
- * theoretical-diary is free software: you can redistribute it and/or modify
+ * Theoretical Diary is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * theoretical-diary is distributed in the hope that it will be useful,
+ * Theoretical Diary is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "aboutwindow.h"
@@ -26,26 +26,26 @@ AboutWindow::AboutWindow(QWidget *parent)
     : QDialog(parent), ui(new Ui::AboutWindow) {
   ui->setupUi(this);
 
-  QFile file(":/styles/aboutwindow.qss");
+  QFile file(":/aboutwindow.qss");
   file.open(QIODevice::ReadOnly);
   QString str = file.readAll();
   file.close();
   setStyleSheet(str);
 
   // Fill in contributors and licenses
-  file.setFileName(":/text/LICENSES.txt");
+  file.setFileName(":/LICENSES.txt");
   file.open(QIODevice::ReadOnly);
   str = file.readAll();
   file.close();
   ui->licenses_text->setPlainText(str);
 
-  file.setFileName(":/text/CONTRIBUTORS.txt");
+  file.setFileName(":/CONTRIBUTORS.txt");
   file.open(QIODevice::ReadOnly);
   str = file.readAll();
   file.close();
   ui->contributors_text->setPlainText(str);
 
-  file.setFileName(":/text/VERSION.txt");
+  file.setFileName(":/VERSION.txt");
   file.open(QIODevice::ReadOnly);
   str = file.readAll();
   file.close();

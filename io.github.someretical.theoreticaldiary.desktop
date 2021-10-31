@@ -2,6 +2,6 @@
 Type=Application
 Name=Theoretical Diary
 Comment=Digital diary
-Exec=theoretical-diary
-Icon=theoretical-diary
+Exec=theoreticaldiary
+Icon=theoreticaldiary
 Categories=Office;

@@ -1,0 +1,31 @@
+<RCC>
+    <qresource prefix="/">
+        <file>aboutwindow.qss</file>
+        <file>confirmoverwrite.qss</file>
+        <file>day_label_bad.qss</file>
+        <file>day_label_base.qss</file>
+        <file>day_label_good.qss</file>
+        <file>day_label_ok.qss</file>
+        <file>day_label_starred.qss</file>
+        <file>day_label_very_bad.qss</file>
+        <file>day_label_very_good.qss</file>
+        <file>diaryeditor.qss</file>
+        <file>diaryentrylist.qss</file>
+        <file>diarywindow.qss</file>
+        <file>mainwindow.qss</file>
+        <file>material_cyan_dark.qss</file>
+        <file>promptpassword.qss</file>
+        <file>s_bad.qss</file>
+        <file>s_base.qss</file>
+        <file>s_default.qss</file>
+        <file>s_good.qss</file>
+        <file>s_ok.qss</file>
+        <file>s_selected.qss</file>
+        <file>s_star_black.qss</file>
+        <file>s_star_white.qss</file>
+        <file>s_very_bad.qss</file>
+        <file>s_very_good.qss</file>
+        <file>theoreticalcalendar.qss</file>
+        <file>updatepassword.qss</file>
+    </qresource>
+</RCC>

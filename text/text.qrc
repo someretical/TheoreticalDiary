@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>CONTRIBUTORS.txt</file>
+        <file>LICENSES.txt</file>
+        <file>VERSION.txt</file>
+    </qresource>
+</RCC>

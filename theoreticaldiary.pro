@@ -1,23 +1,25 @@
-# This file is part of theoretical-diary.
+# This file is part of Theoretical Diary.
 #
-# theoretical-diary is free software: you can redistribute it and/or modify
+# Theoretical Diary is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# theoretical-diary is distributed in the hope that it will be useful,
+# Theoretical Diary is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with theoretical-diary.  If not, see <https://www.gnu.org/licenses/>.
+# along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
+
+include(external-libs/o2/src/src.pri)
 
 INCLUDEPATH += external-libs/json/single_include/nlohmann \
-    external-libs/cryptopp
+    external-libs/cryptopp \
 
 unix:LIBS += \
-    -l:libcryptopp.a
+    -L/usr/lib/ -lcryptopp
 
 win32:LIBS += \
     -l"external-libs/cryptopp/cryptlib"
@@ -114,41 +116,21 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 win32:RC_ICONS = images/icon.ico
+win32:VERSION = 1.0.0.0
+win32:QMAKE_TARGET_COMPANY = someretical
+win32:QMAKE_TARGET_PRODUCT = "Theoretical Diary"
+win32:QMAKE_TARGET_DESCRIPTION = "Digital diary"
+win32:QMAKE_TARGET_COPYRIGHT = 2021
 
 RESOURCES += \
-    theoretical-diary.qrc
+    fonts/fonts.qrc \
+    images/images.qrc \
+    styles/styles.qrc \
+    text/text.qrc
 
 DISTFILES += \
     LICENSE \
     README.md \
-    styles/aboutwindow.qss \
-    styles/confirmoverwrite.qss \
-    styles/day_label_bad.qss \
-    styles/day_label_base.qss \
-    styles/day_label_good.qss \
-    styles/day_label_ok.qss \
-    styles/day_label_starred.qss \
-    styles/day_label_very_bad.qss \
-    styles/day_label_very_good.qss \
-    styles/diaryeditor.qss \
-    styles/diaryentrylist.qss \
-    styles/diarywindow.qss \
-    styles/filedialog.qss \
-    styles/mainwindow.qss \
-    styles/material_cyan_dark.qss \
-    styles/promptpassword.qss \
-    styles/s_bad.qss \
-    styles/s_base.qss \
-    styles/s_default.qss \
-    styles/s_good.qss \
-    styles/s_ok.qss \
-    styles/s_selected.qss \
-    styles/s_star_black.qss \
-    styles/s_star_white.qss \
-    styles/s_very_bad.qss \
-    styles/s_very_good.qss \
-    styles/theoreticalcalendar.qss \
-    styles/updatepassword.qss \
     text/CONTRIBUTORS.txt \
     text/LICENSES.txt \
     text/VERSION.txt \
