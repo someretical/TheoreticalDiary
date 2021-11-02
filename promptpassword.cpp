@@ -16,6 +16,7 @@
  */
 
 #include "promptpassword.h"
+#include "encryptor.h"
 #include "mainwindow.h"
 #include "theoreticaldiary.h"
 #include "ui_promptpassword.h"
@@ -25,7 +26,7 @@
 #include <QFile>
 #include <cryptlib.h>
 
-PromptPassword::PromptPassword(const std::string &e, std::string *d,
+PromptPassword::PromptPassword(const std::string &e, std::string &d,
                                QWidget *parent)
     : QDialog(parent), ui(new Ui::PromptPassword) {
   ui->setupUi(this);
@@ -33,7 +34,16 @@ PromptPassword::PromptPassword(const std::string &e, std::string *d,
 
   encrypted = new std::string(e);
   // Pointer to a pointer to a string
-  decrypted = new std::string *(d);
+  decrypted = new std::string *(&d);
+
+  // The salt and IV are set here so they are only set ONCE every time the
+  // password is prompted.
+  TheoreticalDiary::instance()->encryptor->set_salt(
+      encrypted->substr(0, SALT_SIZE));
+  encrypted->erase(0, SALT_SIZE);
+  TheoreticalDiary::instance()->encryptor->set_decrypt_iv(
+      encrypted->substr(0, IV_SIZE));
+  encrypted->erase(0, IV_SIZE);
 
   QFile file(":/promptpassword.qss");
   file.open(QIODevice::ReadOnly);
@@ -49,6 +59,8 @@ PromptPassword::PromptPassword(const std::string &e, std::string *d,
   addAction(action);
   connect(action, &QAction::triggered, this, &PromptPassword::reject,
           Qt::QueuedConnection);
+  connect(this, &PromptPassword::finished,
+          [&]() { QApplication::restoreOverrideCursor(); });
 
   action = findChild<QAction *>("action_pwd");
   addAction(action);
@@ -70,19 +82,38 @@ void PromptPassword::toggle_pwd() {
 
 void PromptPassword::decrypt() {
   ui->wrong_password->setText("");
-  QCoreApplication::processEvents();
+  ui->wrong_password->update();
 
-  std::string copy = *encrypted;
+  auto password = ui->password_box->text().toStdString();
+
+  // I don't actually know what happens if a zero length string is passed to
+  // set_key() so there's that :^)
+  if (0 == password.size())
+    return ui->wrong_password->setText("Wrong password.");
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  auto res = TheoreticalDiary::instance()->encryptor->decrypt(
-      copy, ui->password_box->text().toStdString());
-  QApplication::restoreOverrideCursor();
+  auto worker = new HashWorker();
+  worker->moveToThread(&TheoreticalDiary::instance()->worker_thread);
+  connect(&TheoreticalDiary::instance()->worker_thread, &QThread::finished,
+          worker, &QObject::deleteLater);
+  connect(worker, &HashWorker::done, this, &PromptPassword::hash_set);
+  connect(TheoreticalDiary::instance(), &TheoreticalDiary::sig_begin_hash,
+          worker, &HashWorker::hash);
+  TheoreticalDiary::instance()->worker_thread.start();
 
+  ui->decrypt_button->setEnabled(false);
+  // The signal must be emitted to ensure the thread is run properly
+  emit TheoreticalDiary::instance()->sig_begin_hash(password);
+}
+
+void PromptPassword::hash_set() {
+  QApplication::restoreOverrideCursor();
+  ui->decrypt_button->setEnabled(true);
+
+  auto res = TheoreticalDiary::instance()->encryptor->decrypt(*encrypted);
   if (!res)
     return ui->wrong_password->setText("Wrong password.");
 
   **decrypted = *res;
-
   accept();
 }

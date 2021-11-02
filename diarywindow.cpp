@@ -31,6 +31,7 @@
 #include <QAction>
 #include <QDateTime>
 #include <QFileDialog>
+#include <QStandardPaths>
 #include <QString>
 #include <fstream>
 #include <json.hpp>
@@ -360,18 +361,19 @@ void DiaryWindow::action_save() {
   nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
 
   // Gzip JSON
-  std::string compressed;
+  std::string compressed, encrypted;
   std::string decompressed = j.dump();
   Zipper::zip(compressed, decompressed);
 
-  // Encrypt
-  std::string encrypted;
-  TheoreticalDiary::instance()->encryptor->encrypt(compressed, encrypted);
+  // Encrypt if there is a password set
+  auto key_set = TheoreticalDiary::instance()->encryptor->key_set;
+  if (key_set)
+    TheoreticalDiary::instance()->encryptor->encrypt(compressed, encrypted);
 
   // Write to file
   std::ofstream ofs(primary_path, std::ios::binary);
   if (!ofs.fail()) {
-    ofs << encrypted;
+    ofs << (key_set ? encrypted : compressed);
     ofs.close();
 
     *TheoreticalDiary::instance()->unsaved_changes = false;

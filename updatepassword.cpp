@@ -22,6 +22,7 @@
 
 #include <QAction>
 #include <QFile>
+#include <QThread>
 #include <cryptlib.h>
 #include <vector>
 
@@ -43,6 +44,8 @@ UpdatePassword::UpdatePassword(QWidget *parent)
   action = findChild<QAction *>("action_close");
   addAction(action);
   connect(action, &QAction::triggered, this, &UpdatePassword::action_close);
+  connect(this, &UpdatePassword::finished,
+          [&]() { QApplication::restoreOverrideCursor(); });
 
   action = findChild<QAction *>("action_toggle_password");
   addAction(action);
@@ -65,26 +68,45 @@ void UpdatePassword::action_close() { accept(); }
 
 void UpdatePassword::attempt_change() {
   ui->alert_text->setText("");
-  QCoreApplication::processEvents();
+  ui->alert_text->update();
 
   if (ui->first_password->text() != ui->second_password->text())
     return ui->alert_text->setText("The passwords do not match.");
 
   auto length = ui->first_password->text().length();
 
-  if (1 == length)
-    return ui->alert_text->setText(
-        "Passwords need to be 0 or >= 2 characters long.");
-
-  if (32 < length)
-    return ui->alert_text->setText("Passwords must be <= 32 characters.");
+  if (257 < length)
+    return ui->alert_text->setText("Passwords must be under 257 characters.");
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  TheoreticalDiary::instance()->encryptor->regenerate_salt();
-  TheoreticalDiary::instance()->encryptor->set_key(
-      0 == length ? "a" : ui->first_password->text().toStdString());
+
+  if (0 != length) {
+    auto worker = new HashWorker();
+    worker->moveToThread(&TheoreticalDiary::instance()->worker_thread);
+    connect(&TheoreticalDiary::instance()->worker_thread, &QThread::finished,
+            worker, &QObject::deleteLater);
+    connect(worker, &HashWorker::done, this, &UpdatePassword::hash_set);
+    connect(TheoreticalDiary::instance(), &TheoreticalDiary::sig_begin_hash,
+            worker, &HashWorker::hash);
+    TheoreticalDiary::instance()->worker_thread.start();
+
+    ui->change_button->setEnabled(false);
+    ui->cancel_button->setEnabled(false);
+    emit TheoreticalDiary::instance()->sig_begin_hash(
+        ui->first_password->text().toStdString());
+  } else {
+    TheoreticalDiary::instance()->encryptor->reset();
+    hash_set();
+  }
+}
+
+void UpdatePassword::hash_set() {
   TheoreticalDiary::instance()->changes_made();
-  QApplication::restoreOverrideCursor();
 
   accept();
+}
+
+void UpdatePassword::closeEvent(QCloseEvent *event) {
+  if (ui->change_button->isEnabled())
+    event->accept();
 }

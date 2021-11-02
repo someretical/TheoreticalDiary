@@ -20,7 +20,6 @@ jobs:
         uses: jurplel/install-qt-action@v2.6.2
         with:
           host: windows
-          modules: 'qtnetworkauth'
           extra: --external 7z
       
       - name: Build cryptopp
@@ -41,5 +40,5 @@ jobs:
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: theoreticaldiary-x64
+          name: theoreticaldiary-x86_64
           path: release

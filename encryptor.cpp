@@ -29,25 +29,25 @@
 // The hashing algorithm was adopted from
 // https://www.cryptopp.com/wiki/Scrypt#OpenMP
 
-// Sizes are in BYTES not bits
-const int TAG_SIZE = 16;
-const int SALT_SIZE = 64;
-const int KEY_SIZE = 32;
-const int IV_SIZE = 12;
-
 Encryptor::Encryptor() {
   salt = new CryptoPP::SecByteBlock(SALT_SIZE);
   key = new CryptoPP::SecByteBlock(KEY_SIZE);
+  key_set = new bool(false);
+  decrypt_iv = new CryptoPP::SecByteBlock(IV_SIZE);
 }
 
 Encryptor::~Encryptor() {
   delete salt;
   delete key;
+  delete key_set;
+  delete decrypt_iv;
 }
 
 void Encryptor::reset() {
   salt->Assign(CryptoPP::SecByteBlock(SALT_SIZE));
   key->Assign(CryptoPP::SecByteBlock(KEY_SIZE));
+  *key_set = false;
+  decrypt_iv->Assign(CryptoPP::SecByteBlock(IV_SIZE));
 }
 
 void Encryptor::regenerate_salt() {
@@ -60,11 +60,17 @@ void Encryptor::set_key(const std::string &plaintext) {
       reinterpret_cast<const CryptoPP::byte *>(plaintext.data()),
       plaintext.size());
   CryptoPP::Scrypt scrypt;
+  *key_set = true;
 
   // This is supposed to be computationally expensive to make it hard to brute
-  // force attack. It SHOULD take ~1 second to get the key.
+  // force attack. It SHOULD take a reasonable amount of time.
   scrypt.DeriveKey(key->data(), KEY_SIZE, byte_block.data(), byte_block.size(),
                    salt->data(), SALT_SIZE, 1 << 17, 8, 16);
+}
+
+void Encryptor::set_salt(const std::string &salt_str) {
+  salt->Assign(CryptoPP::SecByteBlock(
+      reinterpret_cast<const CryptoPP::byte *>(salt_str.data()), SALT_SIZE));
 }
 
 /**
@@ -104,28 +110,16 @@ void Encryptor::encrypt(const std::string &plaintext, std::string &encrypted) {
   encrypted.insert(0, salt_str);
 }
 
-// Requires a salt be already set
-std::optional<std::string>
-Encryptor::decrypt(std::string &encrypted, const std::string &plaintext_key) {
+void Encryptor::set_decrypt_iv(const std::string &iv_str) {
+  decrypt_iv->Assign(CryptoPP::SecByteBlock(
+      reinterpret_cast<const CryptoPP::byte *>(iv_str.data()), IV_SIZE));
+}
+
+// Requires a salt and IV already set
+std::optional<std::string> Encryptor::decrypt(const std::string &encrypted) {
   try {
-    // Retrieve the salt
-    std::string salt_str = encrypted.substr(0, SALT_SIZE);
-
-    salt->Assign(CryptoPP::SecByteBlock(
-        reinterpret_cast<const CryptoPP::byte *>(salt_str.data()), SALT_SIZE));
-    encrypted.erase(0, SALT_SIZE);
-
-    // Retrieve the IV
-    std::string iv_str = encrypted.substr(0, IV_SIZE);
-    encrypted.erase(0, IV_SIZE);
-
-    // Set the key
-    set_key(plaintext_key);
-
     CryptoPP::GCM<CryptoPP::AES>::Decryption decryptor;
-    CryptoPP::SecByteBlock iv(
-        reinterpret_cast<const CryptoPP::byte *>(iv_str.data()), IV_SIZE);
-    decryptor.SetKeyWithIV(key->data(), KEY_SIZE, iv, IV_SIZE);
+    decryptor.SetKeyWithIV(key->data(), KEY_SIZE, *decrypt_iv, IV_SIZE);
 
     std::string encrypted_data =
         encrypted.substr(0, encrypted.size() - TAG_SIZE);

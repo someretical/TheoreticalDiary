@@ -26,8 +26,12 @@ class GoogleWrapper;
 
 #include <QApplication>
 #include <QObject>
+#include <QThread>
 #include <json.hpp>
 #include <string>
+
+// This is required so std::string can be passed via signals and slots.
+Q_DECLARE_METATYPE(std::string)
 
 namespace td {
 struct LocalSettings {
@@ -54,6 +58,9 @@ enum Res : int { Yes, No };
 class TheoreticalDiary : public QApplication {
   Q_OBJECT
 
+signals:
+  void sig_begin_hash(const std::string &plaintext);
+
 public:
   TheoreticalDiary(int &argc, char **argv);
   ~TheoreticalDiary();
@@ -68,8 +75,30 @@ public:
   td::LocalSettings *local_settings;
   bool *unsaved_changes;
 
+  // See https://doc.qt.io/qt-5/qthread.html for multithreading
+  QThread worker_thread;
+
 public slots:
   void changes_made();
+};
+
+// The set_key() function is blocking
+// This means that if it is called from the same thread as the GUI processes
+// events, the GUI will freeze during hashing.
+// Obviously, this is undesirable behaviour so the function should be performed
+// in a worker on a separate thread.
+
+class HashWorker : public QObject {
+  Q_OBJECT
+
+public slots:
+  void hash(const std::string &plaintext) {
+    TheoreticalDiary::instance()->encryptor->set_key(plaintext);
+    emit done();
+  }
+
+signals:
+  void done();
 };
 
 #endif // THOERETICALDIARY_H

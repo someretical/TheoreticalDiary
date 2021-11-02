@@ -31,13 +31,14 @@ class PromptPassword : public QDialog {
   Q_OBJECT
 
 public:
-  explicit PromptPassword(const std::string &e, std::string *d,
+  explicit PromptPassword(const std::string &e, std::string &d,
                           QWidget *parent = nullptr);
   ~PromptPassword();
 
 public slots:
   void decrypt();
   void toggle_pwd();
+  void hash_set();
 
 private:
   Ui::PromptPassword *ui;

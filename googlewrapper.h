@@ -22,56 +22,60 @@ namespace td {
 enum Res : int;
 }
 
+#include "o2google.h"
+#include "o2requestor.h"
 #include "theoreticaldiary.h"
 
-#include <QDate>
 #include <QFile>
-#include <QNetworkReply>
+#include <QNetworkAccessManager>
 #include <QObject>
 #include <QString>
-#include <QtNetworkAuth>
+#include <QUrl>
 
 class GoogleWrapper : public QObject {
   Q_OBJECT
+
+signals:
+  void sig_oauth2_callback(const td::Res code);
 
 public:
   GoogleWrapper(QObject *parent = nullptr);
   ~GoogleWrapper();
   void authenticate();
-  bool save_credentials();
-  bool load_credentials();
-  void auth_err();
+  //  bool load_credentials();
+  //  bool save_credentials();
 
-  bool *contains_valid_info;
-  QOAuth2AuthorizationCodeFlow *google;
-  QDate *expires_at;
-
-signals:
-  void sig_oauth2_callback(const td::Res code);
-
-private:
-  void auth_ok();
-};
-
-class DriveDownloader : public QObject {
-  Q_OBJECT
-
-signals:
-  void update_progress(qint64 bytesRead, qint64 totalBytes);
-  void finished(const td::Res code);
-
-public:
-  DriveDownloader(const QString &path, const QString &file_id,
-                  QObject *parent = nullptr);
-  ~DriveDownloader();
-
-  QNetworkReply *reply;
-  QFile *dest;
+  O2Google *google;
+  QNetworkAccessManager *manager;
+  O2Requestor *requester;
 
 public slots:
-  void download_progress(const qint64 bytesRead, const qint64 totalBytes);
-  void packet_received();
-  void download_finished();
+  void auth_err();
+
+private slots:
+  void auth_ok();
+  void open_browser(const QUrl &url);
 };
+
+// class DriveDownloader : public QObject {
+//   Q_OBJECT
+
+// signals:
+//   void update_progress(qint64 bytesRead, qint64 totalBytes);
+//   void finished(const td::Res code);
+
+// public:
+//   DriveDownloader(const QString &path, const QString &file_id,
+//                   QObject *parent = nullptr);
+//   ~DriveDownloader();
+
+//   QNetworkReply *reply;
+//   QFile *dest;
+
+// public slots:
+//   void download_progress(const qint64 bytesRead, const qint64 totalBytes);
+//   void packet_received();
+//   void download_finished();
+// };
 
 #endif // GOOGLEWRAPPER_H

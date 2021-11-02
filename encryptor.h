@@ -18,12 +18,19 @@
 #ifndef ENCRYPTOR_H
 #define ENCRYPTOR_H
 
+#include <QObject>
 #include <cryptlib.h>
 #include <cstddef>
 #include <optional>
 #include <secblock.h>
 #include <sha.h>
 #include <string>
+
+// Sizes are in BYTES not bits
+const int TAG_SIZE = 16;
+const int SALT_SIZE = 64;
+const int KEY_SIZE = 32;
+const int IV_SIZE = 12;
 
 class Encryptor {
 public:
@@ -33,13 +40,17 @@ public:
   void reset();
   void regenerate_salt();
   void set_key(const std::string &plaintext);
+  void set_salt(const std::string &salt_str);
+  void set_decrypt_iv(const std::string &iv_str);
   void encrypt(const std::string &plaintext, std::string &encrypted);
-  std::optional<std::string> decrypt(std::string &encrypted,
-                                     const std::string &plaintext_key);
+  std::optional<std::string> decrypt(const std::string &encrypted);
+
+  bool *key_set;
 
 private:
   CryptoPP::SecByteBlock *salt;
   CryptoPP::SecByteBlock *key;
+  CryptoPP::SecByteBlock *decrypt_iv;
 };
 
 #endif // ENCRYPTOR_H

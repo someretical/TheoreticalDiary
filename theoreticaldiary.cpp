@@ -17,6 +17,7 @@
 
 #include "theoreticaldiary.h"
 
+#include <QDir>
 #include <QFontDatabase>
 #include <QIcon>
 #include <QStandardPaths>
@@ -57,6 +58,7 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
   QFontDatabase::addApplicationFont(":/Roboto-Condensed-Regular.ttf");
 
   setOrganizationName("someretical");
+  setOrganizationDomain("someretical.github.io");
   setApplicationName("Theoretical Diary");
   setWindowIcon(QIcon(":/icons/hicolor/256/apps/theoreticaldiary.png"));
 }
@@ -67,6 +69,9 @@ TheoreticalDiary::~TheoreticalDiary() {
   delete encryptor;
   delete local_settings;
   delete unsaved_changes;
+
+  worker_thread.quit();
+  worker_thread.wait();
 }
 
 // static specifier is not needed here (if it was, it would cause a compiler

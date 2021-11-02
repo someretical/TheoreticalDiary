@@ -18,6 +18,7 @@
 #ifndef UPDATEPASSWORD_H
 #define UPDATEPASSWORD_H
 
+#include <QCloseEvent>
 #include <QDialog>
 
 namespace Ui {
@@ -30,10 +31,13 @@ public:
   explicit UpdatePassword(QWidget *parent = nullptr);
   ~UpdatePassword();
 
+  void closeEvent(QCloseEvent *event);
+
 public slots:
   void toggle_password();
   void action_close();
   void attempt_change();
+  void hash_set();
 
 private:
   Ui::UpdatePassword *ui;

@@ -24,7 +24,7 @@ unix:LIBS += \
 win32:LIBS += \
     -l"external-libs/cryptopp/cryptlib"
 
-QT += core gui network networkauth
+QT += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

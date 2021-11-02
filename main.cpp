@@ -20,6 +20,8 @@
 #include "theoreticaldiary.h"
 
 #include <QApplication>
+#include <QMetaType>
+#include <string>
 
 int main(int argc, char **argv) {
   // Make sure only 1 instance of the app is running at all times
@@ -36,6 +38,9 @@ int main(int argc, char **argv) {
   QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
   TheoreticalDiary a(argc, argv);
+
+  // This is required so std::string can be passed via signals and slots.
+  qRegisterMetaType<std::string>();
 
   MainWindow w;
   w.show();

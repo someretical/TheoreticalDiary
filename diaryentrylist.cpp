@@ -113,7 +113,7 @@ void DiaryEntryList::reset_month() {
   change_month(*first_created);
 
   ui->scroll_area->widget()->adjustSize();
-  qApp->processEvents();
+  ui->scroll_area->widget()->update();
   ui->scroll_area->verticalScrollBar()->triggerAction(
       QAbstractSlider::SliderToMaximum);
 }
@@ -250,7 +250,7 @@ void DiaryEntryList::last_month() {
     change_month(prev);
     // This is needed to make sure the scroll bar actually hits the bottom
     ui->scroll_area->widget()->adjustSize();
-    qApp->processEvents();
+    ui->scroll_area->widget()->update();
 
     ui->scroll_area->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderToMaximum);

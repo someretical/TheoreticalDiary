@@ -106,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::open_diary() {
-  std::string encrypted;
+  std::string contents;
 
   // Attempt to load file contents
   std::ifstream first(
@@ -119,9 +119,9 @@ void MainWindow::open_diary() {
     // https://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
     // Resizing the string upfront increases performance
     first.seekg(0, std::ios::end);
-    encrypted.resize(first.tellg());
+    contents.resize(first.tellg());
     first.seekg(0, std::ios::beg);
-    first.read(encrypted.data(), encrypted.size());
+    first.read(contents.data(), contents.size());
     first.close();
   } else {
     std::ifstream second(
@@ -131,9 +131,9 @@ void MainWindow::open_diary() {
 
     if (!second.fail()) {
       second.seekg(0, std::ios::end);
-      encrypted.resize(second.tellg());
+      contents.resize(second.tellg());
       second.seekg(0, std::ios::beg);
-      second.read(encrypted.data(), encrypted.size());
+      second.read(contents.data(), contents.size());
       second.close();
     } else {
       // No valid file found
@@ -143,43 +143,31 @@ void MainWindow::open_diary() {
     }
   }
 
-  // If the user did not set a password, the password will be the string "a"
-  // Note that the decrypt function modifies the string passed to it!
-  std::string copy = encrypted;
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  auto res = TheoreticalDiary::instance()->encryptor->decrypt(copy, "a");
-  QApplication::restoreOverrideCursor();
-
-  if (res) {
-    // Attempt to Gunzip the decrypted content and parse the JSON
-    std::string decompressed;
-    if (!Zipper::unzip(*res, decompressed) ||
-        !TheoreticalDiary::instance()->diary_holder->load(decompressed)) {
-      UnknownDiaryFormat w(this);
-      w.exec();
-      return;
-    }
-
+  // If the user did not set a password, the string will only be Gzipped
+  std::string decompressed;
+  if (Zipper::unzip(contents, decompressed) &&
+      TheoreticalDiary::instance()->diary_holder->load(decompressed)) {
     DiaryWindow w(this);
     w.exec();
-  } else {
-    // Prompt password
-    std::string decrypted;
-    PromptPassword w(encrypted, &decrypted, this);
-    if (w.exec() != QDialog::Accepted)
-      return;
-
-    // Attempt to Gunzip
-    std::string decompressed;
-    if (!Zipper::unzip(decrypted, decompressed) ||
-        !TheoreticalDiary::instance()->diary_holder->load(decompressed)) {
-      UnknownDiaryFormat w(this);
-      w.exec();
-    } else {
-      DiaryWindow w(this);
-      w.exec();
-    }
+    return;
   }
+
+  // Prompt the user for a password
+  std::string decrypted;
+  PromptPassword w(contents, decrypted, this);
+  if (w.exec() != QDialog::Accepted)
+    return;
+
+  // Attempt the Gunzip the decrypted contents
+  if (!Zipper::unzip(decrypted, decompressed) ||
+      !TheoreticalDiary::instance()->diary_holder->load(decompressed)) {
+    UnknownDiaryFormat w(this);
+    w.exec();
+    return;
+  }
+
+  DiaryWindow w2(this);
+  w2.exec();
 }
 
 void MainWindow::new_diary() {
@@ -197,12 +185,8 @@ void MainWindow::new_diary() {
       return;
   }
 
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   TheoreticalDiary::instance()->diary_holder->init();
-  TheoreticalDiary::instance()->encryptor->regenerate_salt();
-  TheoreticalDiary::instance()->encryptor->set_key("a");
   TheoreticalDiary::instance()->changes_made();
-  QApplication::restoreOverrideCursor();
 
   DiaryWindow w2(this);
   w2.exec();
@@ -300,7 +284,7 @@ void MainWindow::flush_credentials() {
       "/TheoreticalDiary/credentials.json");
   file.remove();
 
-  *TheoreticalDiary::instance()->gwrapper->contains_valid_info = false;
+  TheoreticalDiary::instance()->gwrapper->google->unlink();
 
   FlushWindow w(this);
   w.exec();
@@ -378,7 +362,8 @@ void MainWindow::download_callback(const td::Res code) {
   // Download files
   //  TheoreticalDiary::instance()->gwrapper->google->refreshAccessToken();
   //  new DriveDownloader(
-  //      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+  //      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+  //      +
   //          "/TheoreticalDiary/test_download.dat",
   //      "17f3nXYByqW7Xf0WD5ujSe8uwiAGRiLbONSWd9V8LKynnmIS2", this);
 }
@@ -387,8 +372,8 @@ void MainWindow::quit_app() { close(); }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
   if (TheoreticalDiary::instance()->unsaved_changes) {
-    if (*TheoreticalDiary::instance()->gwrapper->contains_valid_info)
-      TheoreticalDiary::instance()->gwrapper->save_credentials();
+    //    if (*TheoreticalDiary::instance()->gwrapper->contains_valid_info)
+    //      TheoreticalDiary::instance()->gwrapper->save_credentials();
 
     TheoreticalDiary::instance()->save_settings();
   }
