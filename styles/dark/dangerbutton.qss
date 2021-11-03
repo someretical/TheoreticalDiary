@@ -1,0 +1,20 @@
+QPushButton {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+QPushButton:checked,
+QPushButton:pressed {
+  color: #31363b;
+  background-color: #dc3545;
+}
+
+QPushButton:flat:hover {
+  background-color: rgba(220, 53, 69, 0.2);
+}
+
+QPushButton:flat:pressed,
+QPushButton:flat:checked {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}

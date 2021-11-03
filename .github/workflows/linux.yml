@@ -41,7 +41,7 @@ jobs:
           export OUTPUT=TheoreticalDiary.AppImage
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
           sudo ldconfig /usr/local/lib
-          ./linuxdeploy-x86_64.AppImage -eAppDir/opt/theoreticaldiary/bin/theoreticaldiary -dio.github.someretical.theoreticaldiary.desktop -iimages/icons/hicolor/256x256/apps/theoreticaldiary.png --appdir AppDir --plugin qt --output appimage
+          ./linuxdeploy-x86_64.AppImage -eAppDir/opt/theoreticaldiary/bin/theoreticaldiary -dio.github.someretical.theoreticaldiary.desktop -iimages/linux_icons/hicolor/256x256/apps/theoreticaldiary.png --appdir AppDir --plugin qt --output appimage
 
       - name: Upload to Github
         uses: actions/upload-artifact@v2

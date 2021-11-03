@@ -35,87 +35,51 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    aboutwindow.cpp \
-    autherrorwindow.cpp \
-    changepanealert.cpp \
-    confirmdelete.cpp \
-    confirmoverwrite.cpp \
-    diaryentrylist.cpp \
-    diaryholder.cpp \
-    diarywindow.cpp \
-    encryptor.cpp \
-    flushwindow.cpp \
-    googlewrapper.cpp \
-    main.cpp \
-    mainwindow.cpp \
-    missingpermissions.cpp \
-    nodiaryfound.cpp \
-    placeholder.cpp \
-    promptauth.cpp \
-    promptpassword.cpp \
-    runguard.cpp \
-    saveerror.cpp \
-    theoreticalcalendar.cpp \
-    theoreticaldiary.cpp \
-    unknowndiaryformat.cpp \
-    unsavedchanges.cpp \
-    updatepassword.cpp \
-    zipper.cpp
+    src/gui/aboutdialog.cpp \
+    src/core/diaryholder.cpp \
+    src/core/googlewrapper.cpp \
+    src/core/theoreticaldiary.cpp \
+    src/gui/diaryeditor.cpp \
+    src/gui/diarymenu.cpp \
+    src/gui/mainmenu.cpp \
+    src/gui/mainwindow.cpp \
+    src/gui/promptpassword.cpp \
+    src/gui/updatepassword.cpp \
+    src/main.cpp \
+    src/util/encryptor.cpp \
+    src/util/runguard.cpp \
+    src/util/zipper.cpp
 
 HEADERS += \
-    aboutwindow.h \
-    autherrorwindow.h \
-    changepanealert.h \
-    confirmdelete.h \
-    confirmoverwrite.h \
-    diaryentrylist.h \
-    diaryholder.h \
-    diarywindow.h \
-    encryptor.h \
-    flushwindow.h \
-    googlewrapper.h \
-    mainwindow.h \
-    missingpermissions.h \
-    nodiaryfound.h \
-    placeholder.h \
-    promptauth.h \
-    promptpassword.h \
-    runguard.h \
-    saveerror.h \
-    theoreticalcalendar.h \
-    theoreticaldiary.h \
-    unknowndiaryformat.h \
-    unsavedchanges.h \
-    updatepassword.h \
-    zipper.h
+    src/gui/aboutdialog.h \
+    src/core/diaryholder.h \
+    src/core/googlewrapper.h \
+    src/core/theoreticaldiary.h \
+    src/gui/diaryeditor.h \
+    src/gui/diarymenu.h \
+    src/gui/mainmenu.h \
+    src/gui/mainwindow.h \
+    src/gui/promptpassword.h \
+    src/gui/updatepassword.h \
+    src/util/encryptor.h \
+    src/util/runguard.h \
+    src/util/zipper.h
 
 FORMS += \
-    aboutwindow.ui \
-    autherrorwindow.ui \
-    changepanealert.ui \
-    confirmdelete.ui \
-    confirmoverwrite.ui \
-    diaryentrylist.ui \
-    diarywindow.ui \
-    flushwindow.ui \
-    mainwindow.ui \
-    missingpermissions.ui \
-    nodiaryfound.ui \
-    placeholder.ui \
-    promptauth.ui \
-    promptpassword.ui \
-    saveerror.ui \
-    theoreticalcalendar.ui \
-    unknowndiaryformat.ui \
-    unsavedchanges.ui \
-    updatepassword.ui
+    src/gui/aboutdialog.ui \
+    src/gui/diaryeditor.ui \
+    src/gui/diarymenu.ui \
+    src/gui/mainmenu.ui \
+    src/gui/mainwindow.ui \
+    src/gui/promptpassword.ui \
+    src/gui/updatepassword.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-win32:RC_ICONS = images/icon.ico
+win32:RC_ICONS = images/windows_icons/icon.ico
 win32:VERSION = 1.0.0.0
 win32:QMAKE_TARGET_COMPANY = someretical
 win32:QMAKE_TARGET_PRODUCT = "Theoretical Diary"
@@ -129,15 +93,4 @@ RESOURCES += \
     text/text.qrc
 
 DISTFILES += \
-    LICENSE \
-    README.md \
-    text/CONTRIBUTORS.txt \
-    text/LICENSES.txt \
-    text/VERSION.txt \
-
-OTHER_FILES += \
-    .clang-format \
-    .github/workflows/linux.yml \
-    .github/workflows/windows.yml \
-    .gitignore \
-    .gitmodules
+    styles/dark/unsavedchanges.qss

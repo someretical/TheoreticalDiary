@@ -1,0 +1,11 @@
+CalendarButton {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(:/themes/global/star_white.svg);
+}
+
+CalendarButton:pressed {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(:/themes/global/star_white.svg);
+}
