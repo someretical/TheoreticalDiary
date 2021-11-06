@@ -15,40 +15,27 @@
  * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYMENU_H
-#define DIARYMENU_H
+#ifndef DIARYENTRYVIEWER_H
+#define DIARYENTRYVIEWER_H
 
-#include <QDate>
-#include <QShortcut>
 #include <QWidget>
 
 namespace Ui {
-class DiaryMenu;
+class DiaryEntryViewer;
 }
 
-class DiaryMenu : public QWidget {
+class DiaryEntryViewer : public QWidget {
   Q_OBJECT
 
 public:
-  explicit DiaryMenu(const QDate &date, QWidget *parent = nullptr);
-  ~DiaryMenu();
-
-  static QString get_day_suffix(const int &day);
-
-  QDate *first_created;
+  explicit DiaryEntryViewer(QWidget *parent = nullptr);
+  ~DiaryEntryViewer();
 
 public slots:
   void apply_theme();
-  void close_window();
-  void change_password();
-  void export_diary();
-  void toggle_sync();
-  void save_diary();
-  void tab_changed(const int &tab);
 
 private:
-  Ui::DiaryMenu *ui;
-  QShortcut *save_shortcut;
+  Ui::DiaryEntryViewer *ui;
 };
 
-#endif // DIARYMENU_H
+#endif // DIARYENTRYVIEWER_H

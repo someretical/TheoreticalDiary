@@ -71,7 +71,7 @@ PromptPassword::~PromptPassword() {
 }
 
 void PromptPassword::apply_theme() {
-  QFile file(":/global/alerttext.qss");
+  QFile file(":/global/passwords.qss");
   file.open(QIODevice::ReadOnly);
   setStyleSheet(file.readAll());
   file.close();

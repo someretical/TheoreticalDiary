@@ -18,8 +18,10 @@
 #ifndef DIARYHOLDER_H
 #define DIARYHOLDER_H
 
+#include <QDate>
 #include <cryptlib.h>
 #include <json.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -103,6 +105,12 @@ public:
   ~DiaryHolder();
   bool load(std::string &raw);
   void init();
+
+  std::optional<td::DiaryLog::iterator> get_yearmap(const QDate &date);
+  std::optional<td::YearMap::iterator> get_monthmap(const QDate &date);
+  std::optional<td::MonthMap::iterator> get_entry(const QDate &date);
+  void create_entry(const QDate &date, const td::Entry &entry);
+  void delete_entry(const QDate &date);
 
   td::Diary *diary;
 };

@@ -18,6 +18,9 @@
 #include "diarymenu.h"
 #include "../core/theoreticaldiary.h"
 #include "diaryeditor.h"
+#include "diaryentryviewer.h"
+#include "diarypixels.h"
+#include "diarystats.h"
 #include "mainwindow.h"
 #include "ui_diarymenu.h"
 
@@ -44,6 +47,9 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
   first_created = new QDate(date);
 
   ui->editor->layout()->addWidget(new DiaryEditor(this));
+  ui->entries->layout()->addWidget(new DiaryEntryViewer(this));
+  ui->statistics->layout()->addWidget(new DiaryStats(this));
+  ui->pixels->layout()->addWidget(new DiaryPixels(this));
 
   connect(ui->close_button, &QPushButton::clicked, this,
           &DiaryMenu::close_window);
@@ -53,6 +59,8 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
           &DiaryMenu::export_diary);
   connect(ui->sync_button, &QPushButton::clicked, this,
           &DiaryMenu::toggle_sync);
+  connect(ui->tabWidget, &QTabWidget::currentChanged, this,
+          &DiaryMenu::tab_changed);
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
           &DiaryMenu::apply_theme);
@@ -66,10 +74,45 @@ DiaryMenu::~DiaryMenu() {
 }
 
 void DiaryMenu::apply_theme() {
-  QFile file(":/" + TheoreticalDiary::instance()->theme() + "/diarymenu.qss");
+  QFile file(
+      QString(":/%1/diarymenu.qss").arg(TheoreticalDiary::instance()->theme()));
   file.open(QIODevice::ReadOnly);
   setStyleSheet(file.readAll());
   file.close();
+}
+
+void DiaryMenu::tab_changed(const int &tab) {
+  switch (ui->tabWidget->currentIndex()) {
+  // Editor tab
+  case 0:
+    break;
+  // List tab
+  case 1:
+    break;
+  // Stats tab
+  case 2:
+    break;
+  // Pixels tab
+  case 3:
+    break;
+  }
+}
+
+QString DiaryMenu::get_day_suffix(const int &day) {
+  switch (day) {
+  case 1:
+  case 21:
+  case 31:
+    return "st";
+  case 2:
+  case 22:
+    return "nd";
+  case 3:
+  case 23:
+    return "rd";
+  default:
+    return "th";
+  }
 }
 
 void DiaryMenu::close_window() {

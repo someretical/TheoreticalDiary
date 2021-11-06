@@ -38,8 +38,8 @@ MainWindow::MainWindow(QWidget *parent)
 
   previously_diary = false;
 
-  QFile file(":/" + TheoreticalDiary::instance()->theme() +
-             "/dangerbutton.qss");
+  QFile file(QString(":/%1/dangerbutton.qss")
+                 .arg(TheoreticalDiary::instance()->theme()));
   file.open(QIODevice::ReadOnly);
   danger_button_style = new QString(file.readAll());
   file.close();
@@ -57,8 +57,8 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::apply_theme() {
-  QFile file(":/" + TheoreticalDiary::instance()->theme() +
-             "/material_cyan_dark.qss");
+  QFile file(QString(":/%1/material_cyan_dark.qss")
+                 .arg(TheoreticalDiary::instance()->theme()));
   file.open(QIODevice::ReadOnly);
   setStyleSheet(file.readAll());
   file.close();

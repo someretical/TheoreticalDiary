@@ -113,6 +113,9 @@
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
+          <property name="toolTip">
+           <string>Download the diary from Google Drive.</string>
+          </property>
           <property name="text">
            <string>Download</string>
           </property>
@@ -122,6 +125,9 @@
          <widget class="QPushButton" name="quit_button">
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="toolTip">
+           <string>Exit the application.</string>
           </property>
           <property name="text">
            <string>Quit</string>
@@ -133,6 +139,9 @@
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
+          <property name="toolTip">
+           <string>Import an unencrypted diary.</string>
+          </property>
           <property name="text">
            <string>Import</string>
           </property>
@@ -142,6 +151,9 @@
          <widget class="QPushButton" name="dump_button">
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="toolTip">
+           <string>Download all app files from Google Drive.</string>
           </property>
           <property name="text">
            <string>Dump</string>
@@ -153,6 +165,9 @@
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
+          <property name="toolTip">
+           <string>About Theoretical Diary.</string>
+          </property>
           <property name="text">
            <string>About</string>
           </property>
@@ -162,6 +177,9 @@
          <widget class="QPushButton" name="flush_button">
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="toolTip">
+           <string>Delete the Google OAuth2 credentials.</string>
           </property>
           <property name="text">
            <string>Flush</string>
@@ -173,6 +191,9 @@
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
+          <property name="toolTip">
+           <string>Create a new diary.</string>
+          </property>
           <property name="text">
            <string>New</string>
           </property>
@@ -182,6 +203,9 @@
          <widget class="QPushButton" name="open_button">
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="toolTip">
+           <string>Open the local diary.</string>
           </property>
           <property name="text">
            <string>Open</string>

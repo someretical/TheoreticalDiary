@@ -15,38 +15,19 @@
  * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "aboutdialog.h"
+#include "diarypixels.h"
 #include "../core/theoreticaldiary.h"
-#include "ui_aboutdialog.h"
+#include "ui_diarypixels.h"
 
-AboutDialog::AboutDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::AboutDialog) {
+DiaryPixels::DiaryPixels(QWidget *parent)
+    : QWidget(parent), ui(new Ui::DiaryPixels) {
   ui->setupUi(this);
-  ui->version->setText(QApplication::applicationVersion());
-
-  QFile file(":/CONTRIBUTORS.txt");
-  file.open(QIODevice::ReadOnly);
-  ui->contributors->setPlainText(file.readAll());
-  file.close();
-
-  file.setFileName(":/LICENSES.txt");
-  file.open(QIODevice::ReadOnly);
-  ui->licenses->setPlainText(file.readAll());
-  file.close();
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &AboutDialog::apply_theme);
+          &DiaryPixels::apply_theme);
   apply_theme();
-
-  connect(ui->ok_button, &QPushButton::clicked, this, &QDialog::accept);
 }
 
-AboutDialog::~AboutDialog() { delete ui; }
+DiaryPixels::~DiaryPixels() { delete ui; }
 
-void AboutDialog::apply_theme() {
-  QFile file(QString(":/%1/aboutdialog.qss")
-                 .arg(TheoreticalDiary::instance()->theme()));
-  file.open(QIODevice::ReadOnly);
-  setStyleSheet(file.readAll());
-  file.close();
-}
+void DiaryPixels::apply_theme() {}

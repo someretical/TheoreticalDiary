@@ -4,7 +4,8 @@ CalendarButton {
   text-transform: uppercase;
   margin: 0px;
   font-weight: bold;
-  height: 41px;
+  height: 58px;
+  width: 58px;
   text-align: top right;
   padding: 5px 5px;
 }
@@ -15,7 +16,8 @@ CalendarButton:pressed {
   text-transform: uppercase;
   margin: 0px;
   font-weight: bold;
-  height: 41px;
+  height: 58px;
+  width: 58px;
   text-align: top right;
-  padding: 5px 5px;  
+  padding: 5px 5px;
 }

@@ -56,7 +56,7 @@ UpdatePassword::~UpdatePassword() {
 }
 
 void UpdatePassword::apply_theme() {
-  QFile file(":/global/alerttext.qss");
+  QFile file(":/global/passwords.qss");
   file.open(QIODevice::ReadOnly);
   setStyleSheet(file.readAll());
   file.close();
@@ -87,9 +87,6 @@ void UpdatePassword::attempt_change() {
   auto password = ui->password->text();
   if (password != ui->password2->text())
     return ui->alert_text->setText("The passwords do not match.");
-
-  if (257 < password.length())
-    return ui->alert_text->setText("Passwords must be under 257 characters.");
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 

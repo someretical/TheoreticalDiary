@@ -15,40 +15,42 @@
  * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYMENU_H
-#define DIARYMENU_H
+#ifndef CALENDARBUTTON_H
+#define CALENDARBUTTON_H
 
-#include <QDate>
-#include <QShortcut>
-#include <QWidget>
+class DiaryEditor;
 
-namespace Ui {
-class DiaryMenu;
-}
+#include "../core/diaryholder.h"
+#include "diaryeditor.h"
 
-class DiaryMenu : public QWidget {
+#include <QPushButton>
+#include <optional>
+
+namespace td {
+struct CalendarButtonData {
+  std::optional<int> day;
+  std::optional<DiaryEditor *> parent;
+  std::optional<bool> important;
+  std::optional<td::Rating> rating;
+  std::optional<bool> selected;
+};
+} // namespace td
+
+class CalendarButton : public QPushButton {
   Q_OBJECT
 
+signals:
+  void sig_clicked(const int day);
+
 public:
-  explicit DiaryMenu(const QDate &date, QWidget *parent = nullptr);
-  ~DiaryMenu();
+  explicit CalendarButton(const td::CalendarButtonData &d);
+  ~CalendarButton();
 
-  static QString get_day_suffix(const int &day);
-
-  QDate *first_created;
+  td::CalendarButtonData data;
 
 public slots:
-  void apply_theme();
-  void close_window();
-  void change_password();
-  void export_diary();
-  void toggle_sync();
-  void save_diary();
-  void tab_changed(const int &tab);
-
-private:
-  Ui::DiaryMenu *ui;
-  QShortcut *save_shortcut;
+  void clicked_on();
+  void re_render(const td::CalendarButtonData &d);
 };
 
-#endif // DIARYMENU_H
+#endif // CALENDARBUTTON_H

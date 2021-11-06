@@ -58,6 +58,9 @@
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
+       <property name="toolTip">
+        <string>Export diary in unencrypted format.</string>
+       </property>
        <property name="text">
         <string>Export</string>
        </property>
@@ -67,6 +70,9 @@
       <widget class="QPushButton" name="sync_button">
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Toggle Google Drive synchronisation.</string>
        </property>
        <property name="text">
         <string>Sync</string>
@@ -81,6 +87,9 @@
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
+       <property name="toolTip">
+        <string>Close the diary.</string>
+       </property>
        <property name="text">
         <string>Close</string>
        </property>
@@ -90,6 +99,9 @@
       <widget class="QPushButton" name="pwd_button">
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Change the password for unlocking the diary.</string>
        </property>
        <property name="text">
         <string>Change password</string>

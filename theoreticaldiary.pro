@@ -39,8 +39,12 @@ SOURCES += \
     src/core/diaryholder.cpp \
     src/core/googlewrapper.cpp \
     src/core/theoreticaldiary.cpp \
+    src/gui/calendarbutton.cpp \
     src/gui/diaryeditor.cpp \
+    src/gui/diaryentryviewer.cpp \
     src/gui/diarymenu.cpp \
+    src/gui/diarypixels.cpp \
+    src/gui/diarystats.cpp \
     src/gui/mainmenu.cpp \
     src/gui/mainwindow.cpp \
     src/gui/promptpassword.cpp \
@@ -55,8 +59,12 @@ HEADERS += \
     src/core/diaryholder.h \
     src/core/googlewrapper.h \
     src/core/theoreticaldiary.h \
+    src/gui/calendarbutton.h \
     src/gui/diaryeditor.h \
+    src/gui/diaryentryviewer.h \
     src/gui/diarymenu.h \
+    src/gui/diarypixels.h \
+    src/gui/diarystats.h \
     src/gui/mainmenu.h \
     src/gui/mainwindow.h \
     src/gui/promptpassword.h \
@@ -68,7 +76,10 @@ HEADERS += \
 FORMS += \
     src/gui/aboutdialog.ui \
     src/gui/diaryeditor.ui \
+    src/gui/diaryentryviewer.ui \
     src/gui/diarymenu.ui \
+    src/gui/diarypixels.ui \
+    src/gui/diarystats.ui \
     src/gui/mainmenu.ui \
     src/gui/mainwindow.ui \
     src/gui/promptpassword.ui \
@@ -93,4 +104,5 @@ RESOURCES += \
     text/text.qrc
 
 DISTFILES += \
+    styles/dark/diaryeditor.qss \
     styles/dark/unsavedchanges.qss

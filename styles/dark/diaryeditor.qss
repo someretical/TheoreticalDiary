@@ -1,10 +1,4 @@
-QFrame#editor_frame {
-  background-color: #232629;
-  border-radius: 4px;
-  padding: 15px;
-}
-
-QPlainTextEdit#text_entry {
+QPlainTextEdit#entry_edit {
   background-color: #232629;
   border: 2px solid #4dd0e1;
   border-radius: 4px;
@@ -12,6 +6,10 @@ QPlainTextEdit#text_entry {
   height: 18px;
 }
 
-QLabel#status_text {
+QLabel#alert_text {
   color: #FF0000;
+}
+
+QPushButton#next_month, QPushButton#prev_month {
+  text-align: center;
 }

@@ -34,7 +34,7 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
   oauth_modified = false;
   application_theme = new QString("dark");
 
-  // Load fonts
+  // Load serif font
   QFontDatabase::addApplicationFont(":/Roboto/Roboto-Black.ttf");
   QFontDatabase::addApplicationFont(":/Roboto/Roboto-BlackItalic.ttf");
   QFontDatabase::addApplicationFont(":/Roboto/Roboto-Bold.ttf");
@@ -54,6 +54,24 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
   QFontDatabase::addApplicationFont(
       ":/Roboto/Roboto-Condensed-LightItalic.ttf");
   QFontDatabase::addApplicationFont(":/Roboto/Roboto-Condensed-Regular.ttf");
+
+  // Load monospace font
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Thin.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-ExtraLight.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Light.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Regular.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Medium.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-SemiBold.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Bold.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-ThinItalic.ttf");
+  QFontDatabase::addApplicationFont(
+      ":/RobotoMono/RobotoMono-ExtraLightItalic.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-LightItalic.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Italic.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-MediumItalic.ttf");
+  QFontDatabase::addApplicationFont(
+      ":/RobotoMono/RobotoMono-SemiBoldItalic.ttf");
+  QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-BoldItalic.ttf");
 
   QFile file(":/VERSION.txt");
   file.open(QIODevice::ReadOnly);
@@ -90,8 +108,9 @@ TheoreticalDiary *TheoreticalDiary::instance() {
 }
 
 QString TheoreticalDiary::data_location() {
-  return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
-         "/" + applicationName();
+  return QString("%1/%2").arg(
+      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+      applicationName());
 }
 
 QString TheoreticalDiary::theme() { return *application_theme; }

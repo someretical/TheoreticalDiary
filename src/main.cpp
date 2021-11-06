@@ -38,6 +38,9 @@ int main(int argc, char **argv) {
   // Remove ? button in the title bar (only on Windows)
   QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
+  // Remove icons from context menus
+  QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+
   // This is required so std::string can be passed via signals and slots.
   qRegisterMetaType<std::string>();
 

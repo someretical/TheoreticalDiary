@@ -36,6 +36,7 @@ MainMenu::MainMenu(QWidget *parent) : QWidget(parent), ui(new Ui::MainMenu) {
   ui->version->setText("Version " + QApplication::applicationVersion());
 
   QTimer::singleShot(0, [&]() {
+    QApplication::restoreOverrideCursor();
     qobject_cast<MainWindow *>(parentWidget()->parentWidget())
         ->resize(800, 600);
   });
