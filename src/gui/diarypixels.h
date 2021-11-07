@@ -20,7 +20,9 @@
 
 #include "diaryeditor.h"
 
+#include <QLabel>
 #include <QWidget>
+#include <vector>
 
 namespace Ui {
 class DiaryPixels;
@@ -33,11 +35,23 @@ public:
   explicit DiaryPixels(const DiaryEditor *editor, QWidget *parent = nullptr);
   ~DiaryPixels();
 
+  QDate *current_year;
+  std::vector<QString> *rating_stylesheets;
+
 public slots:
   void apply_theme();
+  void render_grid();
 
 private:
   Ui::DiaryPixels *ui;
+};
+
+class PixelLabel : public QLabel {
+  Q_OBJECT
+
+public:
+  explicit PixelLabel(const td::Rating &r, QWidget *parent = nullptr);
+  ~PixelLabel();
 };
 
 #endif // DIARYPIXELS_H

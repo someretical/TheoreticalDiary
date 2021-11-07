@@ -1,0 +1,5 @@
+PixelLabel {
+  background-color: rgba(25, 118, 210, 1);
+  border: none;
+  border-radius: 2px;
+}

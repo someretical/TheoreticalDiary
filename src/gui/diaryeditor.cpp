@@ -21,9 +21,9 @@
 #include "mainwindow.h"
 #include "ui_diaryeditor.h"
 
+#include <QDateTime>
 #include <QFile>
 #include <QMessageBox>
-#include <ctime>
 
 DiaryEditor::DiaryEditor(QWidget *parent)
     : QWidget(parent), ui(new Ui::DiaryEditor) {
@@ -436,7 +436,8 @@ void DiaryEditor::update_day() {
             ui->month_dropdown->currentIndex() + 1, last_selected_day);
   td::Entry e{ui->special_box->isChecked(),
               static_cast<td::Rating>(ui->rating_dropdown->currentIndex()),
-              ui->entry_edit->toPlainText().toStdString(), std::time(nullptr)};
+              ui->entry_edit->toPlainText().toStdString(),
+              QDateTime::currentSecsSinceEpoch()};
   TheoreticalDiary::instance()->diary_holder->create_entry(current_date, e);
   TheoreticalDiary::instance()->diary_changed();
   current_date_changed = false;

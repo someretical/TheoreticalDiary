@@ -24,5 +24,12 @@
         <file>dark/dangerbutton.qss</file>
         <file>global/passwords.qss</file>
         <file>dark/diaryentryviewer.qss</file>
+        <file>dark/pixels/0.qss</file>
+        <file>dark/pixels/1.qss</file>
+        <file>dark/pixels/2.qss</file>
+        <file>dark/pixels/3.qss</file>
+        <file>dark/pixels/4.qss</file>
+        <file>dark/pixels/5.qss</file>
+        <file>dark/diarypixels.qss</file>
     </qresource>
 </RCC>
