@@ -46,10 +46,13 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
 
   first_created = new QDate(date);
 
-  ui->editor->layout()->addWidget(new DiaryEditor(this));
-  ui->entries->layout()->addWidget(new DiaryEntryViewer(this));
-  ui->statistics->layout()->addWidget(new DiaryStats(this));
-  ui->pixels->layout()->addWidget(new DiaryPixels(this));
+  // When changes are made in the editor, the other tabs need to know about it
+  // so they can update accordingly.
+  auto diary_editor = new DiaryEditor(this);
+  ui->editor->layout()->addWidget(diary_editor);
+  ui->entries->layout()->addWidget(new DiaryEntryViewer(diary_editor, this));
+  ui->statistics->layout()->addWidget(new DiaryStats(diary_editor, this));
+  ui->pixels->layout()->addWidget(new DiaryPixels(diary_editor, this));
 
   connect(ui->close_button, &QPushButton::clicked, this,
           &DiaryMenu::close_window);

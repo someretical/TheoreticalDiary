@@ -102,7 +102,3 @@ RESOURCES += \
     images/images.qrc \
     styles/styles.qrc \
     text/text.qrc
-
-DISTFILES += \
-    styles/dark/diaryeditor.qss \
-    styles/dark/unsavedchanges.qss

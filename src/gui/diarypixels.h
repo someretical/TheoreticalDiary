@@ -18,6 +18,8 @@
 #ifndef DIARYPIXELS_H
 #define DIARYPIXELS_H
 
+#include "diaryeditor.h"
+
 #include <QWidget>
 
 namespace Ui {
@@ -28,7 +30,7 @@ class DiaryPixels : public QWidget {
   Q_OBJECT
 
 public:
-  explicit DiaryPixels(QWidget *parent = nullptr);
+  explicit DiaryPixels(const DiaryEditor *editor, QWidget *parent = nullptr);
   ~DiaryPixels();
 
 public slots:

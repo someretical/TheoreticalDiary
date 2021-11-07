@@ -19,9 +19,12 @@
 #include "../core/theoreticaldiary.h"
 #include "ui_diarystats.h"
 
-DiaryStats::DiaryStats(QWidget *parent)
+DiaryStats::DiaryStats(const DiaryEditor *editor, QWidget *parent)
     : QWidget(parent), ui(new Ui::DiaryStats) {
   ui->setupUi(this);
+
+  //  connect(editor, &DiaryEditor::sig_re_render, this,
+  //          &DiaryStats::);
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
           &DiaryStats::apply_theme);

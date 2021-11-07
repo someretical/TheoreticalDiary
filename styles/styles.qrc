@@ -1,12 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>dark/diary_entry_list/bad.qss</file>
+        <file>dark/diary_entry_list/2.qss</file>
         <file>dark/diary_entry_list/base.qss</file>
-        <file>dark/diary_entry_list/good.qss</file>
-        <file>dark/diary_entry_list/ok.qss</file>
-        <file>dark/diary_entry_list/starred.qss</file>
-        <file>dark/diary_entry_list/very_bad.qss</file>
-        <file>dark/diary_entry_list/very_good.qss</file>
+        <file>dark/diary_entry_list/4.qss</file>
+        <file>dark/diary_entry_list/3.qss</file>
+        <file>dark/diary_entry_list/1.qss</file>
+        <file>dark/diary_entry_list/5.qss</file>
         <file>dark/theoretical_calendar/2.qss</file>
         <file>dark/theoretical_calendar/base.qss</file>
         <file>dark/theoretical_calendar/4.qss</file>
@@ -16,7 +15,6 @@
         <file>dark/theoretical_calendar/1.qss</file>
         <file>dark/theoretical_calendar/5.qss</file>
         <file>dark/diaryeditor.qss</file>
-        <file>dark/diaryentrylist.qss</file>
         <file>dark/diarymenu.qss</file>
         <file>dark/mainmenu.qss</file>
         <file>dark/material_cyan_dark.qss</file>
@@ -25,5 +23,6 @@
         <file>dark/aboutdialog.qss</file>
         <file>dark/dangerbutton.qss</file>
         <file>global/passwords.qss</file>
+        <file>dark/diaryentryviewer.qss</file>
     </qresource>
 </RCC>

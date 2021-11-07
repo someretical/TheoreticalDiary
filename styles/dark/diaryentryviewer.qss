@@ -1,0 +1,6 @@
+QScrollArea#scrollArea {
+  background-color: #31363b;
+  border: 1px solid #232629;
+  border-radius: 4px;
+  padding: 8px;
+}

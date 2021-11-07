@@ -397,9 +397,10 @@ void DiaryEditor::update_info_pane(const QDate &date, const td::Entry &entry) {
   ui->alert_text->setText("");
   ui->alert_text->update();
 
-  ui->date_label->setText(QString("%1%2 %3").arg(
-      QString::number(date.day()), DiaryMenu::get_day_suffix(date.day()),
-      date.toString("MMMM yyyy")));
+  ui->date_label->setText(
+      QString("%1 %2%3 %4")
+          .arg(date.toString("dddd"), QString::number(date.day()),
+               DiaryMenu::get_day_suffix(date.day()), date.toString("MMMM")));
   ui->date_label->update();
 
   ui->rating_dropdown->blockSignals(true);
@@ -438,6 +439,7 @@ void DiaryEditor::update_day() {
               ui->entry_edit->toPlainText().toStdString(), std::time(nullptr)};
   TheoreticalDiary::instance()->diary_holder->create_entry(current_date, e);
   TheoreticalDiary::instance()->diary_changed();
+  current_date_changed = false;
 
   td::CalendarButtonData d{
       std::make_optional<int>(last_selected_day), std::nullopt,
@@ -446,6 +448,8 @@ void DiaryEditor::update_day() {
           static_cast<td::Rating>(ui->rating_dropdown->currentIndex())),
       std::nullopt};
   render_day(d, false);
+
+  emit sig_re_render(current_date);
 }
 
 void DiaryEditor::delete_day() {
@@ -477,8 +481,11 @@ void DiaryEditor::delete_day() {
             ui->month_dropdown->currentIndex() + 1, last_selected_day);
   TheoreticalDiary::instance()->diary_holder->delete_entry(current_date);
   TheoreticalDiary::instance()->diary_changed();
+  current_date_changed = false;
 
   update_info_pane(current_date, td::Entry{false, td::Rating::Unknown, "", 0});
+
+  emit sig_re_render(current_date);
 }
 
 void DiaryEditor::reset_day() {

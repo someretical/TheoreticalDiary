@@ -9,3 +9,9 @@ CalendarButton:pressed {
   background-repeat: no-repeat;
   background-image: url(:/themes/global/star_black.svg);
 }
+
+DiaryEntryDayLabel {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(:/themes/global/star_white.svg);
+}

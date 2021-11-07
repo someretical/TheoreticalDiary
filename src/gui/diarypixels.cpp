@@ -19,9 +19,12 @@
 #include "../core/theoreticaldiary.h"
 #include "ui_diarypixels.h"
 
-DiaryPixels::DiaryPixels(QWidget *parent)
+DiaryPixels::DiaryPixels(const DiaryEditor *editor, QWidget *parent)
     : QWidget(parent), ui(new Ui::DiaryPixels) {
   ui->setupUi(this);
+
+  //  connect(editor, &DiaryEditor::sig_re_render, this,
+  //          &DiaryPixels::);
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
           &DiaryPixels::apply_theme);

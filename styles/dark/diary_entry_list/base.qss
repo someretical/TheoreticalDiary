@@ -1,4 +1,12 @@
-QLabel {
+DiaryEntryDayLabel {
+  border: transparent;
+  border-radius: 25px;
+  background-color: #FF0000;
+}
+
+DiaryEntryDayMessage {
+  border: transparent;
   border-radius: 4px;
-  padding: 8px;
+  background-color: #232629;
+  padding: 15px;
 }
