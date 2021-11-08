@@ -43,7 +43,6 @@ public slots:
   void change_password();
   void export_diary();
   void toggle_sync();
-  void save_diary();
   void tab_changed(const int &tab);
 
 private:

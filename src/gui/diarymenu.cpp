@@ -39,11 +39,6 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
       TheoreticalDiary::instance()->local_settings->sync_enabled);
   ui->sync_button->update();
 
-  // Ctrl S to save the diary
-  save_shortcut = new QShortcut(QKeySequence::Save, this);
-  save_shortcut->setAutoRepeat(false);
-  connect(save_shortcut, &QShortcut::activated, this, &DiaryMenu::save_diary);
-
   first_created = new QDate(date);
 
   // When changes are made in the editor, the other tabs need to know about it
@@ -53,6 +48,12 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
   ui->entries->layout()->addWidget(new DiaryEntryViewer(diary_editor, this));
   ui->statistics->layout()->addWidget(new DiaryStats(diary_editor, this));
   ui->pixels->layout()->addWidget(new DiaryPixels(diary_editor, this));
+
+  // Ctrl S to save the diary
+  save_shortcut = new QShortcut(QKeySequence::Save, this);
+  save_shortcut->setAutoRepeat(false);
+  connect(save_shortcut, &QShortcut::activated, diary_editor,
+          &DiaryEditor::update_day);
 
   connect(ui->close_button, &QPushButton::clicked, this,
           &DiaryMenu::close_window);
@@ -85,7 +86,7 @@ void DiaryMenu::apply_theme() {
 }
 
 void DiaryMenu::tab_changed(const int &tab) {
-  switch (ui->tabWidget->currentIndex()) {
+  switch (tab) {
   // Editor tab
   case 0:
     break;
@@ -171,20 +172,4 @@ void DiaryMenu::toggle_sync() {
   TheoreticalDiary::instance()->local_settings->sync_enabled =
       ui->sync_button->isChecked();
   TheoreticalDiary::instance()->local_settings_changed();
-}
-
-void DiaryMenu::save_diary() {
-  if (!qobject_cast<MainWindow *>(parentWidget()->parentWidget())->save_diary())
-    return;
-
-  QMessageBox ok(this);
-  QPushButton ok_button("OK", &ok);
-  ok_button.setFlat(true);
-
-  ok.setText("Diary saved.");
-  ok.addButton(&ok_button, QMessageBox::AcceptRole);
-  ok.setDefaultButton(&ok_button);
-  ok.setTextInteractionFlags(Qt::NoTextInteraction);
-
-  ok.exec();
 }

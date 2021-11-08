@@ -28,7 +28,6 @@
 DiaryEditor::DiaryEditor(QWidget *parent)
     : QWidget(parent), ui(new Ui::DiaryEditor) {
   ui->setupUi(this);
-  ui->alert_text->setText("");
 
   // These will be filled when apply_theme is called.
   base_stylesheet = new QString("");
@@ -37,7 +36,6 @@ DiaryEditor::DiaryEditor(QWidget *parent)
   black_star = new QString("");
   rating_stylesheets = new std::vector<QString>();
 
-  current_date_changed = false;
   current_month_offset = 0;
   last_selected_day = 0;
 
@@ -64,18 +62,12 @@ DiaryEditor::DiaryEditor(QWidget *parent)
 
   // Trigger unsaved changes
   connect(ui->rating_dropdown,
-          QOverload<int>::of(&QComboBox::currentIndexChanged), [this]() {
-            TheoreticalDiary::instance()->diary_changed();
-            this->current_date_changed = true;
-          });
-  connect(ui->special_box, &QCheckBox::clicked, [this]() {
-    TheoreticalDiary::instance()->diary_changed();
-    this->current_date_changed = true;
-  });
-  connect(ui->entry_edit, &QPlainTextEdit::textChanged, [this]() {
-    TheoreticalDiary::instance()->diary_changed();
-    this->current_date_changed = true;
-  });
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
+          TheoreticalDiary::instance(), &TheoreticalDiary::diary_changed);
+  connect(ui->special_box, &QCheckBox::clicked, TheoreticalDiary::instance(),
+          &TheoreticalDiary::diary_changed);
+  connect(ui->entry_edit, &QPlainTextEdit::textChanged,
+          TheoreticalDiary::instance(), &TheoreticalDiary::diary_changed);
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
           &DiaryEditor::apply_theme);
@@ -230,18 +222,6 @@ void DiaryEditor::render_month(const QDate &date,
   }
 }
 
-bool DiaryEditor::validate_entry() {
-  if (td::Rating::Unknown ==
-      static_cast<td::Rating>(ui->rating_dropdown->currentIndex())) {
-    ui->alert_text->setText("No rating provided.");
-    ui->alert_text->update();
-
-    return false;
-  }
-
-  return true;
-}
-
 bool DiaryEditor::confirm_switch() {
   QMessageBox confirm(this);
 
@@ -272,11 +252,6 @@ bool DiaryEditor::confirm_switch() {
 
   switch (confirm.exec()) {
   case QMessageBox::AcceptRole:
-    // The double check here is negligible.
-    // AKA I am not bothered to construct a flow where it is only called once.
-    if (!validate_entry())
-      return false;
-
     update_day();
     break;
   case QMessageBox::RejectRole:
@@ -285,12 +260,12 @@ bool DiaryEditor::confirm_switch() {
     break;
   }
 
-  current_date_changed = false;
+  TheoreticalDiary::instance()->diary_modified = false;
   return true;
 }
 
 void DiaryEditor::change_month(const QDate &date) {
-  if (current_date_changed && !confirm_switch())
+  if (TheoreticalDiary::instance()->diary_modified && !confirm_switch())
     return;
 
   // Remove everything from current grid
@@ -376,7 +351,7 @@ void DiaryEditor::date_clicked(const int day) {
   if (day == last_selected_day)
     return;
 
-  if (current_date_changed && !confirm_switch())
+  if (TheoreticalDiary::instance()->diary_modified && !confirm_switch())
     return;
 
   td::CalendarButtonData old{std::make_optional<int>(last_selected_day),
@@ -394,9 +369,6 @@ void DiaryEditor::date_clicked(const int day) {
 }
 
 void DiaryEditor::update_info_pane(const QDate &date, const td::Entry &entry) {
-  ui->alert_text->setText("");
-  ui->alert_text->update();
-
   ui->date_label->setText(
       QString("%1 %2%3 %4")
           .arg(date.toString("dddd"), QString::number(date.day()),
@@ -428,9 +400,7 @@ void DiaryEditor::update_info_pane(const QDate &date, const td::Entry &entry) {
 }
 
 void DiaryEditor::update_day() {
-  if (!validate_entry())
-    return;
-
+  // Add the entry to the in memory map.
   auto current_date =
       QDate(ui->year_edit->date().year(),
             ui->month_dropdown->currentIndex() + 1, last_selected_day);
@@ -439,8 +409,28 @@ void DiaryEditor::update_day() {
               ui->entry_edit->toPlainText().toStdString(),
               QDateTime::currentSecsSinceEpoch()};
   TheoreticalDiary::instance()->diary_holder->create_entry(current_date, e);
-  TheoreticalDiary::instance()->diary_changed();
-  current_date_changed = false;
+
+  // Actually try and save the diary.
+  auto res = qobject_cast<MainWindow *>(parentWidget()
+                                            ->parentWidget()
+                                            ->parentWidget()
+                                            ->parentWidget()
+                                            ->parentWidget()
+                                            ->parentWidget())
+                 ->save_diary();
+  if (!res)
+    return; // The save error window will be shown by the function.
+
+  QMessageBox ok(this);
+  QPushButton ok_button("OK", &ok);
+  ok_button.setFlat(true);
+
+  ok.setText("Diary saved.");
+  ok.addButton(&ok_button, QMessageBox::AcceptRole);
+  ok.setDefaultButton(&ok_button);
+  ok.setTextInteractionFlags(Qt::NoTextInteraction);
+
+  ok.exec();
 
   td::CalendarButtonData d{
       std::make_optional<int>(last_selected_day), std::nullopt,
@@ -448,8 +438,18 @@ void DiaryEditor::update_day() {
       std::make_optional<td::Rating>(
           static_cast<td::Rating>(ui->rating_dropdown->currentIndex())),
       std::nullopt};
+  // This updates the day button in the calendar widget.
   render_day(d, false);
 
+  // The last edited field is the only one that needs updating in this instance.
+  QDateTime last_edited;
+  last_edited.setTime_t(e.last_updated);
+  // Thanks stackoverflow ;)
+  ui->last_edited->setText("Last edited " +
+                           last_edited.toString("dd MMM ''yy 'at' h:mm ap"));
+  ui->last_edited->update();
+
+  // This updates the information in the other tabs.
   emit sig_re_render(current_date);
 }
 
@@ -477,12 +477,22 @@ void DiaryEditor::delete_day() {
   if (confirm.exec() != QMessageBox::AcceptRole)
     return;
 
+  // Remove the entry from the in memory map
   auto current_date =
       QDate(ui->year_edit->date().year(),
             ui->month_dropdown->currentIndex() + 1, last_selected_day);
   TheoreticalDiary::instance()->diary_holder->delete_entry(current_date);
-  TheoreticalDiary::instance()->diary_changed();
-  current_date_changed = false;
+
+  // Actually try and save the diary.
+  auto res = qobject_cast<MainWindow *>(parentWidget()
+                                            ->parentWidget()
+                                            ->parentWidget()
+                                            ->parentWidget()
+                                            ->parentWidget()
+                                            ->parentWidget())
+                 ->save_diary();
+  if (!res)
+    return; // The save error window will be shown by the function.
 
   update_info_pane(current_date, td::Entry{false, td::Rating::Unknown, "", 0});
 

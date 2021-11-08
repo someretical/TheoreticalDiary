@@ -17,7 +17,6 @@
 
 #include "encryptor.h"
 
-#include <QDebug>
 #include <aes.h>
 #include <files.h>
 #include <filters.h>

@@ -45,8 +45,10 @@ int main(int argc, char **argv) {
   qRegisterMetaType<std::string>();
 
   TheoreticalDiary app(argc, argv);
-
   MainWindow window;
+
+  QObject::connect(&app, &TheoreticalDiary::applicationStateChanged, &window,
+                   &MainWindow::focus_changed);
   window.show();
 
   return app.exec();

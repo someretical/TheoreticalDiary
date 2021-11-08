@@ -40,6 +40,8 @@ DiaryPixels::DiaryPixels(const DiaryEditor *editor, QWidget *parent)
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
           &DiaryPixels::apply_theme);
   apply_theme();
+
+  render_grid();
 }
 
 DiaryPixels::~DiaryPixels() {

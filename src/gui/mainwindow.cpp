@@ -37,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent)
   setWindowTitle(QApplication::applicationName());
 
   previously_diary = false;
+  previous_state = Qt::ApplicationActive;
+  timer = new QTimer(this);
+  timer->setTimerType(Qt::CoarseTimer);
+  connect(timer, &QTimer::timeout, this, &MainWindow::inactive_time_up);
 
   QFile file(QString(":/%1/dangerbutton.qss")
                  .arg(TheoreticalDiary::instance()->theme()));
@@ -54,6 +58,50 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() {
   delete ui;
   delete danger_button_style;
+  delete timer;
+}
+
+void MainWindow::focus_changed(const Qt::ApplicationState state) {
+  if (Qt::ApplicationActive == state && previously_diary) {
+    timer->stop();
+  } else if (Qt::ApplicationInactive == state && previously_diary) {
+    timer->start(300000); // 5 mins = 300000 ms
+  }
+
+  previous_state = state;
+}
+
+void MainWindow::inactive_time_up() {
+  timer->stop();
+
+  if (!previously_diary)
+    return;
+
+  emit sig_update_diary();
+  save_diary(true); // Lock even if the save fails.
+
+  // Clean up
+  TheoreticalDiary::instance()->diary_modified = false;
+  TheoreticalDiary::instance()->diary_holder->init();
+  TheoreticalDiary::instance()->encryptor->reset();
+  previously_diary = false;
+  show_main_menu();
+  update();
+
+  QTimer::singleShot(0, [&]() {
+    QMessageBox rip(this);
+    QPushButton ok_button("OK", &rip);
+    ok_button.setFlat(true);
+
+    rip.setText("Diary locked.");
+    rip.setInformativeText(
+        "The diary has been locked due to inactivity. If possible, any "
+        "unsaved changes will have been saved.");
+    rip.addButton(&ok_button, QMessageBox::AcceptRole);
+    rip.setDefaultButton(&ok_button);
+    rip.setTextInteractionFlags(Qt::NoTextInteraction);
+    rip.exec();
+  });
 }
 
 void MainWindow::apply_theme() {
@@ -112,7 +160,7 @@ void MainWindow::save_error() {
   rip.exec();
 }
 
-bool MainWindow::save_diary() {
+bool MainWindow::save_diary(const bool &ignore_errors) {
   std::string primary_path =
       TheoreticalDiary::instance()->data_location().toStdString() +
       "/diary.dat";
@@ -156,7 +204,9 @@ bool MainWindow::save_diary() {
     TheoreticalDiary::instance()->diary_modified = false;
     return true;
   } else {
-    save_error();
+    if (!ignore_errors)
+      save_error();
+
     return false;
   }
 }
@@ -198,6 +248,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     // Clean up
     TheoreticalDiary::instance()->diary_modified = false;
+    TheoreticalDiary::instance()->diary_holder->init();
     TheoreticalDiary::instance()->encryptor->reset();
     previously_diary = false;
     return show_main_menu();

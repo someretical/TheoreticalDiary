@@ -61,8 +61,10 @@ void CalendarButton::re_render(const td::CalendarButtonData &d) {
       std::make_optional<bool>(d.important.value_or(*data.important));
   data.rating = std::make_optional<td::Rating>(d.rating.value_or(*data.rating));
 
-  if (*data.important && td::Rating::Unknown != *data.rating) {
+  if (*data.important) {
     switch (*data.rating) {
+    case td::Rating::Unknown:
+      // Fall through
     case td::Rating::VeryBad:
       // Fall through
     case td::Rating::Bad:

@@ -31,5 +31,6 @@
         <file>dark/pixels/4.qss</file>
         <file>dark/pixels/5.qss</file>
         <file>dark/diarypixels.qss</file>
+        <file>dark/diary_entry_list/0.qss</file>
     </qresource>
 </RCC>

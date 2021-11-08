@@ -101,7 +101,7 @@ public slots:
   void toggle_expanded_view();
 
 protected:
-  void mouseReleaseEvent(QMouseEvent *event) { emit clicked(); }
+  void mouseReleaseEvent() { emit clicked(); }
 };
 
 #endif // DIARYENTRYVIEWER_H

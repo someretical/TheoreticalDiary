@@ -95,7 +95,7 @@ void DiaryEntryViewer::apply_theme() {
   file.close();
 
   rating_stylesheets->clear();
-  for (int i = 1; i < 6; ++i) {
+  for (int i = 0; i < 6; ++i) {
     file.setFileName(
         QString(":/%1/diary_entry_list/%2.qss").arg(theme, QString::number(i)));
     file.open(QIODevice::ReadOnly);
@@ -227,11 +227,13 @@ DiaryEntryDayLabel::~DiaryEntryDayLabel() {}
 
 void DiaryEntryDayLabel::apply_theme() {
   // Set colour theme
-  QString stylesheet((*data.parent->rating_stylesheets)[data.rating - 1]);
+  QString stylesheet((*data.parent->rating_stylesheets)[data.rating]);
 
   // Set background star if necessary
   if (data.special) {
     switch (data.rating) {
+    case td::Rating::Unknown:
+      // Fall through
     case td::Rating::VeryBad:
       // Fall through
     case td::Rating::Bad:
@@ -264,6 +266,9 @@ DiaryEntryDayMessage::DiaryEntryDayMessage(const std::string &m,
   DiaryEntryDayMessage::get_trunc_first_line(m, truncated);
   setText(QString::fromStdString(truncated));
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+  setTextInteractionFlags(Qt::TextSelectableByMouse |
+                          Qt::LinksAccessibleByMouse |
+                          Qt::LinksAccessibleByKeyboard);
 
   QFont f = font();
   f.setPointSize(14);

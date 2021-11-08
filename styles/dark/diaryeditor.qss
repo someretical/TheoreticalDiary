@@ -6,10 +6,6 @@ QPlainTextEdit#entry_edit {
   height: 18px;
 }
 
-QLabel#alert_text {
-  color: #FF0000;
-}
-
 QPushButton#next_month, QPushButton#prev_month {
   text-align: center;
 }

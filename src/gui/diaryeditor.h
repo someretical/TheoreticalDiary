@@ -43,10 +43,8 @@ public:
   explicit DiaryEditor(QWidget *parent = nullptr);
   ~DiaryEditor();
 
-  bool validate_entry();
   bool confirm_switch();
 
-  bool current_date_changed;
   int current_month_offset;
   int last_selected_day;
 

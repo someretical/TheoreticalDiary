@@ -40,6 +40,32 @@
      <property name="spacing">
       <number>15</number>
      </property>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="pwd_button">
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Change the password for unlocking the diary.</string>
+       </property>
+       <property name="text">
+        <string>Change password</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QPushButton" name="close_button">
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Close the diary.</string>
+       </property>
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -79,32 +105,6 @@
        </property>
        <property name="checkable">
         <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="close_button">
-       <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
-       </property>
-       <property name="toolTip">
-        <string>Close the diary.</string>
-       </property>
-       <property name="text">
-        <string>Close</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="pwd_button">
-       <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
-       </property>
-       <property name="toolTip">
-        <string>Change the password for unlocking the diary.</string>
-       </property>
-       <property name="text">
-        <string>Change password</string>
        </property>
       </widget>
      </item>
