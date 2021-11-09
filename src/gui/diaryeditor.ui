@@ -483,6 +483,11 @@
           </property>
           <item row="2" column="1">
            <widget class="QPlainTextEdit" name="entry_edit">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="toolTip">
              <string>Entry message</string>
             </property>
@@ -493,6 +498,11 @@
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_9">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Special?</string>
             </property>
@@ -508,6 +518,11 @@
             </property>
             <item row="0" column="0">
              <widget class="QCheckBox" name="special_box">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
               <property name="cursor">
                <cursorShape>CrossCursor</cursorShape>
               </property>
@@ -550,6 +565,11 @@
             </property>
             <item row="0" column="1">
              <widget class="QPushButton" name="delete_button">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
               <property name="cursor">
                <cursorShape>PointingHandCursor</cursorShape>
               </property>
@@ -566,6 +586,11 @@
             </item>
             <item row="0" column="0">
              <widget class="QPushButton" name="update_button">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
               <property name="cursor">
                <cursorShape>PointingHandCursor</cursorShape>
               </property>
@@ -582,6 +607,11 @@
             </item>
             <item row="0" column="2">
              <widget class="QPushButton" name="reset_button">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
               <property name="cursor">
                <cursorShape>PointingHandCursor</cursorShape>
               </property>
@@ -623,6 +653,11 @@
                 <width>150</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
               </property>
               <property name="cursor">
                <cursorShape>PointingHandCursor</cursorShape>
@@ -679,6 +714,11 @@
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_10">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Entry</string>
             </property>
@@ -686,6 +726,11 @@
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_8">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Rating</string>
             </property>

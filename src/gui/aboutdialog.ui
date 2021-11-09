@@ -66,6 +66,11 @@
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label_2">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Theoretical Diary is a desktop GUI application for keeping a digital diary.</string>
          </property>
@@ -94,6 +99,11 @@
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="version">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Version placeholder</string>
          </property>
@@ -161,6 +171,11 @@
        <height>100</height>
       </size>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="cursor" stdset="0">
       <cursorShape>IBeamCursor</cursorShape>
      </property>
@@ -207,6 +222,11 @@
    </item>
    <item row="4" column="0">
     <widget class="QPlainTextEdit" name="licenses">
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="cursor" stdset="0">
       <cursorShape>IBeamCursor</cursorShape>
      </property>
@@ -223,6 +243,11 @@
    </item>
    <item row="5" column="0" alignment="Qt::AlignHCenter">
     <widget class="QPushButton" name="ok_button">
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>OK</string>
      </property>

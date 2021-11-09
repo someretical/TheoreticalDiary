@@ -58,6 +58,11 @@
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
        <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Work in progress</string>
         </property>

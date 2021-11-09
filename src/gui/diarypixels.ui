@@ -122,6 +122,11 @@
         </item>
         <item row="0" column="2" alignment="Qt::AlignHCenter">
          <widget class="QPushButton" name="render_button">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
           </property>

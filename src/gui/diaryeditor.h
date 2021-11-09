@@ -61,7 +61,7 @@ public slots:
   // Calendar widget
   void render_month(const QDate &date,
                     const std::optional<td::YearMap::iterator> iter);
-  void change_month(const QDate &date);
+  void change_month(const QDate &date, const bool &suppress_confirm);
   void render_day(const td::CalendarButtonData &d, const bool &set_info_pane);
   void next_month();
   void prev_month();

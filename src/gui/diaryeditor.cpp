@@ -74,7 +74,7 @@ DiaryEditor::DiaryEditor(QWidget *parent)
   apply_theme();
 
   // Render current month
-  change_month(*qobject_cast<DiaryMenu *>(parent)->first_created);
+  change_month(*qobject_cast<DiaryMenu *>(parent)->first_created, true);
 }
 
 DiaryEditor::~DiaryEditor() {
@@ -264,8 +264,10 @@ bool DiaryEditor::confirm_switch() {
   return true;
 }
 
-void DiaryEditor::change_month(const QDate &date) {
-  if (TheoreticalDiary::instance()->diary_modified && !confirm_switch())
+void DiaryEditor::change_month(const QDate &date,
+                               const bool &suppress_confirm) {
+  if (!suppress_confirm && TheoreticalDiary::instance()->diary_modified &&
+      !confirm_switch())
     return;
 
   // Remove everything from current grid
@@ -326,23 +328,23 @@ void DiaryEditor::next_month() {
   QDate next = ui->year_edit->date();
   next = QDate(next.year(), next.month() + 1, 1);
   if (next.isValid())
-    change_month(next);
+    change_month(next, false);
 }
 
 void DiaryEditor::prev_month() {
   QDate prev = ui->year_edit->date();
   prev = QDate(prev.year(), prev.month() - 1, 1);
   if (prev.isValid())
-    change_month(prev);
+    change_month(prev, false);
 }
 
 void DiaryEditor::month_changed(const int month) {
-  change_month(QDate(ui->year_edit->date().year(), month + 1, 1));
+  change_month(QDate(ui->year_edit->date().year(), month + 1, 1), false);
 }
 
 void DiaryEditor::year_changed(const QDate &date) {
   if (date.isValid())
-    change_month(date);
+    change_month(date, false);
 }
 
 // Triggered when a calendar button is clicked
@@ -510,5 +512,6 @@ void DiaryEditor::reset_day() {
   change_month(
       *qobject_cast<DiaryMenu *>(
            parentWidget()->parentWidget()->parentWidget()->parentWidget())
-           ->first_created);
+           ->first_created,
+      false);
 }
