@@ -92,6 +92,9 @@ void MainWindow::inactive_time_up() {
     QMessageBox rip(this);
     QPushButton ok_button("OK", &rip);
     ok_button.setFlat(true);
+    QFont f = ok_button.font();
+    f.setPointSize(11);
+    ok_button.setFont(f);
 
     rip.setText("Diary locked.");
     rip.setInformativeText(
@@ -149,6 +152,9 @@ void MainWindow::save_error() {
   QMessageBox rip(this);
   QPushButton ok_button("OK", &rip);
   ok_button.setFlat(true);
+  QFont f = ok_button.font();
+  f.setPointSize(11);
+  ok_button.setFont(f);
 
   rip.setText("Save error.");
   rip.setInformativeText(
@@ -218,10 +224,19 @@ void MainWindow::closeEvent(QCloseEvent *event) {
       QMessageBox confirm(this);
 
       QPushButton discard_button("Do not save", &confirm);
+      QFont f = discard_button.font();
+      f.setPointSize(11);
+      discard_button.setFont(f);
       discard_button.setStyleSheet(*danger_button_style);
       QPushButton save_button("Save", &confirm);
+      QFont f2 = save_button.font();
+      f2.setPointSize(11);
+      save_button.setFont(f2);
       QPushButton cancel_button("Cancel", &confirm);
       cancel_button.setFlat(true);
+      QFont f3 = cancel_button.font();
+      f3.setPointSize(11);
+      cancel_button.setFont(f3);
 
       confirm.setText("There are unsaved changes.");
       confirm.setInformativeText(

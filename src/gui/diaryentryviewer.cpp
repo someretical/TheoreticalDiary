@@ -109,8 +109,9 @@ void DiaryEntryViewer::change_month(const QDate &date,
                                     const bool &ignore_month_check) {
   if (!ignore_month_check) {
     if (current_month->year() == date.year() &&
-        current_month->month() == date.month())
+        current_month->month() == date.month()) {
       return;
+    }
   }
 
   // Remove everything from current grid
@@ -141,6 +142,11 @@ void DiaryEntryViewer::change_month(const QDate &date,
     auto label =
         new QLabel("It seems there are no entries yet for this month...", this);
     label->setAlignment(Qt::AlignCenter);
+    auto f = label->font();
+    f.setPointSize(11);
+    label->setFont(f);
+
+    *current_month = date;
     return ui->entry_grid->addWidget(label);
   }
 
@@ -169,15 +175,15 @@ void DiaryEntryViewer::change_month(const QDate &date,
 }
 
 void DiaryEntryViewer::next_month() {
-  QDate next = ui->year_edit->date();
-  next = QDate(next.year(), next.month() + 1, 1);
+  QDate next(ui->year_edit->date().year(),
+             ui->month_dropdown->currentIndex() + 2, 1);
   if (next.isValid())
     change_month(next, false);
 }
 
 void DiaryEntryViewer::prev_month() {
-  QDate prev = ui->year_edit->date();
-  prev = QDate(prev.year(), prev.month() - 1, 1);
+  QDate prev(ui->year_edit->date().year(), ui->month_dropdown->currentIndex(),
+             1);
   if (prev.isValid()) {
     change_month(prev, false);
 
@@ -192,12 +198,16 @@ void DiaryEntryViewer::prev_month() {
 }
 
 void DiaryEntryViewer::month_changed(const int month) {
-  change_month(QDate(ui->year_edit->date().year(), month + 1, 1), false);
+  change_month(QDate(ui->year_edit->date().year(),
+                     ui->month_dropdown->currentIndex() + 1, 1),
+               false);
 }
 
 void DiaryEntryViewer::year_changed(const QDate &date) {
   if (date.isValid())
-    change_month(date, false);
+    change_month(QDate(ui->year_edit->date().year(),
+                       ui->month_dropdown->currentIndex() + 1, 1),
+                 false);
 }
 
 /*
@@ -280,8 +290,6 @@ DiaryEntryDayMessage::DiaryEntryDayMessage(const std::string &m,
 
   setCursor(QCursor(Qt::PointingHandCursor));
 
-  connect(this, &DiaryEntryDayMessage::clicked, this,
-          &DiaryEntryDayMessage::toggle_expanded_view);
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
           &DiaryEntryDayMessage::apply_theme);
   apply_theme();
@@ -291,7 +299,10 @@ DiaryEntryDayMessage::~DiaryEntryDayMessage() { delete message; }
 
 void DiaryEntryDayMessage::apply_theme() {}
 
-void DiaryEntryDayMessage::toggle_expanded_view() {
+void DiaryEntryDayMessage::mouseDoubleClickEvent(QMouseEvent *event) {
+  if (event->button() != Qt::LeftButton)
+    return;
+
   if (expanded) {
     std::string truncated;
     DiaryEntryDayMessage::get_trunc_first_line(*message, truncated);

@@ -100,6 +100,9 @@ void MainMenu::open_diary() {
       QMessageBox rip(this);
       QPushButton ok_button("OK", &rip);
       ok_button.setFlat(true);
+      QFont f = ok_button.font();
+      f.setPointSize(11);
+      ok_button.setFont(f);
 
       rip.setText("No diary was found.");
       rip.setInformativeText("You can create a new diary by clicking the "
@@ -140,10 +143,16 @@ bool MainMenu::confirm_overwrite() {
   QMessageBox confirm(this);
 
   QPushButton yes("YES", &confirm);
+  QFont f = yes.font();
+  f.setPointSize(11);
+  yes.setFont(f);
   yes.setStyleSheet(*qobject_cast<MainWindow *>(parentWidget()->parentWidget())
                          ->danger_button_style);
   QPushButton no("NO", &confirm);
   no.setFlat(true);
+  QFont f2 = no.font();
+  f2.setPointSize(11);
+  no.setFont(f2);
 
   confirm.setText("Existing diary found.");
   confirm.setInformativeText(
@@ -182,6 +191,9 @@ void MainMenu::import_diary() {
     QMessageBox rip(this);
     QPushButton ok_button("OK", &rip);
     ok_button.setFlat(true);
+    QFont f = ok_button.font();
+    f.setPointSize(11);
+    ok_button.setFont(f);
 
     rip.setText("Read error.");
     rip.setInformativeText(
@@ -205,6 +217,9 @@ void MainMenu::import_diary() {
     QMessageBox rip(this);
     QPushButton ok_button("OK", &rip);
     ok_button.setFlat(true);
+    QFont f = ok_button.font();
+    f.setPointSize(11);
+    ok_button.setFont(f);
 
     rip.setText("Parsing error.");
     rip.setInformativeText(
@@ -229,6 +244,9 @@ void MainMenu::download_diary() {
   QMessageBox placeholder(this);
   QPushButton ok_button("OK", &placeholder);
   ok_button.setFlat(true);
+  QFont f = ok_button.font();
+  f.setPointSize(11);
+  ok_button.setFont(f);
   placeholder.setText("Placeholder dialog");
   placeholder.addButton(&ok_button, QMessageBox::AcceptRole);
   placeholder.setTextInteractionFlags(Qt::NoTextInteraction);
@@ -239,6 +257,9 @@ void MainMenu::flush_credentials() {
   QMessageBox placeholder(this);
   QPushButton ok_button("OK", &placeholder);
   ok_button.setFlat(true);
+  QFont f = ok_button.font();
+  f.setPointSize(11);
+  ok_button.setFont(f);
   placeholder.setText("Placeholder dialog");
   placeholder.addButton(&ok_button, QMessageBox::AcceptRole);
   placeholder.setTextInteractionFlags(Qt::NoTextInteraction);
@@ -249,6 +270,9 @@ void MainMenu::dump_drive() {
   QMessageBox placeholder(this);
   QPushButton ok_button("OK", &placeholder);
   ok_button.setFlat(true);
+  QFont f = ok_button.font();
+  f.setPointSize(11);
+  ok_button.setFont(f);
   placeholder.setText("Placeholder dialog");
   placeholder.addButton(&ok_button, QMessageBox::AcceptRole);
   placeholder.setTextInteractionFlags(Qt::NoTextInteraction);

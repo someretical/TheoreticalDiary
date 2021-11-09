@@ -83,9 +83,6 @@ public slots:
 class DiaryEntryDayMessage : public QLabel {
   Q_OBJECT
 
-signals:
-  void clicked();
-
 public:
   explicit DiaryEntryDayMessage(const std::string &m,
                                 QWidget *parent = nullptr);
@@ -98,10 +95,9 @@ public:
 
 public slots:
   void apply_theme();
-  void toggle_expanded_view();
 
 protected:
-  void mouseReleaseEvent() { emit clicked(); }
+  void mouseDoubleClickEvent(QMouseEvent *event);
 };
 
 #endif // DIARYENTRYVIEWER_H

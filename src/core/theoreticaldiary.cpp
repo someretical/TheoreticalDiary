@@ -125,8 +125,10 @@ void TheoreticalDiary::oauth_changed() { oauth_modified = true; }
 
 void TheoreticalDiary::load_settings() {
   std::ifstream ifs(data_location().toStdString() + "/settings.json");
-  if (ifs.fail())
+  if (ifs.fail()) {
+    local_settings_changed();
     return;
+  }
 
   std::string content;
   ifs.seekg(0, std::ios::end);
@@ -136,8 +138,10 @@ void TheoreticalDiary::load_settings() {
   ifs.close();
 
   auto json = nlohmann::json::parse(content, nullptr, false);
-  if (json.is_discarded())
+  if (json.is_discarded()) {
+    local_settings_changed();
     return;
+  }
 
   *local_settings = json.get<td::LocalSettings>();
 }

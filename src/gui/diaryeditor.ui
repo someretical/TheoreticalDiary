@@ -267,11 +267,45 @@
           <property name="verticalSpacing">
            <number>0</number>
           </property>
-          <item row="0" column="5">
+          <item row="0" column="4">
+           <widget class="QDateEdit" name="year_edit">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>45</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>20</pointsize>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>Year edit</string>
+            </property>
+            <property name="displayFormat">
+             <string>yyyy</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="7">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="6">
            <widget class="QPushButton" name="next_month">
             <property name="maximumSize">
              <size>
-              <width>60</width>
+              <width>40</width>
               <height>16777215</height>
              </size>
             </property>
@@ -287,7 +321,34 @@
              <string>Next month.</string>
             </property>
             <property name="text">
-             <string>→</string>
+             <string/>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="prev_month">
+            <property name="maximumSize">
+             <size>
+              <width>40</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>20</pointsize>
+             </font>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip">
+             <string>Previous month.</string>
+            </property>
+            <property name="text">
+             <string/>
             </property>
             <property name="flat">
              <bool>true</bool>
@@ -295,6 +356,22 @@
            </widget>
           </item>
           <item row="0" column="2">
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>10</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="3">
            <widget class="QComboBox" name="month_dropdown">
             <property name="minimumSize">
              <size>
@@ -375,7 +452,7 @@
             </item>
            </widget>
           </item>
-          <item row="0" column="4">
+          <item row="0" column="5">
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -385,71 +462,20 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>20</width>
+              <width>10</width>
               <height>20</height>
              </size>
             </property>
            </spacer>
           </item>
-          <item row="0" column="3">
-           <widget class="QDateEdit" name="year_edit">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>45</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>20</pointsize>
-             </font>
-            </property>
-            <property name="toolTip">
-             <string>Year edit</string>
-            </property>
-            <property name="displayFormat">
-             <string>yyyy</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
-           <widget class="QPushButton" name="prev_month">
-            <property name="maximumSize">
-             <size>
-              <width>60</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>20</pointsize>
-             </font>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="toolTip">
-             <string>Previous month.</string>
-            </property>
-            <property name="text">
-             <string>←</string>
-            </property>
-            <property name="flat">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer_3">
+           <spacer name="horizontalSpacer_5">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>20</width>
+              <width>40</width>
               <height>20</height>
              </size>
             </property>

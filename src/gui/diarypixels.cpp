@@ -86,8 +86,12 @@ void DiaryPixels::render_grid() {
 
   // Set new grid
   if (!opt) {
-    ui->grid->addWidget(
-        new QLabel("It seems there are no entries yet for this year...", this));
+    auto label = new QLabel("It seems there are no entries yet for this year...", this);
+    auto f = label->font();
+    f.setPointSize(11);
+    label->setFont(f);
+
+    ui->grid->addWidget(label);
 
     QApplication::restoreOverrideCursor();
     return;

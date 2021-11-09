@@ -135,6 +135,9 @@ void PromptPassword::hash_set() {
     QMessageBox rip(this);
     QPushButton ok_button("OK", &rip);
     ok_button.setFlat(true);
+    QFont f = ok_button.font();
+    f.setPointSize(11);
+    ok_button.setFont(f);
 
     rip.setText("Parsing error.");
     rip.setInformativeText(

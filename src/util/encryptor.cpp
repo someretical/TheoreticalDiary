@@ -64,7 +64,7 @@ void Encryptor::set_key(const std::string &plaintext) {
   // This is supposed to be computationally expensive to make it hard to brute
   // force attack. It SHOULD take a reasonable amount of time.
   scrypt.DeriveKey(key->data(), KEY_SIZE, byte_block.data(), byte_block.size(),
-                   salt->data(), SALT_SIZE, 1 << 17, 8, 16);
+                   salt->data(), SALT_SIZE, 1 << 15, 8, 16);
 }
 
 void Encryptor::set_salt(const std::string &salt_str) {

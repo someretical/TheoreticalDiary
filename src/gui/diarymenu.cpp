@@ -145,6 +145,9 @@ void DiaryMenu::export_diary() {
     QMessageBox ok(this);
     QPushButton ok_button("OK", &ok);
     ok_button.setFlat(true);
+    QFont f = ok_button.font();
+    f.setPointSize(11);
+    ok_button.setFont(f);
 
     ok.setText("Diary exported.");
     ok.addButton(&ok_button, QMessageBox::AcceptRole);
@@ -156,7 +159,10 @@ void DiaryMenu::export_diary() {
     QMessageBox rip(this);
     QPushButton ok_button("OK", &rip);
     ok_button.setFlat(true);
-
+    QFont f = ok_button.font();
+    f.setPointSize(11);
+    ok_button.setFont(f);
+    
     rip.setText("Export failed.");
     rip.setInformativeText(
         "The app could not write to the specified location.");

@@ -226,6 +226,9 @@ bool DiaryEditor::confirm_switch() {
   QMessageBox confirm(this);
 
   QPushButton discard_button("Do not save", &confirm);
+  QFont f3 = discard_button.font();
+  f3.setPointSize(11);
+  discard_button.setFont(f3);
   // This chain is a beast.
   // It goes (MainWindow->central_grid)->Diarymenu (2)
   // (DiaryMenu->ui->tabWidget->editor)->DiaryEditor (4)
@@ -238,8 +241,14 @@ bool DiaryEditor::confirm_switch() {
                                                                ->parentWidget())
                                     ->danger_button_style);
   QPushButton save_button("Save", &confirm);
+  QFont f = save_button.font();
+  f.setPointSize(11);
+  save_button.setFont(f);
   QPushButton cancel_button("Cancel", &confirm);
   cancel_button.setFlat(true);
+  QFont f2 = cancel_button.font();
+  f2.setPointSize(11);
+  cancel_button.setFont(f2);
 
   confirm.setText("There are unsaved changes.");
   confirm.setInformativeText(
@@ -426,6 +435,9 @@ void DiaryEditor::update_day() {
   QMessageBox ok(this);
   QPushButton ok_button("OK", &ok);
   ok_button.setFlat(true);
+  QFont f = ok_button.font();
+  f.setPointSize(11);
+  ok_button.setFont(f);
 
   ok.setText("Diary saved.");
   ok.addButton(&ok_button, QMessageBox::AcceptRole);
@@ -459,6 +471,9 @@ void DiaryEditor::delete_day() {
   QMessageBox confirm(this);
 
   QPushButton yes("YES", &confirm);
+  QFont f = yes.font();
+  f.setPointSize(11);
+  yes.setFont(f);
   yes.setStyleSheet(*qobject_cast<MainWindow *>(parentWidget()
                                                     ->parentWidget()
                                                     ->parentWidget()
@@ -468,6 +483,9 @@ void DiaryEditor::delete_day() {
                          ->danger_button_style);
   QPushButton no("NO", &confirm);
   no.setFlat(true);
+  QFont f2 = no.font();
+  f2.setPointSize(11);
+  no.setFont(f2);
 
   confirm.setText("Delete entry.");
   confirm.setInformativeText("Are you sure you want to delete this entry?");

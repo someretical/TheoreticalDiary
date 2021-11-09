@@ -35,6 +35,54 @@
    <property name="verticalSpacing">
     <number>15</number>
    </property>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="font">
+      <font>
+       <pointsize>16</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Contributors</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPlainTextEdit" name="contributors">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>100</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="cursor" stdset="0">
+      <cursorShape>IBeamCursor</cursorShape>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="plainText">
+      <string>Placeholder contributors</string>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <property name="spacing">
@@ -157,71 +205,20 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
-    <widget class="QPlainTextEdit" name="contributors">
+   <item row="4" column="0">
+    <widget class="QPlainTextEdit" name="licenses">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="maximumSize">
+     <property name="minimumSize">
       <size>
-       <width>16777215</width>
-       <height>100</height>
+       <width>0</width>
+       <height>363</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
-     <property name="cursor" stdset="0">
-      <cursorShape>IBeamCursor</cursorShape>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-     <property name="plainText">
-      <string>Placeholder contributors</string>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="font">
-      <font>
-       <pointsize>16</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Contributors</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="font">
-      <font>
-       <pointsize>16</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Licenses</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QPlainTextEdit" name="licenses">
      <property name="font">
       <font>
        <pointsize>11</pointsize>
@@ -253,6 +250,21 @@
      </property>
      <property name="flat">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="font">
+      <font>
+       <pointsize>16</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Licenses</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>

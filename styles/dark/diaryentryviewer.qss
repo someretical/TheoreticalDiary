@@ -4,3 +4,15 @@ QScrollArea#scrollArea {
   border-radius: 4px;
   padding: 8px;
 }
+
+QPushButton#prev_month {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(:/themes/dark/primary/leftarrow2.svg);
+}
+
+QPushButton#next_month {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(:/themes/dark/primary/rightarrow2.svg);
+}

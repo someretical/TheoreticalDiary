@@ -185,7 +185,7 @@
          <widget class="QPushButton" name="next_month">
           <property name="maximumSize">
            <size>
-            <width>60</width>
+            <width>40</width>
             <height>16777215</height>
            </size>
           </property>
@@ -201,7 +201,7 @@
            <string>Next month.</string>
           </property>
           <property name="text">
-           <string>→</string>
+           <string/>
           </property>
           <property name="flat">
            <bool>true</bool>
@@ -233,7 +233,7 @@
          <widget class="QPushButton" name="prev_month">
           <property name="maximumSize">
            <size>
-            <width>60</width>
+            <width>40</width>
             <height>16777215</height>
            </size>
           </property>
@@ -249,7 +249,7 @@
            <string>Previous month.</string>
           </property>
           <property name="text">
-           <string>←</string>
+           <string/>
           </property>
           <property name="flat">
            <bool>true</bool>
@@ -370,7 +370,7 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>20</width>
+            <width>10</width>
             <height>20</height>
            </size>
           </property>
@@ -386,7 +386,7 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>20</width>
+            <width>10</width>
             <height>20</height>
            </size>
           </property>
