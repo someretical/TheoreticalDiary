@@ -47,7 +47,7 @@ public:
 
 public slots:
   void apply_theme();
-  void change_month(const QDate &date);
+  void change_month(const QDate &date, const bool &ignore_month_check);
   void next_month();
   void prev_month();
   void month_changed(const int month);

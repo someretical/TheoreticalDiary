@@ -58,7 +58,7 @@ public slots:
   void show_password_prompt(const std::string &e);
   void show_diary_menu(const QDate &date);
   void show_update_password_prompt(const QDate &date);
-  bool save_diary(const bool &ignore_errors = false);
+  bool save_diary(const bool &ignore_errors);
 
 private:
   Ui::MainWindow *ui;

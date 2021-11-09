@@ -417,7 +417,7 @@ void DiaryEditor::update_day() {
                                             ->parentWidget()
                                             ->parentWidget()
                                             ->parentWidget())
-                 ->save_diary();
+                 ->save_diary(false);
   if (!res)
     return; // The save error window will be shown by the function.
 
@@ -450,7 +450,7 @@ void DiaryEditor::update_day() {
   ui->last_edited->update();
 
   // This updates the information in the other tabs.
-  emit sig_re_render(current_date);
+  emit sig_re_render(current_date, true);
 }
 
 void DiaryEditor::delete_day() {
@@ -490,13 +490,20 @@ void DiaryEditor::delete_day() {
                                             ->parentWidget()
                                             ->parentWidget()
                                             ->parentWidget())
-                 ->save_diary();
+                 ->save_diary(false);
   if (!res)
     return; // The save error window will be shown by the function.
 
   update_info_pane(current_date, td::Entry{false, td::Rating::Unknown, "", 0});
 
-  emit sig_re_render(current_date);
+  td::CalendarButtonData d{std::make_optional<int>(last_selected_day),
+                           std::nullopt, std::make_optional<bool>(false),
+                           std::make_optional<td::Rating>(
+                               static_cast<td::Rating>(td::Rating::Unknown)),
+                           std::nullopt};
+  render_day(d, false);
+
+  emit sig_re_render(current_date, true);
 }
 
 void DiaryEditor::reset_day() {

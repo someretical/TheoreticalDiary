@@ -34,7 +34,7 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
   oauth_modified = false;
   application_theme = new QString("dark");
 
-  // Load serif font
+  // Load main font
   QFontDatabase::addApplicationFont(":/Roboto/Roboto-Black.ttf");
   QFontDatabase::addApplicationFont(":/Roboto/Roboto-BlackItalic.ttf");
   QFontDatabase::addApplicationFont(":/Roboto/Roboto-Bold.ttf");

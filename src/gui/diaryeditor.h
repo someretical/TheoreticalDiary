@@ -37,7 +37,7 @@ class DiaryEditor : public QWidget {
 
 signals:
   void sig_re_render_buttons(const td::CalendarButtonData &data);
-  void sig_re_render(const QDate &date);
+  void sig_re_render(const QDate &date, const bool &ignore_month_check);
 
 public:
   explicit DiaryEditor(QWidget *parent = nullptr);

@@ -52,8 +52,7 @@ DiaryEntryViewer::DiaryEntryViewer(const DiaryEditor *editor, QWidget *parent)
           &DiaryEntryViewer::apply_theme);
   apply_theme();
 
-  // Will never be a valid date so it will never be equal to current_month
-  change_month(QDate(0, 0, 0));
+  change_month(*current_month, true);
   // Make scroll bar hit the bottom
   QTimer::singleShot(0, this, [&]() {
     ui->scrollArea->widget()->adjustSize();
@@ -106,10 +105,13 @@ void DiaryEntryViewer::apply_theme() {
   emit sig_re_render_theme();
 }
 
-void DiaryEntryViewer::change_month(const QDate &date) {
-  if (current_month->year() == date.year() &&
-      current_month->month() == date.month())
-    return;
+void DiaryEntryViewer::change_month(const QDate &date,
+                                    const bool &ignore_month_check) {
+  if (!ignore_month_check) {
+    if (current_month->year() == date.year() &&
+        current_month->month() == date.month())
+      return;
+  }
 
   // Remove everything from current grid
   QLayoutItem *child;
@@ -170,14 +172,14 @@ void DiaryEntryViewer::next_month() {
   QDate next = ui->year_edit->date();
   next = QDate(next.year(), next.month() + 1, 1);
   if (next.isValid())
-    change_month(next);
+    change_month(next, false);
 }
 
 void DiaryEntryViewer::prev_month() {
   QDate prev = ui->year_edit->date();
   prev = QDate(prev.year(), prev.month() - 1, 1);
   if (prev.isValid()) {
-    change_month(prev);
+    change_month(prev, false);
 
     // Make scroll bar hit bottom
     QTimer::singleShot(0, this, [&]() {
@@ -190,12 +192,12 @@ void DiaryEntryViewer::prev_month() {
 }
 
 void DiaryEntryViewer::month_changed(const int month) {
-  change_month(QDate(ui->year_edit->date().year(), month + 1, 1));
+  change_month(QDate(ui->year_edit->date().year(), month + 1, 1), false);
 }
 
 void DiaryEntryViewer::year_changed(const QDate &date) {
   if (date.isValid())
-    change_month(date);
+    change_month(date, false);
 }
 
 /*

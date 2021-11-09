@@ -174,9 +174,6 @@ bool MainWindow::save_diary(const bool &ignore_errors) {
     std::ofstream dst(backup_path, std::ios::binary);
     dst << src.rdbuf();
     dst.close();
-  } else {
-    save_error();
-    return false;
   }
   src.close();
 
@@ -238,7 +235,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
       switch (confirm.exec()) {
       case QMessageBox::AcceptRole:
         // If the diary failed to save, don't exit to the main menu.
-        if (!save_diary())
+        if (!save_diary(false))
           return;
         break;
       case QMessageBox::RejectRole:

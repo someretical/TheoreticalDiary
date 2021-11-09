@@ -69,6 +69,7 @@ void DiaryPixels::apply_theme() {
 }
 
 void DiaryPixels::render_grid() {
+  ui->render_button->setEnabled(false);
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
   // Remove everything from current grid
@@ -140,6 +141,7 @@ void DiaryPixels::render_grid() {
           month, days, 1, 31 - days);
   }
 
+  ui->render_button->setEnabled(true);
   QApplication::restoreOverrideCursor();
 }
 
