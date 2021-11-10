@@ -10,11 +10,27 @@ A digital diary with (planned) Google Drive backups. This app is a work in progr
 
 ![](images/readme/diary_editor.png)
 
+![](images/readme/entry_list.png)
+
+![](images/readme/diary_pixels.png)
+
 ## Download
 
 ### Windows
 
 For Windows, the prebuilt binaries are available in `theoreticaldiary-x86_64` (check the result of the latest successful Github actions for [`windows.yml`](https://github.com/someretical/theoretical-diary/actions/workflows/windows.yml)). The only platform it is guaranteed to work on is Windows 10 x64.
+
+To fix scaling issues on Windows, follow these instructions:
+
+1. Download and extract the ZIP file.
+2. Right click the executable file and select `Properties`.
+3. Click on the `compatability` tab and then click on `Change high DPI settings`.
+4. Then tick the override checkbox and make sure the dropdown option is set to `Application`.
+5. Click `Ok` and then click `Apply` to save the changes.
+
+![](images/readme/windows_compat_1.png)
+
+![](images/readme/windows_compat_2.png)
 
 ### Linux
 
