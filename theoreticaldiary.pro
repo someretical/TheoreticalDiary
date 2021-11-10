@@ -94,7 +94,7 @@ win32:RC_ICONS = images/windows_icons/icon.ico
 win32:VERSION = 1.0.0.0
 win32:QMAKE_TARGET_COMPANY = someretical
 win32:QMAKE_TARGET_PRODUCT = "Theoretical Diary"
-win32:QMAKE_TARGET_DESCRIPTION = "Digital diary"
+win32:QMAKE_TARGET_DESCRIPTION = "Theoretical Diary"
 win32:QMAKE_TARGET_COPYRIGHT = 2021
 
 RESOURCES += \

@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
   if (!guard.tryToRun())
     return 0;
 
+  QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
   // Remove ? button in the title bar (only on Windows)
