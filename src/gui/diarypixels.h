@@ -41,6 +41,7 @@ public:
 public slots:
   void apply_theme();
   void render_grid();
+  void export_image();
 
 private:
   Ui::DiaryPixels *ui;
@@ -50,7 +51,8 @@ class PixelLabel : public QLabel {
   Q_OBJECT
 
 public:
-  explicit PixelLabel(const td::Rating &r, QWidget *parent = nullptr);
+  explicit PixelLabel(const td::Rating &r, const QDate &date,
+                      QWidget *parent = nullptr);
   ~PixelLabel();
 };
 

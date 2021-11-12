@@ -17,8 +17,11 @@
 
 #include "diarypixels.h"
 #include "../core/theoreticaldiary.h"
+#include "diarymenu.h"
 #include "ui_diarypixels.h"
 
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QSpacerItem>
 
 const char *MONTH_LETTERS = "JFMAMJJASOND";
@@ -36,6 +39,8 @@ DiaryPixels::DiaryPixels(const DiaryEditor *editor, QWidget *parent)
   connect(editor, &DiaryEditor::sig_re_render, this, &DiaryPixels::render_grid);
   connect(ui->render_button, &QPushButton::clicked, this,
           &DiaryPixels::render_grid);
+  connect(ui->export_img_button, &QPushButton::clicked, this,
+          &DiaryPixels::export_image);
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
           &DiaryPixels::apply_theme);
@@ -86,7 +91,8 @@ void DiaryPixels::render_grid() {
 
   // Set new grid
   if (!opt) {
-    auto label = new QLabel("It seems there are no entries yet for this year...", this);
+    auto label =
+        new QLabel("It seems there are no entries yet for this year...", this);
     auto f = label->font();
     f.setPointSize(11);
     label->setFont(f);
@@ -96,6 +102,9 @@ void DiaryPixels::render_grid() {
     QApplication::restoreOverrideCursor();
     return;
   }
+
+  auto date = QDate::currentDate();
+  auto year = current_year->year();
 
   for (int month = 0; month < 12; ++month) {
     auto label = new QLabel(QString(MONTH_LETTERS[month]), this);
@@ -113,16 +122,12 @@ void DiaryPixels::render_grid() {
     // This block runs if the month doesn't exist at all.
     auto iter = (*opt)->second.find(month + 1 /* Month is index 1 based */);
     if (iter == (*opt)->second.end()) {
-      for (int day = 0; day < days; ++day)
+      for (int day = 0; day < days; ++day) {
+        date.setDate(year, month + 1, day + 1);
         ui->grid
-            ->addWidget(new PixelLabel(td::Rating::Unknown, this), month, day + 1 /* +1 here because of the month label added at the start of each row */);
-
-      // If there are not 31 days in a month, the labels will spread out.
-      // The spacer at the far right aligns them in the right grid pattern.
-      if (31 != days) // Don't run this if the month is already 31 days long.
-        ui->grid->addItem(
-            new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum),
-            month, days, 1, 31 - days);
+            ->addWidget(
+                new PixelLabel(td::Rating::Unknown, date, this), month, day + 1 /* +1 here because of the month label added at the start of each row */);
+      }
 
       continue;
     }
@@ -130,33 +135,78 @@ void DiaryPixels::render_grid() {
     // This code runs if some/all dates in a month exist.
     for (int day = 0; day < days; ++day) {
       auto iter2 = iter->second.find(day + 1 /* day is index 1 based */);
+
+      date.setDate(year, month + 1, day + 1);
       if (iter2 == iter->second.end()) {
-        ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, this), month,
-                            day + 1);
+        ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, date, this),
+                            month, day + 1);
       } else {
-        ui->grid->addWidget(new PixelLabel(iter2->second.rating, this), month,
-                            day + 1);
+        ui->grid->addWidget(new PixelLabel(iter2->second.rating, date, this),
+                            month, day + 1);
       }
     }
-
-    if (31 != days)
-      ui->grid->addItem(
-          new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum),
-          month, days, 1, 31 - days);
   }
 
   ui->render_button->setEnabled(true);
   QApplication::restoreOverrideCursor();
 }
 
+void DiaryPixels::export_image() {
+  auto filename = QFileDialog::getSaveFileName(
+      this, "Export image",
+      QString("%1/%2.png")
+          .arg(QDir::homePath(), QString::number(ui->year_edit->date().year())),
+      "Images (*.png);;All files");
+
+  if (filename.isEmpty())
+    return;
+
+  // Thanks to https://stackoverflow.com/a/24341699
+  if (ui->hidden_frame->grab().save(filename)) {
+    QMessageBox ok(this);
+    QPushButton ok_button("OK", &ok);
+    ok_button.setFlat(true);
+    QFont f = ok_button.font();
+    f.setPointSize(11);
+    ok_button.setFont(f);
+
+    ok.setText("Image exported.");
+    ok.addButton(&ok_button, QMessageBox::AcceptRole);
+    ok.setDefaultButton(&ok_button);
+    ok.setTextInteractionFlags(Qt::NoTextInteraction);
+
+    ok.exec();
+  } else {
+    QMessageBox rip(this);
+    QPushButton ok_button("OK", &rip);
+    ok_button.setFlat(true);
+    QFont f = ok_button.font();
+    f.setPointSize(11);
+    ok_button.setFont(f);
+
+    rip.setText("Export failed.");
+    rip.setInformativeText(
+        "The app could not write to the specified location.");
+    rip.addButton(&ok_button, QMessageBox::AcceptRole);
+    rip.setDefaultButton(&ok_button);
+    rip.setTextInteractionFlags(Qt::NoTextInteraction);
+
+    rip.exec();
+  }
+}
+
 /*
  * PixelLabel class
  */
-PixelLabel::PixelLabel(const td::Rating &r, QWidget *parent) : QLabel(parent) {
+PixelLabel::PixelLabel(const td::Rating &r, const QDate &date, QWidget *parent)
+    : QLabel(parent) {
   setFixedWidth(LABEL_SIZE);
   setFixedHeight(LABEL_SIZE);
   setStyleSheet(qobject_cast<DiaryPixels *>(parent)->rating_stylesheets->at(
       static_cast<int>(r)));
+  setToolTip(QString("%1 %2%3").arg(date.toString("MMMM"),
+                                    QString::number(date.day()),
+                                    DiaryMenu::get_day_suffix(date.day())));
 }
 
 PixelLabel::~PixelLabel() {}

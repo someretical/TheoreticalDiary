@@ -181,8 +181,8 @@ void MainMenu::import_diary() {
   if (!confirm_overwrite())
     return;
 
-  auto filename =
-      QFileDialog::getOpenFileName(this, "Import diary", QDir::homePath());
+  auto filename = QFileDialog::getOpenFileName(
+      this, "Import diary", QDir::homePath(), "JSON (*.json);;All files");
   if (filename.isEmpty())
     return;
 

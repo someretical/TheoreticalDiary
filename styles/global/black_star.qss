@@ -13,5 +13,5 @@ CalendarButton:pressed {
 DiaryEntryDayLabel {
   background-position: center;
   background-repeat: no-repeat;
-  background-image: url(:/themes/global/star_white.svg);
+  background-image: url(:/themes/global/star_black.svg);
 }

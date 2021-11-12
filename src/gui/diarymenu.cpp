@@ -129,8 +129,9 @@ void DiaryMenu::change_password() {
 }
 
 void DiaryMenu::export_diary() {
-  auto filename =
-      QFileDialog::getSaveFileName(this, "Export diary", QDir::homePath());
+  auto filename = QFileDialog::getSaveFileName(
+      this, "Export diary", QString("%1/export.json").arg(QDir::homePath()),
+      "JSON (*.json);;All files");
 
   if (filename.isEmpty())
     return;
@@ -162,7 +163,7 @@ void DiaryMenu::export_diary() {
     QFont f = ok_button.font();
     f.setPointSize(11);
     ok_button.setFont(f);
-    
+
     rip.setText("Export failed.");
     rip.setInformativeText(
         "The app could not write to the specified location.");

@@ -334,15 +334,15 @@ void DiaryEditor::render_day(const td::CalendarButtonData &d,
 }
 
 void DiaryEditor::next_month() {
-  QDate next = ui->year_edit->date();
-  next = QDate(next.year(), next.month() + 1, 1);
+  QDate next = ui->year_edit->date().addMonths(1);
+  next.setDate(next.year(), next.month(), 1);
   if (next.isValid())
     change_month(next, false);
 }
 
 void DiaryEditor::prev_month() {
-  QDate prev = ui->year_edit->date();
-  prev = QDate(prev.year(), prev.month() - 1, 1);
+  QDate prev = ui->year_edit->date().addMonths(-1);
+  prev.setDate(prev.year(), prev.month(), 1);
   if (prev.isValid())
     change_month(prev, false);
 }

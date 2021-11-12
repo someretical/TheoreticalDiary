@@ -175,15 +175,13 @@ void DiaryEntryViewer::change_month(const QDate &date,
 }
 
 void DiaryEntryViewer::next_month() {
-  QDate next(ui->year_edit->date().year(),
-             ui->month_dropdown->currentIndex() + 2, 1);
+  QDate next = ui->year_edit->date().addMonths(1);
   if (next.isValid())
     change_month(next, false);
 }
 
 void DiaryEntryViewer::prev_month() {
-  QDate prev(ui->year_edit->date().year(), ui->month_dropdown->currentIndex(),
-             1);
+  QDate prev = ui->year_edit->date().addMonths(-1);
   if (prev.isValid()) {
     change_month(prev, false);
 

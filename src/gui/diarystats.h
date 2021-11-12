@@ -21,6 +21,8 @@
 #include "diaryeditor.h"
 
 #include <QWidget>
+#include <optional>
+#include <vector>
 
 namespace Ui {
 class DiaryStats;
@@ -33,8 +35,24 @@ public:
   explicit DiaryStats(const DiaryEditor *editor, QWidget *parent = nullptr);
   ~DiaryStats();
 
+  static std::vector<int>
+  get_rating_stats(const std::optional<td::YearMap::iterator> opt,
+                   const int &total_days);
+
+  void render_pie_chart(const std::vector<int> &rating_counts);
+  void render_polar_chart(const std::optional<td::YearMap::iterator> opt);
+  void render_spline_chart(const std::optional<td::YearMap::iterator> opt);
+  void render_comparison(const std::vector<int> &rating_counts);
+
+  QDate *current_month;
+
 public slots:
   void apply_theme();
+  void render_stats(const QDate &date, const bool &ignore_month_check);
+  void next_month();
+  void prev_month();
+  void month_changed(const int month);
+  void year_changed(const QDate &date);
 
 private:
   Ui::DiaryStats *ui;

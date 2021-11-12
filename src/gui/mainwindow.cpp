@@ -88,23 +88,26 @@ void MainWindow::inactive_time_up() {
   show_main_menu();
   update();
 
-  QTimer::singleShot(0, [&]() {
-    QMessageBox rip(this);
-    QPushButton ok_button("OK", &rip);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
+  //  QTimer::singleShot(0, [&]() {
+  //    QMessageBox rip(this);
+  //    QPushButton ok_button("OK", &rip);
+  //    ok_button.setFlat(true);
+  //    QFont f = ok_button.font();
+  //    f.setPointSize(11);
+  //    ok_button.setFont(f);
 
-    rip.setText("Diary locked.");
-    rip.setInformativeText(
-        "The diary has been locked due to inactivity. If possible, any "
-        "unsaved changes will have been saved.");
-    rip.addButton(&ok_button, QMessageBox::AcceptRole);
-    rip.setDefaultButton(&ok_button);
-    rip.setTextInteractionFlags(Qt::NoTextInteraction);
-    rip.exec();
-  });
+  //    rip.setText("Diary locked.");
+  //    rip.setInformativeText(
+  //        "The diary has been locked due to inactivity. If possible, any "
+  //        "unsaved changes will have been saved.");
+  //    rip.addButton(&ok_button, QMessageBox::AcceptRole);
+  //    rip.setDefaultButton(&ok_button);
+  //    rip.setTextInteractionFlags(Qt::NoTextInteraction);
+  //    // Stop the locked dialog from putting the app back in focus.
+  //    // This does not work for some reason :(
+  //    rip.setAttribute(Qt::WA_ShowWithoutActivating);
+  //    rip.exec();
+  //  });
 }
 
 void MainWindow::apply_theme() {

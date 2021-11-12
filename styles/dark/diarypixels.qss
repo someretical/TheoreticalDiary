@@ -1,5 +1,4 @@
 QFrame#hidden_frame {
-  background-color: transparent;
   border: none;
   border-radius: 0px;
 }

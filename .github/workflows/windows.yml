@@ -20,6 +20,7 @@ jobs:
         uses: jurplel/install-qt-action@v2.6.2
         with:
           host: windows
+          modules: 'qtcharts'
           extra: --external 7z
       
       - name: Build cryptopp
