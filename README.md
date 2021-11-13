@@ -2,7 +2,7 @@
 
 ## About
 
-A digital diary with (planned) Google Drive backups. This app is a work in progress
+A digital diary with (planned) Google Drive backups. This app is a work in progress.
 
 ## Images
 
@@ -12,9 +12,11 @@ A digital diary with (planned) Google Drive backups. This app is a work in progr
 
 ![](images/readme/entry_list.png)
 
+![](images/readme/diary_stats.png)
+
 ![](images/readme/diary_pixels.png)
 
-## Download
+## Installation
 
 ### Windows
 
@@ -38,7 +40,7 @@ For Linux, the prebuilt app image is available in `theoreticaldiary-x86_64` (che
 
 ### MacOS
 
-In theory it is possible to deploy to MacOS but I'm not bothered enough to figure out how to do so. PRs are welcome.
+In theory it is possible to deploy to MacOS but I'm not bothered enough to figure out how to do so. Pull requsts are welcome on this matter.
 
 ## Building
 

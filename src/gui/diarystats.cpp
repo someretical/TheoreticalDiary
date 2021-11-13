@@ -45,7 +45,6 @@ DiaryStats::DiaryStats(const DiaryEditor *editor, QWidget *parent)
   // Initilise pie chart
   QChart *pie_chart = new QChart();
   pie_chart->setMargins(QMargins(0, 0, 0, 0));
-  pie_chart->setTitleBrush(QBrush(QColor(Qt::white)));
   pie_chart->setBackgroundVisible(false);
   pie_chart->legend()->hide();
   ui->pie_chart_view->setRenderHint(QPainter::Antialiasing);
@@ -54,7 +53,6 @@ DiaryStats::DiaryStats(const DiaryEditor *editor, QWidget *parent)
   // Initialise polar chart
   QPolarChart *polar_chart = new QPolarChart();
   polar_chart->setMargins(QMargins(0, 0, 0, 0));
-  polar_chart->setTitleBrush(QBrush(QColor(Qt::white)));
   polar_chart->setBackgroundVisible(false);
   polar_chart->legend()->hide();
   ui->polar_chart_view->setRenderHint(QPainter::Antialiasing);
@@ -63,7 +61,6 @@ DiaryStats::DiaryStats(const DiaryEditor *editor, QWidget *parent)
   // Initialise spline chart
   QChart *spline_chart = new QChart();
   spline_chart->setMargins(QMargins(0, 0, 0, 0));
-  spline_chart->setTitleBrush(QBrush(QColor(Qt::white)));
   spline_chart->setBackgroundVisible(false);
   spline_chart->legend()->hide();
   ui->spline_chart_view->setRenderHint(QPainter::Antialiasing);
@@ -227,20 +224,62 @@ void DiaryStats::render_polar_chart(
 }
 
 void DiaryStats::render_spline_chart(
-    const std::optional<td::YearMap::iterator> opt) {}
+    const std::optional<td::YearMap::iterator> opt) {
+  auto chart = ui->spline_chart_view->chart();
 
-void DiaryStats::render_comparison(const std::vector<int> &rating_counts) {
-  auto prev_month = current_month->addMonths(-1);
-
-  if (!prev_month.isValid()) {
-    // TODO set values to N/A
-    return;
+  chart->removeAllSeries();
+  for (const auto i : chart->axes()) {
+    chart->removeAxis(i);
   }
 
-  auto prev_stats = DiaryStats::get_rating_stats(
-      TheoreticalDiary::instance()->diary_holder->get_monthmap(prev_month),
-      prev_month.daysInMonth());
+  auto x_axis = new QValueAxis();
+  chart->addAxis(x_axis, Qt::AlignBottom);
+  x_axis->setRange(1, current_month->daysInMonth());
+  x_axis->setTickCount(15);
+  x_axis->setGridLineColor(light_grey);
+  x_axis->setLabelsColor(QColor(Qt::white));
+  x_axis->setLabelsVisible();
+  x_axis->setTitleText("Day");
+  x_axis->setTitleBrush(QBrush(QColor(Qt::white)));
 
+  auto y_axis = new QValueAxis();
+  chart->addAxis(y_axis, Qt::AlignLeft);
+  y_axis->setRange(1, 5);
+  y_axis->setTickCount(5);
+  y_axis->setGridLineColor(light_grey);
+  y_axis->setLabelFormat("%d");
+  y_axis->setLabelsColor(QColor(Qt::white));
+  y_axis->setLabelsVisible();
+  y_axis->setTitleText("Rating");
+  y_axis->setTitleBrush(QBrush(QColor(Qt::white)));
+
+  QSplineSeries *spline_series = new QSplineSeries();
+  chart->addSeries(spline_series);
+  spline_series->attachAxis(x_axis);
+  spline_series->attachAxis(y_axis);
+  spline_series->setColor(colours[3]);
+
+  QScatterSeries *scatter_series = new QScatterSeries();
+  chart->addSeries(scatter_series);
+  scatter_series->attachAxis(x_axis);
+  scatter_series->attachAxis(y_axis);
+  scatter_series->setMarkerSize(8);
+  scatter_series->setColor(QColor(Qt::white));
+  scatter_series->setBorderColor(QColor(Qt::transparent));
+
+  if (opt) {
+    for (const auto &i : (*opt)->second) {
+      if (td::Rating::Unknown != i.second.rating) {
+        spline_series->append(i.first, static_cast<int>(i.second.rating));
+        scatter_series->append(i.first, static_cast<int>(i.second.rating));
+      }
+    }
+  }
+
+  chart->update();
+}
+
+void DiaryStats::render_comparison(const std::vector<int> &rating_counts) {
   ui->t0->setText(QString::number(rating_counts[0]));
   ui->t1->setText(QString::number(rating_counts[1]));
   ui->t2->setText(QString::number(rating_counts[2]));
@@ -248,6 +287,30 @@ void DiaryStats::render_comparison(const std::vector<int> &rating_counts) {
   ui->t4->setText(QString::number(rating_counts[4]));
   ui->t5->setText(QString::number(rating_counts[5]));
   ui->ts->setText(QString::number(rating_counts[6]));
+
+  auto prev_month = current_month->addMonths(-1);
+  if (!prev_month.isValid()) {
+    ui->l0->setText("N/A");
+    ui->l1->setText("N/A");
+    ui->l2->setText("N/A");
+    ui->l3->setText("N/A");
+    ui->l4->setText("N/A");
+    ui->l5->setText("N/A");
+    ui->ls->setText("N/A");
+
+    ui->d0->setText("N/A");
+    ui->d1->setText("N/A");
+    ui->d2->setText("N/A");
+    ui->d3->setText("N/A");
+    ui->d4->setText("N/A");
+    ui->d5->setText("N/A");
+    ui->ds->setText("N/A");
+    return;
+  }
+
+  auto prev_stats = DiaryStats::get_rating_stats(
+      TheoreticalDiary::instance()->diary_holder->get_monthmap(prev_month),
+      prev_month.daysInMonth());
 
   ui->l0->setText(QString::number(prev_stats[0]));
   ui->l1->setText(QString::number(prev_stats[1]));
