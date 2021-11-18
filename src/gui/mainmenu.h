@@ -1,22 +1,25 @@
 /*
  * This file is part of Theoretical Diary.
- *
- * Theoretical Diary is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * Copyright (C) 2021  someretical
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * Theoretical Diary is distributed in the hope that it will be useful,
+ * 
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef MAINMENU_H
 #define MAINMENU_H
+
+#include "../core/theoreticaldiary.h"
 
 #include <QWidget>
 
@@ -40,6 +43,7 @@ public slots:
   void flush_credentials();
   void dump_drive();
   void view_info();
+  void oauth_cb(const td::Res code);
 
 private:
   bool confirm_overwrite();

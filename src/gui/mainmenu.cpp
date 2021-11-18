@@ -1,18 +1,19 @@
 /*
  * This file is part of Theoretical Diary.
- *
- * Theoretical Diary is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * Copyright (C) 2021  someretical
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * Theoretical Diary is distributed in the hope that it will be useful,
+ * 
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "mainmenu.h"
@@ -20,6 +21,7 @@
 #include "../util/zipper.h"
 #include "aboutdialog.h"
 #include "mainwindow.h"
+#include "o1requestor.h"
 #include "promptpassword.h"
 #include "ui_mainmenu.h"
 
@@ -237,20 +239,68 @@ void MainMenu::import_diary() {
       ->show_diary_menu(QDate::currentDate());
 }
 
+void MainMenu::oauth_cb(const td::Res code) {
+  disconnect(TheoreticalDiary::instance()->gwrapper,
+             &GoogleWrapper::sig_oauth2_callback, this, &MainMenu::oauth_cb);
+
+  if (td::Res::No == code) {
+    QMessageBox rip(this);
+    QPushButton ok_button("OK", &rip);
+    ok_button.setFlat(true);
+    QFont f = ok_button.font();
+    f.setPointSize(11);
+    ok_button.setFont(f);
+
+    rip.setText("Authentication error.");
+    rip.setInformativeText("The app was unable to authenticate with Google.");
+    rip.addButton(&ok_button, QMessageBox::AcceptRole);
+    rip.setDefaultButton(&ok_button);
+    rip.setTextInteractionFlags(Qt::NoTextInteraction);
+
+    rip.exec();
+    return;
+  }
+
+  // Google drive testing
+
+  // diary.dat 17f3nXYByqW7Xf0WD5ujSe8uwiAGRiLbONSWd9V8LKynnmIS2
+  // diary.dat.bak 1X0BVcUn3SeMgkilRAn0qx2EalW3HvvSWhbINhlxy4MbM4Tvm
+  // List files
+
+  //  QVariantMap params();
+  //  params.insert("spaces", "appDataFolder");
+
+  //  QNetworkRequest request(QUrl("https://www.googleapis.com/drive/v3/files"),
+  //                          params);
+  //  auto reply =
+  //  TheoreticalDiary::instance()->gwrapper->requester->get(request);
+
+  //  connect(reply, &QNetworkReply::finished, [&]() {
+  //    if (QNetworkReply::NoError != reply->error()) {
+  //      qDebug() << "network err1" << reply->error();
+  //      return;
+  //    }
+
+  //    auto json =
+  //        nlohmann::json::parse(reply1->readAll().toStdString(), nullptr,
+  //        false);
+  //    if (json.is_discarded()) {
+  //      qDebug() << "failed to parse json";
+  //      return;
+  //    }
+
+  //    qDebug() << "successful";
+  //  });
+}
+
 void MainMenu::download_diary() {
   if (!confirm_overwrite())
     return;
 
-  QMessageBox placeholder(this);
-  QPushButton ok_button("OK", &placeholder);
-  ok_button.setFlat(true);
-  QFont f = ok_button.font();
-  f.setPointSize(11);
-  ok_button.setFont(f);
-  placeholder.setText("Placeholder dialog");
-  placeholder.addButton(&ok_button, QMessageBox::AcceptRole);
-  placeholder.setTextInteractionFlags(Qt::NoTextInteraction);
-  placeholder.exec();
+  connect(TheoreticalDiary::instance()->gwrapper,
+          &GoogleWrapper::sig_oauth2_callback, this, &MainMenu::oauth_cb);
+
+  TheoreticalDiary::instance()->gwrapper->authenticate();
 }
 
 void MainMenu::flush_credentials() {
