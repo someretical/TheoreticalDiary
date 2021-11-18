@@ -28,6 +28,7 @@
 DiaryEditor::DiaryEditor(QWidget *parent)
     : QWidget(parent), ui(new Ui::DiaryEditor) {
   ui->setupUi(this);
+  ui->alert_text->setText("");
 
   // These will be filled when apply_theme is called.
   base_stylesheet = new QString("");
@@ -358,6 +359,9 @@ void DiaryEditor::year_changed(const QDate &date) {
 
 // Triggered when a calendar button is clicked
 void DiaryEditor::date_clicked(const int day) {
+  ui->alert_text->setText("");
+  ui->alert_text->update();
+
   // Don't respond to spam clicks on same button.
   if (day == last_selected_day)
     return;
@@ -432,19 +436,8 @@ void DiaryEditor::update_day() {
   if (!res)
     return; // The save error window will be shown by the function.
 
-  QMessageBox ok(this);
-  QPushButton ok_button("OK", &ok);
-  ok_button.setFlat(true);
-  QFont f = ok_button.font();
-  f.setPointSize(11);
-  ok_button.setFont(f);
-
-  ok.setText("Diary saved.");
-  ok.addButton(&ok_button, QMessageBox::AcceptRole);
-  ok.setDefaultButton(&ok_button);
-  ok.setTextInteractionFlags(Qt::NoTextInteraction);
-
-  ok.exec();
+  ui->alert_text->setText("Saved entry.");
+  ui->alert_text->update();
 
   td::CalendarButtonData d{
       std::make_optional<int>(last_selected_day), std::nullopt,
@@ -513,6 +506,9 @@ void DiaryEditor::delete_day() {
                  ->save_diary(false);
   if (!res)
     return; // The save error window will be shown by the function.
+
+  ui->alert_text->setText("Deleted entry.");
+  ui->alert_text->update();
 
   update_info_pane(current_date, td::Entry{false, td::Rating::Unknown, "", 0});
 

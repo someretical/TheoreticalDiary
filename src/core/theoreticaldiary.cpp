@@ -25,15 +25,6 @@
 
 TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
     : QApplication(argc, argv) {
-  gwrapper = new GoogleWrapper(this);
-  diary_holder = new DiaryHolder();
-  encryptor = new Encryptor();
-  local_settings = new td::LocalSettings{"", "", false};
-  local_settings_modified = false;
-  diary_modified = false;
-  oauth_modified = false;
-  application_theme = new QString("dark");
-
   // Load main font
   QFontDatabase::addApplicationFont(":/Roboto/Roboto-Black.ttf");
   QFontDatabase::addApplicationFont(":/Roboto/Roboto-BlackItalic.ttf");
@@ -81,6 +72,15 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
   setApplicationName("Theoretical Diary");
   setWindowIcon(QIcon(":/linux_icons/hicolor/256/apps/theoreticaldiary.png"));
   setDesktopFileName("io.github.someretical.theoreticaldiary.desktop");
+
+  gwrapper = new GoogleWrapper(this);
+  diary_holder = new DiaryHolder();
+  encryptor = new Encryptor();
+  local_settings = new td::LocalSettings{"", "", false};
+  local_settings_modified = false;
+  diary_modified = false;
+  oauth_modified = false;
+  application_theme = new QString("dark");
 
   // Create app directory
   QDir dir(data_location());

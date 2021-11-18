@@ -137,8 +137,10 @@ void DiaryStats::render_pie_chart(const std::vector<int> &rating_counts) {
   ui->pie_chart_view->chart()->removeAllSeries();
 
   QPieSeries *pie_series = new QPieSeries();
+  pie_series->setPieEndAngle(330);
 
   if (current_month->daysInMonth() == rating_counts[0]) {
+    // If there is no data for the current month, display an empty pie chart.
     pie_series->append(ratings[0], current_month->daysInMonth());
     QPieSlice *slice = pie_series->slices().at(0);
     slice->setBrush(colours[0]);
@@ -147,15 +149,24 @@ void DiaryStats::render_pie_chart(const std::vector<int> &rating_counts) {
     slice->setBorderWidth(4);
     slice->setBorderColor(light_grey);
   } else {
-    for (int i = 1; i < 6; ++i) {
-      if (0 == rating_counts[i])
-        continue;
+    // Display pie chart slices from largest to smallest.
+    auto sorted = std::vector<std::pair<td::Rating, int>>();
+    for (int i = 1; i < 6; ++i)
+      if (0 != rating_counts[i])
+        sorted.push_back(
+            std::make_pair(static_cast<td::Rating>(i), rating_counts[i]));
 
+    std::sort(sorted.begin(), sorted.end(),
+              [](std::pair<td::Rating, int> a, std::pair<td::Rating, int> b) {
+                return a.second > b.second;
+              });
+
+    for (const auto &i : sorted) {
       pie_series->append(QString("%1 - %2 day%3")
-                             .arg(QString(ratings[i]),
-                                  QString::number(rating_counts[i]),
-                                  1 == rating_counts[i] ? "" : "s"),
-                         rating_counts[i]);
+                             .arg(QString(ratings[static_cast<int>(i.first)]),
+                                  QString::number(i.second),
+                                  1 == i.second ? "" : "s"),
+                         i.second);
 
       QPieSlice *slice =
           pie_series->slices().at(pie_series->slices().size() - 1);
@@ -163,7 +174,7 @@ void DiaryStats::render_pie_chart(const std::vector<int> &rating_counts) {
       slice->setBorderColor(QColor(49, 54, 59, 255));
       slice->setLabelColor(QColor(Qt::white));
       slice->setLabelVisible();
-      slice->setBrush(colours[i]);
+      slice->setBrush(colours[static_cast<int>(i.first)]);
     }
   }
 
