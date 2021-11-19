@@ -1,16 +1,4 @@
-CalendarButton {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-image: url(:/themes/global/star_black.svg);
-}
-
-CalendarButton:pressed {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-image: url(:/themes/global/star_black.svg);
-}
-
-DiaryEntryDayLabel {
+CalendarButton, CalendarButton:pressed, DiaryEntryDayLabel {
   background-position: center;
   background-repeat: no-repeat;
   background-image: url(:/themes/global/star_black.svg);

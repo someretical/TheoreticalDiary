@@ -1,17 +1,17 @@
 /*
  * This file is part of Theoretical Diary.
  * Copyright (C) 2021  someretical
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -33,6 +33,8 @@ DiaryPixels::DiaryPixels(const DiaryEditor *editor, QWidget *parent)
   ui->setupUi(this);
 
   rating_stylesheets = new std::vector<QString>();
+  black_star = new QString("");
+  white_star = new QString("");
 
   current_year = new QDate(QDate::currentDate());
   ui->year_edit->setDate(*current_year);
@@ -54,6 +56,8 @@ DiaryPixels::~DiaryPixels() {
   delete ui;
   delete current_year;
   delete rating_stylesheets;
+  delete black_star;
+  delete white_star;
 }
 
 void DiaryPixels::apply_theme() {
@@ -62,6 +66,16 @@ void DiaryPixels::apply_theme() {
   QFile file(QString(":/%1/diarypixels.qss").arg(theme));
   file.open(QIODevice::ReadOnly);
   setStyleSheet(file.readAll());
+  file.close();
+
+  file.setFileName(":/global/small_white_star.qss");
+  file.open(QIODevice::ReadOnly);
+  *white_star = file.readAll();
+  file.close();
+
+  file.setFileName(":/global/small_black_star.qss");
+  file.open(QIODevice::ReadOnly);
+  *black_star = file.readAll();
   file.close();
 
   rating_stylesheets->clear();
@@ -125,9 +139,8 @@ void DiaryPixels::render_grid() {
     if (iter == (*opt)->second.end()) {
       for (int day = 0; day < days; ++day) {
         date.setDate(year, month + 1, day + 1);
-        ui->grid
-            ->addWidget(
-                new PixelLabel(td::Rating::Unknown, date, this), month, day + 1 /* +1 here because of the month label added at the start of each row */);
+        ui->grid->addWidget(
+            new PixelLabel(td::Rating::Unknown, false, date, this), month, day + 1 /* +1 here because of the month label added at the start of each row */);
       }
 
       continue;
@@ -139,10 +152,12 @@ void DiaryPixels::render_grid() {
 
       date.setDate(year, month + 1, day + 1);
       if (iter2 == iter->second.end()) {
-        ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, date, this),
-                            month, day + 1);
+        ui->grid->addWidget(
+            new PixelLabel(td::Rating::Unknown, false, date, this), month,
+            day + 1);
       } else {
-        ui->grid->addWidget(new PixelLabel(iter2->second.rating, date, this),
+        ui->grid->addWidget(new PixelLabel(iter2->second.rating,
+                                           iter2->second.important, date, this),
                             month, day + 1);
       }
     }
@@ -199,12 +214,38 @@ void DiaryPixels::export_image() {
 /*
  * PixelLabel class
  */
-PixelLabel::PixelLabel(const td::Rating &r, const QDate &date, QWidget *parent)
+PixelLabel::PixelLabel(const td::Rating &r, const bool special,
+                       const QDate &date, QWidget *parent)
     : QLabel(parent) {
   setFixedWidth(LABEL_SIZE);
   setFixedHeight(LABEL_SIZE);
-  setStyleSheet(qobject_cast<DiaryPixels *>(parent)->rating_stylesheets->at(
-      static_cast<int>(r)));
+
+  QString stylesheet =
+      qobject_cast<DiaryPixels *>(parent)->rating_stylesheets->at(
+          static_cast<int>(r));
+
+  // Set background star if necessary
+  if (special) {
+    switch (r) {
+    case td::Rating::Unknown:
+      // Fall through
+    case td::Rating::VeryBad:
+      // Fall through
+    case td::Rating::Bad:
+      // Fall through
+    case td::Rating::Ok:
+      stylesheet.append(qobject_cast<DiaryPixels *>(parent)->white_star);
+      break;
+    case td::Rating::Good:
+      // Fall through
+    case td::Rating::VeryGood:
+      stylesheet.append(qobject_cast<DiaryPixels *>(parent)->black_star);
+      break;
+    }
+  }
+
+  setStyleSheet(stylesheet);
+
   setToolTip(QString("%1 %2%3").arg(date.toString("MMMM"),
                                     QString::number(date.day()),
                                     DiaryMenu::get_day_suffix(date.day())));

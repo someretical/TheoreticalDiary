@@ -34,5 +34,7 @@
         <file>dark/diary_entry_list/0.qss</file>
         <file>dark/diarystats.qss</file>
         <file>global/diarystats.qss</file>
+        <file>global/small_white_star.qss</file>
+        <file>global/small_black_star.qss</file>
     </qresource>
 </RCC>

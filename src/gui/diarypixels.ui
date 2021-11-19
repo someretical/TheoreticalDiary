@@ -140,6 +140,11 @@
         </item>
         <item row="0" column="3">
          <widget class="QPushButton" name="export_img_button">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Export image</string>
           </property>

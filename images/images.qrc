@@ -81,5 +81,7 @@
         <file>themes/global/star_black.svg</file>
         <file>themes/global/star_white.svg</file>
         <file>windows_icons/icon.ico</file>
+        <file>themes/global/small_star_white.svg</file>
+        <file>themes/global/small_star_black.svg</file>
     </qresource>
 </RCC>
