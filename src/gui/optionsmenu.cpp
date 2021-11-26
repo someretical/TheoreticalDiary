@@ -50,8 +50,6 @@ OptionsMenu::OptionsMenu(bool from_diary_editor, QWidget *parent)
           &OptionsMenu::upload_diary, Qt::QueuedConnection);
   connect(ui->flush_oauth_button, &QPushButton::clicked, this,
           &OptionsMenu::flush_oauth, Qt::QueuedConnection);
-  connect(ui->apply_button, &QPushButton::clicked, this,
-          &OptionsMenu::save_settings, Qt::QueuedConnection);
   connect(ui->dev_list_files_button, &QPushButton::clicked, this,
           &OptionsMenu::dev_list, Qt::QueuedConnection);
   connect(ui->dev_upload_file_button, &QPushButton::clicked, this,

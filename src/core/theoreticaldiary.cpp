@@ -38,7 +38,13 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
   file.close();
 
   setApplicationName("Theoretical Diary");
-  setWindowIcon(QIcon(":/linux_icons/hicolor/256/apps/theoreticaldiary.png"));
+
+  // o2 needs these 2 set apparently.
+  setOrganizationName("someretical");
+  setOrganizationDomain("someretical.com");
+
+  setWindowIcon(QIcon(":/linux_icons/hicolor/25"
+                      "6/apps/theoreticaldiary.png"));
   setDesktopFileName("io.github.someretical.theoreticaldiary.desktop");
 
   gwrapper = new GoogleWrapper(this);

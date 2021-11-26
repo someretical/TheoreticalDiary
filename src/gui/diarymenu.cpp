@@ -28,7 +28,6 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QShortcut>
 #include <fstream>
 #include <json.hpp>
 
@@ -46,12 +45,6 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
   ui->statistics->layout()->addWidget(new DiaryStats(diary_editor, this));
   ui->pixels->layout()->addWidget(new DiaryPixels(diary_editor, this));
 
-  // Ctrl S to save the diary
-  save_shortcut = new QShortcut(QKeySequence::Save, this);
-  save_shortcut->setAutoRepeat(false);
-  connect(save_shortcut, &QShortcut::activated, diary_editor,
-          &DiaryEditor::update_day, Qt::QueuedConnection);
-
   connect(ui->tabWidget, &QTabWidget::currentChanged, this,
           &DiaryMenu::tab_changed, Qt::QueuedConnection);
 
@@ -62,7 +55,6 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
 
 DiaryMenu::~DiaryMenu() {
   delete ui;
-  delete save_shortcut;
   delete first_created;
 }
 

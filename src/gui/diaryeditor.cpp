@@ -41,6 +41,13 @@ DiaryEditor::DiaryEditor(QWidget *parent)
   current_month_offset = 0;
   last_selected_day = 0;
 
+  // Ctrl S to save the diary
+  save_shortcut = new QShortcut(QKeySequence::Save, this);
+  save_shortcut->setAutoRepeat(false);
+  connect(
+      save_shortcut, &QShortcut::activated, this, [&]() { update_day(false); },
+      Qt::QueuedConnection);
+
   // Calendar widget actions
   // See https://doc.qt.io/qt-5/qcombobox.html#currentIndexChanged for why
   // QOverload<int> is needed
@@ -55,8 +62,9 @@ DiaryEditor::DiaryEditor(QWidget *parent)
           Qt::QueuedConnection);
 
   // Info pane actions
-  connect(ui->update_button, &QPushButton::clicked, this,
-          &DiaryEditor::update_day, Qt::QueuedConnection);
+  connect(
+      ui->update_button, &QPushButton::clicked, this,
+      [&]() { update_day(false); }, Qt::QueuedConnection);
   connect(ui->delete_button, &QPushButton::clicked, this,
           &DiaryEditor::delete_day, Qt::QueuedConnection);
   connect(ui->reset_button, &QPushButton::clicked, this,
@@ -86,6 +94,7 @@ DiaryEditor::~DiaryEditor() {
   delete rating_stylesheets;
   delete base_stylesheet;
   delete selected_stylesheet;
+  delete save_shortcut;
 }
 
 void DiaryEditor::apply_theme() {
@@ -241,7 +250,6 @@ bool DiaryEditor::confirm_switch() {
   QPushButton cancel_button("Cancel", &confirm);
   cancel_button.setFlat(true);
   cancel_button.setFont(f);
-
   confirm.setFont(f);
   confirm.setText("There are unsaved changes.");
   confirm.setInformativeText(
@@ -254,7 +262,8 @@ bool DiaryEditor::confirm_switch() {
 
   switch (confirm.exec()) {
   case QMessageBox::AcceptRole:
-    update_day();
+    // Suppress entry saved message so it doesn't appear on new date.
+    update_day(true);
     break;
   case QMessageBox::RejectRole:
     return false;
@@ -406,7 +415,7 @@ void DiaryEditor::update_info_pane(const QDate &date, const td::Entry &entry) {
   ui->entry_edit->blockSignals(false);
 }
 
-void DiaryEditor::update_day() {
+void DiaryEditor::update_day(const bool suppress_message) {
   // Add the entry to the in memory map.
   auto current_date =
       QDate(ui->year_edit->date().year(),
@@ -428,8 +437,10 @@ void DiaryEditor::update_day() {
   if (!res)
     return; // The save error window will be shown by the function.
 
-  ui->alert_text->setText("Saved entry.");
-  ui->alert_text->update();
+  if (!suppress_message) {
+    ui->alert_text->setText("Saved entry.");
+    ui->alert_text->update();
+  }
 
   td::CalendarButtonData d{
       std::make_optional<int>(last_selected_day), std::nullopt,

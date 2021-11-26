@@ -129,6 +129,11 @@ bool MainMenu::get_diary_contents() {
       rip.setTextInteractionFlags(Qt::NoTextInteraction);
       rip.exec();
 
+      ui->decrypt_button->setEnabled(true);
+      ui->import_button->setEnabled(true);
+      ui->new_button->setEnabled(true);
+      ui->options_button->setEnabled(true);
+
       return false;
     }
   }

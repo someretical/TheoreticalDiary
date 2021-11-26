@@ -20,7 +20,6 @@
 #define DIARYMENU_H
 
 #include <QDate>
-#include <QShortcut>
 #include <QWidget>
 
 namespace Ui {
@@ -44,7 +43,6 @@ public slots:
 
 private:
   Ui::DiaryMenu *ui;
-  QShortcut *save_shortcut;
 };
 
 #endif // DIARYMENU_H
