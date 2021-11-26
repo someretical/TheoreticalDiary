@@ -46,33 +46,35 @@ DiaryEditor::DiaryEditor(QWidget *parent)
   // QOverload<int> is needed
   connect(ui->month_dropdown,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-          &DiaryEditor::month_changed);
+          &DiaryEditor::month_changed, Qt::QueuedConnection);
   connect(ui->year_edit, &QDateEdit::dateChanged, this,
-          &DiaryEditor::year_changed);
-  connect(ui->next_month, &QPushButton::clicked, this,
-          &DiaryEditor::next_month);
-  connect(ui->prev_month, &QPushButton::clicked, this,
-          &DiaryEditor::prev_month);
+          &DiaryEditor::year_changed, Qt::QueuedConnection);
+  connect(ui->next_month, &QPushButton::clicked, this, &DiaryEditor::next_month,
+          Qt::QueuedConnection);
+  connect(ui->prev_month, &QPushButton::clicked, this, &DiaryEditor::prev_month,
+          Qt::QueuedConnection);
 
   // Info pane actions
   connect(ui->update_button, &QPushButton::clicked, this,
-          &DiaryEditor::update_day);
+          &DiaryEditor::update_day, Qt::QueuedConnection);
   connect(ui->delete_button, &QPushButton::clicked, this,
-          &DiaryEditor::delete_day);
+          &DiaryEditor::delete_day, Qt::QueuedConnection);
   connect(ui->reset_button, &QPushButton::clicked, this,
-          &DiaryEditor::reset_day);
+          &DiaryEditor::reset_day, Qt::QueuedConnection);
 
   // Trigger unsaved changes
   connect(ui->rating_dropdown,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
-          TheoreticalDiary::instance(), &TheoreticalDiary::diary_changed);
+          TheoreticalDiary::instance(), &TheoreticalDiary::diary_changed,
+          Qt::QueuedConnection);
   connect(ui->special_box, &QCheckBox::clicked, TheoreticalDiary::instance(),
-          &TheoreticalDiary::diary_changed);
+          &TheoreticalDiary::diary_changed, Qt::QueuedConnection);
   connect(ui->entry_edit, &QPlainTextEdit::textChanged,
-          TheoreticalDiary::instance(), &TheoreticalDiary::diary_changed);
+          TheoreticalDiary::instance(), &TheoreticalDiary::diary_changed,
+          Qt::QueuedConnection);
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &DiaryEditor::apply_theme);
+          &DiaryEditor::apply_theme, Qt::QueuedConnection);
   apply_theme();
 
   // Render current month
@@ -228,30 +230,19 @@ bool DiaryEditor::confirm_switch() {
   QMessageBox confirm(this);
 
   QPushButton discard_button("Do not save", &confirm);
-  QFont f3 = discard_button.font();
-  f3.setPointSize(11);
-  discard_button.setFont(f3);
-  // This chain is a beast.
-  // It goes (MainWindow->central_grid)->Diarymenu (2)
-  // (DiaryMenu->ui->tabWidget->editor)->DiaryEditor (4)
-  // I THINK
-  discard_button.setStyleSheet(*qobject_cast<MainWindow *>(parentWidget()
-                                                               ->parentWidget()
-                                                               ->parentWidget()
-                                                               ->parentWidget()
-                                                               ->parentWidget()
-                                                               ->parentWidget())
-                                    ->danger_button_style);
-  QPushButton save_button("Save", &confirm);
-  QFont f = save_button.font();
+  QFont f = discard_button.font();
   f.setPointSize(11);
+  discard_button.setFont(f);
+  discard_button.setStyleSheet(
+      *TheoreticalDiary::instance()->danger_button_style);
+
+  QPushButton save_button("Save", &confirm);
   save_button.setFont(f);
   QPushButton cancel_button("Cancel", &confirm);
   cancel_button.setFlat(true);
-  QFont f2 = cancel_button.font();
-  f2.setPointSize(11);
-  cancel_button.setFont(f2);
+  cancel_button.setFont(f);
 
+  confirm.setFont(f);
   confirm.setText("There are unsaved changes.");
   confirm.setInformativeText(
       "Are you sure you want to switch dates without saving?");
@@ -468,19 +459,12 @@ void DiaryEditor::delete_day() {
   QFont f = yes.font();
   f.setPointSize(11);
   yes.setFont(f);
-  yes.setStyleSheet(*qobject_cast<MainWindow *>(parentWidget()
-                                                    ->parentWidget()
-                                                    ->parentWidget()
-                                                    ->parentWidget()
-                                                    ->parentWidget()
-                                                    ->parentWidget())
-                         ->danger_button_style);
+  yes.setStyleSheet(*TheoreticalDiary::instance()->danger_button_style);
   QPushButton no("NO", &confirm);
   no.setFlat(true);
-  QFont f2 = no.font();
-  f2.setPointSize(11);
-  no.setFont(f2);
+  no.setFont(f);
 
+  confirm.setFont(f);
   confirm.setText("Delete entry.");
   confirm.setInformativeText("Are you sure you want to delete this entry?");
   confirm.addButton(&yes, QMessageBox::AcceptRole);

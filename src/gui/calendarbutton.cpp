@@ -33,12 +33,13 @@ CalendarButton::CalendarButton(const td::CalendarButtonData &d)
 
   // Apply new themes if requested
   connect(*d.parent, &DiaryEditor::sig_re_render_buttons, this,
-          &CalendarButton::re_render);
+          &CalendarButton::re_render, Qt::QueuedConnection);
 
   // Link click event through here to pass day variable through.
-  connect(this, &CalendarButton::clicked, this, &CalendarButton::clicked_on);
+  connect(this, &CalendarButton::clicked, this, &CalendarButton::clicked_on,
+          Qt::QueuedConnection);
   connect(this, &CalendarButton::sig_clicked, *d.parent,
-          &DiaryEditor::date_clicked);
+          &DiaryEditor::date_clicked, Qt::QueuedConnection);
 
   re_render(d);
 }

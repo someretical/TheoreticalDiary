@@ -5,6 +5,6 @@
 [submodule "external-libs/cryptopp"]
 	path = external-libs/cryptopp
 	url = https://github.com/weidai11/cryptopp.git
-[submodule "external-libs/o2"]
-	path = external-libs/o2
-	url = https://github.com/pipacs/o2.git
+[submodule "external-libs/someretical-o2"]
+	path = external-libs/someretical-o2
+	url = https://github.com/someretical/o2.git

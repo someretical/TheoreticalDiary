@@ -46,6 +46,7 @@ public:
   std::optional<std::string> decrypt(const std::string &encrypted);
 
   bool key_set;
+  std::string *encrypted_str;
 
 private:
   CryptoPP::SecByteBlock *salt;

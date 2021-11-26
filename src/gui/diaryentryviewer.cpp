@@ -39,18 +39,18 @@ DiaryEntryViewer::DiaryEntryViewer(const DiaryEditor *editor, QWidget *parent)
   // Navigator slots
   connect(ui->month_dropdown,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-          &DiaryEntryViewer::month_changed);
+          &DiaryEntryViewer::month_changed, Qt::QueuedConnection);
   connect(ui->year_edit, &QDateEdit::dateChanged, this,
-          &DiaryEntryViewer::year_changed);
+          &DiaryEntryViewer::year_changed, Qt::QueuedConnection);
   connect(ui->next_month, &QPushButton::clicked, this,
-          &DiaryEntryViewer::next_month);
+          &DiaryEntryViewer::next_month, Qt::QueuedConnection);
   connect(ui->prev_month, &QPushButton::clicked, this,
-          &DiaryEntryViewer::prev_month);
+          &DiaryEntryViewer::prev_month, Qt::QueuedConnection);
 
   connect(editor, &DiaryEditor::sig_re_render, this,
-          &DiaryEntryViewer::change_month);
+          &DiaryEntryViewer::change_month, Qt::QueuedConnection);
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &DiaryEntryViewer::apply_theme);
+          &DiaryEntryViewer::apply_theme, Qt::QueuedConnection);
   apply_theme();
 
   change_month(*current_month, true);
@@ -228,9 +228,9 @@ DiaryEntryDayLabel::DiaryEntryDayLabel(const td::LabelData &d, QWidget *parent)
   update();
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &DiaryEntryDayLabel::apply_theme);
+          &DiaryEntryDayLabel::apply_theme, Qt::QueuedConnection);
   connect(d.parent, &DiaryEntryViewer::sig_re_render_theme, this,
-          &DiaryEntryDayLabel::apply_theme);
+          &DiaryEntryDayLabel::apply_theme, Qt::QueuedConnection);
   apply_theme();
 }
 
@@ -290,7 +290,7 @@ DiaryEntryDayMessage::DiaryEntryDayMessage(const std::string &m,
   setCursor(QCursor(Qt::PointingHandCursor));
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &DiaryEntryDayMessage::apply_theme);
+          &DiaryEntryDayMessage::apply_theme, Qt::QueuedConnection);
   apply_theme();
 }
 

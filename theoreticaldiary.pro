@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Theoretical Diary.  If not, see <https://www.gnu.org/licenses/>.
 
-include(external-libs/o2/src/src.pri)
+include(external-libs/someretical-o2/src/src.pri)
 
 INCLUDEPATH += external-libs/json/single_include/nlohmann \
     external-libs/cryptopp \
@@ -35,55 +35,60 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    src/gui/aboutdialog.cpp \
     src/core/diaryholder.cpp \
     src/core/googlewrapper.cpp \
     src/core/theoreticaldiary.cpp \
+    src/gui/aboutdialog.cpp \
+    src/gui/apiresponse.cpp \
     src/gui/calendarbutton.cpp \
     src/gui/diaryeditor.cpp \
     src/gui/diaryentryviewer.cpp \
     src/gui/diarymenu.cpp \
     src/gui/diarypixels.cpp \
     src/gui/diarystats.cpp \
+    src/gui/licensesdialog.cpp \
     src/gui/mainmenu.cpp \
     src/gui/mainwindow.cpp \
-    src/gui/promptpassword.cpp \
-    src/gui/updatepassword.cpp \
+    src/gui/optionsmenu.cpp \
     src/main.cpp \
     src/util/encryptor.cpp \
+    src/util/passwordlineedit.cpp \
     src/util/runguard.cpp \
     src/util/zipper.cpp
 
 HEADERS += \
-    src/gui/aboutdialog.h \
     src/core/diaryholder.h \
     src/core/googlewrapper.h \
     src/core/theoreticaldiary.h \
+    src/gui/aboutdialog.h \
+    src/gui/apiresponse.h \
     src/gui/calendarbutton.h \
     src/gui/diaryeditor.h \
     src/gui/diaryentryviewer.h \
     src/gui/diarymenu.h \
     src/gui/diarypixels.h \
     src/gui/diarystats.h \
+    src/gui/licensesdialog.h \
     src/gui/mainmenu.h \
     src/gui/mainwindow.h \
-    src/gui/promptpassword.h \
-    src/gui/updatepassword.h \
+    src/gui/optionsmenu.h \
     src/util/encryptor.h \
+    src/util/passwordlineedit.h \
     src/util/runguard.h \
     src/util/zipper.h
 
 FORMS += \
     src/gui/aboutdialog.ui \
+    src/gui/apiresponse.ui \
     src/gui/diaryeditor.ui \
     src/gui/diaryentryviewer.ui \
     src/gui/diarymenu.ui \
     src/gui/diarypixels.ui \
     src/gui/diarystats.ui \
+    src/gui/licensesdialog.ui \
     src/gui/mainmenu.ui \
     src/gui/mainwindow.ui \
-    src/gui/promptpassword.ui \
-    src/gui/updatepassword.ui
+    src/gui/optionsmenu.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -16,35 +16,47 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYMENU_H
-#define DIARYMENU_H
+#ifndef OPTIONSMENU_H
+#define OPTIONSMENU_H
 
-#include <QDate>
-#include <QShortcut>
 #include <QWidget>
 
 namespace Ui {
-class DiaryMenu;
+class OptionsMenu;
 }
 
-class DiaryMenu : public QWidget {
+class OptionsMenu : public QWidget {
   Q_OBJECT
 
 public:
-  explicit DiaryMenu(const QDate &date, QWidget *parent = nullptr);
-  ~DiaryMenu();
+  explicit OptionsMenu(bool from_diary_editor, QWidget *parent = nullptr);
+  ~OptionsMenu();
 
-  static QString get_day_suffix(const int &day);
-
-  QDate *first_created;
+  void dev_unknown_file();
 
 public slots:
   void apply_theme();
-  void tab_changed(const int &tab);
+  void back();
+  void save_settings();
+  void setup_layout();
+  void export_diary();
+  void change_password();
+  void change_password_cb();
+  void download_backup();
+  void upload_diary();
+  void flush_oauth();
+  void dev_list();
+  void dev_upload();
+  void dev_download();
+  void dev_update();
+  void dev_copy();
+  void dev_delete();
+  void show_about();
+  void show_licenses();
 
 private:
-  Ui::DiaryMenu *ui;
-  QShortcut *save_shortcut;
+  Ui::OptionsMenu *ui;
+  bool diary_editor_mode;
 };
 
-#endif // DIARYMENU_H
+#endif // OPTIONSMENU_H

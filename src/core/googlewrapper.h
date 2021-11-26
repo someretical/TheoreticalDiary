@@ -33,6 +33,7 @@ enum Res : int;
 #include <QObject>
 #include <QString>
 #include <QUrl>
+#include <optional>
 
 class GoogleWrapper : public QObject {
   Q_OBJECT
@@ -45,37 +46,27 @@ public:
   ~GoogleWrapper();
   void authenticate();
 
+  void list_files();
+  td::Res upload_file(const QString &local_path, const QString &name);
+  void copy_file(const QString &id, const QString &new_name);
+  void download_file(const QString &id);
+  void delete_file(const QString &id);
+  td::Res update_file(QString &id, QString &local_path);
+
   O2Google *google;
   QNetworkAccessManager *manager;
-  O2Requestor *requester;
+  O2Requestor *requestor;
 
 public slots:
   void auth_err();
+  void dc_oauth_slots();
+  void dc_requestor_slots();
+  void display_auth_error(QWidget *p);
+  void display_network_error(QWidget *p);
 
 private slots:
   void auth_ok();
   void open_browser(const QUrl &url);
 };
-
-// class DriveDownloader : public QObject {
-//   Q_OBJECT
-
-// signals:
-//   void update_progress(qint64 bytesRead, qint64 totalBytes);
-//   void finished(const td::Res code);
-
-// public:
-//   DriveDownloader(const QString &path, const QString &file_id,
-//                   QObject *parent = nullptr);
-//   ~DriveDownloader();
-
-//   QNetworkReply *reply;
-//   QFile *dest;
-
-// public slots:
-//   void download_progress(const qint64 bytesRead, const qint64 totalBytes);
-//   void packet_received();
-//   void download_finished();
-// };
 
 #endif // GOOGLEWRAPPER_H

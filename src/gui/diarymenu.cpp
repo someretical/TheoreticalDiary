@@ -36,10 +36,6 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
     : QWidget(parent), ui(new Ui::DiaryMenu) {
   ui->setupUi(this);
 
-  ui->sync_button->setChecked(
-      TheoreticalDiary::instance()->local_settings->sync_enabled);
-  ui->sync_button->update();
-
   first_created = new QDate(date);
 
   // When changes are made in the editor, the other tabs need to know about it
@@ -54,21 +50,13 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
   save_shortcut = new QShortcut(QKeySequence::Save, this);
   save_shortcut->setAutoRepeat(false);
   connect(save_shortcut, &QShortcut::activated, diary_editor,
-          &DiaryEditor::update_day);
+          &DiaryEditor::update_day, Qt::QueuedConnection);
 
-  connect(ui->close_button, &QPushButton::clicked, this,
-          &DiaryMenu::close_window);
-  connect(ui->pwd_button, &QPushButton::clicked, this,
-          &DiaryMenu::change_password);
-  connect(ui->export_button, &QPushButton::clicked, this,
-          &DiaryMenu::export_diary);
-  connect(ui->sync_button, &QPushButton::clicked, this,
-          &DiaryMenu::toggle_sync);
   connect(ui->tabWidget, &QTabWidget::currentChanged, this,
-          &DiaryMenu::tab_changed);
+          &DiaryMenu::tab_changed, Qt::QueuedConnection);
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &DiaryMenu::apply_theme);
+          &DiaryMenu::apply_theme, Qt::QueuedConnection);
   apply_theme();
 }
 
@@ -100,6 +88,11 @@ void DiaryMenu::tab_changed(const int &tab) {
   // Pixels tab
   case 3:
     break;
+  // Options tab
+  case 4:
+    qobject_cast<MainWindow *>(parentWidget()->parentWidget())
+        ->show_options_menu();
+    break;
   }
 }
 
@@ -118,66 +111,4 @@ QString DiaryMenu::get_day_suffix(const int &day) {
   default:
     return "th";
   }
-}
-
-void DiaryMenu::close_window() {
-  qobject_cast<MainWindow *>(parentWidget()->parentWidget())->close();
-}
-
-void DiaryMenu::change_password() {
-  qobject_cast<MainWindow *>(parentWidget()->parentWidget())
-      ->show_update_password_prompt(*first_created);
-}
-
-void DiaryMenu::export_diary() {
-  auto filename = QFileDialog::getSaveFileName(
-      this, "Export diary", QString("%1/export.json").arg(QDir::homePath()),
-      "JSON (*.json);;All files");
-
-  if (filename.isEmpty())
-    return;
-
-  std::ofstream dst(filename.toStdString());
-
-  if (!dst.fail()) {
-    nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
-    dst << j.dump(4);
-    dst.close();
-
-    QMessageBox ok(this);
-    QPushButton ok_button("OK", &ok);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    ok.setText("Diary exported.");
-    ok.addButton(&ok_button, QMessageBox::AcceptRole);
-    ok.setDefaultButton(&ok_button);
-    ok.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    ok.exec();
-  } else {
-    QMessageBox rip(this);
-    QPushButton ok_button("OK", &rip);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    rip.setText("Export failed.");
-    rip.setInformativeText(
-        "The app could not write to the specified location.");
-    rip.addButton(&ok_button, QMessageBox::AcceptRole);
-    rip.setDefaultButton(&ok_button);
-    rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    rip.exec();
-  }
-}
-
-void DiaryMenu::toggle_sync() {
-  TheoreticalDiary::instance()->local_settings->sync_enabled =
-      ui->sync_button->isChecked();
-  TheoreticalDiary::instance()->local_settings_changed();
 }

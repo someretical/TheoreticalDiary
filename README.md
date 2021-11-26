@@ -16,6 +16,8 @@ A digital diary with (planned) Google Drive backups. This app is a work in progr
 
 ![](images/readme/diary_pixels.png)
 
+![](images/readme/diary_settings.png)
+
 ## Installation
 
 ### Windows

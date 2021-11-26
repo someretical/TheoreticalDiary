@@ -39,14 +39,15 @@ DiaryPixels::DiaryPixels(const DiaryEditor *editor, QWidget *parent)
   current_year = new QDate(QDate::currentDate());
   ui->year_edit->setDate(*current_year);
 
-  connect(editor, &DiaryEditor::sig_re_render, this, &DiaryPixels::render_grid);
+  connect(editor, &DiaryEditor::sig_re_render, this, &DiaryPixels::render_grid,
+          Qt::QueuedConnection);
   connect(ui->render_button, &QPushButton::clicked, this,
-          &DiaryPixels::render_grid);
+          &DiaryPixels::render_grid, Qt::QueuedConnection);
   connect(ui->export_img_button, &QPushButton::clicked, this,
-          &DiaryPixels::export_image);
+          &DiaryPixels::export_image, Qt::QueuedConnection);
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &DiaryPixels::apply_theme);
+          &DiaryPixels::apply_theme, Qt::QueuedConnection);
   apply_theme();
 
   render_grid();
@@ -186,6 +187,7 @@ void DiaryPixels::export_image() {
     f.setPointSize(11);
     ok_button.setFont(f);
 
+    ok.setFont(f);
     ok.setText("Image exported.");
     ok.addButton(&ok_button, QMessageBox::AcceptRole);
     ok.setDefaultButton(&ok_button);
@@ -200,6 +202,7 @@ void DiaryPixels::export_image() {
     f.setPointSize(11);
     ok_button.setFont(f);
 
+    rip.setFont(f);
     rip.setText("Export failed.");
     rip.setInformativeText(
         "The app could not write to the specified location.");

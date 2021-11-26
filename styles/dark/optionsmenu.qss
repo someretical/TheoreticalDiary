@@ -1,0 +1,14 @@
+QScrollArea#scrollArea {
+  background-color: #31363b;
+  border: 1px solid #232629;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+QLabel#alert_text {
+  color: #FF0000;
+}
+
+QLineEdit {
+  font-family: "Roboto Mono"
+}

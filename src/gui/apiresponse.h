@@ -16,35 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYMENU_H
-#define DIARYMENU_H
+#ifndef APIRESPONSE_H
+#define APIRESPONSE_H
 
-#include <QDate>
-#include <QShortcut>
-#include <QWidget>
+#include <QDialog>
 
 namespace Ui {
-class DiaryMenu;
+class APIResponse;
 }
 
-class DiaryMenu : public QWidget {
+class APIResponse : public QDialog {
   Q_OBJECT
 
 public:
-  explicit DiaryMenu(const QDate &date, QWidget *parent = nullptr);
-  ~DiaryMenu();
-
-  static QString get_day_suffix(const int &day);
-
-  QDate *first_created;
-
-public slots:
-  void apply_theme();
-  void tab_changed(const int &tab);
+  explicit APIResponse(QByteArray &res, QWidget *parent = nullptr);
+  ~APIResponse();
 
 private:
-  Ui::DiaryMenu *ui;
-  QShortcut *save_shortcut;
+  Ui::APIResponse *ui;
 };
 
-#endif // DIARYMENU_H
+#endif // APIRESPONSE_H

@@ -16,13 +16,10 @@
         <file>dark/theoretical_calendar/5.qss</file>
         <file>dark/diaryeditor.qss</file>
         <file>dark/diarymenu.qss</file>
-        <file>dark/mainmenu.qss</file>
         <file>dark/material_cyan_dark.qss</file>
         <file>global/black_star.qss</file>
         <file>global/white_star.qss</file>
-        <file>dark/aboutdialog.qss</file>
         <file>dark/dangerbutton.qss</file>
-        <file>global/passwords.qss</file>
         <file>dark/diaryentryviewer.qss</file>
         <file>dark/pixels/0.qss</file>
         <file>dark/pixels/1.qss</file>
@@ -36,5 +33,8 @@
         <file>global/diarystats.qss</file>
         <file>global/small_white_star.qss</file>
         <file>global/small_black_star.qss</file>
+        <file>global/mainmenu.qss</file>
+        <file>dark/optionsmenu.qss</file>
+        <file>global/aboutdialog.qss</file>
     </qresource>
 </RCC>

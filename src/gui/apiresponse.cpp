@@ -16,36 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PROMPTPASSWORD_H
-#define PROMPTPASSWORD_H
+#include "apiresponse.h"
+#include "ui_apiresponse.h"
 
-#include <QShortcut>
-#include <QWidget>
-#include <string>
+#include <QPushButton>
 
-namespace Ui {
-class PromptPassword;
+APIResponse::APIResponse(QByteArray &res, QWidget *parent)
+    : QDialog(parent), ui(new Ui::APIResponse) {
+  ui->setupUi(this);
+  ui->res->setPlainText(res);
+
+  connect(ui->ok_button, &QPushButton::clicked, this, &APIResponse::accept,
+          Qt::QueuedConnection);
+
+  setStyleSheet("QPlainTextEdit { font-family: \"Roboto Mono\" }");
 }
 
-class PromptPassword : public QWidget {
-  Q_OBJECT
-
-public:
-  explicit PromptPassword(const std::string &e, QWidget *parent = nullptr);
-  ~PromptPassword();
-
-public slots:
-  void apply_theme();
-  void toggle_mask();
-  void attempt_decrypt();
-  void hash_set();
-
-private:
-  Ui::PromptPassword *ui;
-  std::string *encrypted;
-  QShortcut *enter;
-
-  void retry();
-};
-
-#endif // PROMPTPASSWORD_H
+APIResponse::~APIResponse() { delete ui; }

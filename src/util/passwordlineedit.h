@@ -16,34 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef UPDATEPASSWORD_H
-#define UPDATEPASSWORD_H
+// The code in this file was adapted from https://stackoverflow.com/a/51194796.
 
-#include <QDate>
-#include <QShortcut>
-#include <QWidget>
+#ifndef PASSWORDLINEEDIT_H
+#define PASSWORDLINEEDIT_H
 
-namespace Ui {
-class UpdatePassword;
-}
+#include <QAction>
+#include <QLineEdit>
+#include <QToolButton>
 
-class UpdatePassword : public QWidget {
-  Q_OBJECT
-
+class PasswordLineEdit : public QLineEdit {
 public:
-  explicit UpdatePassword(const QDate &date, QWidget *parent = nullptr);
-  ~UpdatePassword();
+  PasswordLineEdit(QWidget *parent = nullptr);
 
-public slots:
-  void apply_theme();
-  void attempt_change();
-  void hash_set();
-  void toggle_mask();
+private slots:
+  void onPressed();
+  void onReleased();
 
 private:
-  QDate *return_date;
-  Ui::UpdatePassword *ui;
-  QShortcut *enter;
+  QToolButton *button;
+
+  QString get_eye_icon(bool on);
 };
 
-#endif // UPDATEPASSWORD_H
+#endif // PASSWORDLINEEDIT_H

@@ -22,69 +22,83 @@
 #include "aboutdialog.h"
 #include "mainwindow.h"
 #include "o1requestor.h"
-#include "promptpassword.h"
 #include "ui_mainmenu.h"
 
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QNetworkRequest>
 #include <QPushButton>
 #include <fstream>
 #include <string>
-#include <sys/stat.h>
 
 MainMenu::MainMenu(QWidget *parent) : QWidget(parent), ui(new Ui::MainMenu) {
   ui->setupUi(this);
   ui->version->setText("Version " + QApplication::applicationVersion());
+  ui->alert_text->setText("");
 
   QTimer::singleShot(0, [&]() {
     QApplication::restoreOverrideCursor();
-    qobject_cast<MainWindow *>(parentWidget()->parentWidget())
-        ->resize(800, 600);
+
+    ui->password_box->setFocus();
   });
 
-  connect(ui->open_button, &QPushButton::clicked, this, &MainMenu::open_diary);
-  connect(ui->new_button, &QPushButton::clicked, this, &MainMenu::new_diary);
+  // Pressing enter will try to decrypt
+  enter = new QShortcut(QKeySequence(Qt::Key_Return), this);
+  connect(
+      enter, &QShortcut::activated, this,
+      [&]() { QMetaObject::invokeMethod(ui->decrypt_button, "clicked"); },
+      Qt::QueuedConnection);
+
+  connect(ui->decrypt_button, &QPushButton::clicked, this,
+          &MainMenu::decrypt_diary, Qt::QueuedConnection);
+  connect(ui->new_button, &QPushButton::clicked, this, &MainMenu::new_diary,
+          Qt::QueuedConnection);
   connect(ui->import_button, &QPushButton::clicked, this,
-          &MainMenu::import_diary);
-  connect(ui->download_button, &QPushButton::clicked, this,
-          &MainMenu::download_diary);
-  connect(ui->flush_button, &QPushButton::clicked, this,
-          &MainMenu::flush_credentials);
-  connect(ui->dump_button, &QPushButton::clicked, this, &MainMenu::dump_drive);
-  connect(ui->about_button, &QPushButton::clicked, this, &MainMenu::view_info);
+          &MainMenu::import_diary, Qt::QueuedConnection);
+  connect(ui->options_button, &QPushButton::clicked, this,
+          &MainMenu::open_options, Qt::QueuedConnection);
   connect(ui->quit_button, &QPushButton::clicked,
-          qobject_cast<MainWindow *>(parent), &MainWindow::close);
+          qobject_cast<MainWindow *>(parent), &MainWindow::close,
+          Qt::QueuedConnection);
+
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &MainMenu::apply_theme);
+          &MainMenu::apply_theme, Qt::QueuedConnection);
   apply_theme();
 }
 
-MainMenu::~MainMenu() { delete ui; }
+MainMenu::~MainMenu() {
+  delete ui;
+  delete enter;
+}
 
 void MainMenu::apply_theme() {
-  QFile file(":/" + TheoreticalDiary::instance()->theme() + "/mainmenu.qss");
+  QFile file(":/global/mainmenu.qss");
   file.open(QIODevice::ReadOnly);
   setStyleSheet(file.readAll());
   file.close();
 }
 
-void MainMenu::open_diary() {
-  std::string contents;
+void MainMenu::open_options() {
+  qobject_cast<MainWindow *>(parentWidget()->parentWidget())
+      ->show_options_menu();
+}
 
+bool MainMenu::get_diary_contents() {
   // Attempt to load file contents
   std::ifstream first(
       TheoreticalDiary::instance()->data_location().toStdString() +
       "/diary.dat");
+  auto str = TheoreticalDiary::instance()->encryptor->encrypted_str;
 
   if (!first.fail()) {
     // Taken from
     // https://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
     // Resizing the string upfront increases performance
     first.seekg(0, std::ios::end);
-    contents.resize(first.tellg());
+    str->resize(first.tellg());
     first.seekg(0, std::ios::beg);
-    first.read(contents.data(), contents.size());
+    first.read(str->data(), str->size());
     first.close();
   } else {
     std::ifstream second(
@@ -93,9 +107,9 @@ void MainMenu::open_diary() {
 
     if (!second.fail()) {
       second.seekg(0, std::ios::end);
-      contents.resize(second.tellg());
+      str->resize(second.tellg());
       second.seekg(0, std::ios::beg);
-      second.read(contents.data(), contents.size());
+      second.read(str->data(), str->size());
       second.close();
     } else {
       // No valid file found
@@ -106,69 +120,106 @@ void MainMenu::open_diary() {
       f.setPointSize(11);
       ok_button.setFont(f);
 
+      rip.setFont(f);
       rip.setText("No diary was found.");
       rip.setInformativeText("You can create a new diary by clicking the "
                              "\"New\" button in the main menu.");
       rip.addButton(&ok_button, QMessageBox::AcceptRole);
       rip.setDefaultButton(&ok_button);
       rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
       rip.exec();
-      return;
+
+      return false;
     }
   }
 
-  // If the user did not set a password, the string will only be Gzipped
+  return true;
+}
+
+void MainMenu::decrypt_diary() {
+  if (!ui->decrypt_button->isEnabled())
+    return;
+
+  ui->decrypt_button->setEnabled(false);
+  ui->import_button->setEnabled(false);
+  ui->new_button->setEnabled(false);
+  ui->options_button->setEnabled(false);
+
+  auto password = ui->password_box->text().toStdString();
+  ui->password_box->setText("");
+
+  auto opt = get_diary_contents();
+  if (!opt)
+    return;
+
+  // If the password box is empty, try to decompress immediately.
+  if (password.empty()) {
+    return decrypt_diary_cb(false);
+  }
+
+  auto str = TheoreticalDiary::instance()->encryptor->encrypted_str;
+  TheoreticalDiary::instance()->encryptor->set_salt(str->substr(0, SALT_SIZE));
+  str->erase(0, SALT_SIZE);
+  TheoreticalDiary::instance()->encryptor->set_decrypt_iv(
+      str->substr(0, IV_SIZE));
+  str->erase(0, IV_SIZE);
+
+  ui->alert_text->setText("Decrypting...");
+  ui->alert_text->update();
+
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  auto worker = new HashWorker();
+  worker->moveToThread(&TheoreticalDiary::instance()->worker_thread);
+  connect(&TheoreticalDiary::instance()->worker_thread, &QThread::finished,
+          worker, &QObject::deleteLater, Qt::QueuedConnection);
+  connect(worker, &HashWorker::done, this, &MainMenu::decrypt_diary_cb,
+          Qt::QueuedConnection);
+  connect(TheoreticalDiary::instance(), &TheoreticalDiary::sig_begin_hash,
+          worker, &HashWorker::hash, Qt::QueuedConnection);
+
+  // The signal must be emitted to ensure the thread is run properly
+  emit TheoreticalDiary::instance()->sig_begin_hash(password);
+}
+
+void MainMenu::decrypt_diary_cb(bool do_decrypt) {
+  std::string decrypted;
+  if (do_decrypt) {
+    auto res = TheoreticalDiary::instance()->encryptor->decrypt(
+        *TheoreticalDiary::instance()->encryptor->encrypted_str);
+    if (!res) {
+      ui->alert_text->setText("Wrong password.");
+      ui->decrypt_button->setEnabled(true);
+      ui->import_button->setEnabled(true);
+      ui->new_button->setEnabled(true);
+      ui->options_button->setEnabled(true);
+      return QApplication::restoreOverrideCursor();
+    }
+
+    decrypted.assign(*res);
+  }
+
   std::string decompressed;
-  if (Zipper::unzip(contents, decompressed) &&
+  if (Zipper::unzip(
+          do_decrypt ? decrypted
+                     : *TheoreticalDiary::instance()->encryptor->encrypted_str,
+          decompressed) &&
       TheoreticalDiary::instance()->diary_holder->load(decompressed)) {
     qobject_cast<MainWindow *>(parentWidget()->parentWidget())
         ->show_diary_menu(QDate::currentDate());
-    return;
+    return QApplication::restoreOverrideCursor();
   }
 
-  // Prompt the user for a password
-  qobject_cast<MainWindow *>(parentWidget()->parentWidget())
-      ->show_password_prompt(contents);
-}
-
-bool MainMenu::confirm_overwrite() {
-  struct stat buf;
-  std::string path =
-      TheoreticalDiary::instance()->data_location().toStdString() +
-      "/diary.dat";
-
-  // Check if file exists https://stackoverflow.com/a/6296808
-  if (stat(path.c_str(), &buf) != 0)
-    return true;
-
-  QMessageBox confirm(this);
-
-  QPushButton yes("YES", &confirm);
-  QFont f = yes.font();
-  f.setPointSize(11);
-  yes.setFont(f);
-  yes.setStyleSheet(*qobject_cast<MainWindow *>(parentWidget()->parentWidget())
-                         ->danger_button_style);
-  QPushButton no("NO", &confirm);
-  no.setFlat(true);
-  QFont f2 = no.font();
-  f2.setPointSize(11);
-  no.setFont(f2);
-
-  confirm.setText("Existing diary found.");
-  confirm.setInformativeText(
-      "Are you sure you want to overwrite the existing diary?");
-  confirm.addButton(&yes, QMessageBox::AcceptRole);
-  confirm.addButton(&no, QMessageBox::RejectRole);
-  confirm.setDefaultButton(&no);
-  confirm.setTextInteractionFlags(Qt::NoTextInteraction);
-
-  return confirm.exec() == QMessageBox::AcceptRole;
+  ui->alert_text->setText("Unable to parse diary.");
+  ui->alert_text->update();
+  ui->decrypt_button->setEnabled(true);
+  ui->import_button->setEnabled(true);
+  ui->new_button->setEnabled(true);
+  ui->options_button->setEnabled(true);
+  QApplication::restoreOverrideCursor();
 }
 
 void MainMenu::new_diary() {
-  if (!confirm_overwrite())
+  if (!TheoreticalDiary::instance()->confirm_overwrite(this))
     return;
 
   TheoreticalDiary::instance()->encryptor->reset();
@@ -180,7 +231,7 @@ void MainMenu::new_diary() {
 }
 
 void MainMenu::import_diary() {
-  if (!confirm_overwrite())
+  if (!TheoreticalDiary::instance()->confirm_overwrite(this))
     return;
 
   auto filename = QFileDialog::getOpenFileName(
@@ -197,6 +248,7 @@ void MainMenu::import_diary() {
     f.setPointSize(11);
     ok_button.setFont(f);
 
+    rip.setFont(f);
     rip.setText("Read error.");
     rip.setInformativeText(
         "The app was unable to read the contents of the file.");
@@ -223,6 +275,7 @@ void MainMenu::import_diary() {
     f.setPointSize(11);
     ok_button.setFont(f);
 
+    rip.setFont(f);
     rip.setText("Parsing error.");
     rip.setInformativeText(
         "The app was unable to read the contents of the diary.");
@@ -237,99 +290,4 @@ void MainMenu::import_diary() {
   TheoreticalDiary::instance()->diary_changed();
   qobject_cast<MainWindow *>(parentWidget()->parentWidget())
       ->show_diary_menu(QDate::currentDate());
-}
-
-void MainMenu::oauth_cb(const td::Res code) {
-  disconnect(TheoreticalDiary::instance()->gwrapper,
-             &GoogleWrapper::sig_oauth2_callback, this, &MainMenu::oauth_cb);
-
-  if (td::Res::No == code) {
-    QMessageBox rip(this);
-    QPushButton ok_button("OK", &rip);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    rip.setText("Authentication error.");
-    rip.setInformativeText("The app was unable to authenticate with Google.");
-    rip.addButton(&ok_button, QMessageBox::AcceptRole);
-    rip.setDefaultButton(&ok_button);
-    rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    rip.exec();
-    return;
-  }
-
-  // Google drive testing
-
-  // diary.dat 17f3nXYByqW7Xf0WD5ujSe8uwiAGRiLbONSWd9V8LKynnmIS2
-  // diary.dat.bak 1X0BVcUn3SeMgkilRAn0qx2EalW3HvvSWhbINhlxy4MbM4Tvm
-  // List files
-
-  //  QVariantMap params();
-  //  params.insert("spaces", "appDataFolder");
-
-  //  QNetworkRequest request(QUrl("https://www.googleapis.com/drive/v3/files"),
-  //                          params);
-  //  auto reply =
-  //  TheoreticalDiary::instance()->gwrapper->requester->get(request);
-
-  //  connect(reply, &QNetworkReply::finished, [&]() {
-  //    if (QNetworkReply::NoError != reply->error()) {
-  //      qDebug() << "network err1" << reply->error();
-  //      return;
-  //    }
-
-  //    auto json =
-  //        nlohmann::json::parse(reply1->readAll().toStdString(), nullptr,
-  //        false);
-  //    if (json.is_discarded()) {
-  //      qDebug() << "failed to parse json";
-  //      return;
-  //    }
-
-  //    qDebug() << "successful";
-  //  });
-}
-
-void MainMenu::download_diary() {
-  if (!confirm_overwrite())
-    return;
-
-  connect(TheoreticalDiary::instance()->gwrapper,
-          &GoogleWrapper::sig_oauth2_callback, this, &MainMenu::oauth_cb);
-
-  TheoreticalDiary::instance()->gwrapper->authenticate();
-}
-
-void MainMenu::flush_credentials() {
-  QMessageBox placeholder(this);
-  QPushButton ok_button("OK", &placeholder);
-  ok_button.setFlat(true);
-  QFont f = ok_button.font();
-  f.setPointSize(11);
-  ok_button.setFont(f);
-  placeholder.setText("Placeholder dialog");
-  placeholder.addButton(&ok_button, QMessageBox::AcceptRole);
-  placeholder.setTextInteractionFlags(Qt::NoTextInteraction);
-  placeholder.exec();
-}
-
-void MainMenu::dump_drive() {
-  QMessageBox placeholder(this);
-  QPushButton ok_button("OK", &placeholder);
-  ok_button.setFlat(true);
-  QFont f = ok_button.font();
-  f.setPointSize(11);
-  ok_button.setFont(f);
-  placeholder.setText("Placeholder dialog");
-  placeholder.addButton(&ok_button, QMessageBox::AcceptRole);
-  placeholder.setTextInteractionFlags(Qt::NoTextInteraction);
-  placeholder.exec();
-}
-
-void MainMenu::view_info() {
-  AboutDialog w(this);
-  w.exec();
 }

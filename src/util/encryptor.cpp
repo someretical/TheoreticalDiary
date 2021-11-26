@@ -35,12 +35,14 @@ Encryptor::Encryptor() {
   key = new CryptoPP::SecByteBlock(KEY_SIZE);
   key_set = false;
   decrypt_iv = new CryptoPP::SecByteBlock(IV_SIZE);
+  encrypted_str = new std::string();
 }
 
 Encryptor::~Encryptor() {
   delete salt;
   delete key;
   delete decrypt_iv;
+  delete encrypted_str;
 }
 
 void Encryptor::reset() {
@@ -48,6 +50,8 @@ void Encryptor::reset() {
   key->Assign(CryptoPP::SecByteBlock(KEY_SIZE));
   key_set = false;
   decrypt_iv->Assign(CryptoPP::SecByteBlock(IV_SIZE));
+  encrypted_str->clear();
+  encrypted_str->resize(0);
 }
 
 void Encryptor::regenerate_salt() {

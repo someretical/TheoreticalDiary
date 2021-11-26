@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -19,51 +19,42 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="gridLayout_5">
    <property name="leftMargin">
-    <number>20</number>
+    <number>30</number>
    </property>
    <property name="topMargin">
-    <number>20</number>
+    <number>30</number>
    </property>
    <property name="rightMargin">
-    <number>20</number>
+    <number>30</number>
    </property>
    <property name="bottomMargin">
-    <number>20</number>
+    <number>30</number>
    </property>
-   <property name="horizontalSpacing">
-    <number>20</number>
-   </property>
-   <property name="verticalSpacing">
+   <property name="spacing">
     <number>0</number>
    </property>
-   <item row="1" column="1">
-    <widget class="QFrame" name="frame">
+   <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignBottom">
+    <widget class="QFrame" name="frame1">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
+     <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">
-       <number>20</number>
+       <number>15</number>
       </property>
       <property name="topMargin">
-       <number>20</number>
+       <number>15</number>
       </property>
       <property name="rightMargin">
-       <number>20</number>
+       <number>15</number>
       </property>
       <property name="bottomMargin">
-       <number>20</number>
+       <number>15</number>
       </property>
       <property name="horizontalSpacing">
        <number>10</number>
@@ -71,45 +62,272 @@
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="2" column="0">
-       <spacer name="verticalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Minimum</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="0">
-       <spacer name="verticalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="sizeHint" stdset="0">
+        <property name="minimumSize">
          <size>
-          <width>20</width>
+          <width>0</width>
           <height>0</height>
          </size>
         </property>
-       </spacer>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>200</height>
+         </size>
+        </property>
+        <property name="sizeIncrement">
+         <size>
+          <width>1</width>
+          <height>1</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../../images/images.qrc">:/linux_icons/hicolor/scalable/apps/theoreticaldiary.svg</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
-      <item row="3" column="0">
-       <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="1">
+       <layout class="QGridLayout" name="gridLayout_4">
         <property name="horizontalSpacing">
-         <number>15</number>
+         <number>0</number>
         </property>
         <property name="verticalSpacing">
-         <number>8</number>
+         <number>10</number>
         </property>
-        <item row="3" column="0">
-         <widget class="QPushButton" name="download_button">
+        <item row="4" column="0">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="0" alignment="Qt::AlignLeft|Qt::AlignVCenter">
+         <widget class="QLabel" name="label_2">
+          <property name="font">
+           <font>
+            <pointsize>36</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Theoretical Diary</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" alignment="Qt::AlignLeft|Qt::AlignVCenter">
+         <widget class="QLabel" name="version">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Version placeholder</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Welcome back to</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>30</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="0" alignment="Qt::AlignHCenter|Qt::AlignTop">
+    <widget class="QFrame" name="frame3">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_11">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <item row="0" column="2" alignment="Qt::AlignRight">
+       <widget class="QPushButton" name="options_button">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>Open the settings menu.</string>
+        </property>
+        <property name="text">
+         <string>Settings</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" alignment="Qt::AlignLeft">
+       <widget class="QPushButton" name="quit_button">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>Exit the application.</string>
+        </property>
+        <property name="text">
+         <string>Quit</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+    <widget class="QFrame" name="frame2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <property name="leftMargin">
+       <number>15</number>
+      </property>
+      <property name="topMargin">
+       <number>15</number>
+      </property>
+      <property name="rightMargin">
+       <number>15</number>
+      </property>
+      <property name="bottomMargin">
+       <number>15</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>15</number>
+      </property>
+      <item row="2" column="0">
+       <widget class="PasswordLineEdit" name="password_box">
+        <property name="minimumSize">
+         <size>
+          <width>500</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maxLength">
+         <number>256</number>
+        </property>
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+        <property name="placeholderText">
+         <string>Password</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <pointsize>20</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Open diary</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>15</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="decrypt_button">
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -119,33 +337,21 @@
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
           <property name="toolTip">
-           <string>Download the diary from Google Drive.</string>
+           <string>Decrypt the diary.</string>
           </property>
           <property name="text">
-           <string>Download</string>
+           <string>Decrypt</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="QPushButton" name="quit_button">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="toolTip">
-           <string>Exit the application.</string>
-          </property>
-          <property name="text">
-           <string>Quit</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
+        <item row="0" column="2">
          <widget class="QPushButton" name="import_button">
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -160,64 +366,19 @@
           <property name="text">
            <string>Import</string>
           </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="dump_button">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="toolTip">
-           <string>Download all app files from Google Drive.</string>
-          </property>
-          <property name="text">
-           <string>Dump</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QPushButton" name="about_button">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="toolTip">
-           <string>About Theoretical Diary.</string>
-          </property>
-          <property name="text">
-           <string>About</string>
+          <property name="flat">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QPushButton" name="flush_button">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="toolTip">
-           <string>Delete the Google OAuth2 credentials.</string>
-          </property>
-          <property name="text">
-           <string>Flush</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
          <widget class="QPushButton" name="new_button">
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -232,150 +393,78 @@
           <property name="text">
            <string>New</string>
           </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QPushButton" name="open_button">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
+        <item row="0" column="3">
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
           </property>
-          <property name="toolTip">
-           <string>Open the local diary.</string>
-          </property>
-          <property name="text">
-           <string>Open</string>
-          </property>
-         </widget>
+         </spacer>
         </item>
        </layout>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="alert_text">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Placeholder</string>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
-       <layout class="QGridLayout" name="gridLayout_4">
-        <property name="verticalSpacing">
-         <number>15</number>
+       <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
         </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="font">
-           <font>
-            <pointsize>25</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Theoretical Diary</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="version">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Version placeholder</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="4" column="0">
-       <spacer name="verticalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+        <property name="text">
+         <string>Enter password:</string>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <spacer name="verticalSpacer">
+   <item row="3" column="0">
+    <spacer name="verticalSpacer_4">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
+      <enum>QSizePolicy::Fixed</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>380</width>
-       <height>380</height>
-      </size>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap resource="../../images/images.qrc">:/linux_icons/hicolor/scalable/apps/theoreticaldiary.svg</pixmap>
-     </property>
-     <property name="scaledContents">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
+       <height>30</height>
       </size>
      </property>
     </spacer>
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>open_button</tabstop>
-  <tabstop>new_button</tabstop>
-  <tabstop>import_button</tabstop>
-  <tabstop>download_button</tabstop>
-  <tabstop>flush_button</tabstop>
-  <tabstop>dump_button</tabstop>
-  <tabstop>about_button</tabstop>
-  <tabstop>quit_button</tabstop>
- </tabstops>
+ <customwidgets>
+  <customwidget>
+   <class>PasswordLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">src/util/passwordlineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../images/images.qrc"/>
  </resources>

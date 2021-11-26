@@ -83,5 +83,9 @@
         <file>windows_icons/icon.ico</file>
         <file>themes/global/small_star_white.svg</file>
         <file>themes/global/small_star_black.svg</file>
+        <file>themes/light/passwordlineedit/eye_on.svg</file>
+        <file>themes/light/passwordlineedit/eye_off.svg</file>
+        <file>themes/dark/passwordlineedit/eye_on.svg</file>
+        <file>themes/dark/passwordlineedit/eye_off.svg</file>
     </qresource>
 </RCC>

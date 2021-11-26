@@ -69,19 +69,22 @@ DiaryStats::DiaryStats(const DiaryEditor *editor, QWidget *parent)
 
   current_month = new QDate(*qobject_cast<DiaryMenu *>(parent)->first_created);
 
-  connect(editor, &DiaryEditor::sig_re_render, this, &DiaryStats::render_stats);
+  connect(editor, &DiaryEditor::sig_re_render, this, &DiaryStats::render_stats,
+          Qt::QueuedConnection);
 
   // Navigator slots
   connect(ui->month_dropdown,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-          &DiaryStats::month_changed);
+          &DiaryStats::month_changed, Qt::QueuedConnection);
   connect(ui->year_edit, &QDateEdit::dateChanged, this,
-          &DiaryStats::year_changed);
-  connect(ui->next_month, &QPushButton::clicked, this, &DiaryStats::next_month);
-  connect(ui->prev_month, &QPushButton::clicked, this, &DiaryStats::prev_month);
+          &DiaryStats::year_changed, Qt::QueuedConnection);
+  connect(ui->next_month, &QPushButton::clicked, this, &DiaryStats::next_month,
+          Qt::QueuedConnection);
+  connect(ui->prev_month, &QPushButton::clicked, this, &DiaryStats::prev_month,
+          Qt::QueuedConnection);
 
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &DiaryStats::apply_theme);
+          &DiaryStats::apply_theme, Qt::QueuedConnection);
   apply_theme();
 
   render_stats(*current_month, true);

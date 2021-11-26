@@ -27,34 +27,19 @@ class GoogleWrapper;
 #include "googlewrapper.h"
 
 #include <QApplication>
+#include <QNetworkReply>
 #include <QObject>
+#include <QSettings>
 #include <QString>
 #include <QThread>
 #include <json.hpp>
 #include <string>
+#include <sys/stat.h>
 
 // This is required so std::string can be passed via signals and slots.
 Q_DECLARE_METATYPE(std::string)
 
 namespace td {
-struct LocalSettings {
-  std::string bak1_id;
-  std::string bak2_id;
-  bool sync_enabled;
-};
-
-inline void to_json(nlohmann::json &j, const LocalSettings &s) {
-  j = nlohmann::json{{"bak1_id", s.bak1_id},
-                     {"bak2_id", s.bak2_id},
-                     {"sync_enabled", s.sync_enabled}};
-}
-
-inline void from_json(const nlohmann::json &j, LocalSettings &s) {
-  j.at("bak1_id").get_to<std::string>(s.bak1_id);
-  j.at("bak2_id").get_to<std::string>(s.bak2_id);
-  j.at("sync_enabled").get_to<bool>(s.sync_enabled);
-}
-
 enum Res : int { Yes, No };
 } // namespace td
 
@@ -73,29 +58,36 @@ public:
   ~TheoreticalDiary();
   static TheoreticalDiary *instance();
 
-  void load_settings();
-  bool save_settings();
   QString data_location();
   QString theme();
+  bool confirm_overwrite(QWidget *p);
 
   GoogleWrapper *gwrapper;
   DiaryHolder *diary_holder;
   Encryptor *encryptor;
-  td::LocalSettings *local_settings;
+  QSettings *settings;
 
   // Change trackers
-  bool local_settings_modified;
   bool diary_modified;
   bool oauth_modified;
+
+  // During asynchronous operations like password hashing and network requests,
+  // the window should not be able to be closed.
+  bool closeable;
 
   // See https://doc.qt.io/qt-5/qthread.html for multithreading
   QThread worker_thread;
   QString *application_theme;
 
+  // Cached stylesheets
+  QString *danger_button_style;
+
 public slots:
-  void local_settings_changed();
   void diary_changed();
   void oauth_changed();
+
+private:
+  void load_fonts();
 };
 
 // The set_key() function is blocking
@@ -114,7 +106,7 @@ public slots:
   }
 
 signals:
-  void done();
+  void done(bool do_decrypt = true);
 };
 
 #endif // THOERETICALDIARY_H
