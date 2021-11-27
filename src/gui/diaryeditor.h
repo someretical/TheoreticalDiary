@@ -27,6 +27,7 @@ struct CalendarButtonData;
 #include "calendarbutton.h"
 
 #include <QtWidgets>
+#include <optional>
 
 namespace Ui {
 class DiaryEditor;
@@ -62,7 +63,7 @@ public slots:
 
   // Calendar widget
   void render_month(const QDate &date,
-                    const std::optional<td::YearMap::iterator> iter);
+                    const std::optional<td::YearMap::iterator> &iter);
   void change_month(const QDate &date, const bool suppress_confirm);
   void render_day(const td::CalendarButtonData &d, const bool set_info_pane);
   void next_month();

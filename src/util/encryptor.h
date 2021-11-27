@@ -20,6 +20,7 @@
 #define ENCRYPTOR_H
 
 #include <cryptlib.h>
+#include <optional>
 #include <secblock.h>
 
 // Sizes are in BYTES not bits

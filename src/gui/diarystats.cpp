@@ -345,7 +345,7 @@ void DiaryStats::render_comparison(const std::vector<int> &rating_counts) {
 }
 
 std::vector<int>
-DiaryStats::get_rating_stats(const std::optional<td::YearMap::iterator> opt,
+DiaryStats::get_rating_stats(const std::optional<td::YearMap::iterator> &opt,
                              const int total_days) {
   auto rating_counts = std::vector<int>{total_days, 0, 0, 0, 0, 0, 0};
 

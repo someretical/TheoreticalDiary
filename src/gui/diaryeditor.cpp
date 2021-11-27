@@ -140,8 +140,8 @@ void DiaryEditor::apply_theme() {
 // There is probably some way to make this function more readable but really
 // this was a write once and never touch again thing because of how hard it is
 // to keep track of all the changing variables.
-void DiaryEditor::render_month(const QDate &date,
-                               const std::optional<td::YearMap::iterator> opt) {
+void DiaryEditor::render_month(
+    const QDate &date, const std::optional<td::YearMap::iterator> &opt) {
   // Note that the YearMap iterator actually contains a month map which holds
   // all the days of the month
 

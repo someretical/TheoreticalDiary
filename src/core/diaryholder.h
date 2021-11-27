@@ -22,6 +22,7 @@
 #include <QtWidgets>
 #include <cryptlib.h>
 #include <json.hpp>
+#include <optional>
 
 namespace td {
 enum Rating { Unknown, VeryBad, Bad, Ok, Good, VeryGood };

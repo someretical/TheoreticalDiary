@@ -22,6 +22,7 @@
 #include "diaryeditor.h"
 
 #include <QtWidgets>
+#include <optional>
 
 namespace Ui {
 class DiaryStats;
@@ -35,7 +36,7 @@ public:
   ~DiaryStats();
 
   static std::vector<int>
-  get_rating_stats(const std::optional<td::YearMap::iterator> opt,
+  get_rating_stats(const std::optional<td::YearMap::iterator> &opt,
                    const int total_days);
 
   void render_pie_chart(const std::vector<int> &rating_counts);
