@@ -21,9 +21,7 @@
 
 #include "../core/theoreticaldiary.h"
 
-#include <QShortcut>
-#include <QWidget>
-#include <string>
+#include <QtWidgets>
 
 namespace Ui {
 class MainMenu;
@@ -43,7 +41,7 @@ public slots:
   void import_diary();
   void open_options();
   bool get_diary_contents();
-  void decrypt_diary_cb(bool do_decrypt = true);
+  void decrypt_diary_cb(const bool do_decrypt = true);
 
 private:
   Ui::MainMenu *ui;

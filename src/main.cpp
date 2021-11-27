@@ -20,9 +20,7 @@
 #include "gui/mainwindow.h"
 #include "util/runguard.h"
 
-#include <QApplication>
-#include <QMetaType>
-#include <string>
+#include <QtCore>
 
 int main(int argc, char **argv) {
   // Make sure only 1 instance of the app is running at all times

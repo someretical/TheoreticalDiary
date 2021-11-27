@@ -21,9 +21,6 @@
 #include "diarymenu.h"
 #include "ui_diaryentryviewer.h"
 
-#include <QScrollBar>
-#include <sstream>
-
 const int LONGEST_LINE_LENGTH = 110;
 const int DAY_LABEL_SIZE = 50;
 
@@ -72,7 +69,7 @@ DiaryEntryViewer::~DiaryEntryViewer() {
 }
 
 void DiaryEntryViewer::apply_theme() {
-  auto theme = TheoreticalDiary::instance()->theme();
+  const auto theme = TheoreticalDiary::instance()->theme();
 
   QFile file(QString(":/%1/diary_entry_list/base.qss").arg(theme));
   file.open(QIODevice::ReadOnly);
@@ -107,7 +104,7 @@ void DiaryEntryViewer::apply_theme() {
 }
 
 void DiaryEntryViewer::change_month(const QDate &date,
-                                    const bool &ignore_month_check) {
+                                    const bool ignore_month_check) {
   if (!ignore_month_check) {
     if (current_month->year() == date.year() &&
         current_month->month() == date.month()) {
@@ -137,7 +134,7 @@ void DiaryEntryViewer::change_month(const QDate &date,
   ui->month_dropdown->blockSignals(false);
   ui->year_edit->blockSignals(false);
 
-  auto opt = TheoreticalDiary::instance()->diary_holder->get_monthmap(
+  const auto opt = TheoreticalDiary::instance()->diary_holder->get_monthmap(
       date.isValid() ? date : *current_month);
   if (!opt) {
     auto label =
@@ -176,13 +173,13 @@ void DiaryEntryViewer::change_month(const QDate &date,
 }
 
 void DiaryEntryViewer::next_month() {
-  QDate next = ui->year_edit->date().addMonths(1);
+  const QDate next = ui->year_edit->date().addMonths(1);
   if (next.isValid())
     change_month(next, false);
 }
 
 void DiaryEntryViewer::prev_month() {
-  QDate prev = ui->year_edit->date().addMonths(-1);
+  const QDate prev = ui->year_edit->date().addMonths(-1);
   if (prev.isValid()) {
     change_month(prev, false);
 
@@ -196,7 +193,7 @@ void DiaryEntryViewer::prev_month() {
   }
 }
 
-void DiaryEntryViewer::month_changed(const int month) {
+void DiaryEntryViewer::month_changed(const int) {
   change_month(QDate(ui->year_edit->date().year(),
                      ui->month_dropdown->currentIndex() + 1, 1),
                false);
@@ -298,7 +295,7 @@ DiaryEntryDayMessage::~DiaryEntryDayMessage() { delete message; }
 
 void DiaryEntryDayMessage::apply_theme() {}
 
-void DiaryEntryDayMessage::mouseDoubleClickEvent(QMouseEvent *event) {
+void DiaryEntryDayMessage::mouseDoubleClickEvent(const QMouseEvent *event) {
   if (event->button() != Qt::LeftButton)
     return;
 

@@ -19,8 +19,6 @@
 #include "apiresponse.h"
 #include "ui_apiresponse.h"
 
-#include <QPushButton>
-
 APIResponse::APIResponse(QByteArray &res, QWidget *parent)
     : QDialog(parent), ui(new Ui::APIResponse) {
   ui->setupUi(this);

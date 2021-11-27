@@ -83,7 +83,7 @@ void CalendarButton::re_render(const td::CalendarButtonData &d) {
   }
 
   // Set colour scheme
-  auto r = d.rating.value_or(*data.rating);
+  const auto r = d.rating.value_or(*data.rating);
   data.rating = std::make_optional<td::Rating>(r);
   stylesheet.append((*(*data.parent)->rating_stylesheets)[static_cast<int>(r)]);
 

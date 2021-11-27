@@ -26,14 +26,8 @@ class GoogleWrapper;
 #include "diaryholder.h"
 #include "googlewrapper.h"
 
-#include <QApplication>
-#include <QNetworkReply>
-#include <QObject>
-#include <QSettings>
-#include <QString>
-#include <QThread>
+#include <QtWidgets>
 #include <json.hpp>
-#include <string>
 #include <sys/stat.h>
 
 // This is required so std::string can be passed via signals and slots.
@@ -69,7 +63,6 @@ public:
 
   // Change trackers
   bool diary_modified;
-  bool oauth_modified;
 
   // During asynchronous operations like password hashing and network requests,
   // the window should not be able to be closed.
@@ -84,7 +77,6 @@ public:
 
 public slots:
   void diary_changed();
-  void oauth_changed();
 
 private:
   void load_fonts();
@@ -106,7 +98,7 @@ public slots:
   }
 
 signals:
-  void done(bool do_decrypt = true);
+  void done(const bool do_decrypt = true);
 };
 
 #endif // THOERETICALDIARY_H

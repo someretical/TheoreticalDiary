@@ -22,7 +22,6 @@
 #include "diarymenu.h"
 #include "ui_diarystats.h"
 
-#include <QtCharts/QPolarChart>
 #include <QtCharts>
 
 using namespace QtCharts;
@@ -96,7 +95,7 @@ DiaryStats::~DiaryStats() {
 }
 
 void DiaryStats::apply_theme() {
-  auto theme = TheoreticalDiary::instance()->theme();
+  const auto theme = TheoreticalDiary::instance()->theme();
 
   QFile file(QString(":/global/diarystats.qss"));
   file.open(QIODevice::ReadOnly);
@@ -112,18 +111,18 @@ void DiaryStats::apply_theme() {
 }
 
 void DiaryStats::next_month() {
-  QDate next = ui->year_edit->date().addMonths(1);
+  const QDate next = ui->year_edit->date().addMonths(1);
   if (next.isValid())
     render_stats(next, false);
 }
 
 void DiaryStats::prev_month() {
-  QDate prev = ui->year_edit->date().addMonths(-1);
+  const QDate prev = ui->year_edit->date().addMonths(-1);
   if (prev.isValid())
     render_stats(prev, false);
 }
 
-void DiaryStats::month_changed(const int month) {
+void DiaryStats::month_changed(const int) {
   render_stats(QDate(ui->year_edit->date().year(),
                      ui->month_dropdown->currentIndex() + 1, 1),
                false);
@@ -161,7 +160,8 @@ void DiaryStats::render_pie_chart(const std::vector<int> &rating_counts) {
             std::make_pair(static_cast<td::Rating>(i), rating_counts[i]));
 
     std::sort(sorted.begin(), sorted.end(),
-              [](std::pair<td::Rating, int> a, std::pair<td::Rating, int> b) {
+              [](const std::pair<td::Rating, int> &a,
+                 const std::pair<td::Rating, int> &b) {
                 return a.second > b.second;
               });
 
@@ -187,7 +187,7 @@ void DiaryStats::render_pie_chart(const std::vector<int> &rating_counts) {
 }
 
 void DiaryStats::render_polar_chart(
-    const std::optional<td::YearMap::iterator> opt) {
+    const std::optional<td::YearMap::iterator> &opt) {
   auto chart = qobject_cast<QPolarChart *>(ui->polar_chart_view->chart());
   const auto angular_max = current_month->daysInMonth();
 
@@ -239,7 +239,7 @@ void DiaryStats::render_polar_chart(
 }
 
 void DiaryStats::render_spline_chart(
-    const std::optional<td::YearMap::iterator> opt) {
+    const std::optional<td::YearMap::iterator> &opt) {
   auto chart = ui->spline_chart_view->chart();
 
   chart->removeAllSeries();
@@ -303,7 +303,7 @@ void DiaryStats::render_comparison(const std::vector<int> &rating_counts) {
   ui->t5->setText(QString::number(rating_counts[5]));
   ui->ts->setText(QString::number(rating_counts[6]));
 
-  auto prev_month = current_month->addMonths(-1);
+  const auto prev_month = current_month->addMonths(-1);
   if (!prev_month.isValid()) {
     ui->l0->setText("N/A");
     ui->l1->setText("N/A");
@@ -323,7 +323,7 @@ void DiaryStats::render_comparison(const std::vector<int> &rating_counts) {
     return;
   }
 
-  auto prev_stats = DiaryStats::get_rating_stats(
+  const auto prev_stats = DiaryStats::get_rating_stats(
       TheoreticalDiary::instance()->diary_holder->get_monthmap(prev_month),
       prev_month.daysInMonth());
 
@@ -346,7 +346,7 @@ void DiaryStats::render_comparison(const std::vector<int> &rating_counts) {
 
 std::vector<int>
 DiaryStats::get_rating_stats(const std::optional<td::YearMap::iterator> opt,
-                             const int &total_days) {
+                             const int total_days) {
   auto rating_counts = std::vector<int>{total_days, 0, 0, 0, 0, 0, 0};
 
   if (opt) {
@@ -365,7 +365,7 @@ DiaryStats::get_rating_stats(const std::optional<td::YearMap::iterator> opt,
 }
 
 void DiaryStats::render_stats(const QDate &date,
-                              const bool &ignore_month_check) {
+                              const bool ignore_month_check) {
   if (!ignore_month_check) {
     if (current_month->year() == date.year() &&
         current_month->month() == date.month()) {
@@ -390,9 +390,9 @@ void DiaryStats::render_stats(const QDate &date,
   ui->month_dropdown->blockSignals(false);
   ui->year_edit->blockSignals(false);
 
-  auto opt =
+  const auto opt =
       TheoreticalDiary::instance()->diary_holder->get_monthmap(*current_month);
-  auto rating_counts =
+  const auto rating_counts =
       DiaryStats::get_rating_stats(opt, current_month->daysInMonth());
 
   render_pie_chart(rating_counts);

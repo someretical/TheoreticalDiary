@@ -19,9 +19,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QDate>
-#include <QMainWindow>
-#include <QTimer>
+#include <QtWidgets>
 
 namespace Ui {
 class MainWindow;
@@ -58,7 +56,8 @@ public slots:
   void show_main_menu();
   void show_diary_menu(const QDate &date);
   void show_options_menu();
-  bool save_diary(const bool &ignore_errors);
+  bool save_diary(const bool ignore_errors);
+  void diary_uploaded();
 
 private:
   Ui::MainWindow *ui;

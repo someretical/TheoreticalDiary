@@ -24,8 +24,7 @@ class DiaryEditor;
 #include "../core/diaryholder.h"
 #include "diaryeditor.h"
 
-#include <QPushButton>
-#include <optional>
+#include <QtWidgets>
 
 namespace td {
 struct CalendarButtonData {

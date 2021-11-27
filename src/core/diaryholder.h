@@ -19,12 +19,9 @@
 #ifndef DIARYHOLDER_H
 #define DIARYHOLDER_H
 
-#include <QDate>
+#include <QtWidgets>
 #include <cryptlib.h>
 #include <json.hpp>
-#include <optional>
-#include <string>
-#include <vector>
 
 namespace td {
 enum Rating { Unknown, VeryBad, Bad, Ok, Good, VeryGood };

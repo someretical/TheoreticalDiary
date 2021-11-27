@@ -25,10 +25,6 @@
 #include "mainwindow.h"
 #include "ui_diarymenu.h"
 
-#include <QFile>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <fstream>
 #include <json.hpp>
 
 DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
@@ -39,7 +35,7 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
 
   // When changes are made in the editor, the other tabs need to know about it
   // so they can update accordingly.
-  auto diary_editor = new DiaryEditor(this);
+  const auto diary_editor = new DiaryEditor(this);
   ui->editor->layout()->addWidget(diary_editor);
   ui->entries->layout()->addWidget(new DiaryEntryViewer(diary_editor, this));
   ui->statistics->layout()->addWidget(new DiaryStats(diary_editor, this));
@@ -66,7 +62,7 @@ void DiaryMenu::apply_theme() {
   file.close();
 }
 
-void DiaryMenu::tab_changed(const int &tab) {
+void DiaryMenu::tab_changed(const int tab) {
   switch (tab) {
   // Editor tab
   case 0:
@@ -88,7 +84,7 @@ void DiaryMenu::tab_changed(const int &tab) {
   }
 }
 
-QString DiaryMenu::get_day_suffix(const int &day) {
+QString DiaryMenu::get_day_suffix(const int day) {
   switch (day) {
   case 1:
   case 21:

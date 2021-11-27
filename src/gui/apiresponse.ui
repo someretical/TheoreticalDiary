@@ -56,6 +56,9 @@
    </item>
    <item row="2" column="0" alignment="Qt::AlignHCenter">
     <widget class="QPushButton" name="ok_button">
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="text">
       <string>OK</string>
      </property>

@@ -24,9 +24,6 @@
 #include "optionsmenu.h"
 #include "ui_mainwindow.h"
 
-#include <QFile>
-#include <QMessageBox>
-#include <QPushButton>
 #include <fstream>
 #include <json.hpp>
 
@@ -45,6 +42,10 @@ MainWindow::MainWindow(QWidget *parent)
   connect(timer, &QTimer::timeout, this, &MainWindow::inactive_time_up,
           Qt::QueuedConnection);
 
+  connect(TheoreticalDiary::instance()->gwrapper,
+          &GoogleWrapper::sig_request_end, this, &MainWindow::diary_uploaded,
+          Qt::QueuedConnection);
+
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
           &MainWindow::apply_theme, Qt::QueuedConnection);
   apply_theme();
@@ -55,6 +56,11 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() {
   delete ui;
   delete timer;
+}
+
+void MainWindow::diary_uploaded() {
+  QApplication::restoreOverrideCursor();
+  TheoreticalDiary::instance()->closeable = true;
 }
 
 void MainWindow::focus_changed(const Qt::ApplicationState state) {
@@ -120,7 +126,7 @@ void MainWindow::show_main_menu() {
 }
 
 void MainWindow::show_options_menu() {
-  auto on_diary_editor = td::Window::DiaryEditor == current_window;
+  const auto on_diary_editor = td::Window::DiaryEditor == current_window;
   last_window = current_window;
   current_window = td::Window::Options;
 
@@ -156,7 +162,7 @@ void MainWindow::save_error() {
   rip.exec();
 }
 
-bool MainWindow::save_diary(const bool &ignore_errors) {
+bool MainWindow::save_diary(const bool ignore_errors) {
   std::string primary_path =
       TheoreticalDiary::instance()->data_location().toStdString() +
       "/diary.dat";
@@ -176,7 +182,7 @@ bool MainWindow::save_diary(const bool &ignore_errors) {
   // Update last_updated
   TheoreticalDiary::instance()->diary_holder->diary->metadata.last_updated =
       QDateTime::currentSecsSinceEpoch();
-  nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
+  const nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
 
   // Gzip JSON
   std::string compressed, encrypted;
@@ -184,7 +190,7 @@ bool MainWindow::save_diary(const bool &ignore_errors) {
   Zipper::zip(compressed, decompressed);
 
   // Encrypt if there is a password set
-  auto key_set = TheoreticalDiary::instance()->encryptor->key_set;
+  const auto key_set = TheoreticalDiary::instance()->encryptor->key_set;
   if (key_set)
     TheoreticalDiary::instance()->encryptor->encrypt(compressed, encrypted);
 
@@ -249,7 +255,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     event->ignore(); // Don't close the main window, but exit to the main menu.
 
     if (TheoreticalDiary::instance()->diary_modified) {
-
       switch (confirm_exit_to_main_menu()) {
       case QMessageBox::AcceptRole:
         // If the diary failed to save, don't exit to the main menu.
@@ -266,6 +271,16 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     TheoreticalDiary::instance()->diary_modified = false;
     TheoreticalDiary::instance()->diary_holder->init();
     TheoreticalDiary::instance()->encryptor->reset();
+
+    // Backup on Google Drive.
+    if (TheoreticalDiary::instance()
+            ->settings->value("sync_enabled", false)
+            .toBool()) {
+      TheoreticalDiary::instance()->closeable = false;
+      QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+      TheoreticalDiary::instance()->gwrapper->upload_diary(this, true);
+    }
+
     return show_main_menu();
   }
 

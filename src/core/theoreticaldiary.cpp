@@ -18,14 +18,6 @@
 
 #include "theoreticaldiary.h"
 
-#include <QDir>
-#include <QFontDatabase>
-#include <QIcon>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QStandardPaths>
-#include <fstream>
-
 TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
     : QApplication(argc, argv) {
   load_fonts();
@@ -51,7 +43,6 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
   diary_holder = new DiaryHolder();
   encryptor = new Encryptor();
   diary_modified = false;
-  oauth_modified = false;
   closeable = true;
   application_theme = new QString("dark");
 
@@ -144,11 +135,9 @@ QString TheoreticalDiary::theme() { return *application_theme; }
 
 void TheoreticalDiary::diary_changed() { diary_modified = true; }
 
-void TheoreticalDiary::oauth_changed() { oauth_modified = true; }
-
 bool TheoreticalDiary::confirm_overwrite(QWidget *p) {
   struct stat buf;
-  std::string path =
+  const std::string path =
       TheoreticalDiary::instance()->data_location().toStdString() +
       "/diary.dat";
 
@@ -176,5 +165,5 @@ bool TheoreticalDiary::confirm_overwrite(QWidget *p) {
   confirm.setDefaultButton(&no);
   confirm.setTextInteractionFlags(Qt::NoTextInteraction);
 
-  return confirm.exec() == QMessageBox::AcceptRole;
+  return QMessageBox::AcceptRole == confirm.exec();
 }

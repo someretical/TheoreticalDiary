@@ -120,7 +120,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-246</y>
+        <y>-236</y>
         <width>724</width>
         <height>1095</height>
        </rect>
@@ -542,7 +542,7 @@
              </font>
             </property>
             <property name="text">
-             <string>This is done automatically when the diary editor is closed.</string>
+             <string>This is done automatically when the diary menu is closed and backups are enabled.</string>
             </property>
             <property name="indent">
              <number>16</number>
@@ -611,6 +611,9 @@
               <pointsize>11</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
             <property name="text">
              <string>Backups enabled</string>
             </property>
@@ -633,7 +636,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
+            <item row="0" column="1" alignment="Qt::AlignRight">
              <widget class="QPushButton" name="flush_oauth_button">
               <property name="minimumSize">
                <size>

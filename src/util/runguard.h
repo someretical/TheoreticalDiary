@@ -19,9 +19,7 @@
 #ifndef RUNGUARD_H
 #define RUNGUARD_H
 
-#include <QObject>
-#include <QSharedMemory>
-#include <QSystemSemaphore>
+#include <QtCore>
 
 class RunGuard {
 public:

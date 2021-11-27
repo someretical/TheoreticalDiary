@@ -1,7 +1,7 @@
 #ifndef LICENSESDIALOG_H
 #define LICENSESDIALOG_H
 
-#include <QDialog>
+#include <QtWidgets>
 
 namespace Ui {
 class LicensesDialog;

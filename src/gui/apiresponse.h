@@ -19,7 +19,7 @@
 #ifndef APIRESPONSE_H
 #define APIRESPONSE_H
 
-#include <QDialog>
+#include <QtWidgets>
 
 namespace Ui {
 class APIResponse;

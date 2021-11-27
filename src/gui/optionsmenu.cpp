@@ -17,6 +17,7 @@
  */
 
 #include "optionsmenu.h"
+#include "../core/googlewrapper.h"
 #include "../core/theoreticaldiary.h"
 #include "aboutdialog.h"
 #include "apiresponse.h"
@@ -24,13 +25,9 @@
 #include "mainwindow.h"
 #include "ui_optionsmenu.h"
 
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QNetworkReply>
-#include <QPushButton>
 #include <fstream>
 
-OptionsMenu::OptionsMenu(bool from_diary_editor, QWidget *parent)
+OptionsMenu::OptionsMenu(const bool from_diary_editor, QWidget *parent)
     : QWidget(parent), ui(new Ui::OptionsMenu) {
   ui->setupUi(this);
 
@@ -67,6 +64,10 @@ OptionsMenu::OptionsMenu(bool from_diary_editor, QWidget *parent)
   connect(ui->licenses_button, &QPushButton::clicked, this,
           &OptionsMenu::show_licenses, Qt::QueuedConnection);
 
+  connect(TheoreticalDiary::instance()->gwrapper,
+          &GoogleWrapper::sig_request_end, this, &OptionsMenu::request_end,
+          Qt::QueuedConnection);
+
   connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
           &OptionsMenu::apply_theme, Qt::QueuedConnection);
   apply_theme();
@@ -77,7 +78,7 @@ OptionsMenu::OptionsMenu(bool from_diary_editor, QWidget *parent)
 OptionsMenu::~OptionsMenu() { delete ui; }
 
 void OptionsMenu::apply_theme() {
-  auto theme = TheoreticalDiary::instance()->theme();
+  const auto theme = TheoreticalDiary::instance()->theme();
 
   QFile file(QString(":/%1/optionsmenu.qss").arg(theme));
   file.open(QIODevice::ReadOnly);
@@ -112,6 +113,17 @@ void OptionsMenu::setup_layout() {
     ui->change_password_button->setEnabled(false);
     ui->new_password->setEnabled(false);
     ui->new_password_confirm->setEnabled(false);
+    ui->dev_list_files_button->setEnabled(false);
+    ui->dev_upload_file_button->setEnabled(false);
+    ui->dev_download_file_button->setEnabled(false);
+    ui->dev_download_file_id->setEnabled(false);
+    ui->dev_update_file_button->setEnabled(false);
+    ui->dev_update_file_id->setEnabled(false);
+    ui->dev_copy_file_button->setEnabled(false);
+    ui->dev_copy_file_id->setEnabled(false);
+    ui->dev_copy_file_new_name->setEnabled(false);
+    ui->dev_delete_button->setEnabled(false);
+    ui->dev_delete_file_id->setEnabled(false);
   }
 
   ui->sync_checkbox->setChecked(TheoreticalDiary::instance()
@@ -120,7 +132,7 @@ void OptionsMenu::setup_layout() {
 }
 
 void OptionsMenu::export_diary() {
-  auto filename = QFileDialog::getSaveFileName(
+  const auto filename = QFileDialog::getSaveFileName(
       this, "Export diary", QString("%1/export.json").arg(QDir::homePath()),
       "JSON (*.json);;All files");
 
@@ -178,13 +190,16 @@ void OptionsMenu::change_password() {
   ui->alert_text->setText("");
   ui->alert_text->update();
 
-  auto password = ui->new_password->text();
+  const auto password = ui->new_password->text();
   if (password != ui->new_password_confirm->text()) {
     ui->alert_text->setText("The passwords do not match.");
     ui->alert_text->update();
 
     QApplication::restoreOverrideCursor();
-    return ui->change_password_button->setEnabled(true);
+    TheoreticalDiary::instance()->closeable = true;
+    ui->apply_button->setEnabled(true);
+    ui->ok_button->setEnabled(true);
+    ui->change_password_button->setEnabled(true);
   }
 
   if (0 != password.length()) {
@@ -218,19 +233,64 @@ void OptionsMenu::change_password_cb() {
   ui->change_password_button->setEnabled(true);
 }
 
-void OptionsMenu::download_backup() {}
+void OptionsMenu::request_start() {
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  TheoreticalDiary::instance()->closeable = false;
+  ui->download_backup_button->setEnabled(false);
+  ui->upload_backup_button->setEnabled(false);
+  ui->flush_oauth_button->setEnabled(false);
+}
 
-void OptionsMenu::upload_diary() {}
+void OptionsMenu::request_end() {
+  ui->download_backup_button->setEnabled(true);
+  ui->upload_backup_button->setEnabled(true);
+  ui->flush_oauth_button->setEnabled(true);
+  TheoreticalDiary::instance()->closeable = true;
+  QApplication::restoreOverrideCursor();
+}
 
-void OptionsMenu::flush_oauth() {}
+void OptionsMenu::download_backup() {
+  request_start();
+  TheoreticalDiary::instance()->gwrapper->download_diary(this);
+}
+
+void OptionsMenu::upload_diary() {
+  request_start();
+  TheoreticalDiary::instance()->gwrapper->upload_diary(this, false);
+}
+
+void OptionsMenu::flush_oauth() {
+  request_start();
+  // According to the docs, this function is always successful.
+  TheoreticalDiary::instance()->gwrapper->google->unlink();
+
+  QMessageBox ok(this);
+  QPushButton ok_button("OK", &ok);
+  ok_button.setFlat(true);
+  QFont f = ok_button.font();
+  f.setPointSize(11);
+  ok_button.setFont(f);
+
+  ok.setFont(f);
+  ok.setText("Credentials deleted.");
+  ok.setInformativeText("The OAuth2 credentials have been deleted.");
+  ok.addButton(&ok_button, QMessageBox::AcceptRole);
+  ok.setDefaultButton(&ok_button);
+  ok.setTextInteractionFlags(Qt::NoTextInteraction);
+
+  request_end();
+  ok.exec();
+}
 
 void OptionsMenu::dev_list() {
+  request_start();
   TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
   // Check for OAuth2 credentials first.
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
             if (td::Res::No == code) {
+              request_end();
               return TheoreticalDiary::instance()->gwrapper->display_auth_error(
                   this);
             }
@@ -241,9 +301,10 @@ void OptionsMenu::dev_list() {
             connect(TheoreticalDiary::instance()->gwrapper->requestor,
                     qOverload<int, QNetworkReply::NetworkError, QByteArray>(
                         &O2Requestor::finished),
-                    [this](int id, QNetworkReply::NetworkError error,
+                    [this](const int, const QNetworkReply::NetworkError,
                            QByteArray data) {
                       APIResponse r(data, this);
+                      request_end();
                       r.exec();
                     });
 
@@ -272,12 +333,14 @@ void OptionsMenu::dev_unknown_file() {
 }
 
 void OptionsMenu::dev_upload() {
+  request_start();
   TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
   // Check for OAuth2 credentials first.
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
             if (td::Res::No == code) {
+              request_end();
               return TheoreticalDiary::instance()->gwrapper->display_auth_error(
                   this);
             }
@@ -288,30 +351,89 @@ void OptionsMenu::dev_upload() {
             connect(TheoreticalDiary::instance()->gwrapper->requestor,
                     qOverload<int, QNetworkReply::NetworkError, QByteArray>(
                         &O2Requestor::finished),
-                    [this](int id, QNetworkReply::NetworkError error,
+                    [this](const int, const QNetworkReply::NetworkError,
                            QByteArray data) {
                       APIResponse r(data, this);
+                      request_end();
                       r.exec();
                     });
 
-            auto filename = QFileDialog::getOpenFileName(this, "Upload file",
-                                                         QDir::homePath());
+            const auto filename = QFileDialog::getOpenFileName(
+                this, "Upload file", QDir::homePath());
             if (filename.isEmpty())
-              return;
+              return request_end();
 
             QFile f(filename);
             QFileInfo fi(f);
 
-            auto res = TheoreticalDiary::instance()->gwrapper->upload_file(
-                filename, fi.fileName());
-            if (td::Res::No == res)
+            const auto res =
+                TheoreticalDiary::instance()->gwrapper->upload_file(
+                    filename, fi.fileName());
+            if (td::Res::No == res) {
+              request_end();
               dev_unknown_file();
+            }
           });
 
   TheoreticalDiary::instance()->gwrapper->authenticate();
 }
 
 void OptionsMenu::dev_download() {
+  request_start();
+  TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
+
+  // Check for OAuth2 credentials first.
+  connect(TheoreticalDiary::instance()->gwrapper,
+          &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+            if (td::Res::No == code) {
+              request_end();
+              return TheoreticalDiary::instance()->gwrapper->display_auth_error(
+                  this);
+            }
+
+            TheoreticalDiary::instance()->gwrapper->dc_requestor_slots();
+
+            // Download file from drive.
+            connect(
+                TheoreticalDiary::instance()->gwrapper->requestor,
+                qOverload<int, QNetworkReply::NetworkError, QByteArray>(
+                    &O2Requestor::finished),
+                [this](const int, const QNetworkReply::NetworkError error,
+                       QByteArray data) {
+                  request_end();
+
+                  if (QNetworkReply::NoError != error) {
+                    APIResponse r(data, this);
+                    r.exec();
+                    return;
+                  }
+
+                  const auto filename = QFileDialog::getSaveFileName(
+                      this, "Download file",
+                      QString("%1/download").arg(QDir::homePath()));
+                  if (filename.isEmpty())
+                    return request_end();
+
+                  QFile file(filename);
+                  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                    return dev_unknown_file();
+                  file.write(data);
+                  file.close();
+
+                  QByteArray res("File downloaded.");
+                  APIResponse r(res, this);
+                  r.exec();
+                });
+
+            TheoreticalDiary::instance()->gwrapper->download_file(
+                ui->dev_download_file_id->text());
+          });
+
+  TheoreticalDiary::instance()->gwrapper->authenticate();
+}
+
+void OptionsMenu::dev_update() {
+  request_start();
   TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
   // Check for OAuth2 credentials first.
@@ -319,93 +441,50 @@ void OptionsMenu::dev_download() {
       TheoreticalDiary::instance()->gwrapper,
       &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
         if (td::Res::No == code) {
+          request_end();
           return TheoreticalDiary::instance()->gwrapper->display_auth_error(
               this);
         }
 
         TheoreticalDiary::instance()->gwrapper->dc_requestor_slots();
 
-        // Download file from drive.
-        connect(
-            TheoreticalDiary::instance()->gwrapper->requestor,
-            qOverload<int, QNetworkReply::NetworkError, QByteArray>(
-                &O2Requestor::finished),
-            [this](int id, QNetworkReply::NetworkError error, QByteArray data) {
-              if (QNetworkReply::NoError != error) {
-                APIResponse r(data, this);
-                r.exec();
-                return;
-              }
+        // Upload file to drive.
+        connect(TheoreticalDiary::instance()->gwrapper->requestor,
+                qOverload<int, QNetworkReply::NetworkError, QByteArray>(
+                    &O2Requestor::finished),
+                [this](const int, const QNetworkReply::NetworkError,
+                       QByteArray data) {
+                  APIResponse r(data, this);
+                  request_end();
+                  r.exec();
+                });
 
-              auto filename = QFileDialog::getSaveFileName(
-                  this, "Download file",
-                  QString("%1/download").arg(QDir::homePath()));
-              if (filename.isEmpty())
-                return;
+        const auto filename =
+            QFileDialog::getOpenFileName(this, "Update file", QDir::homePath());
+        if (filename.isEmpty())
+          return request_end();
 
-              QFile file(filename);
-              if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-                return dev_unknown_file();
-              file.write(data);
-              file.close();
-
-              QByteArray res("File downloaded.");
-              APIResponse r(res, this);
-              r.exec();
-            });
-
-        TheoreticalDiary::instance()->gwrapper->download_file(
-            ui->dev_download_file_id->text());
+        const auto id = ui->dev_update_file_id->text();
+        const auto res =
+            TheoreticalDiary::instance()->gwrapper->update_file(id, filename);
+        if (td::Res::No == res) {
+          request_end();
+          dev_unknown_file();
+        }
       });
 
   TheoreticalDiary::instance()->gwrapper->authenticate();
 }
 
-void OptionsMenu::dev_update() {
-  TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
-
-  // Check for OAuth2 credentials first.
-  connect(TheoreticalDiary::instance()->gwrapper,
-          &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
-            if (td::Res::No == code) {
-              return TheoreticalDiary::instance()->gwrapper->display_auth_error(
-                  this);
-            }
-
-            TheoreticalDiary::instance()->gwrapper->dc_requestor_slots();
-
-            // Upload file to drive.
-            connect(TheoreticalDiary::instance()->gwrapper->requestor,
-                    qOverload<int, QNetworkReply::NetworkError, QByteArray>(
-                        &O2Requestor::finished),
-                    [this](int id, QNetworkReply::NetworkError error,
-                           QByteArray data) {
-                      APIResponse r(data, this);
-                      r.exec();
-                    });
-
-            auto filename = QFileDialog::getOpenFileName(this, "Update file",
-                                                         QDir::homePath());
-            if (filename.isEmpty())
-              return;
-
-            auto id = ui->dev_update_file_id->text();
-            auto res = TheoreticalDiary::instance()->gwrapper->update_file(
-                id, filename);
-            if (td::Res::No == res)
-              dev_unknown_file();
-          });
-
-  TheoreticalDiary::instance()->gwrapper->authenticate();
-}
-
 void OptionsMenu::dev_copy() {
+  request_start();
   TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
   // Check for OAuth2 credentials first.
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
             if (td::Res::No == code) {
+              request_end();
               return TheoreticalDiary::instance()->gwrapper->display_auth_error(
                   this);
             }
@@ -416,9 +495,10 @@ void OptionsMenu::dev_copy() {
             connect(TheoreticalDiary::instance()->gwrapper->requestor,
                     qOverload<int, QNetworkReply::NetworkError, QByteArray>(
                         &O2Requestor::finished),
-                    [this](int id, QNetworkReply::NetworkError error,
+                    [this](const int, const QNetworkReply::NetworkError,
                            QByteArray data) {
                       APIResponse r(data, this);
+                      request_end();
                       r.exec();
                     });
 
@@ -431,12 +511,14 @@ void OptionsMenu::dev_copy() {
 }
 
 void OptionsMenu::dev_delete() {
+  request_start();
   TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
   // Check for OAuth2 credentials first.
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
             if (td::Res::No == code) {
+              request_end();
               return TheoreticalDiary::instance()->gwrapper->display_auth_error(
                   this);
             }
@@ -447,8 +529,10 @@ void OptionsMenu::dev_delete() {
             connect(TheoreticalDiary::instance()->gwrapper->requestor,
                     qOverload<int, QNetworkReply::NetworkError, QByteArray>(
                         &O2Requestor::finished),
-                    [this](int id, QNetworkReply::NetworkError error,
+                    [this](const int, const QNetworkReply::NetworkError error,
                            QByteArray data) {
+                      request_end();
+
                       if (QNetworkReply::NoError != error) {
                         APIResponse r(data, this);
                         r.exec();

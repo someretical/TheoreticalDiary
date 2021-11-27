@@ -19,8 +19,7 @@
 #ifndef DIARYMENU_H
 #define DIARYMENU_H
 
-#include <QDate>
-#include <QWidget>
+#include <QtWidgets>
 
 namespace Ui {
 class DiaryMenu;
@@ -33,13 +32,13 @@ public:
   explicit DiaryMenu(const QDate &date, QWidget *parent = nullptr);
   ~DiaryMenu();
 
-  static QString get_day_suffix(const int &day);
+  static QString get_day_suffix(const int day);
 
   QDate *first_created;
 
 public slots:
   void apply_theme();
-  void tab_changed(const int &tab);
+  void tab_changed(const int tab);
 
 private:
   Ui::DiaryMenu *ui;

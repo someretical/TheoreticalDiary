@@ -21,27 +21,16 @@
 #include "../util/zipper.h"
 #include "aboutdialog.h"
 #include "mainwindow.h"
-#include "o1requestor.h"
 #include "ui_mainmenu.h"
 
-#include <QFile>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QNetworkRequest>
-#include <QPushButton>
 #include <fstream>
-#include <string>
 
 MainMenu::MainMenu(QWidget *parent) : QWidget(parent), ui(new Ui::MainMenu) {
   ui->setupUi(this);
   ui->version->setText("Version " + QApplication::applicationVersion());
   ui->alert_text->setText("");
 
-  QTimer::singleShot(0, [&]() {
-    QApplication::restoreOverrideCursor();
-
-    ui->password_box->setFocus();
-  });
+  QTimer::singleShot(0, [&]() { ui->password_box->setFocus(); });
 
   // Pressing enter will try to decrypt
   enter = new QShortcut(QKeySequence(Qt::Key_Return), this);
@@ -150,10 +139,10 @@ void MainMenu::decrypt_diary() {
   ui->new_button->setEnabled(false);
   ui->options_button->setEnabled(false);
 
-  auto password = ui->password_box->text().toStdString();
+  const auto password = ui->password_box->text().toStdString();
   ui->password_box->setText("");
 
-  auto opt = get_diary_contents();
+  const auto opt = get_diary_contents();
   if (!opt)
     return;
 
@@ -186,10 +175,10 @@ void MainMenu::decrypt_diary() {
   emit TheoreticalDiary::instance()->sig_begin_hash(password);
 }
 
-void MainMenu::decrypt_diary_cb(bool do_decrypt) {
+void MainMenu::decrypt_diary_cb(const bool do_decrypt) {
   std::string decrypted;
   if (do_decrypt) {
-    auto res = TheoreticalDiary::instance()->encryptor->decrypt(
+    const auto res = TheoreticalDiary::instance()->encryptor->decrypt(
         *TheoreticalDiary::instance()->encryptor->encrypted_str);
     if (!res) {
       ui->alert_text->setText("Wrong password.");
@@ -239,7 +228,7 @@ void MainMenu::import_diary() {
   if (!TheoreticalDiary::instance()->confirm_overwrite(this))
     return;
 
-  auto filename = QFileDialog::getOpenFileName(
+  const auto filename = QFileDialog::getOpenFileName(
       this, "Import diary", QDir::homePath(), "JSON (*.json);;All files");
   if (filename.isEmpty())
     return;

@@ -19,12 +19,8 @@
 #ifndef ENCRYPTOR_H
 #define ENCRYPTOR_H
 
-#include <QObject>
 #include <cryptlib.h>
-#include <cstddef>
-#include <optional>
 #include <secblock.h>
-#include <string>
 
 // Sizes are in BYTES not bits
 const int TAG_SIZE = 16;

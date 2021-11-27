@@ -106,11 +106,12 @@ void Encryptor::encrypt(const std::string &plaintext, std::string &encrypted) {
   encryption_filter.ChannelMessageEnd("");
 
   // Prepend the IV
-  std::string iv_str(reinterpret_cast<const char *>(iv.data()), IV_SIZE);
+  const std::string iv_str(reinterpret_cast<const char *>(iv.data()), IV_SIZE);
   encrypted.insert(0, iv_str);
 
   // Prepend the salt
-  std::string salt_str(reinterpret_cast<const char *>(salt->data()), SALT_SIZE);
+  const std::string salt_str(reinterpret_cast<const char *>(salt->data()),
+                             SALT_SIZE);
   encrypted.insert(0, salt_str);
 }
 
@@ -145,7 +146,7 @@ std::optional<std::string> Encryptor::decrypt(const std::string &encrypted) {
     decryption_filter.ChannelMessageEnd("");
 
     // Test the authenticity of the data.
-    bool success = decryption_filter.GetLastResult();
+    const bool success = decryption_filter.GetLastResult();
     if (!success)
       return std::nullopt;
 

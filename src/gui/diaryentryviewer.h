@@ -21,10 +21,7 @@
 
 #include "diaryeditor.h"
 
-#include <QLabel>
-#include <QWidget>
-#include <string>
-#include <vector>
+#include <QtWidgets>
 
 namespace Ui {
 class DiaryEntryViewer;
@@ -48,7 +45,7 @@ public:
 
 public slots:
   void apply_theme();
-  void change_month(const QDate &date, const bool &ignore_month_check);
+  void change_month(const QDate &date, const bool ignore_month_check);
   void next_month();
   void prev_month();
   void month_changed(const int month);
@@ -89,7 +86,7 @@ public:
                                 QWidget *parent = nullptr);
   ~DiaryEntryDayMessage();
 
-  static void get_trunc_first_line(std::string const &input, std::string &res);
+  static void get_trunc_first_line(const std::string &input, std::string &res);
 
   std::string *message;
   bool expanded;
@@ -98,7 +95,7 @@ public slots:
   void apply_theme();
 
 protected:
-  void mouseDoubleClickEvent(QMouseEvent *event);
+  void mouseDoubleClickEvent(const QMouseEvent *event);
 };
 
 #endif // DIARYENTRYVIEWER_H

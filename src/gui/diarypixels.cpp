@@ -21,10 +21,6 @@
 #include "diarymenu.h"
 #include "ui_diarypixels.h"
 
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QSpacerItem>
-
 const char *MONTH_LETTERS = "JFMAMJJASOND";
 const int LABEL_SIZE = 34;
 
@@ -62,7 +58,7 @@ DiaryPixels::~DiaryPixels() {
 }
 
 void DiaryPixels::apply_theme() {
-  auto theme = TheoreticalDiary::instance()->theme();
+  const auto theme = TheoreticalDiary::instance()->theme();
 
   QFile file(QString(":/%1/diarypixels.qss").arg(theme));
   file.open(QIODevice::ReadOnly);
@@ -102,7 +98,7 @@ void DiaryPixels::render_grid() {
 
   *current_year = ui->year_edit->date();
 
-  auto opt =
+  const auto opt =
       TheoreticalDiary::instance()->diary_holder->get_yearmap(*current_year);
 
   // Set new grid
@@ -120,7 +116,7 @@ void DiaryPixels::render_grid() {
   }
 
   auto date = QDate::currentDate();
-  auto year = current_year->year();
+  const auto year = current_year->year();
 
   for (int month = 0; month < 12; ++month) {
     auto label = new QLabel(QString(MONTH_LETTERS[month]), this);
@@ -136,7 +132,8 @@ void DiaryPixels::render_grid() {
     int days = QDate(current_year->year(), month + 1, 1).daysInMonth();
 
     // This block runs if the month doesn't exist at all.
-    auto iter = (*opt)->second.find(month + 1 /* Month is index 1 based */);
+    const auto iter =
+        (*opt)->second.find(month + 1 /* Month is index 1 based */);
     if (iter == (*opt)->second.end()) {
       for (int day = 0; day < days; ++day) {
         date.setDate(year, month + 1, day + 1);
@@ -149,7 +146,7 @@ void DiaryPixels::render_grid() {
 
     // This code runs if some/all dates in a month exist.
     for (int day = 0; day < days; ++day) {
-      auto iter2 = iter->second.find(day + 1 /* day is index 1 based */);
+      const auto iter2 = iter->second.find(day + 1 /* day is index 1 based */);
 
       date.setDate(year, month + 1, day + 1);
       if (iter2 == iter->second.end()) {
@@ -169,7 +166,7 @@ void DiaryPixels::render_grid() {
 }
 
 void DiaryPixels::export_image() {
-  auto filename = QFileDialog::getSaveFileName(
+  const auto filename = QFileDialog::getSaveFileName(
       this, "Export image",
       QString("%1/%2.png")
           .arg(QDir::homePath(), QString::number(ui->year_edit->date().year())),
@@ -217,7 +214,7 @@ void DiaryPixels::export_image() {
 /*
  * PixelLabel class
  */
-PixelLabel::PixelLabel(const td::Rating &r, const bool special,
+PixelLabel::PixelLabel(const td::Rating r, const bool special,
                        const QDate &date, QWidget *parent)
     : QLabel(parent) {
   setFixedWidth(LABEL_SIZE);

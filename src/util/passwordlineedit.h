@@ -21,9 +21,7 @@
 #ifndef PASSWORDLINEEDIT_H
 #define PASSWORDLINEEDIT_H
 
-#include <QAction>
-#include <QLineEdit>
-#include <QToolButton>
+#include <QtWidgets>
 
 class PasswordLineEdit : public QLineEdit {
 public:

@@ -21,9 +21,7 @@
 
 #include "diaryeditor.h"
 
-#include <QLabel>
-#include <QWidget>
-#include <vector>
+#include <QtWidgets>
 
 namespace Ui {
 class DiaryPixels;
@@ -54,8 +52,8 @@ class PixelLabel : public QLabel {
   Q_OBJECT
 
 public:
-  explicit PixelLabel(const td::Rating &r, const bool special,
-                      const QDate &date, QWidget *parent = nullptr);
+  explicit PixelLabel(const td::Rating r, const bool special, const QDate &date,
+                      QWidget *parent = nullptr);
   ~PixelLabel();
 };
 
