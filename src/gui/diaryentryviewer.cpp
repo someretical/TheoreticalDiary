@@ -21,6 +21,8 @@
 #include "diarymenu.h"
 #include "ui_diaryentryviewer.h"
 
+#include <sstream>
+
 const int LONGEST_LINE_LENGTH = 110;
 const int DAY_LABEL_SIZE = 50;
 
