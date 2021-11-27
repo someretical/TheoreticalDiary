@@ -63,6 +63,7 @@ public:
 
   // Change trackers
   bool diary_modified;
+  bool diary_file_modified;
 
   // During asynchronous operations like password hashing and network requests,
   // the window should not be able to be closed.
@@ -77,6 +78,7 @@ public:
 
 public slots:
   void diary_changed();
+  void diary_file_changed();
 
 private:
   void load_fonts();

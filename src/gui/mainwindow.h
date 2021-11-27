@@ -40,6 +40,7 @@ public:
   ~MainWindow();
 
   void clear_grid();
+  void exit_diary_to_main_menu();
   void closeEvent(QCloseEvent *event);
 
   td::Window current_window;

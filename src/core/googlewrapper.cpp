@@ -423,6 +423,26 @@ void GoogleWrapper::upload_diary(QWidget *p, const bool silent) {
   authenticate();
 }
 
+void GoogleWrapper::display_read_error() {
+  QMessageBox rip(current_dialog_parent);
+  QPushButton ok_button("OK", &rip);
+  ok_button.setFlat(true);
+  QFont f = ok_button.font();
+  f.setPointSize(11);
+  ok_button.setFont(f);
+
+  rip.setFont(f);
+  rip.setText("Read error.");
+  rip.setInformativeText(
+      "The app was unable to read the contents of the diary.");
+  rip.addButton(&ok_button, QMessageBox::AcceptRole);
+  rip.setDefaultButton(&ok_button);
+  rip.setTextInteractionFlags(Qt::NoTextInteraction);
+
+  emit sig_request_end();
+  rip.exec();
+}
+
 void GoogleWrapper::upload__list_files_cb(
     const int, const QNetworkReply::NetworkError error, const QByteArray data) {
   if (QNetworkReply::NoError != error) {
@@ -442,25 +462,8 @@ void GoogleWrapper::upload__list_files_cb(
         QString("%1/diary.dat")
             .arg(TheoreticalDiary::instance()->data_location()),
         QString("diary.dat"));
-    if (td::Res::No == res) {
-      QMessageBox rip(current_dialog_parent);
-      QPushButton ok_button("OK", &rip);
-      ok_button.setFlat(true);
-      QFont f = ok_button.font();
-      f.setPointSize(11);
-      ok_button.setFont(f);
-
-      rip.setFont(f);
-      rip.setText("Read error.");
-      rip.setInformativeText(
-          "The app was unable to read the contents of the diary.");
-      rip.addButton(&ok_button, QMessageBox::AcceptRole);
-      rip.setDefaultButton(&ok_button);
-      rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-      emit sig_request_end();
-      rip.exec();
-    }
+    if (td::Res::No == res)
+      display_read_error();
   } else {
     connect(requestor,
             qOverload<int, QNetworkReply::NetworkError, QByteArray>(
@@ -487,25 +490,8 @@ void GoogleWrapper::upload__copy_file_cb(
     const auto name = QString("%1/diary.dat")
                           .arg(TheoreticalDiary::instance()->data_location());
     const auto res = update_file(*primary_backup_id, name);
-    if (td::Res::No == res) {
-      QMessageBox rip(current_dialog_parent);
-      QPushButton ok_button("OK", &rip);
-      ok_button.setFlat(true);
-      QFont f = ok_button.font();
-      f.setPointSize(11);
-      ok_button.setFont(f);
-
-      rip.setFont(f);
-      rip.setText("Read error.");
-      rip.setInformativeText(
-          "The app was unable to read the contents of the diary.");
-      rip.addButton(&ok_button, QMessageBox::AcceptRole);
-      rip.setDefaultButton(&ok_button);
-      rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-      emit sig_request_end();
-      rip.exec();
-    }
+    if (td::Res::No == res)
+      display_read_error();
   } else {
     connect(requestor,
             qOverload<int, QNetworkReply::NetworkError, QByteArray>(
@@ -531,25 +517,8 @@ void GoogleWrapper::upload__delete_file_cb(
   const auto name = QString("%1/diary.dat")
                         .arg(TheoreticalDiary::instance()->data_location());
   const auto res = update_file(*primary_backup_id, name);
-  if (td::Res::No == res) {
-    QMessageBox rip(current_dialog_parent);
-    QPushButton ok_button("OK", &rip);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    rip.setFont(f);
-    rip.setText("Read error.");
-    rip.setInformativeText(
-        "The app was unable to read the contents of the diary.");
-    rip.addButton(&ok_button, QMessageBox::AcceptRole);
-    rip.setDefaultButton(&ok_button);
-    rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    emit sig_request_end();
-    rip.exec();
-  }
+  if (td::Res::No == res)
+    display_read_error();
 }
 
 void GoogleWrapper::upload__upload_file_cb(

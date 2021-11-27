@@ -93,6 +93,7 @@ public slots:
 private slots:
   void auth_ok();
   void open_browser(const QUrl &url);
+  void display_read_error();
 };
 
 #endif // GOOGLEWRAPPER_H

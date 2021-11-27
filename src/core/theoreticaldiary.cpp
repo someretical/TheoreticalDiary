@@ -43,6 +43,7 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[])
   diary_holder = new DiaryHolder();
   encryptor = new Encryptor();
   diary_modified = false;
+  diary_file_modified = false;
   closeable = true;
   application_theme = new QString("dark");
 
@@ -134,6 +135,8 @@ QString TheoreticalDiary::data_location() {
 QString TheoreticalDiary::theme() { return *application_theme; }
 
 void TheoreticalDiary::diary_changed() { diary_modified = true; }
+
+void TheoreticalDiary::diary_file_changed() { diary_file_modified = true; }
 
 bool TheoreticalDiary::confirm_overwrite(QWidget *p) {
   struct stat buf;

@@ -61,6 +61,7 @@ MainWindow::~MainWindow() {
 void MainWindow::diary_uploaded() {
   QApplication::restoreOverrideCursor();
   TheoreticalDiary::instance()->closeable = true;
+  TheoreticalDiary::instance()->diary_file_modified = false;
 }
 
 void MainWindow::focus_changed(const Qt::ApplicationState state) {
@@ -81,6 +82,25 @@ void MainWindow::focus_changed(const Qt::ApplicationState state) {
   previous_state = state;
 }
 
+void MainWindow::exit_diary_to_main_menu() {
+  // Clean up
+  TheoreticalDiary::instance()->diary_modified = false;
+  TheoreticalDiary::instance()->diary_holder->init();
+  TheoreticalDiary::instance()->encryptor->reset();
+
+  // Backup on Google Drive.
+  if (TheoreticalDiary::instance()
+          ->settings->value("sync_enabled", false)
+          .toBool() &&
+      TheoreticalDiary::instance()->diary_file_modified) {
+    TheoreticalDiary::instance()->closeable = false;
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    TheoreticalDiary::instance()->gwrapper->upload_diary(this, true);
+  }
+
+  show_main_menu();
+}
+
 void MainWindow::inactive_time_up() {
   timer->stop();
 
@@ -90,15 +110,11 @@ void MainWindow::inactive_time_up() {
     return;
 
   emit sig_update_diary();
-  save_diary(true); // Passing true makes save_diary fail silently instead of
-                    // triggering a popup dialog.
+  if (TheoreticalDiary::instance()->diary_modified)
+    save_diary(true); // Passing true makes save_diary fail silently instead of
+                      // triggering a popup dialog.
 
-  // Clean up
-  TheoreticalDiary::instance()->diary_modified = false;
-  TheoreticalDiary::instance()->diary_holder->init();
-  TheoreticalDiary::instance()->encryptor->reset();
-  show_main_menu();
-  update();
+  exit_diary_to_main_menu();
 }
 
 void MainWindow::apply_theme() {
@@ -201,6 +217,7 @@ bool MainWindow::save_diary(const bool ignore_errors) {
     ofs.close();
 
     TheoreticalDiary::instance()->diary_modified = false;
+    TheoreticalDiary::instance()->diary_file_changed();
     return true;
   } else {
     if (!ignore_errors)
@@ -238,18 +255,19 @@ int MainWindow::confirm_exit_to_main_menu() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-  if (!TheoreticalDiary::instance()->closeable)
-    return event->ignore();
+  if (!TheoreticalDiary::instance()->closeable) {
+    event->ignore();
 
-  if (td::Window::Options == current_window &&
-      td::Window::DiaryEditor == last_window) {
-    event->ignore(); // Don't close the main window, but exit to the diary menu.
-    return show_diary_menu(QDate::currentDate());
+  } else if (td::Window::Options == current_window &&
+             td::Window::DiaryEditor == last_window) {
+    event->ignore(); // Don't close the main window, but exit to the diary
+                     // menu.
+    show_diary_menu(QDate::currentDate());
 
   } else if (td::Window::Options == current_window &&
              td::Window::Main == last_window) {
     event->ignore(); // Don't close the main window, but exit to the main menu.
-    return show_main_menu();
+    show_main_menu();
 
   } else if (td::Window::DiaryEditor == current_window) {
     event->ignore(); // Don't close the main window, but exit to the main menu.
@@ -267,22 +285,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
       }
     }
 
-    // Clean up
-    TheoreticalDiary::instance()->diary_modified = false;
-    TheoreticalDiary::instance()->diary_holder->init();
-    TheoreticalDiary::instance()->encryptor->reset();
-
-    // Backup on Google Drive.
-    if (TheoreticalDiary::instance()
-            ->settings->value("sync_enabled", false)
-            .toBool()) {
-      TheoreticalDiary::instance()->closeable = false;
-      QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-      TheoreticalDiary::instance()->gwrapper->upload_diary(this, true);
-    }
-
-    return show_main_menu();
+    exit_diary_to_main_menu();
+  } else {
+    event->accept(); // Actually exit the application.
   }
-
-  event->accept(); // Actually exit the application.
 }
