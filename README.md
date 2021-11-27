@@ -2,7 +2,7 @@
 
 ## About
 
-A digital diary with (planned) Google Drive backups. This app is a work in progress.
+A digital diary with Google Drive backups. This app is currently feature complete. New non-essential features may be added over time.
 
 ## Images
 
