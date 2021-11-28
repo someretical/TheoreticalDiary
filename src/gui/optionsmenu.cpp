@@ -113,6 +113,7 @@ void OptionsMenu::setup_layout() {
     ui->change_password_button->setEnabled(false);
     ui->new_password->setEnabled(false);
     ui->new_password_confirm->setEnabled(false);
+    ui->upload_backup_button->setEnabled(false);
     ui->dev_list_files_button->setEnabled(false);
     ui->dev_upload_file_button->setEnabled(false);
     ui->dev_download_file_button->setEnabled(false);
@@ -261,6 +262,8 @@ void OptionsMenu::upload_diary() {
 
 void OptionsMenu::flush_oauth() {
   request_start();
+  TheoreticalDiary::instance()->gwrapper->dc_requestor_slots();
+  TheoreticalDiary::instance()->gwrapper->revoke_access();
   // According to the docs, this function is always successful.
   TheoreticalDiary::instance()->gwrapper->google->unlink();
 
@@ -289,6 +292,28 @@ void OptionsMenu::dev_list() {
   // Check for OAuth2 credentials first.
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+            // This makes sure that this lambda is only executed once. Consider
+            // the following situation:
+            // A request is made with an invalid token.
+            // o2 only checks IF a token exists when authenticate() is called
+            // below, it does not check if it actually works. This means that
+            // the code returned is actually td::Res::Yes which means that
+            // list_files() is called. However, this time o2 realises the token
+            // is invalid because Google sends back a 401 code. When the token
+            // is automatically refreshed by o2, the sig_oauth2_callback signal
+            // is emitted since the client is technically in a linked
+            // state again. This means td::Res::Yes is returned AGAIN and the
+            // code below is run again, meaning list_files() is called AGAIN.
+            // This is problematic as the original list_files() request goes
+            // through as well. So far, I have found that this bug causes the
+            // upload_file() function to throw a segmentation fault for some
+            // reason (please don't ask why). Anyway, this bug took a while to
+            // pin down since the stack traces of both list_files() calls were
+            // basically the same (and because of the fact that I did not know
+            // o2 called sig_oauth2_callback when the access token is
+            // refreshed).
+            TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
+
             if (td::Res::No == code) {
               request_end();
               return TheoreticalDiary::instance()->gwrapper->display_auth_error(
@@ -339,6 +364,8 @@ void OptionsMenu::dev_upload() {
   // Check for OAuth2 credentials first.
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+            TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
+
             if (td::Res::No == code) {
               request_end();
               return TheoreticalDiary::instance()->gwrapper->display_auth_error(
@@ -385,6 +412,8 @@ void OptionsMenu::dev_download() {
   // Check for OAuth2 credentials first.
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+            TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
+
             if (td::Res::No == code) {
               request_end();
               return TheoreticalDiary::instance()->gwrapper->display_auth_error(
@@ -440,6 +469,8 @@ void OptionsMenu::dev_update() {
   connect(
       TheoreticalDiary::instance()->gwrapper,
       &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+        TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
+
         if (td::Res::No == code) {
           request_end();
           return TheoreticalDiary::instance()->gwrapper->display_auth_error(
@@ -483,6 +514,8 @@ void OptionsMenu::dev_copy() {
   // Check for OAuth2 credentials first.
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+            TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
+
             if (td::Res::No == code) {
               request_end();
               return TheoreticalDiary::instance()->gwrapper->display_auth_error(
@@ -517,6 +550,8 @@ void OptionsMenu::dev_delete() {
   // Check for OAuth2 credentials first.
   connect(TheoreticalDiary::instance()->gwrapper,
           &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+            TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
+
             if (td::Res::No == code) {
               request_end();
               return TheoreticalDiary::instance()->gwrapper->display_auth_error(

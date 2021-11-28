@@ -126,6 +126,21 @@ void MainWindow::apply_theme() {
 }
 
 void MainWindow::clear_grid() {
+  QWidget *w;
+
+  // This code is so unbelievably janky, there is a ONE HUNDRED PERCENT chance
+  // it will bite me back in the future. Basically, if there is some modal
+  // widget like a dialog or message box that is open and is assigned on the
+  // stack when clear_grid() is called, the application will seg fault because
+  // Qt tries to double free the modal widget. The fix for this is to close all
+  // active modal widgets before deleting the parent widget. NOTE THAT CLOSE !=
+  // DELETE. IF THE MODAL WAS DYNAMICALLY CREATED, THE WA_DELETE_ON_CLOSE FLAG
+  // NEEDS TO BE SET. I don't know if this will cause another seg fault though.
+  // Also for some reason, the compiler wants me to enclose the assignment in
+  // the while loop in another set of parentheses. :o
+  while ((w = QApplication::activeModalWidget()))
+    w->close();
+
   QLayoutItem *child;
   while ((child = ui->central_widget->layout()->takeAt(0))) {
     child->widget()->deleteLater();

@@ -81,7 +81,10 @@ void GoogleWrapper::open_browser(const QUrl &url) {
 void GoogleWrapper::authenticate() { google->link(); }
 
 void GoogleWrapper::auth_ok() {
-  QStringList scope_list = google->scope().split(" ");
+  // Not going to lie, this is the first time I have used regular expressions
+  // for the ENTIRE project. Feels kind of dirty using such a high level feature
+  // in a comparatively low level language like c++.
+  QStringList scope_list = google->scope().split(QRegularExpression("\\+|\\s"));
   QStringList required_list = QString(SCOPE).split(" ");
   std::sort(scope_list.begin(), scope_list.end());
   std::sort(required_list.begin(), required_list.end());
@@ -93,6 +96,15 @@ void GoogleWrapper::auth_ok() {
 }
 
 void GoogleWrapper::auth_err() { emit sig_oauth2_callback(td::Res::No); }
+
+void GoogleWrapper::revoke_access() {
+  QUrl url(QString(+"https://oauth2.googleapis.com/revoke?token=%1")
+               .arg(google->token()));
+  QNetworkRequest req(url);
+  req.setHeader(QNetworkRequest::ContentTypeHeader,
+                "application/x-www-form-urlencoded");
+  requestor->post(req, "");
+}
 
 void GoogleWrapper::dc_oauth_slots() {
   disconnect(this, &GoogleWrapper::sig_oauth2_callback, nullptr, nullptr);
@@ -281,6 +293,8 @@ void GoogleWrapper::download_diary(QWidget *p) {
    */
 
   connect(this, &GoogleWrapper::sig_oauth2_callback, [&](const td::Res code) {
+    dc_oauth_slots();
+
     if (td::Res::No == code) {
       emit sig_request_end();
       return display_auth_error(current_dialog_parent);
@@ -408,6 +422,8 @@ void GoogleWrapper::upload_diary(QWidget *p, const bool silent) {
    */
 
   connect(this, &GoogleWrapper::sig_oauth2_callback, [&](const td::Res code) {
+    dc_oauth_slots();
+
     if (td::Res::No == code) {
       emit sig_request_end();
       return display_auth_error(current_dialog_parent);

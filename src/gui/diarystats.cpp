@@ -268,12 +268,6 @@ void DiaryStats::render_spline_chart(
   y_axis->setTitleText("Rating");
   y_axis->setTitleBrush(QBrush(QColor(Qt::white)));
 
-  QSplineSeries *spline_series = new QSplineSeries();
-  chart->addSeries(spline_series);
-  spline_series->attachAxis(x_axis);
-  spline_series->attachAxis(y_axis);
-  spline_series->setColor(colours[3]);
-
   QScatterSeries *scatter_series = new QScatterSeries();
   chart->addSeries(scatter_series);
   scatter_series->attachAxis(x_axis);
@@ -283,9 +277,38 @@ void DiaryStats::render_spline_chart(
   scatter_series->setBorderColor(QColor(Qt::transparent));
 
   if (opt) {
+    auto prev_day = 0;
+    auto current_spline_series = new QSplineSeries();
+    chart->addSeries(current_spline_series);
+    current_spline_series->attachAxis(x_axis);
+    current_spline_series->attachAxis(y_axis);
+    current_spline_series->setColor(colours[3]);
+
     for (const auto &i : (*opt)->second) {
       if (td::Rating::Unknown != i.second.rating) {
-        spline_series->append(i.first, static_cast<int>(i.second.rating));
+        // Each spline series covers a segment made from consecutive days with
+        // known ratings. This is done to prevent the warping of the spline line
+        // if there are large gaps between days with ratings. Map elements are
+        // ordered so there is no problem just iterating over a map.
+
+        if (prev_day != i.first - 1 && i.first != 1) {
+          // Consecutive day chain broken so add the current spline series to
+          // the chart and create a new spline series. The chart takes ownership
+          // of the spline series after it is added.
+          prev_day = i.first;
+
+          current_spline_series = new QSplineSeries();
+          chart->addSeries(current_spline_series);
+          current_spline_series->attachAxis(x_axis);
+          current_spline_series->attachAxis(y_axis);
+          current_spline_series->setColor(colours[3]);
+        } else {
+          ++prev_day;
+        }
+
+        current_spline_series->append(i.first,
+                                      static_cast<int>(i.second.rating));
+
         scatter_series->append(i.first, static_cast<int>(i.second.rating));
       }
     }

@@ -47,6 +47,7 @@ public:
   void copy_file(const QString &id, const QString &new_name);
   void download_file(const QString &id);
   void delete_file(const QString &id);
+  void revoke_access();
   td::Res update_file(const QString &id, const QString &local_path);
 
   O2Google *google;

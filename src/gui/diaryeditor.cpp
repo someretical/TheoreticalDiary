@@ -461,27 +461,30 @@ void DiaryEditor::update_day(const bool suppress_message) {
 }
 
 void DiaryEditor::delete_day() {
-  QMessageBox confirm(this);
+  // Shift click bypasses confirmation dialog.
+  if (Qt::ShiftModifier != QGuiApplication::keyboardModifiers()) {
+    QMessageBox confirm(this);
 
-  QPushButton yes("YES", &confirm);
-  QFont f = yes.font();
-  f.setPointSize(11);
-  yes.setFont(f);
-  yes.setStyleSheet(*TheoreticalDiary::instance()->danger_button_style);
-  QPushButton no("NO", &confirm);
-  no.setFlat(true);
-  no.setFont(f);
+    QPushButton yes("YES", &confirm);
+    QFont f = yes.font();
+    f.setPointSize(11);
+    yes.setFont(f);
+    yes.setStyleSheet(*TheoreticalDiary::instance()->danger_button_style);
+    QPushButton no("NO", &confirm);
+    no.setFlat(true);
+    no.setFont(f);
 
-  confirm.setFont(f);
-  confirm.setText("Delete entry.");
-  confirm.setInformativeText("Are you sure you want to delete this entry?");
-  confirm.addButton(&yes, QMessageBox::AcceptRole);
-  confirm.addButton(&no, QMessageBox::RejectRole);
-  confirm.setDefaultButton(&no);
-  confirm.setTextInteractionFlags(Qt::NoTextInteraction);
+    confirm.setFont(f);
+    confirm.setText("Delete entry.");
+    confirm.setInformativeText("Are you sure you want to delete this entry?");
+    confirm.addButton(&yes, QMessageBox::AcceptRole);
+    confirm.addButton(&no, QMessageBox::RejectRole);
+    confirm.setDefaultButton(&no);
+    confirm.setTextInteractionFlags(Qt::NoTextInteraction);
 
-  if (QMessageBox::AcceptRole != confirm.exec())
-    return;
+    if (QMessageBox::AcceptRole != confirm.exec())
+      return;
+  }
 
   // Remove the entry from the in memory map
   const auto current_date =
