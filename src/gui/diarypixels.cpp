@@ -21,8 +21,10 @@
 #include "diarymenu.h"
 #include "ui_diarypixels.h"
 
+#include <algorithm>
+
 const char *MONTH_LETTERS = "JFMAMJJASOND";
-const int LABEL_SIZE = 34;
+const int LABEL_SIZE = 36;
 
 DiaryPixels::DiaryPixels(const DiaryEditor *editor, QWidget *parent)
     : QWidget(parent), ui(new Ui::DiaryPixels) {
@@ -126,7 +128,7 @@ void DiaryPixels::render_grid() {
     label->setFont(f);
     label->setFixedHeight(LABEL_SIZE);
     label->setFixedWidth(LABEL_SIZE);
-    label->setAlignment(Qt::AlignCenter);
+    label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     ui->grid->addWidget(label, month, 0);
 
     int days = QDate(current_year->year(), month + 1, 1).daysInMonth();
@@ -138,7 +140,9 @@ void DiaryPixels::render_grid() {
       for (int day = 0; day < days; ++day) {
         date.setDate(year, month + 1, day + 1);
         ui->grid->addWidget(
-            new PixelLabel(td::Rating::Unknown, false, date, this), month, day + 1 /* +1 here because of the month label added at the start of each row */);
+            new PixelLabel(td::Rating::Unknown, false, date, this), month,
+            day + 1 /* +1 here because of the month label added at the start of
+                       each row */);
       }
 
       continue;
@@ -211,18 +215,34 @@ void DiaryPixels::export_image() {
   }
 }
 
+void DiaryPixels::resizeEvent(QResizeEvent *) {
+  // Minimum dimensions:
+  // Width of button 36px
+  // Width of frame 1218px
+  // Height of frame 570px
+  // 32 labels * 36px per row
+  // 31 gaps of 2px
+
+  int final_width = ((ui->hidden_frame->width() - (2 * 31) /* 31 2px gaps */ -
+                      36) /* month letter dimensions stay the same */) /
+                    31; /* max number of days in a month */
+
+  int final_height = (ui->hidden_frame->height() - (2 * 11)) / 36;
+
+  emit sig_changed_size(std::max({LABEL_SIZE, final_width, final_height}));
+}
+
 /*
  * PixelLabel class
  */
 PixelLabel::PixelLabel(const td::Rating r, const bool special,
                        const QDate &date, QWidget *parent)
     : QLabel(parent) {
-  setFixedWidth(LABEL_SIZE);
-  setFixedHeight(LABEL_SIZE);
+  auto p = qobject_cast<DiaryPixels *>(parent);
 
-  QString stylesheet =
-      qobject_cast<DiaryPixels *>(parent)->rating_stylesheets->at(
-          static_cast<int>(r));
+  QString stylesheet = p->rating_stylesheets->at(static_cast<int>(r));
+  connect(p, &DiaryPixels::sig_changed_size, this, &PixelLabel::resize,
+          Qt::QueuedConnection);
 
   // Set background star if necessary
   if (special) {
@@ -252,3 +272,8 @@ PixelLabel::PixelLabel(const td::Rating r, const bool special,
 }
 
 PixelLabel::~PixelLabel() {}
+
+void PixelLabel::resize(const int new_width) {
+  setFixedHeight(new_width);
+  setFixedWidth(new_width);
+}

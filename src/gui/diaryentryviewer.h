@@ -95,7 +95,7 @@ public slots:
   void apply_theme();
 
 protected:
-  void mouseDoubleClickEvent(const QMouseEvent *event);
+  void mouseDoubleClickEvent(QMouseEvent *event);
 };
 
 #endif // DIARYENTRYVIEWER_H

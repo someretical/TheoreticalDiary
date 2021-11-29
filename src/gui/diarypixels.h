@@ -30,9 +30,14 @@ class DiaryPixels;
 class DiaryPixels : public QWidget {
   Q_OBJECT
 
+signals:
+  void sig_changed_size(const int new_width);
+
 public:
   explicit DiaryPixels(const DiaryEditor *editor, QWidget *parent = nullptr);
   ~DiaryPixels();
+
+  void resizeEvent(QResizeEvent *event);
 
   QDate *current_year;
   std::vector<QString> *rating_stylesheets;
@@ -55,6 +60,9 @@ public:
   explicit PixelLabel(const td::Rating r, const bool special, const QDate &date,
                       QWidget *parent = nullptr);
   ~PixelLabel();
+
+public slots:
+  void resize(const int new_width);
 };
 
 #endif // DIARYPIXELS_H

@@ -171,13 +171,33 @@ void DiaryEntryViewer::change_month(const QDate &date,
     ui->entry_grid->addItem(spacer, row_counter++, 2);
   }
 
+  if (0 == row_counter) {
+    auto label =
+        new QLabel("It seems there are no entries yet for this month...", this);
+    label->setAlignment(Qt::AlignCenter);
+    auto f = label->font();
+    f.setPointSize(11);
+    label->setFont(f);
+
+    ui->entry_grid->addWidget(label);
+  }
+
   *current_month = date;
 }
 
 void DiaryEntryViewer::next_month() {
   const QDate next = ui->year_edit->date().addMonths(1);
-  if (next.isValid())
+  if (next.isValid()) {
     change_month(next, false);
+
+    // Make scroll bar hit top.
+    QTimer::singleShot(0, this, [&]() {
+      ui->scrollArea->widget()->adjustSize();
+      ui->scrollArea->widget()->update();
+      ui->scrollArea->verticalScrollBar()->triggerAction(
+          QAbstractSlider::SliderToMinimum);
+    });
+  }
 }
 
 void DiaryEntryViewer::prev_month() {
@@ -185,7 +205,7 @@ void DiaryEntryViewer::prev_month() {
   if (prev.isValid()) {
     change_month(prev, false);
 
-    // Make scroll bar hit bottom
+    // Make scroll bar hit bottom.
     QTimer::singleShot(0, this, [&]() {
       ui->scrollArea->widget()->adjustSize();
       ui->scrollArea->widget()->update();
@@ -297,7 +317,7 @@ DiaryEntryDayMessage::~DiaryEntryDayMessage() { delete message; }
 
 void DiaryEntryDayMessage::apply_theme() {}
 
-void DiaryEntryDayMessage::mouseDoubleClickEvent(const QMouseEvent *event) {
+void DiaryEntryDayMessage::mouseDoubleClickEvent(QMouseEvent *event) {
   if (event->button() != Qt::LeftButton)
     return;
 
