@@ -47,6 +47,7 @@ DiaryStats::DiaryStats(const DiaryEditor *editor, QWidget *parent)
   pie_chart->setMargins(QMargins(0, 0, 0, 0));
   pie_chart->setBackgroundVisible(false);
   pie_chart->legend()->hide();
+  pie_chart->setEnabled(false); // Disables scrolling (at the cost of what?)
   ui->pie_chart_view->setRenderHint(QPainter::Antialiasing);
   ui->pie_chart_view->setChart(pie_chart);
 
@@ -55,6 +56,7 @@ DiaryStats::DiaryStats(const DiaryEditor *editor, QWidget *parent)
   polar_chart->setMargins(QMargins(0, 0, 0, 0));
   polar_chart->setBackgroundVisible(false);
   polar_chart->legend()->hide();
+  polar_chart->setEnabled(false);
   ui->polar_chart_view->setRenderHint(QPainter::Antialiasing);
   ui->polar_chart_view->setChart(polar_chart);
 
@@ -63,6 +65,7 @@ DiaryStats::DiaryStats(const DiaryEditor *editor, QWidget *parent)
   spline_chart->setMargins(QMargins(0, 0, 0, 0));
   spline_chart->setBackgroundVisible(false);
   spline_chart->legend()->hide();
+  spline_chart->setEnabled(false);
   ui->spline_chart_view->setRenderHint(QPainter::Antialiasing);
   ui->spline_chart_view->setChart(spline_chart);
 

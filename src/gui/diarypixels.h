@@ -37,7 +37,8 @@ public:
   explicit DiaryPixels(const DiaryEditor *editor, QWidget *parent = nullptr);
   ~DiaryPixels();
 
-  void resizeEvent(QResizeEvent *event);
+  void resizeEvent(QResizeEvent *);
+  int calculate_size();
 
   QDate *current_year;
   std::vector<QString> *rating_stylesheets;
@@ -58,7 +59,7 @@ class PixelLabel : public QLabel {
 
 public:
   explicit PixelLabel(const td::Rating r, const bool special, const QDate &date,
-                      QWidget *parent = nullptr);
+                      const int size, QWidget *parent = nullptr);
   ~PixelLabel();
 
 public slots:

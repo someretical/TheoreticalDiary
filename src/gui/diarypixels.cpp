@@ -87,6 +87,32 @@ void DiaryPixels::apply_theme() {
   }
 }
 
+int DiaryPixels::calculate_size() {
+  // Minimum dimensions:
+  // Width of button 36px
+  // Width of frame 1218px
+  // Height of frame 570px
+  // 32 labels * 36px per row
+  // 31 gaps of 2px
+
+  // For every 500px width/height, increase gap by 1px.
+  int gap = 0;
+  int top =
+      std::max({ui->hidden_frame->width(), ui->hidden_frame->height(), 1218});
+  while ((top -= 500) > -1)
+    gap++;
+
+  ui->grid->setSpacing(gap);
+
+  int final_width = ((ui->hidden_frame->width() - (gap * 31) /* 31 gaps */ -
+                      36) /* month letter dimensions stay the same */) /
+                    31; /* max number of days in a month */
+
+  int final_height = (ui->hidden_frame->height() - (gap * 11)) / 36;
+
+  return std::max({LABEL_SIZE, final_width, final_height});
+}
+
 void DiaryPixels::render_grid() {
   ui->render_button->setEnabled(false);
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -119,6 +145,7 @@ void DiaryPixels::render_grid() {
 
   auto date = QDate::currentDate();
   const auto year = current_year->year();
+  const auto size = calculate_size();
 
   for (int month = 0; month < 12; ++month) {
     auto label = new QLabel(QString(MONTH_LETTERS[month]), this);
@@ -140,7 +167,7 @@ void DiaryPixels::render_grid() {
       for (int day = 0; day < days; ++day) {
         date.setDate(year, month + 1, day + 1);
         ui->grid->addWidget(
-            new PixelLabel(td::Rating::Unknown, false, date, this), month,
+            new PixelLabel(td::Rating::Unknown, false, date, size, this), month,
             day + 1 /* +1 here because of the month label added at the start of
                        each row */);
       }
@@ -155,11 +182,12 @@ void DiaryPixels::render_grid() {
       date.setDate(year, month + 1, day + 1);
       if (iter2 == iter->second.end()) {
         ui->grid->addWidget(
-            new PixelLabel(td::Rating::Unknown, false, date, this), month,
+            new PixelLabel(td::Rating::Unknown, false, date, size, this), month,
             day + 1);
       } else {
         ui->grid->addWidget(new PixelLabel(iter2->second.rating,
-                                           iter2->second.important, date, this),
+                                           iter2->second.important, date, size,
+                                           this),
                             month, day + 1);
       }
     }
@@ -216,29 +244,19 @@ void DiaryPixels::export_image() {
 }
 
 void DiaryPixels::resizeEvent(QResizeEvent *) {
-  // Minimum dimensions:
-  // Width of button 36px
-  // Width of frame 1218px
-  // Height of frame 570px
-  // 32 labels * 36px per row
-  // 31 gaps of 2px
-
-  int final_width = ((ui->hidden_frame->width() - (2 * 31) /* 31 2px gaps */ -
-                      36) /* month letter dimensions stay the same */) /
-                    31; /* max number of days in a month */
-
-  int final_height = (ui->hidden_frame->height() - (2 * 11)) / 36;
-
-  emit sig_changed_size(std::max({LABEL_SIZE, final_width, final_height}));
+  emit sig_changed_size(calculate_size());
 }
 
 /*
  * PixelLabel class
  */
 PixelLabel::PixelLabel(const td::Rating r, const bool special,
-                       const QDate &date, QWidget *parent)
+                       const QDate &date, const int size, QWidget *parent)
     : QLabel(parent) {
   auto p = qobject_cast<DiaryPixels *>(parent);
+
+  setFixedHeight(size);
+  setFixedWidth(size);
 
   QString stylesheet = p->rating_stylesheets->at(static_cast<int>(r));
   connect(p, &DiaryPixels::sig_changed_size, this, &PixelLabel::resize,
