@@ -8,21 +8,21 @@ A digital diary with Google Drive backups. This app is currently feature complet
 
 ![](images/readme/main_menu.png)
 
-![](images/readme/diary_editor.png)
+![](images/readme/editor.png)
 
 ![](images/readme/entry_list.png)
 
-![](images/readme/diary_stats.png)
+![](images/readme/statistics.png)
 
-![](images/readme/diary_pixels.png)
+![](images/readme/pixels.png)
 
-![](images/readme/diary_settings.png)
+![](images/readme/settings.png)
 
 ## Installation
 
 ### Windows
 
-For Windows, the prebuilt binaries are available in `theoreticaldiary-x86_64` (check the result of the latest successful Github actions for [`windows.yml`](https://github.com/someretical/theoretical-diary/actions/workflows/windows.yml)). The only platform it is guaranteed to work on is Windows 10 x64.
+For Windows, the prebuilt binaries are available in `theoreticaldiary-x86_64` (check the result of the latest successful Github actions for [`windows.yml`](https://github.com/someretical/TheoreticalDiary/actions/workflows/windows.yml)). The only platform it is guaranteed to work on is Windows 10 x64.
 
 To fix scaling issues on Windows, follow these instructions:
 
@@ -38,7 +38,7 @@ To fix scaling issues on Windows, follow these instructions:
 
 ### Linux
 
-For Linux, the prebuilt app image is available in `theoreticaldiary-x86_64` (check the result of the latest successful Github actions for [`linux.yml`](https://github.com/someretical/theoretical-diary/actions/workflows/linux.yml)). Due to package version requirements, the app image will only work from Ubuntu 20.04 onwards.
+For Linux, the prebuilt app image is available in `theoreticaldiary-x86_64` (check the result of the latest successful Github actions for [`linux.yml`](https://github.com/someretical/TheoreticalDiary/actions/workflows/linux.yml)). Due to package version requirements, the app image will only work from Ubuntu 20.04 onwards.
 
 ### MacOS
 
@@ -48,8 +48,8 @@ In theory it is possible to deploy to MacOS but I'm not bothered enough to figur
 
 ### Windows
 
-My main development platform is not Windows so the best I can say is to take a look at [`windows.yml`](https://github.com/someretical/theoretical-diary/blob/master/.github/workflows/linux.yml) to see how to build it.
+My main development platform is not Windows so the best I can say is to take a look at [`windows.yml`](https://github.com/someretical/TheoreticalDiary/blob/master/.github/workflows/linux.yml) to see how to build it.
 
 ### Linux
 
-Check out [`linux.yml`](https://github.com/someretical/theoretical-diary/blob/master/.github/workflows/linux.yml) for how to build your own app image.
+Check out [`linux.yml`](https://github.com/someretical/TheoreticalDiary/blob/master/.github/workflows/linux.yml) for how to build your own app image.
