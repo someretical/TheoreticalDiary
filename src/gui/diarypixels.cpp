@@ -137,8 +137,9 @@ void DiaryPixels::render_grid() {
     f.setPointSize(11);
     label->setFont(f);
 
-    ui->grid->addWidget(label);
+    ui->grid->addWidget(label, 0, 0, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
 
+    ui->render_button->setEnabled(true);
     QApplication::restoreOverrideCursor();
     return;
   }
