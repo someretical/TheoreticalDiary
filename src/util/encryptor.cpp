@@ -161,7 +161,7 @@ std::optional<std::string> Encryptor::decrypt(const std::string &encrypted) {
       decryption_filter.Get(
           reinterpret_cast<CryptoPP::byte *>(plaintext.data()), n);
 
-    return std::make_optional<std::string>(plaintext);
+    return std::optional(plaintext);
   } catch (const CryptoPP::HashVerificationFilter::HashVerificationFailed &e) {
     return std::nullopt;
   }

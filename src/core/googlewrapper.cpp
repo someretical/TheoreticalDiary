@@ -474,7 +474,7 @@ void GoogleWrapper::upload__list_files_cb(
                 &O2Requestor::finished),
             this, &GoogleWrapper::upload__upload_file_cb);
 
-    const auto res = TheoreticalDiary::instance()->gwrapper->upload_file(
+    const auto &res = TheoreticalDiary::instance()->gwrapper->upload_file(
         QString("%1/diary.dat")
             .arg(TheoreticalDiary::instance()->data_location()),
         QString("diary.dat"));
@@ -503,9 +503,9 @@ void GoogleWrapper::upload__copy_file_cb(
                 &O2Requestor::finished),
             this, &GoogleWrapper::upload__upload_file_cb);
 
-    const auto name = QString("%1/diary.dat")
-                          .arg(TheoreticalDiary::instance()->data_location());
-    const auto res = update_file(*primary_backup_id, name);
+    const auto &name = QString("%1/diary.dat")
+                           .arg(TheoreticalDiary::instance()->data_location());
+    const auto &res = update_file(*primary_backup_id, name);
     if (td::Res::No == res)
       display_read_error();
   } else {
@@ -530,9 +530,9 @@ void GoogleWrapper::upload__delete_file_cb(
               &O2Requestor::finished),
           this, &GoogleWrapper::upload__upload_file_cb);
 
-  const auto name = QString("%1/diary.dat")
-                        .arg(TheoreticalDiary::instance()->data_location());
-  const auto res = update_file(*primary_backup_id, name);
+  const auto &name = QString("%1/diary.dat")
+                         .arg(TheoreticalDiary::instance()->data_location());
+  const auto &res = update_file(*primary_backup_id, name);
   if (td::Res::No == res)
     display_read_error();
 }

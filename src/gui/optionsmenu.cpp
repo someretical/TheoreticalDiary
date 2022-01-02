@@ -78,7 +78,7 @@ OptionsMenu::OptionsMenu(const bool from_diary_editor, QWidget *parent)
 OptionsMenu::~OptionsMenu() { delete ui; }
 
 void OptionsMenu::apply_theme() {
-  const auto theme = TheoreticalDiary::instance()->theme();
+  const auto &theme = TheoreticalDiary::instance()->theme();
 
   QFile file(QString(":/%1/optionsmenu.qss").arg(theme));
   file.open(QIODevice::ReadOnly);
@@ -133,7 +133,7 @@ void OptionsMenu::setup_layout() {
 }
 
 void OptionsMenu::export_diary() {
-  const auto filename = QFileDialog::getSaveFileName(
+  const auto &filename = QFileDialog::getSaveFileName(
       this, "Export diary", QString("%1/export.json").arg(QDir::homePath()),
       "JSON (*.json);;All files");
 
@@ -191,7 +191,7 @@ void OptionsMenu::change_password() {
   ui->alert_text->setText("");
   ui->alert_text->update();
 
-  const auto password = ui->new_password->text();
+  const auto &password = ui->new_password->text();
   if (password != ui->new_password_confirm->text()) {
     ui->alert_text->setText("The passwords do not match.");
     ui->alert_text->update();
@@ -385,7 +385,7 @@ void OptionsMenu::dev_upload() {
                       r.exec();
                     });
 
-            const auto filename = QFileDialog::getOpenFileName(
+            const auto &filename = QFileDialog::getOpenFileName(
                 this, "Upload file", QDir::homePath());
             if (filename.isEmpty())
               return request_end();
@@ -393,7 +393,7 @@ void OptionsMenu::dev_upload() {
             QFile f(filename);
             QFileInfo fi(f);
 
-            const auto res =
+            const auto &res =
                 TheoreticalDiary::instance()->gwrapper->upload_file(
                     filename, fi.fileName());
             if (td::Res::No == res) {
@@ -437,7 +437,7 @@ void OptionsMenu::dev_download() {
                     return;
                   }
 
-                  const auto filename = QFileDialog::getSaveFileName(
+                  const auto &filename = QFileDialog::getSaveFileName(
                       this, "Download file",
                       QString("%1/download").arg(QDir::homePath()));
                   if (filename.isEmpty())
@@ -490,13 +490,13 @@ void OptionsMenu::dev_update() {
                   r.exec();
                 });
 
-        const auto filename =
+        const auto &filename =
             QFileDialog::getOpenFileName(this, "Update file", QDir::homePath());
         if (filename.isEmpty())
           return request_end();
 
-        const auto id = ui->dev_update_file_id->text();
-        const auto res =
+        const auto &id = ui->dev_update_file_id->text();
+        const auto &res =
             TheoreticalDiary::instance()->gwrapper->update_file(id, filename);
         if (td::Res::No == res) {
           request_end();

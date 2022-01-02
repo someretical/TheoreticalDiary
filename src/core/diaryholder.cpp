@@ -52,43 +52,39 @@ bool DiaryHolder::load(std::string &raw) {
 
 std::optional<td::DiaryLog::iterator>
 DiaryHolder::get_yearmap(const QDate &date) {
-  const auto iter = diary->log.find(date.year());
+  const auto &iter = diary->log.find(date.year());
   if (iter == diary->log.end())
     return std::nullopt;
 
-  return std::make_optional<td::DiaryLog::iterator>(iter);
+  return std::optional(iter);
 }
 
 std::optional<td::YearMap::iterator>
 DiaryHolder::get_monthmap(const QDate &date) {
-  const auto opt = get_yearmap(date);
+  const auto &opt = get_yearmap(date);
   if (!opt)
     return std::nullopt;
 
-  // Dereferencing the std::optional returns the iterator object.
-  // Dereferencing the iterator returns the std::pair containing the key and
-  // value of the map entry
-  // .second returns the value of the map entry
-  // (*opt)->second or (**opt).second both work
-
-  const auto iter = (*opt)->second.find(date.month());
-  if (iter == (*opt)->second.end())
+  auto &[dummy, yearmap] = **opt;
+  const auto &iter = yearmap.find(date.month());
+  if (iter == yearmap.end())
     return std::nullopt;
 
-  return std::make_optional<td::YearMap::iterator>(iter);
+  return std::optional(iter);
 }
 
 std::optional<td::MonthMap::iterator>
 DiaryHolder::get_entry(const QDate &date) {
-  const auto opt = get_monthmap(date);
+  const auto &opt = get_monthmap(date);
   if (!opt)
     return std::nullopt;
 
-  const auto iter = (*opt)->second.find(date.day());
-  if (iter == (*opt)->second.end())
+  auto &[dummy, monthmap] = **opt;
+  const auto &iter = monthmap.find(date.day());
+  if (iter == monthmap.end())
     return std::nullopt;
 
-  return std::make_optional<td::MonthMap::iterator>(iter);
+  return std::optional(iter);
 }
 
 void DiaryHolder::create_entry(const QDate &date, const td::Entry &entry) {
@@ -96,7 +92,7 @@ void DiaryHolder::create_entry(const QDate &date, const td::Entry &entry) {
   // https://stackoverflow.com/a/101980
 
   // Find/create YearMap
-  const auto log_map = &TheoreticalDiary::instance()->diary_holder->diary->log;
+  const auto &log_map = &TheoreticalDiary::instance()->diary_holder->diary->log;
   auto log_iter = log_map->lower_bound(date.year());
 
   if (log_iter == log_map->end() ||
@@ -105,7 +101,7 @@ void DiaryHolder::create_entry(const QDate &date, const td::Entry &entry) {
         log_iter, td::DiaryLog::value_type(date.year(), td::YearMap()));
 
   // Find/create MonthMap
-  const auto year_map = &log_iter->second;
+  const auto &year_map = &log_iter->second;
   auto year_iter = year_map->lower_bound(date.month());
 
   if (year_iter == year_map->end() ||
@@ -114,7 +110,7 @@ void DiaryHolder::create_entry(const QDate &date, const td::Entry &entry) {
         year_iter, td::YearMap::value_type(date.month(), td::MonthMap()));
 
   // Find/create Entry
-  const auto month_map = &year_iter->second;
+  const auto &month_map = &year_iter->second;
   auto month_iter = month_map->lower_bound(date.day());
 
   if (month_iter == month_map->end() ||
@@ -127,7 +123,7 @@ void DiaryHolder::create_entry(const QDate &date, const td::Entry &entry) {
 }
 
 void DiaryHolder::delete_entry(const QDate &date) {
-  const auto opt = get_monthmap(date);
+  const auto &opt = get_monthmap(date);
   if (!opt)
     return;
 

@@ -98,7 +98,7 @@ DiaryStats::~DiaryStats() {
 }
 
 void DiaryStats::apply_theme() {
-  const auto theme = TheoreticalDiary::instance()->theme();
+  const auto &theme = TheoreticalDiary::instance()->theme();
 
   QFile file(QString(":/global/diarystats.qss"));
   file.open(QIODevice::ReadOnly);
@@ -160,20 +160,17 @@ void DiaryStats::render_pie_chart(const std::vector<int> &rating_counts) {
     for (int i = 1; i < 6; ++i)
       if (0 != rating_counts[i])
         sorted.push_back(
-            std::make_pair(static_cast<td::Rating>(i), rating_counts[i]));
+            std::pair(static_cast<td::Rating>(i), rating_counts[i]));
 
     std::sort(sorted.begin(), sorted.end(),
-              [](const std::pair<td::Rating, int> &a,
-                 const std::pair<td::Rating, int> &b) {
-                return a.second > b.second;
-              });
+              [](const auto &a, const auto &b) { return a.second > b.second; });
 
-    for (const auto &i : sorted) {
+    for (const auto &[rating, count] : sorted) {
       pie_series->append(QString("%1 - %2 day%3")
-                             .arg(QString(ratings[static_cast<int>(i.first)]),
-                                  QString::number(i.second),
-                                  1 == i.second ? "" : "s"),
-                         i.second);
+                             .arg(QString(ratings[static_cast<int>(rating)]),
+                                  QString::number(count),
+                                  1 == count ? "" : "s"),
+                         count);
 
       QPieSlice *slice =
           pie_series->slices().at(pie_series->slices().size() - 1);
@@ -181,7 +178,7 @@ void DiaryStats::render_pie_chart(const std::vector<int> &rating_counts) {
       slice->setBorderColor(QColor(49, 54, 59, 255));
       slice->setLabelColor(QColor(Qt::white));
       slice->setLabelVisible();
-      slice->setBrush(colours[static_cast<int>(i.first)]);
+      slice->setBrush(colours[static_cast<int>(rating)]);
     }
   }
 
@@ -195,7 +192,7 @@ void DiaryStats::render_polar_chart(
   const auto angular_max = current_month->daysInMonth();
 
   chart->removeAllSeries();
-  for (const auto i : chart->axes()) {
+  for (const auto &i : chart->axes()) {
     chart->removeAxis(i);
   }
 
@@ -215,22 +212,24 @@ void DiaryStats::render_polar_chart(
   chart->addAxis(radial_axis, QPolarChart::PolarOrientationRadial);
 
   if (opt) {
-    for (const auto &i : (*opt)->second) {
-      if (td::Rating::Unknown != i.second.rating) {
+    for (const auto &[day, data] : (*opt)->second) {
+      const auto &[dummy, rating, d2, d3] = data;
+
+      if (td::Rating::Unknown != rating) {
         QLineSeries *upper = new QLineSeries();
-        upper->append(i.first, static_cast<int>(i.second.rating));
-        upper->append(i.first + 1, static_cast<int>(i.second.rating));
+        upper->append(day, static_cast<int>(rating));
+        upper->append(day + 1, static_cast<int>(rating));
 
         QLineSeries *lower = new QLineSeries();
-        lower->append(i.first, 0);
-        lower->append(i.first + 1, 1); // For some reason this has to be a 1.
+        lower->append(day, 0);
+        lower->append(day + 1, 1); // For some reason this has to be a 1.
 
         QAreaSeries *area = new QAreaSeries();
         chart->addSeries(area);
         area->setLowerSeries(lower);
         area->setUpperSeries(upper);
         area->setOpacity(0.75);
-        area->setColor(colours[static_cast<int>(i.second.rating)]);
+        area->setColor(colours[static_cast<int>(rating)]);
         area->setBorderColor(QColor(Qt::transparent));
         area->attachAxis(angular_axis);
         area->attachAxis(radial_axis);
@@ -246,7 +245,7 @@ void DiaryStats::render_spline_chart(
   auto chart = ui->spline_chart_view->chart();
 
   chart->removeAllSeries();
-  for (const auto i : chart->axes()) {
+  for (const auto &i : chart->axes()) {
     chart->removeAxis(i);
   }
 
@@ -287,18 +286,19 @@ void DiaryStats::render_spline_chart(
     current_spline_series->attachAxis(y_axis);
     current_spline_series->setColor(colours[3]);
 
-    for (const auto &i : (*opt)->second) {
-      if (td::Rating::Unknown != i.second.rating) {
+    for (const auto &[day, data] : (*opt)->second) {
+      const auto &[important, rating, dummy, d2] = data;
+      if (td::Rating::Unknown != rating) {
         // Each spline series covers a segment made from consecutive days with
         // known ratings. This is done to prevent the warping of the spline line
         // if there are large gaps between days with ratings. Map elements are
         // ordered so there is no problem just iterating over a map.
 
-        if (prev_day != i.first - 1 && i.first != 1) {
+        if (prev_day != day - 1 && day != 1) {
           // Consecutive day chain broken so add the current spline series to
           // the chart and create a new spline series. The chart takes ownership
           // of the spline series after it is added.
-          prev_day = i.first;
+          prev_day = day;
 
           current_spline_series = new QSplineSeries();
           chart->addSeries(current_spline_series);
@@ -309,10 +309,9 @@ void DiaryStats::render_spline_chart(
           ++prev_day;
         }
 
-        current_spline_series->append(i.first,
-                                      static_cast<int>(i.second.rating));
+        current_spline_series->append(day, static_cast<int>(rating));
 
-        scatter_series->append(i.first, static_cast<int>(i.second.rating));
+        scatter_series->append(day, static_cast<int>(rating));
       }
     }
   }
@@ -329,7 +328,7 @@ void DiaryStats::render_comparison(const std::vector<int> &rating_counts) {
   ui->t5->setText(QString::number(rating_counts[5]));
   ui->ts->setText(QString::number(rating_counts[6]));
 
-  const auto prev_month = current_month->addMonths(-1);
+  const auto &prev_month = current_month->addMonths(-1);
   if (!prev_month.isValid()) {
     ui->l0->setText("N/A");
     ui->l1->setText("N/A");
@@ -349,7 +348,7 @@ void DiaryStats::render_comparison(const std::vector<int> &rating_counts) {
     return;
   }
 
-  const auto prev_stats = DiaryStats::get_rating_stats(
+  const auto &prev_stats = DiaryStats::get_rating_stats(
       TheoreticalDiary::instance()->diary_holder->get_monthmap(prev_month),
       prev_month.daysInMonth());
 
@@ -376,12 +375,13 @@ DiaryStats::get_rating_stats(const std::optional<td::YearMap::iterator> &opt,
   auto rating_counts = std::vector<int>{total_days, 0, 0, 0, 0, 0, 0};
 
   if (opt) {
-    for (const auto &i : (*opt)->second) {
-      if (td::Rating::Unknown != i.second.rating) {
+    for (const auto &[day, data] : (*opt)->second) {
+      const auto &[important, rating, dummy, d2] = data;
+      if (td::Rating::Unknown != rating) {
         --rating_counts[0];
-        ++rating_counts[static_cast<int>(i.second.rating)];
+        ++rating_counts[static_cast<int>(rating)];
 
-        if (i.second.important)
+        if (important)
           ++rating_counts[6];
       }
     }
@@ -416,9 +416,9 @@ void DiaryStats::render_stats(const QDate &date,
   ui->month_dropdown->blockSignals(false);
   ui->year_edit->blockSignals(false);
 
-  const auto opt =
+  const auto &opt =
       TheoreticalDiary::instance()->diary_holder->get_monthmap(*current_month);
-  const auto rating_counts =
+  const auto &rating_counts =
       DiaryStats::get_rating_stats(opt, current_month->daysInMonth());
 
   render_pie_chart(rating_counts);

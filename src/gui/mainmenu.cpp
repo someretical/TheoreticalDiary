@@ -78,7 +78,7 @@ bool MainMenu::get_diary_contents() {
   std::ifstream first(
       TheoreticalDiary::instance()->data_location().toStdString() +
       "/diary.dat");
-  auto str = TheoreticalDiary::instance()->encryptor->encrypted_str;
+  auto &str = TheoreticalDiary::instance()->encryptor->encrypted_str;
 
   if (!first.fail()) {
     // Taken from
@@ -139,10 +139,10 @@ void MainMenu::decrypt_diary() {
   ui->new_button->setEnabled(false);
   ui->options_button->setEnabled(false);
 
-  const auto password = ui->password_box->text().toStdString();
+  const auto &password = ui->password_box->text().toStdString();
   ui->password_box->setText("");
 
-  const auto opt = get_diary_contents();
+  const auto &opt = get_diary_contents();
   if (!opt)
     return;
 
@@ -151,7 +151,7 @@ void MainMenu::decrypt_diary() {
     return decrypt_diary_cb(false);
   }
 
-  auto str = TheoreticalDiary::instance()->encryptor->encrypted_str;
+  auto &str = TheoreticalDiary::instance()->encryptor->encrypted_str;
   TheoreticalDiary::instance()->encryptor->set_salt(str->substr(0, SALT_SIZE));
   str->erase(0, SALT_SIZE);
   TheoreticalDiary::instance()->encryptor->set_decrypt_iv(
@@ -178,7 +178,7 @@ void MainMenu::decrypt_diary() {
 void MainMenu::decrypt_diary_cb(const bool do_decrypt) {
   std::string decrypted;
   if (do_decrypt) {
-    const auto res = TheoreticalDiary::instance()->encryptor->decrypt(
+    const auto &res = TheoreticalDiary::instance()->encryptor->decrypt(
         *TheoreticalDiary::instance()->encryptor->encrypted_str);
     if (!res) {
       ui->alert_text->setText("Wrong password.");
@@ -228,7 +228,7 @@ void MainMenu::import_diary() {
   if (!TheoreticalDiary::instance()->confirm_overwrite(this))
     return;
 
-  const auto filename = QFileDialog::getOpenFileName(
+  const auto &filename = QFileDialog::getOpenFileName(
       this, "Import diary", QDir::homePath(), "JSON (*.json);;All files");
   if (filename.isEmpty())
     return;

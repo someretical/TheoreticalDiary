@@ -35,7 +35,7 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
 
   // When changes are made in the editor, the other tabs need to know about it
   // so they can update accordingly.
-  const auto diary_editor = new DiaryEditor(this);
+  const auto &diary_editor = new DiaryEditor(this);
   ui->editor->layout()->addWidget(diary_editor);
   ui->entries->layout()->addWidget(new DiaryEntryViewer(diary_editor, this));
   ui->statistics->layout()->addWidget(new DiaryStats(diary_editor, this));

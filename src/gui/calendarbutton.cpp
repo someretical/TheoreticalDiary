@@ -59,9 +59,8 @@ void CalendarButton::re_render(const td::CalendarButtonData &d) {
   // use the 'important' property from 'data' instead.
   // If the provided 'd' object DOES contain an 'important' property,
   // update the 'important' property of 'data'.
-  data.important =
-      std::make_optional<bool>(d.important.value_or(*data.important));
-  data.rating = std::make_optional<td::Rating>(d.rating.value_or(*data.rating));
+  data.important = std::optional(d.important.value_or(*data.important));
+  data.rating = std::optional(d.rating.value_or(*data.rating));
 
   if (*data.important) {
     switch (*data.rating) {
@@ -83,12 +82,12 @@ void CalendarButton::re_render(const td::CalendarButtonData &d) {
   }
 
   // Set colour scheme
-  const auto r = d.rating.value_or(*data.rating);
-  data.rating = std::make_optional<td::Rating>(r);
+  const auto &r = d.rating.value_or(*data.rating);
+  data.rating = std::optional(r);
   stylesheet.append((*(*data.parent)->rating_stylesheets)[static_cast<int>(r)]);
 
   // Give border if selected
-  data.selected = std::make_optional<bool>(d.selected.value_or(*data.selected));
+  data.selected = std::optional(d.selected.value_or(*data.selected));
   if (*data.selected) {
     stylesheet.append((*data.parent)->selected_stylesheet);
   }

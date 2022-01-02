@@ -60,7 +60,7 @@ DiaryPixels::~DiaryPixels() {
 }
 
 void DiaryPixels::apply_theme() {
-  const auto theme = TheoreticalDiary::instance()->theme();
+  const auto &theme = TheoreticalDiary::instance()->theme();
 
   QFile file(QString(":/%1/diarypixels.qss").arg(theme));
   file.open(QIODevice::ReadOnly);
@@ -126,7 +126,7 @@ void DiaryPixels::render_grid() {
 
   *current_year = ui->year_edit->date();
 
-  const auto opt =
+  const auto &opt =
       TheoreticalDiary::instance()->diary_holder->get_yearmap(*current_year);
 
   // Set new grid
@@ -162,9 +162,9 @@ void DiaryPixels::render_grid() {
     int days = QDate(current_year->year(), month + 1, 1).daysInMonth();
 
     // This block runs if the month doesn't exist at all.
-    const auto iter =
-        (*opt)->second.find(month + 1 /* Month is index 1 based */);
-    if (iter == (*opt)->second.end()) {
+    const auto &monthmap = (*opt)->second;
+    const auto &iter = monthmap.find(month + 1 /* Month is index 1 based */);
+    if (iter == monthmap.end()) {
       for (int day = 0; day < days; ++day) {
         date.setDate(year, month + 1, day + 1);
         ui->grid->addWidget(
@@ -178,17 +178,17 @@ void DiaryPixels::render_grid() {
 
     // This code runs if some/all dates in a month exist.
     for (int day = 0; day < days; ++day) {
-      const auto iter2 = iter->second.find(day + 1 /* day is index 1 based */);
+      const auto &entrymap = iter->second;
+      const auto &iter2 = entrymap.find(day + 1 /* day is index 1 based */);
 
       date.setDate(year, month + 1, day + 1);
-      if (iter2 == iter->second.end()) {
+      if (iter2 == entrymap.end()) {
         ui->grid->addWidget(
             new PixelLabel(td::Rating::Unknown, false, date, size, this), month,
             day + 1);
       } else {
-        ui->grid->addWidget(new PixelLabel(iter2->second.rating,
-                                           iter2->second.important, date, size,
-                                           this),
+        const auto &[important, rating, dummy, d2] = iter2->second;
+        ui->grid->addWidget(new PixelLabel(rating, important, date, size, this),
                             month, day + 1);
       }
     }
@@ -199,7 +199,7 @@ void DiaryPixels::render_grid() {
 }
 
 void DiaryPixels::export_image() {
-  const auto filename = QFileDialog::getSaveFileName(
+  const auto &filename = QFileDialog::getSaveFileName(
       this, "Export image",
       QString("%1/%2.png")
           .arg(QDir::homePath(), QString::number(ui->year_edit->date().year())),

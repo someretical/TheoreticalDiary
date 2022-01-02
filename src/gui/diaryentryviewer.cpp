@@ -71,7 +71,7 @@ DiaryEntryViewer::~DiaryEntryViewer() {
 }
 
 void DiaryEntryViewer::apply_theme() {
-  const auto theme = TheoreticalDiary::instance()->theme();
+  const auto &theme = TheoreticalDiary::instance()->theme();
 
   QFile file(QString(":/%1/diary_entry_list/base.qss").arg(theme));
   file.open(QIODevice::ReadOnly);
@@ -136,7 +136,7 @@ void DiaryEntryViewer::change_month(const QDate &date,
   ui->month_dropdown->blockSignals(false);
   ui->year_edit->blockSignals(false);
 
-  const auto opt = TheoreticalDiary::instance()->diary_holder->get_monthmap(
+  const auto &opt = TheoreticalDiary::instance()->diary_holder->get_monthmap(
       date.isValid() ? date : *current_month);
   if (!opt) {
     auto label =
@@ -152,21 +152,21 @@ void DiaryEntryViewer::change_month(const QDate &date,
 
   int row_counter = 0;
   for (const auto &i : (*opt)->second) {
+    const auto &[important, rating, message, dummy] = i.second;
 
     // Don't add any days that don't have text entries
-    if (i.second.message.empty())
+    if (message.empty())
       continue;
 
     auto day = new DiaryEntryDayLabel(
-        td::LabelData{this, i.first, i.second.rating, i.second.important},
-        this);
-    auto message = new DiaryEntryDayMessage(i.second.message, this);
+        td::LabelData{this, i.first, rating, important}, this);
+    auto formatted_msg = new DiaryEntryDayMessage(message, this);
     auto spacer =
         new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
     ui->entry_grid->addWidget(day, row_counter, 0, 1, 1,
                               Qt::AlignTop | Qt::AlignLeft);
-    ui->entry_grid->addWidget(message, row_counter, 1, 1, 1,
+    ui->entry_grid->addWidget(formatted_msg, row_counter, 1, 1, 1,
                               Qt::AlignVCenter | Qt::AlignLeft);
     ui->entry_grid->addItem(spacer, row_counter++, 2);
   }
