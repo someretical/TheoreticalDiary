@@ -19,29 +19,26 @@
 #include "calendarbutton.h"
 #include "diaryeditor.h"
 
-CalendarButton::CalendarButton(const td::CalendarButtonData &d)
-    : QPushButton(qobject_cast<QWidget *>(*d.parent)) {
-  data = d;
+CalendarButton::CalendarButton(const td::CalendarButtonData &d) : QPushButton(qobject_cast<QWidget *>(*d.parent))
+{
+    data = d;
 
-  setAutoDefault(true);
-  setCursor(QCursor(Qt::PointingHandCursor));
-  setText(QString::number(*d.day));
+    setAutoDefault(true);
+    setCursor(QCursor(Qt::PointingHandCursor));
+    setText(QString::number(*d.day));
 
-  QFont f = font();
-  f.setPointSize(16);
-  setFont(f);
+    QFont f = font();
+    f.setPointSize(16);
+    setFont(f);
 
-  // Apply new themes if requested
-  connect(*d.parent, &DiaryEditor::sig_re_render_buttons, this,
-          &CalendarButton::re_render, Qt::QueuedConnection);
+    // Apply new themes if requested
+    connect(*d.parent, &DiaryEditor::sig_re_render_buttons, this, &CalendarButton::re_render, Qt::QueuedConnection);
 
-  // Link click event through here to pass day variable through.
-  connect(this, &CalendarButton::clicked, this, &CalendarButton::clicked_on,
-          Qt::QueuedConnection);
-  connect(this, &CalendarButton::sig_clicked, *d.parent,
-          &DiaryEditor::date_clicked, Qt::QueuedConnection);
+    // Link click event through here to pass day variable through.
+    connect(this, &CalendarButton::clicked, this, &CalendarButton::clicked_on, Qt::QueuedConnection);
+    connect(this, &CalendarButton::sig_clicked, *d.parent, &DiaryEditor::date_clicked, Qt::QueuedConnection);
 
-  re_render(d);
+    re_render(d);
 }
 
 CalendarButton::~CalendarButton() {}
@@ -50,49 +47,53 @@ CalendarButton::~CalendarButton() {}
 // - Background colour
 // - Icon
 // - Whether it is selected or not
-void CalendarButton::re_render(const td::CalendarButtonData &d) {
-  // Set stylesheet (determines colours)
-  QString stylesheet(*(*data.parent)->base_stylesheet);
+void CalendarButton::re_render(const td::CalendarButtonData &d)
+{
+    // Set stylesheet (determines colours)
+    QString stylesheet(*(*data.parent)->base_stylesheet);
 
-  // Set background star if necessary
-  // If the provided 'd' object does not have the 'important' property set,
-  // use the 'important' property from 'data' instead.
-  // If the provided 'd' object DOES contain an 'important' property,
-  // update the 'important' property of 'data'.
-  data.important = std::optional(d.important.value_or(*data.important));
-  data.rating = std::optional(d.rating.value_or(*data.rating));
+    // Set background star if necessary
+    // If the provided 'd' object does not have the 'important' property set,
+    // use the 'important' property from 'data' instead.
+    // If the provided 'd' object DOES contain an 'important' property,
+    // update the 'important' property of 'data'.
+    data.important = std::optional(d.important.value_or(*data.important));
+    data.rating = std::optional(d.rating.value_or(*data.rating));
 
-  if (*data.important) {
-    switch (*data.rating) {
-    case td::Rating::Unknown:
-      // Fall through
-    case td::Rating::VeryBad:
-      // Fall through
-    case td::Rating::Bad:
-      // Fall through
-    case td::Rating::Ok:
-      stylesheet.append(*(*data.parent)->white_star);
-      break;
-    case td::Rating::Good:
-      // Fall through
-    case td::Rating::VeryGood:
-      stylesheet.append(*(*data.parent)->black_star);
-      break;
+    if (*data.important) {
+        switch (*data.rating) {
+        case td::Rating::Unknown:
+            // Fall through
+        case td::Rating::VeryBad:
+            // Fall through
+        case td::Rating::Bad:
+            // Fall through
+        case td::Rating::Ok:
+            stylesheet.append(*(*data.parent)->white_star);
+            break;
+        case td::Rating::Good:
+            // Fall through
+        case td::Rating::VeryGood:
+            stylesheet.append(*(*data.parent)->black_star);
+            break;
+        }
     }
-  }
 
-  // Set colour scheme
-  const auto &r = d.rating.value_or(*data.rating);
-  data.rating = std::optional(r);
-  stylesheet.append((*(*data.parent)->rating_stylesheets)[static_cast<int>(r)]);
+    // Set colour scheme
+    const auto &r = d.rating.value_or(*data.rating);
+    data.rating = std::optional(r);
+    stylesheet.append((*(*data.parent)->rating_stylesheets)[static_cast<int>(r)]);
 
-  // Give border if selected
-  data.selected = std::optional(d.selected.value_or(*data.selected));
-  if (*data.selected) {
-    stylesheet.append((*data.parent)->selected_stylesheet);
-  }
+    // Give border if selected
+    data.selected = std::optional(d.selected.value_or(*data.selected));
+    if (*data.selected) {
+        stylesheet.append((*data.parent)->selected_stylesheet);
+    }
 
-  setStyleSheet(stylesheet);
+    setStyleSheet(stylesheet);
 }
 
-void CalendarButton::clicked_on() { emit sig_clicked(*data.day); }
+void CalendarButton::clicked_on()
+{
+    emit sig_clicked(*data.day);
+}

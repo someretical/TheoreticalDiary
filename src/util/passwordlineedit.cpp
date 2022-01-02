@@ -21,31 +21,32 @@
 #include "passwordlineedit.h"
 #include "../core/theoreticaldiary.h"
 
-PasswordLineEdit::PasswordLineEdit(QWidget *parent) : QLineEdit(parent) {
-  setEchoMode(QLineEdit::Password);
-  QAction *action =
-      addAction(QIcon(get_eye_icon(false)), QLineEdit::TrailingPosition);
-  button = qobject_cast<QToolButton *>(action->associatedWidgets().last());
-  button->setCursor(QCursor(Qt::PointingHandCursor));
-  connect(button, &QToolButton::pressed, this, &PasswordLineEdit::onPressed,
-          Qt::QueuedConnection);
-  connect(button, &QToolButton::released, this, &PasswordLineEdit::onReleased,
-          Qt::QueuedConnection);
+PasswordLineEdit::PasswordLineEdit(QWidget *parent) : QLineEdit(parent)
+{
+    setEchoMode(QLineEdit::Password);
+    QAction *action = addAction(QIcon(get_eye_icon(false)), QLineEdit::TrailingPosition);
+    button = qobject_cast<QToolButton *>(action->associatedWidgets().last());
+    button->setCursor(QCursor(Qt::PointingHandCursor));
+    connect(button, &QToolButton::pressed, this, &PasswordLineEdit::onPressed, Qt::QueuedConnection);
+    connect(button, &QToolButton::released, this, &PasswordLineEdit::onReleased, Qt::QueuedConnection);
 }
 
-void PasswordLineEdit::onPressed() {
-  QToolButton *button = qobject_cast<QToolButton *>(sender());
-  button->setIcon(QIcon(get_eye_icon(true)));
-  setEchoMode(QLineEdit::Normal);
+void PasswordLineEdit::onPressed()
+{
+    QToolButton *button = qobject_cast<QToolButton *>(sender());
+    button->setIcon(QIcon(get_eye_icon(true)));
+    setEchoMode(QLineEdit::Normal);
 }
 
-void PasswordLineEdit::onReleased() {
-  QToolButton *button = qobject_cast<QToolButton *>(sender());
-  button->setIcon(QIcon(get_eye_icon(false)));
-  setEchoMode(QLineEdit::Password);
+void PasswordLineEdit::onReleased()
+{
+    QToolButton *button = qobject_cast<QToolButton *>(sender());
+    button->setIcon(QIcon(get_eye_icon(false)));
+    setEchoMode(QLineEdit::Password);
 }
 
-QString PasswordLineEdit::get_eye_icon(bool on) {
-  return QString(":/themes/%1/passwordlineedit/%2.svg")
-      .arg(TheoreticalDiary::instance()->theme(), on ? "eye_on" : "eye_off");
+QString PasswordLineEdit::get_eye_icon(bool on)
+{
+    return QString(":/themes/%1/passwordlineedit/%2.svg")
+        .arg(TheoreticalDiary::instance()->theme(), on ? "eye_on" : "eye_off");
 }

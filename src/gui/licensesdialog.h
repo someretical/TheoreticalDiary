@@ -8,17 +8,17 @@ class LicensesDialog;
 }
 
 class LicensesDialog : public QDialog {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit LicensesDialog(QWidget *parent = nullptr);
-  ~LicensesDialog();
+    explicit LicensesDialog(QWidget *parent = nullptr);
+    ~LicensesDialog();
 
 public slots:
-  void apply_theme();
+    void apply_theme();
 
 private:
-  Ui::LicensesDialog *ui;
+    Ui::LicensesDialog *ui;
 };
 
 #endif // LICENSESDIALOG_H

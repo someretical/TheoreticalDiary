@@ -31,24 +31,24 @@ const int IV_SIZE = 12;
 
 class Encryptor {
 public:
-  Encryptor();
-  ~Encryptor();
+    Encryptor();
+    ~Encryptor();
 
-  void reset();
-  void regenerate_salt();
-  void set_key(const std::string &plaintext);
-  void set_salt(const std::string &salt_str);
-  void set_decrypt_iv(const std::string &iv_str);
-  void encrypt(const std::string &plaintext, std::string &encrypted);
-  std::optional<std::string> decrypt(const std::string &encrypted);
+    void reset();
+    void regenerate_salt();
+    void set_key(const std::string &plaintext);
+    void set_salt(const std::string &salt_str);
+    void set_decrypt_iv(const std::string &iv_str);
+    void encrypt(const std::string &plaintext, std::string &encrypted);
+    std::optional<std::string> decrypt(const std::string &encrypted);
 
-  bool key_set;
-  std::string *encrypted_str;
+    bool key_set;
+    std::string *encrypted_str;
 
 private:
-  CryptoPP::SecByteBlock *salt;
-  CryptoPP::SecByteBlock *key;
-  CryptoPP::SecByteBlock *decrypt_iv;
+    CryptoPP::SecByteBlock *salt;
+    CryptoPP::SecByteBlock *key;
+    CryptoPP::SecByteBlock *decrypt_iv;
 };
 
 #endif // ENCRYPTOR_H

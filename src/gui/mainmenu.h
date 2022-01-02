@@ -28,24 +28,24 @@ class MainMenu;
 }
 
 class MainMenu : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit MainMenu(QWidget *parent = nullptr);
-  ~MainMenu();
+    explicit MainMenu(QWidget *parent = nullptr);
+    ~MainMenu();
 
 public slots:
-  void apply_theme();
-  void decrypt_diary();
-  void new_diary();
-  void import_diary();
-  void open_options();
-  bool get_diary_contents();
-  void decrypt_diary_cb(const bool do_decrypt = true);
+    void apply_theme();
+    void decrypt_diary();
+    void new_diary();
+    void import_diary();
+    void open_options();
+    bool get_diary_contents();
+    void decrypt_diary_cb(const bool do_decrypt = true);
 
 private:
-  Ui::MainMenu *ui;
-  QShortcut *enter;
+    Ui::MainMenu *ui;
+    QShortcut *enter;
 };
 
 #endif // MAINMENU_H

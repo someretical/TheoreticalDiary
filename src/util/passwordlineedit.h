@@ -25,16 +25,16 @@
 
 class PasswordLineEdit : public QLineEdit {
 public:
-  PasswordLineEdit(QWidget *parent = nullptr);
+    PasswordLineEdit(QWidget *parent = nullptr);
 
 private slots:
-  void onPressed();
-  void onReleased();
+    void onPressed();
+    void onReleased();
 
 private:
-  QToolButton *button;
+    QToolButton *button;
 
-  QString get_eye_icon(bool on);
+    QString get_eye_icon(bool on);
 };
 
 #endif // PASSWORDLINEEDIT_H

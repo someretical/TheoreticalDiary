@@ -21,111 +21,115 @@
 
 const int CURRENT_SAVE_VERSION = 4;
 
-DiaryHolder::DiaryHolder() { diary = new td::Diary; }
-
-DiaryHolder::~DiaryHolder() { delete diary; }
-
-void DiaryHolder::init() {
-  *diary = td::Diary{
-      td::DiaryLog(),
-      td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()},
-      td::Settings{false}};
+DiaryHolder::DiaryHolder()
+{
+    diary = new td::Diary;
 }
 
-bool DiaryHolder::load(std::string &raw) {
-  auto json = nlohmann::json::parse(raw, nullptr, false);
-  if (json.is_discarded())
-    return false;
-
-  // Here is where updating save versions will occur *if* I every actually get
-  // around to doing this which will probably never happen because I'm the only
-  // person using my own app :')
-
-  try {
-    *diary = json.get<td::Diary>();
-  } catch (const nlohmann::json::exception &e) {
-    return false;
-  }
-
-  return true;
+DiaryHolder::~DiaryHolder()
+{
+    delete diary;
 }
 
-std::optional<td::DiaryLog::iterator>
-DiaryHolder::get_yearmap(const QDate &date) {
-  const auto &iter = diary->log.find(date.year());
-  if (iter == diary->log.end())
-    return std::nullopt;
-
-  return std::optional(iter);
+void DiaryHolder::init()
+{
+    *diary = td::Diary{
+        td::DiaryLog(), td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()}, td::Settings{false}};
 }
 
-std::optional<td::YearMap::iterator>
-DiaryHolder::get_monthmap(const QDate &date) {
-  const auto &opt = get_yearmap(date);
-  if (!opt)
-    return std::nullopt;
+bool DiaryHolder::load(std::string &raw)
+{
+    auto json = nlohmann::json::parse(raw, nullptr, false);
+    if (json.is_discarded())
+        return false;
 
-  auto &[dummy, yearmap] = **opt;
-  const auto &iter = yearmap.find(date.month());
-  if (iter == yearmap.end())
-    return std::nullopt;
+    // Here is where updating save versions will occur *if* I every actually get
+    // around to doing this which will probably never happen because I'm the only
+    // person using my own app :')
 
-  return std::optional(iter);
+    try {
+        *diary = json.get<td::Diary>();
+    }
+    catch (const nlohmann::json::exception &e) {
+        return false;
+    }
+
+    return true;
 }
 
-std::optional<td::MonthMap::iterator>
-DiaryHolder::get_entry(const QDate &date) {
-  const auto &opt = get_monthmap(date);
-  if (!opt)
-    return std::nullopt;
+std::optional<td::DiaryLog::iterator> DiaryHolder::get_yearmap(const QDate &date)
+{
+    const auto &iter = diary->log.find(date.year());
+    if (iter == diary->log.end())
+        return std::nullopt;
 
-  auto &[dummy, monthmap] = **opt;
-  const auto &iter = monthmap.find(date.day());
-  if (iter == monthmap.end())
-    return std::nullopt;
-
-  return std::optional(iter);
+    return std::optional(iter);
 }
 
-void DiaryHolder::create_entry(const QDate &date, const td::Entry &entry) {
-  // Find/create path to new entry
-  // https://stackoverflow.com/a/101980
+std::optional<td::YearMap::iterator> DiaryHolder::get_monthmap(const QDate &date)
+{
+    const auto &opt = get_yearmap(date);
+    if (!opt)
+        return std::nullopt;
 
-  // Find/create YearMap
-  const auto &log_map = &TheoreticalDiary::instance()->diary_holder->diary->log;
-  auto log_iter = log_map->lower_bound(date.year());
+    auto &[dummy, yearmap] = **opt;
+    const auto &iter = yearmap.find(date.month());
+    if (iter == yearmap.end())
+        return std::nullopt;
 
-  if (log_iter == log_map->end() ||
-      log_map->key_comp()(date.year(), log_iter->first))
-    log_iter = log_map->insert(
-        log_iter, td::DiaryLog::value_type(date.year(), td::YearMap()));
-
-  // Find/create MonthMap
-  const auto &year_map = &log_iter->second;
-  auto year_iter = year_map->lower_bound(date.month());
-
-  if (year_iter == year_map->end() ||
-      year_map->key_comp()(date.month(), year_iter->first))
-    year_iter = year_map->insert(
-        year_iter, td::YearMap::value_type(date.month(), td::MonthMap()));
-
-  // Find/create Entry
-  const auto &month_map = &year_iter->second;
-  auto month_iter = month_map->lower_bound(date.day());
-
-  if (month_iter == month_map->end() ||
-      month_map->key_comp()(date.day(), month_iter->first)) {
-    month_iter = month_map->insert(month_iter,
-                                   td::MonthMap::value_type(date.day(), entry));
-  } else {
-    month_iter->second = entry;
-  }
+    return std::optional(iter);
 }
 
-void DiaryHolder::delete_entry(const QDate &date) {
-  const auto &opt = get_monthmap(date);
-  if (!opt)
-    return;
+std::optional<td::MonthMap::iterator> DiaryHolder::get_entry(const QDate &date)
+{
+    const auto &opt = get_monthmap(date);
+    if (!opt)
+        return std::nullopt;
 
-  (*opt)->second.erase(date.day());
+    auto &[dummy, monthmap] = **opt;
+    const auto &iter = monthmap.find(date.day());
+    if (iter == monthmap.end())
+        return std::nullopt;
+
+    return std::optional(iter);
+}
+
+void DiaryHolder::create_entry(const QDate &date, const td::Entry &entry)
+{
+    // Find/create path to new entry
+    // https://stackoverflow.com/a/101980
+
+    // Find/create YearMap
+    const auto &log_map = &TheoreticalDiary::instance()->diary_holder->diary->log;
+    auto log_iter = log_map->lower_bound(date.year());
+
+    if (log_iter == log_map->end() || log_map->key_comp()(date.year(), log_iter->first))
+        log_iter = log_map->insert(log_iter, td::DiaryLog::value_type(date.year(), td::YearMap()));
+
+    // Find/create MonthMap
+    const auto &year_map = &log_iter->second;
+    auto year_iter = year_map->lower_bound(date.month());
+
+    if (year_iter == year_map->end() || year_map->key_comp()(date.month(), year_iter->first))
+        year_iter = year_map->insert(year_iter, td::YearMap::value_type(date.month(), td::MonthMap()));
+
+    // Find/create Entry
+    const auto &month_map = &year_iter->second;
+    auto month_iter = month_map->lower_bound(date.day());
+
+    if (month_iter == month_map->end() || month_map->key_comp()(date.day(), month_iter->first)) {
+        month_iter = month_map->insert(month_iter, td::MonthMap::value_type(date.day(), entry));
+    }
+    else {
+        month_iter->second = entry;
+    }
+}
+
+void DiaryHolder::delete_entry(const QDate &date)
+{
+    const auto &opt = get_monthmap(date);
+    if (!opt)
+        return;
+
+    (*opt)->second.erase(date.day());
 }

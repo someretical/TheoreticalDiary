@@ -30,51 +30,54 @@
 // The hashing algorithm was adopted from
 // https://www.cryptopp.com/wiki/Scrypt#OpenMP
 
-Encryptor::Encryptor() {
-  salt = new CryptoPP::SecByteBlock(SALT_SIZE);
-  key = new CryptoPP::SecByteBlock(KEY_SIZE);
-  key_set = false;
-  decrypt_iv = new CryptoPP::SecByteBlock(IV_SIZE);
-  encrypted_str = new std::string();
+Encryptor::Encryptor()
+{
+    salt = new CryptoPP::SecByteBlock(SALT_SIZE);
+    key = new CryptoPP::SecByteBlock(KEY_SIZE);
+    key_set = false;
+    decrypt_iv = new CryptoPP::SecByteBlock(IV_SIZE);
+    encrypted_str = new std::string();
 }
 
-Encryptor::~Encryptor() {
-  delete salt;
-  delete key;
-  delete decrypt_iv;
-  delete encrypted_str;
+Encryptor::~Encryptor()
+{
+    delete salt;
+    delete key;
+    delete decrypt_iv;
+    delete encrypted_str;
 }
 
-void Encryptor::reset() {
-  salt->Assign(CryptoPP::SecByteBlock(SALT_SIZE));
-  key->Assign(CryptoPP::SecByteBlock(KEY_SIZE));
-  key_set = false;
-  decrypt_iv->Assign(CryptoPP::SecByteBlock(IV_SIZE));
-  encrypted_str->clear();
-  encrypted_str->resize(0);
+void Encryptor::reset()
+{
+    salt->Assign(CryptoPP::SecByteBlock(SALT_SIZE));
+    key->Assign(CryptoPP::SecByteBlock(KEY_SIZE));
+    key_set = false;
+    decrypt_iv->Assign(CryptoPP::SecByteBlock(IV_SIZE));
+    encrypted_str->clear();
+    encrypted_str->resize(0);
 }
 
-void Encryptor::regenerate_salt() {
-  CryptoPP::AutoSeededRandomPool prng;
-  prng.GenerateBlock(salt->data(), SALT_SIZE);
+void Encryptor::regenerate_salt()
+{
+    CryptoPP::AutoSeededRandomPool prng;
+    prng.GenerateBlock(salt->data(), SALT_SIZE);
 }
 
-void Encryptor::set_key(const std::string &plaintext) {
-  CryptoPP::SecByteBlock byte_block(
-      reinterpret_cast<const CryptoPP::byte *>(plaintext.data()),
-      plaintext.size());
-  CryptoPP::Scrypt scrypt;
-  key_set = true;
+void Encryptor::set_key(const std::string &plaintext)
+{
+    CryptoPP::SecByteBlock byte_block(reinterpret_cast<const CryptoPP::byte *>(plaintext.data()), plaintext.size());
+    CryptoPP::Scrypt scrypt;
+    key_set = true;
 
-  // This is supposed to be computationally expensive to make it hard to brute
-  // force attack. It SHOULD take a reasonable amount of time.
-  scrypt.DeriveKey(key->data(), KEY_SIZE, byte_block.data(), byte_block.size(),
-                   salt->data(), SALT_SIZE, 1 << 15, 8, 16);
+    // This is supposed to be computationally expensive to make it hard to brute
+    // force attack. It SHOULD take a reasonable amount of time.
+    scrypt.DeriveKey(
+        key->data(), KEY_SIZE, byte_block.data(), byte_block.size(), salt->data(), SALT_SIZE, 1 << 15, 8, 16);
 }
 
-void Encryptor::set_salt(const std::string &salt_str) {
-  salt->Assign(CryptoPP::SecByteBlock(
-      reinterpret_cast<const CryptoPP::byte *>(salt_str.data()), SALT_SIZE));
+void Encryptor::set_salt(const std::string &salt_str)
+{
+    salt->Assign(CryptoPP::SecByteBlock(reinterpret_cast<const CryptoPP::byte *>(salt_str.data()), SALT_SIZE));
 }
 
 /*
@@ -89,80 +92,74 @@ void Encryptor::set_salt(const std::string &salt_str) {
  */
 
 // Requires a salt be already set
-void Encryptor::encrypt(const std::string &plaintext, std::string &encrypted) {
-  CryptoPP::AutoSeededRandomPool prng;
-  CryptoPP::SecByteBlock iv(IV_SIZE);
-  CryptoPP::GCM<CryptoPP::AES>::Encryption encryptor;
+void Encryptor::encrypt(const std::string &plaintext, std::string &encrypted)
+{
+    CryptoPP::AutoSeededRandomPool prng;
+    CryptoPP::SecByteBlock iv(IV_SIZE);
+    CryptoPP::GCM<CryptoPP::AES>::Encryption encryptor;
 
-  prng.GenerateBlock(iv, IV_SIZE);
-  encryptor.SetKeyWithIV(key->data(), KEY_SIZE, iv, IV_SIZE);
+    prng.GenerateBlock(iv, IV_SIZE);
+    encryptor.SetKeyWithIV(key->data(), KEY_SIZE, iv, IV_SIZE);
 
-  // Put content to be encrypted in the encryption AND authentication channel.
-  CryptoPP::AuthenticatedEncryptionFilter encryption_filter(
-      encryptor, new CryptoPP::StringSink(encrypted), false, TAG_SIZE);
-  encryption_filter.ChannelPut(
-      "", reinterpret_cast<const CryptoPP::byte *>(plaintext.data()),
-      plaintext.size());
-  encryption_filter.ChannelMessageEnd("");
+    // Put content to be encrypted in the encryption AND authentication channel.
+    CryptoPP::AuthenticatedEncryptionFilter encryption_filter(
+        encryptor, new CryptoPP::StringSink(encrypted), false, TAG_SIZE);
+    encryption_filter.ChannelPut("", reinterpret_cast<const CryptoPP::byte *>(plaintext.data()), plaintext.size());
+    encryption_filter.ChannelMessageEnd("");
 
-  // Prepend the IV
-  const std::string iv_str(reinterpret_cast<const char *>(iv.data()), IV_SIZE);
-  encrypted.insert(0, iv_str);
+    // Prepend the IV
+    const std::string iv_str(reinterpret_cast<const char *>(iv.data()), IV_SIZE);
+    encrypted.insert(0, iv_str);
 
-  // Prepend the salt
-  const std::string salt_str(reinterpret_cast<const char *>(salt->data()),
-                             SALT_SIZE);
-  encrypted.insert(0, salt_str);
+    // Prepend the salt
+    const std::string salt_str(reinterpret_cast<const char *>(salt->data()), SALT_SIZE);
+    encrypted.insert(0, salt_str);
 }
 
-void Encryptor::set_decrypt_iv(const std::string &iv_str) {
-  decrypt_iv->Assign(CryptoPP::SecByteBlock(
-      reinterpret_cast<const CryptoPP::byte *>(iv_str.data()), IV_SIZE));
+void Encryptor::set_decrypt_iv(const std::string &iv_str)
+{
+    decrypt_iv->Assign(CryptoPP::SecByteBlock(reinterpret_cast<const CryptoPP::byte *>(iv_str.data()), IV_SIZE));
 }
 
 // Requires a salt and IV already set
-std::optional<std::string> Encryptor::decrypt(const std::string &encrypted) {
-  try {
-    CryptoPP::GCM<CryptoPP::AES>::Decryption decryptor;
-    decryptor.SetKeyWithIV(key->data(), KEY_SIZE, *decrypt_iv, IV_SIZE);
+std::optional<std::string> Encryptor::decrypt(const std::string &encrypted)
+{
+    try {
+        CryptoPP::GCM<CryptoPP::AES>::Decryption decryptor;
+        decryptor.SetKeyWithIV(key->data(), KEY_SIZE, *decrypt_iv, IV_SIZE);
 
-    std::string encrypted_data =
-        encrypted.substr(0, encrypted.size() - TAG_SIZE);
-    std::string mac_value = encrypted.substr(encrypted.size() - TAG_SIZE);
+        std::string encrypted_data = encrypted.substr(0, encrypted.size() - TAG_SIZE);
+        std::string mac_value = encrypted.substr(encrypted.size() - TAG_SIZE);
 
-    CryptoPP::AuthenticatedDecryptionFilter decryption_filter(
-        decryptor, NULL,
-        CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN |
-            CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION,
-        TAG_SIZE);
+        CryptoPP::AuthenticatedDecryptionFilter decryption_filter(decryptor, NULL,
+            CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN |
+                CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION,
+            TAG_SIZE);
 
-    // There is only data in the encrypted and authenticated channel.
-    decryption_filter.ChannelPut(
-        "", reinterpret_cast<const CryptoPP::byte *>(mac_value.data()),
-        mac_value.size());
-    decryption_filter.ChannelPut(
-        "", reinterpret_cast<const CryptoPP::byte *>(encrypted_data.data()),
-        encrypted_data.size());
-    decryption_filter.ChannelMessageEnd("");
+        // There is only data in the encrypted and authenticated channel.
+        decryption_filter.ChannelPut("", reinterpret_cast<const CryptoPP::byte *>(mac_value.data()), mac_value.size());
+        decryption_filter.ChannelPut(
+            "", reinterpret_cast<const CryptoPP::byte *>(encrypted_data.data()), encrypted_data.size());
+        decryption_filter.ChannelMessageEnd("");
 
-    // Test the authenticity of the data.
-    const bool success = decryption_filter.GetLastResult();
-    if (!success)
-      return std::nullopt;
+        // Test the authenticity of the data.
+        const bool success = decryption_filter.GetLastResult();
+        if (!success)
+            return std::nullopt;
 
-    // Allocate enough space for the decrypted content.
-    std::size_t n = (std::size_t)-1;
-    decryption_filter.SetRetrievalChannel("");
-    n = static_cast<std::size_t>(decryption_filter.MaxRetrievable());
-    std::string plaintext;
-    plaintext.resize(n);
+        // Allocate enough space for the decrypted content.
+        std::size_t n = (std::size_t)-1;
+        decryption_filter.SetRetrievalChannel("");
+        n = static_cast<std::size_t>(decryption_filter.MaxRetrievable());
+        std::string plaintext;
+        plaintext.resize(n);
 
-    if (n > 0)
-      decryption_filter.Get(
-          reinterpret_cast<CryptoPP::byte *>(plaintext.data()), n);
+        if (n > 0)
+            decryption_filter.Get(reinterpret_cast<CryptoPP::byte *>(plaintext.data()), n);
 
-    return std::optional(plaintext);
-  } catch (const CryptoPP::HashVerificationFilter::HashVerificationFailed &e) {
-    return std::nullopt;
-  }
+        return std::optional(plaintext);
+    }
+    catch (const CryptoPP::HashVerificationFilter::HashVerificationFailed &e) {
+        return std::nullopt;
+    }
 }

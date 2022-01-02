@@ -28,74 +28,71 @@ class DiaryEntryViewer;
 }
 
 class DiaryEntryViewer : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 
 signals:
-  void sig_re_render_theme();
+    void sig_re_render_theme();
 
 public:
-  explicit DiaryEntryViewer(const DiaryEditor *editor,
-                            QWidget *parent = nullptr);
-  ~DiaryEntryViewer();
+    explicit DiaryEntryViewer(const DiaryEditor *editor, QWidget *parent = nullptr);
+    ~DiaryEntryViewer();
 
-  QDate *current_month;
-  std::vector<QString> *rating_stylesheets;
-  QString *white_star;
-  QString *black_star;
+    QDate *current_month;
+    std::vector<QString> *rating_stylesheets;
+    QString *white_star;
+    QString *black_star;
 
 public slots:
-  void apply_theme();
-  void change_month(const QDate &date, const bool ignore_month_check);
-  void next_month();
-  void prev_month();
-  void month_changed(const int month);
-  void year_changed(const QDate &date);
+    void apply_theme();
+    void change_month(const QDate &date, const bool ignore_month_check);
+    void next_month();
+    void prev_month();
+    void month_changed(const int month);
+    void year_changed(const QDate &date);
 
 private:
-  Ui::DiaryEntryViewer *ui;
+    Ui::DiaryEntryViewer *ui;
 };
 
 namespace td {
 struct LabelData {
-  DiaryEntryViewer *parent;
-  int day;
-  td::Rating rating;
-  bool special;
+    DiaryEntryViewer *parent;
+    int day;
+    td::Rating rating;
+    bool special;
 };
 } // namespace td
 
 class DiaryEntryDayLabel : public QLabel {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit DiaryEntryDayLabel(const td::LabelData &d,
-                              QWidget *parent = nullptr);
-  ~DiaryEntryDayLabel();
+    explicit DiaryEntryDayLabel(const td::LabelData &d, QWidget *parent = nullptr);
+    ~DiaryEntryDayLabel();
 
-  td::LabelData data;
+    td::LabelData data;
 
 public slots:
-  void apply_theme();
+    void apply_theme();
 };
 
 class DiaryEntryDayMessage : public QLabel {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit DiaryEntryDayMessage(const std::string &m,
-                                QWidget *parent = nullptr);
-  ~DiaryEntryDayMessage();
+    explicit DiaryEntryDayMessage(const std::string &m, QWidget *parent = nullptr);
+    ~DiaryEntryDayMessage();
 
-  static void get_trunc_first_line(const std::string &input, std::string &res);
+    static void get_trunc_first_line(const std::string &input, std::string &res);
 
-  std::string *message;
-  bool expanded;
+    std::string *message;
+    bool expanded;
 
 public slots:
-  void apply_theme();
+    void apply_theme();
 
 protected:
-  void mouseDoubleClickEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
 };
 
 #endif // DIARYENTRYVIEWER_H

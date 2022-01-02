@@ -41,47 +41,47 @@ enum Res : int { Yes, No };
  * TheoreticalDiary class
  */
 class TheoreticalDiary : public QApplication {
-  Q_OBJECT
+    Q_OBJECT
 
 signals:
-  void sig_begin_hash(const std::string &plaintext);
-  void apply_theme();
+    void sig_begin_hash(const std::string &plaintext);
+    void apply_theme();
 
 public:
-  TheoreticalDiary(int &argc, char **argv);
-  ~TheoreticalDiary();
-  static TheoreticalDiary *instance();
+    TheoreticalDiary(int &argc, char **argv);
+    ~TheoreticalDiary();
+    static TheoreticalDiary *instance();
 
-  QString data_location();
-  QString theme();
-  bool confirm_overwrite(QWidget *p);
+    QString data_location();
+    QString theme();
+    bool confirm_overwrite(QWidget *p);
 
-  GoogleWrapper *gwrapper;
-  DiaryHolder *diary_holder;
-  Encryptor *encryptor;
-  QSettings *settings;
+    GoogleWrapper *gwrapper;
+    DiaryHolder *diary_holder;
+    Encryptor *encryptor;
+    QSettings *settings;
 
-  // Change trackers
-  bool diary_modified;
-  bool diary_file_modified;
+    // Change trackers
+    bool diary_modified;
+    bool diary_file_modified;
 
-  // During asynchronous operations like password hashing and network requests,
-  // the window should not be able to be closed.
-  bool closeable;
+    // During asynchronous operations like password hashing and network requests,
+    // the window should not be able to be closed.
+    bool closeable;
 
-  // See https://doc.qt.io/qt-5/qthread.html for multithreading
-  QThread worker_thread;
-  QString *application_theme;
+    // See https://doc.qt.io/qt-5/qthread.html for multithreading
+    QThread worker_thread;
+    QString *application_theme;
 
-  // Cached stylesheets
-  QString *danger_button_style;
+    // Cached stylesheets
+    QString *danger_button_style;
 
 public slots:
-  void diary_changed();
-  void diary_file_changed();
+    void diary_changed();
+    void diary_file_changed();
 
 private:
-  void load_fonts();
+    void load_fonts();
 };
 
 // The set_key() function is blocking
@@ -91,16 +91,17 @@ private:
 // in a worker on a separate thread.
 
 class HashWorker : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 
 public slots:
-  void hash(const std::string &plaintext) {
-    TheoreticalDiary::instance()->encryptor->set_key(plaintext);
-    emit done();
-  }
+    void hash(const std::string &plaintext)
+    {
+        TheoreticalDiary::instance()->encryptor->set_key(plaintext);
+        emit done();
+    }
 
 signals:
-  void done(const bool do_decrypt = true);
+    void done(const bool do_decrypt = true);
 };
 
 #endif // THOERETICALDIARY_H

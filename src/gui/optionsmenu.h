@@ -26,40 +26,40 @@ class OptionsMenu;
 }
 
 class OptionsMenu : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit OptionsMenu(const bool from_diary_editor, QWidget *parent = nullptr);
-  ~OptionsMenu();
+    explicit OptionsMenu(const bool from_diary_editor, QWidget *parent = nullptr);
+    ~OptionsMenu();
 
-  void dev_unknown_file();
+    void dev_unknown_file();
 
 public slots:
-  void apply_theme();
-  void back();
-  void save_settings();
-  void setup_layout();
-  void export_diary();
-  void change_password();
-  void change_password_cb();
-  void download_backup();
-  void upload_diary();
-  void flush_oauth();
-  void dev_list();
-  void dev_upload();
-  void dev_download();
-  void dev_update();
-  void dev_copy();
-  void dev_delete();
-  void show_about();
-  void show_licenses();
-  void request_end();
+    void apply_theme();
+    void back();
+    void save_settings();
+    void setup_layout();
+    void export_diary();
+    void change_password();
+    void change_password_cb();
+    void download_backup();
+    void upload_diary();
+    void flush_oauth();
+    void dev_list();
+    void dev_upload();
+    void dev_download();
+    void dev_update();
+    void dev_copy();
+    void dev_delete();
+    void show_about();
+    void show_licenses();
+    void request_end();
 
 private:
-  Ui::OptionsMenu *ui;
-  bool diary_editor_mode;
+    Ui::OptionsMenu *ui;
+    bool diary_editor_mode;
 
-  void request_start();
+    void request_start();
 };
 
 #endif // OPTIONSMENU_H

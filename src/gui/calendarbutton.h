@@ -29,29 +29,29 @@ class DiaryEditor;
 
 namespace td {
 struct CalendarButtonData {
-  std::optional<int> day;
-  std::optional<DiaryEditor *> parent;
-  std::optional<bool> important;
-  std::optional<td::Rating> rating;
-  std::optional<bool> selected;
+    std::optional<int> day;
+    std::optional<DiaryEditor *> parent;
+    std::optional<bool> important;
+    std::optional<td::Rating> rating;
+    std::optional<bool> selected;
 };
 } // namespace td
 
 class CalendarButton : public QPushButton {
-  Q_OBJECT
+    Q_OBJECT
 
 signals:
-  void sig_clicked(const int day);
+    void sig_clicked(const int day);
 
 public:
-  explicit CalendarButton(const td::CalendarButtonData &d);
-  ~CalendarButton();
+    explicit CalendarButton(const td::CalendarButtonData &d);
+    ~CalendarButton();
 
-  td::CalendarButtonData data;
+    td::CalendarButtonData data;
 
 public slots:
-  void clicked_on();
-  void re_render(const td::CalendarButtonData &d);
+    void clicked_on();
+    void re_render(const td::CalendarButtonData &d);
 };
 
 #endif // CALENDARBUTTON_H

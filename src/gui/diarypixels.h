@@ -28,42 +28,42 @@ class DiaryPixels;
 }
 
 class DiaryPixels : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 
 signals:
-  void sig_changed_size(const int new_width);
+    void sig_changed_size(const int new_width);
 
 public:
-  explicit DiaryPixels(const DiaryEditor *editor, QWidget *parent = nullptr);
-  ~DiaryPixels();
+    explicit DiaryPixels(const DiaryEditor *editor, QWidget *parent = nullptr);
+    ~DiaryPixels();
 
-  void resizeEvent(QResizeEvent *);
-  int calculate_size();
+    void resizeEvent(QResizeEvent *);
+    int calculate_size();
 
-  QDate *current_year;
-  std::vector<QString> *rating_stylesheets;
-  QString *white_star;
-  QString *black_star;
+    QDate *current_year;
+    std::vector<QString> *rating_stylesheets;
+    QString *white_star;
+    QString *black_star;
 
 public slots:
-  void apply_theme();
-  void render_grid();
-  void export_image();
+    void apply_theme();
+    void render_grid();
+    void export_image();
 
 private:
-  Ui::DiaryPixels *ui;
+    Ui::DiaryPixels *ui;
 };
 
 class PixelLabel : public QLabel {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit PixelLabel(const td::Rating r, const bool special, const QDate &date,
-                      const int size, QWidget *parent = nullptr);
-  ~PixelLabel();
+    explicit PixelLabel(
+        const td::Rating r, const bool special, const QDate &date, const int size, QWidget *parent = nullptr);
+    ~PixelLabel();
 
 public slots:
-  void resize(const int new_width);
+    void resize(const int new_width);
 };
 
 #endif // DIARYPIXELS_H

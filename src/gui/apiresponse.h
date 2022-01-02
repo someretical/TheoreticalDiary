@@ -26,14 +26,14 @@ class APIResponse;
 }
 
 class APIResponse : public QDialog {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit APIResponse(QByteArray &res, QWidget *parent = nullptr);
-  ~APIResponse();
+    explicit APIResponse(QByteArray &res, QWidget *parent = nullptr);
+    ~APIResponse();
 
 private:
-  Ui::APIResponse *ui;
+    Ui::APIResponse *ui;
 };
 
 #endif // APIRESPONSE_H

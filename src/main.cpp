@@ -22,32 +22,33 @@
 
 #include <QtCore>
 
-int main(int argc, char **argv) {
-  // Make sure only 1 instance of the app is running at all times
-  // Courtesy of https://stackoverflow.com/a/28172162
-  RunGuard guard("theoreticaldiary");
-  if (!guard.tryToRun())
-    return 0;
+int main(int argc, char **argv)
+{
+    // Make sure only 1 instance of the app is running at all times
+    // Courtesy of https://stackoverflow.com/a/28172162
+    RunGuard guard("theoreticaldiary");
+    if (!guard.tryToRun())
+        return 0;
 
-  QGuiApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
-  QApplication::setAttribute(Qt::AA_Use96Dpi);
-  QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    QGuiApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_Use96Dpi);
+    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-  // Remove ? button in the title bar (only on Windows)
-  QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
+    // Remove ? button in the title bar (only on Windows)
+    QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
-  // Remove icons from context menus
-  QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+    // Remove icons from context menus
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 
-  // This is required so std::string can be passed via signals and slots.
-  qRegisterMetaType<std::string>();
+    // This is required so std::string can be passed via signals and slots.
+    qRegisterMetaType<std::string>();
 
-  TheoreticalDiary app(argc, argv);
-  MainWindow window;
+    TheoreticalDiary app(argc, argv);
+    MainWindow window;
 
-  QObject::connect(&app, &TheoreticalDiary::applicationStateChanged, &window,
-                   &MainWindow::focus_changed, Qt::QueuedConnection);
-  window.show();
+    QObject::connect(
+        &app, &TheoreticalDiary::applicationStateChanged, &window, &MainWindow::focus_changed, Qt::QueuedConnection);
+    window.show();
 
-  return app.exec();
+    return app.exec();
 }

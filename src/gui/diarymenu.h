@@ -26,22 +26,22 @@ class DiaryMenu;
 }
 
 class DiaryMenu : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit DiaryMenu(const QDate &date, QWidget *parent = nullptr);
-  ~DiaryMenu();
+    explicit DiaryMenu(const QDate &date, QWidget *parent = nullptr);
+    ~DiaryMenu();
 
-  static QString get_day_suffix(const int day);
+    static QString get_day_suffix(const int day);
 
-  QDate *first_created;
+    QDate *first_created;
 
 public slots:
-  void apply_theme();
-  void tab_changed(const int tab);
+    void apply_theme();
+    void tab_changed(const int tab);
 
 private:
-  Ui::DiaryMenu *ui;
+    Ui::DiaryMenu *ui;
 };
 
 #endif // DIARYMENU_H

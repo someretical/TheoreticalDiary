@@ -27,76 +27,77 @@
 
 #include <json.hpp>
 
-DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent)
-    : QWidget(parent), ui(new Ui::DiaryMenu) {
-  ui->setupUi(this);
+DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)
+{
+    ui->setupUi(this);
 
-  first_created = new QDate(date);
+    first_created = new QDate(date);
 
-  // When changes are made in the editor, the other tabs need to know about it
-  // so they can update accordingly.
-  const auto &diary_editor = new DiaryEditor(this);
-  ui->editor->layout()->addWidget(diary_editor);
-  ui->entries->layout()->addWidget(new DiaryEntryViewer(diary_editor, this));
-  ui->statistics->layout()->addWidget(new DiaryStats(diary_editor, this));
-  ui->pixels->layout()->addWidget(new DiaryPixels(diary_editor, this));
+    // When changes are made in the editor, the other tabs need to know about it
+    // so they can update accordingly.
+    const auto &diary_editor = new DiaryEditor(this);
+    ui->editor->layout()->addWidget(diary_editor);
+    ui->entries->layout()->addWidget(new DiaryEntryViewer(diary_editor, this));
+    ui->statistics->layout()->addWidget(new DiaryStats(diary_editor, this));
+    ui->pixels->layout()->addWidget(new DiaryPixels(diary_editor, this));
 
-  connect(ui->tabWidget, &QTabWidget::currentChanged, this,
-          &DiaryMenu::tab_changed, Qt::QueuedConnection);
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &DiaryMenu::tab_changed, Qt::QueuedConnection);
 
-  connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this,
-          &DiaryMenu::apply_theme, Qt::QueuedConnection);
-  apply_theme();
+    connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this, &DiaryMenu::apply_theme,
+        Qt::QueuedConnection);
+    apply_theme();
 }
 
-DiaryMenu::~DiaryMenu() {
-  delete ui;
-  delete first_created;
+DiaryMenu::~DiaryMenu()
+{
+    delete ui;
+    delete first_created;
 }
 
-void DiaryMenu::apply_theme() {
-  QFile file(
-      QString(":/%1/diarymenu.qss").arg(TheoreticalDiary::instance()->theme()));
-  file.open(QIODevice::ReadOnly);
-  setStyleSheet(file.readAll());
-  file.close();
+void DiaryMenu::apply_theme()
+{
+    QFile file(QString(":/%1/diarymenu.qss").arg(TheoreticalDiary::instance()->theme()));
+    file.open(QIODevice::ReadOnly);
+    setStyleSheet(file.readAll());
+    file.close();
 }
 
-void DiaryMenu::tab_changed(const int tab) {
-  switch (tab) {
-  // Editor tab
-  case 0:
-    break;
-  // List tab
-  case 1:
-    break;
-  // Stats tab
-  case 2:
-    break;
-  // Pixels tab
-  case 3:
-    break;
-  // Options tab
-  case 4:
-    qobject_cast<MainWindow *>(parentWidget()->parentWidget())
-        ->show_options_menu();
-    break;
-  }
+void DiaryMenu::tab_changed(const int tab)
+{
+    switch (tab) {
+    // Editor tab
+    case 0:
+        break;
+    // List tab
+    case 1:
+        break;
+    // Stats tab
+    case 2:
+        break;
+    // Pixels tab
+    case 3:
+        break;
+    // Options tab
+    case 4:
+        qobject_cast<MainWindow *>(parentWidget()->parentWidget())->show_options_menu();
+        break;
+    }
 }
 
-QString DiaryMenu::get_day_suffix(const int day) {
-  switch (day) {
-  case 1:
-  case 21:
-  case 31:
-    return "st";
-  case 2:
-  case 22:
-    return "nd";
-  case 3:
-  case 23:
-    return "rd";
-  default:
-    return "th";
-  }
+QString DiaryMenu::get_day_suffix(const int day)
+{
+    switch (day) {
+    case 1:
+    case 21:
+    case 31:
+        return "st";
+    case 2:
+    case 22:
+        return "nd";
+    case 3:
+    case 23:
+        return "rd";
+    default:
+        return "th";
+    }
 }

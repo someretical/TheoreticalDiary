@@ -30,41 +30,41 @@ enum Window : int { Main, DiaryEditor, Options };
 }
 
 class MainWindow : public QMainWindow {
-  Q_OBJECT
+    Q_OBJECT
 
 signals:
-  void sig_update_diary();
+    void sig_update_diary();
 
 public:
-  explicit MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
 
-  void clear_grid();
-  void exit_diary_to_main_menu();
-  void closeEvent(QCloseEvent *event);
+    void clear_grid();
+    void exit_diary_to_main_menu();
+    void closeEvent(QCloseEvent *event);
 
-  td::Window current_window;
-  td::Window last_window;
+    td::Window current_window;
+    td::Window last_window;
 
-  // Timer used to lock diary if window is left inactive for too long.
-  QTimer *timer;
-  Qt::ApplicationState previous_state;
+    // Timer used to lock diary if window is left inactive for too long.
+    QTimer *timer;
+    Qt::ApplicationState previous_state;
 
 public slots:
-  void focus_changed(const Qt::ApplicationState state);
-  void inactive_time_up();
-  void apply_theme();
-  void show_main_menu();
-  void show_diary_menu(const QDate &date);
-  void show_options_menu();
-  bool save_diary(const bool ignore_errors);
-  void diary_uploaded();
+    void focus_changed(const Qt::ApplicationState state);
+    void inactive_time_up();
+    void apply_theme();
+    void show_main_menu();
+    void show_diary_menu(const QDate &date);
+    void show_options_menu();
+    bool save_diary(const bool ignore_errors);
+    void diary_uploaded();
 
 private:
-  Ui::MainWindow *ui;
+    Ui::MainWindow *ui;
 
-  void save_error();
-  int confirm_exit_to_main_menu();
+    void save_error();
+    int confirm_exit_to_main_menu();
 };
 
 #endif // MAINWINDOW_H

@@ -21,21 +21,22 @@
 #include <files.h>
 #include <gzip.h>
 
-void Zipper::zip(std::string &compressed, std::string &decompressed) {
-  CryptoPP::Gzip zipper(new CryptoPP::StringSink(compressed));
-  zipper.Put(reinterpret_cast<CryptoPP::byte *>(decompressed.data()),
-             decompressed.size());
-  zipper.MessageEnd();
+void Zipper::zip(std::string &compressed, std::string &decompressed)
+{
+    CryptoPP::Gzip zipper(new CryptoPP::StringSink(compressed));
+    zipper.Put(reinterpret_cast<CryptoPP::byte *>(decompressed.data()), decompressed.size());
+    zipper.MessageEnd();
 }
 
-bool Zipper::unzip(std::string &compressed, std::string &decompressed) {
-  try {
-    CryptoPP::Gunzip unzipper(new CryptoPP::StringSink(decompressed));
-    unzipper.Put(reinterpret_cast<CryptoPP::byte *>(compressed.data()),
-                 compressed.size());
-    unzipper.MessageEnd();
-    return true;
-  } catch (const CryptoPP::Exception &e) {
-    return false;
-  }
+bool Zipper::unzip(std::string &compressed, std::string &decompressed)
+{
+    try {
+        CryptoPP::Gunzip unzipper(new CryptoPP::StringSink(decompressed));
+        unzipper.Put(reinterpret_cast<CryptoPP::byte *>(compressed.data()), compressed.size());
+        unzipper.MessageEnd();
+        return true;
+    }
+    catch (const CryptoPP::Exception &e) {
+        return false;
+    }
 }
