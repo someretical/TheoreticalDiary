@@ -16,36 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINMENU_H
-#define MAINMENU_H
+#ifndef CUSTOMMESSAGEBOXES_H
+#define CUSTOMMESSAGEBOXES_H
 
 #include "../core/theoreticaldiary.h"
 
 #include <QtWidgets>
+#include <string>
 
-namespace Ui {
-class MainMenu;
-}
+namespace td {
+int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom);
+int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom);
+int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string const &&reject_text,
+    std::string const &&destroy_text, std::string &&top, std::string const &&bottom);
+} // namespace td
 
-class MainMenu : public QWidget {
-    Q_OBJECT
-
-public:
-    explicit MainMenu(QWidget *parent = nullptr);
-    ~MainMenu();
-
-public slots:
-    void apply_theme();
-    void decrypt_diary();
-    void new_diary();
-    void import_diary();
-    void open_options();
-    bool get_diary_contents();
-    void decrypt_diary_cb(bool const do_decrypt = true);
-
-private:
-    Ui::MainMenu *ui;
-    QShortcut *enter;
-};
-
-#endif // MAINMENU_H
+#endif // CUSTOMMESSAGEBOXES_H

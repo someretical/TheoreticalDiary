@@ -44,7 +44,7 @@ class TheoreticalDiary : public QApplication {
     Q_OBJECT
 
 signals:
-    void sig_begin_hash(const std::string &plaintext);
+    void sig_begin_hash(std::string const &plaintext);
     void apply_theme();
 
 public:
@@ -52,9 +52,9 @@ public:
     ~TheoreticalDiary();
     static TheoreticalDiary *instance();
 
-    QString data_location();
-    QString theme();
-    bool confirm_overwrite(QWidget *p);
+    QString data_location() const;
+    QString theme() const;
+    bool confirm_overwrite(QWidget *p) const;
 
     GoogleWrapper *gwrapper;
     DiaryHolder *diary_holder;
@@ -71,10 +71,10 @@ public:
 
     // See https://doc.qt.io/qt-5/qthread.html for multithreading
     QThread worker_thread;
-    QString *application_theme;
+    QString application_theme;
 
     // Cached stylesheets
-    QString *danger_button_style;
+    QString danger_button_style;
 
 public slots:
     void diary_changed();
@@ -94,14 +94,14 @@ class HashWorker : public QObject {
     Q_OBJECT
 
 public slots:
-    void hash(const std::string &plaintext)
+    void hash(std::string const &plaintext)
     {
         TheoreticalDiary::instance()->encryptor->set_key(plaintext);
         emit done();
     }
 
 signals:
-    void done(const bool do_decrypt = true);
+    void done(bool const do_decrypt = true);
 };
 
 #endif // THOERETICALDIARY_H

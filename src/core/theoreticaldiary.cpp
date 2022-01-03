@@ -17,6 +17,7 @@
  */
 
 #include "theoreticaldiary.h"
+#include "../util/custommessageboxes.h"
 
 TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc, argv)
 {
@@ -45,12 +46,12 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc,
     diary_modified = false;
     diary_file_modified = false;
     closeable = true;
-    application_theme = new QString("dark");
+    application_theme = QString("dark");
 
     // Load global stylesheets
     file.setFileName(QString(":/%1/dangerbutton.qss").arg(TheoreticalDiary::instance()->theme()));
     file.open(QIODevice::ReadOnly);
-    danger_button_style = new QString(file.readAll());
+    danger_button_style = QString(file.readAll());
     file.close();
 
     // Create app directory
@@ -70,8 +71,6 @@ TheoreticalDiary::~TheoreticalDiary()
     delete diary_holder;
     delete encryptor;
     delete settings;
-    delete application_theme;
-    delete danger_button_style;
 
     worker_thread.quit();
     worker_thread.wait();
@@ -123,14 +122,14 @@ void TheoreticalDiary::load_fonts()
     QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-BoldItalic.ttf");
 }
 
-QString TheoreticalDiary::data_location()
+QString TheoreticalDiary::data_location() const
 {
     return QString("%1/%2").arg(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), applicationName());
 }
 
-QString TheoreticalDiary::theme()
+QString TheoreticalDiary::theme() const
 {
-    return *application_theme;
+    return application_theme;
 }
 
 void TheoreticalDiary::diary_changed()
@@ -143,33 +142,16 @@ void TheoreticalDiary::diary_file_changed()
     diary_file_modified = true;
 }
 
-bool TheoreticalDiary::confirm_overwrite(QWidget *p)
+bool TheoreticalDiary::confirm_overwrite(QWidget *p) const
 {
     struct stat buf;
-    const std::string path = TheoreticalDiary::instance()->data_location().toStdString() + "/diary.dat";
+    auto const &path = TheoreticalDiary::instance()->data_location().toStdString() + "/diary.dat";
 
     // Check if file exists https://stackoverflow.com/a/6296808
     if (stat(path.c_str(), &buf) != 0)
         return true;
 
-    QMessageBox confirm(p);
+    auto res = td::yn_messagebox(p, "Existing diary found.", "Are you sure you want to overwrite the existing diary?");
 
-    QPushButton yes("YES", &confirm);
-    QFont f = yes.font();
-    f.setPointSize(11);
-    yes.setFont(f);
-    yes.setStyleSheet(*danger_button_style);
-    QPushButton no("NO", &confirm);
-    no.setFlat(true);
-    no.setFont(f);
-
-    confirm.setFont(f);
-    confirm.setText("Existing diary found.");
-    confirm.setInformativeText("Are you sure you want to overwrite the existing diary?");
-    confirm.addButton(&yes, QMessageBox::AcceptRole);
-    confirm.addButton(&no, QMessageBox::RejectRole);
-    confirm.setDefaultButton(&no);
-    confirm.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    return QMessageBox::AcceptRole == confirm.exec();
+    return QMessageBox::AcceptRole == res;
 }

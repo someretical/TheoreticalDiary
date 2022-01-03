@@ -18,24 +18,25 @@
 
 #include "diarypixels.h"
 #include "../core/theoreticaldiary.h"
+#include "../util/custommessageboxes.h"
 #include "diarymenu.h"
 #include "ui_diarypixels.h"
 
 #include <algorithm>
 
-const char *MONTH_LETTERS = "JFMAMJJASOND";
-const int LABEL_SIZE = 36;
+char const *MONTH_LETTERS = "JFMAMJJASOND";
+int const LABEL_SIZE = 36;
 
-DiaryPixels::DiaryPixels(const DiaryEditor *editor, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPixels)
+DiaryPixels::DiaryPixels(DiaryEditor const *editor, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPixels)
 {
     ui->setupUi(this);
 
-    rating_stylesheets = new std::vector<QString>();
-    black_star = new QString("");
-    white_star = new QString("");
+    rating_stylesheets = std::vector<std::unique_ptr<QString>>();
+    black_star = QString("");
+    white_star = QString("");
 
-    current_year = new QDate(QDate::currentDate());
-    ui->year_edit->setDate(*current_year);
+    current_year = QDate::currentDate();
+    ui->year_edit->setDate(current_year);
 
     connect(editor, &DiaryEditor::sig_re_render, this, &DiaryPixels::render_grid, Qt::QueuedConnection);
     connect(ui->render_button, &QPushButton::clicked, this, &DiaryPixels::render_grid, Qt::QueuedConnection);
@@ -51,15 +52,11 @@ DiaryPixels::DiaryPixels(const DiaryEditor *editor, QWidget *parent) : QWidget(p
 DiaryPixels::~DiaryPixels()
 {
     delete ui;
-    delete current_year;
-    delete rating_stylesheets;
-    delete black_star;
-    delete white_star;
 }
 
 void DiaryPixels::apply_theme()
 {
-    const auto &theme = TheoreticalDiary::instance()->theme();
+    auto const &theme = TheoreticalDiary::instance()->theme();
 
     QFile file(QString(":/%1/diarypixels.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
@@ -68,19 +65,23 @@ void DiaryPixels::apply_theme()
 
     file.setFileName(":/global/small_white_star.qss");
     file.open(QIODevice::ReadOnly);
-    *white_star = file.readAll();
+    white_star = file.readAll();
     file.close();
 
     file.setFileName(":/global/small_black_star.qss");
     file.open(QIODevice::ReadOnly);
-    *black_star = file.readAll();
+    black_star = file.readAll();
     file.close();
 
-    rating_stylesheets->clear();
+    for (auto &ss_ptr : rating_stylesheets)
+        ss_ptr.reset();
+
+    rating_stylesheets.clear();
+
     for (int i = 0; i < 6; ++i) {
         file.setFileName(QString(":/%1/pixels/%2.qss").arg(theme, QString::number(i)));
         file.open(QIODevice::ReadOnly);
-        rating_stylesheets->push_back(file.readAll());
+        rating_stylesheets.push_back(std::make_unique<QString>(file.readAll()));
         file.close();
     }
 }
@@ -123,9 +124,9 @@ void DiaryPixels::render_grid()
         delete child;
     }
 
-    *current_year = ui->year_edit->date();
+    current_year = ui->year_edit->date();
 
-    const auto &opt = TheoreticalDiary::instance()->diary_holder->get_yearmap(*current_year);
+    auto const &opt = TheoreticalDiary::instance()->diary_holder->get_yearmap(current_year);
 
     // Set new grid
     if (!opt) {
@@ -141,9 +142,9 @@ void DiaryPixels::render_grid()
         return;
     }
 
-    auto date = QDate::currentDate();
-    const auto year = current_year->year();
-    const auto size = calculate_size();
+    auto &&date = QDate::currentDate();
+    auto const year = current_year.year();
+    auto const size = calculate_size();
 
     for (int month = 0; month < 12; ++month) {
         auto label = new QLabel(QString(MONTH_LETTERS[month]), this);
@@ -156,18 +157,16 @@ void DiaryPixels::render_grid()
         label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         ui->grid->addWidget(label, month, 0);
 
-        int days = QDate(current_year->year(), month + 1, 1).daysInMonth();
+        int days = QDate(current_year.year(), month + 1, 1).daysInMonth();
 
         // This block runs if the month doesn't exist at all.
-        const auto &monthmap = (*opt)->second;
-        const auto &iter = monthmap.find(month + 1 /* Month is index 1 based */);
+        auto const &monthmap = (*opt)->second;
+        auto const &iter = monthmap.find(month + 1 /* Month is index 1 based */);
         if (iter == monthmap.end()) {
             for (int day = 0; day < days; ++day) {
                 date.setDate(year, month + 1, day + 1);
-                ui->grid->addWidget(
-            new PixelLabel(td::Rating::Unknown, false, date, size, this), month,
-            day + 1 /* +1 here because of the month label added at the start of
-                       each row */);
+                ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, false, date, size, this), month,
+                    day + 1 /* +1 here because of the month label added at the start of each row */);
             }
 
             continue;
@@ -175,15 +174,15 @@ void DiaryPixels::render_grid()
 
         // This code runs if some/all dates in a month exist.
         for (int day = 0; day < days; ++day) {
-            const auto &entrymap = iter->second;
-            const auto &iter2 = entrymap.find(day + 1 /* day is index 1 based */);
+            auto const &entrymap = iter->second;
+            auto const &iter2 = entrymap.find(day + 1 /* day is index 1 based */);
 
             date.setDate(year, month + 1, day + 1);
             if (iter2 == entrymap.end()) {
                 ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, false, date, size, this), month, day + 1);
             }
             else {
-                const auto &[important, rating, dummy, d2] = iter2->second;
+                auto const &[important, rating, dummy, d2] = iter2->second;
                 ui->grid->addWidget(new PixelLabel(rating, important, date, size, this), month, day + 1);
             }
         }
@@ -195,7 +194,7 @@ void DiaryPixels::render_grid()
 
 void DiaryPixels::export_image()
 {
-    const auto &filename = QFileDialog::getSaveFileName(this, "Export image",
+    auto const &filename = QFileDialog::getSaveFileName(this, "Export image",
         QString("%1/%2.png").arg(QDir::homePath(), QString::number(ui->year_edit->date().year())),
         "Images (*.png);;All files");
 
@@ -203,39 +202,10 @@ void DiaryPixels::export_image()
         return;
 
     // Thanks to https://stackoverflow.com/a/24341699
-    if (ui->hidden_frame->grab().save(filename)) {
-        QMessageBox ok(this);
-        QPushButton ok_button("OK", &ok);
-        ok_button.setFlat(true);
-        QFont f = ok_button.font();
-        f.setPointSize(11);
-        ok_button.setFont(f);
-
-        ok.setFont(f);
-        ok.setText("Image exported.");
-        ok.addButton(&ok_button, QMessageBox::AcceptRole);
-        ok.setDefaultButton(&ok_button);
-        ok.setTextInteractionFlags(Qt::NoTextInteraction);
-
-        ok.exec();
-    }
-    else {
-        QMessageBox rip(this);
-        QPushButton ok_button("OK", &rip);
-        ok_button.setFlat(true);
-        QFont f = ok_button.font();
-        f.setPointSize(11);
-        ok_button.setFont(f);
-
-        rip.setFont(f);
-        rip.setText("Export failed.");
-        rip.setInformativeText("The app could not write to the specified location.");
-        rip.addButton(&ok_button, QMessageBox::AcceptRole);
-        rip.setDefaultButton(&ok_button);
-        rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-        rip.exec();
-    }
+    if (ui->hidden_frame->grab().save(filename))
+        td::ok_messagebox(this, "Image exported.", "");
+    else
+        td::ok_messagebox(this, "Export failed.", "The app could not write to the specified location.");
 }
 
 void DiaryPixels::resizeEvent(QResizeEvent *)
@@ -246,7 +216,7 @@ void DiaryPixels::resizeEvent(QResizeEvent *)
 /*
  * PixelLabel class
  */
-PixelLabel::PixelLabel(const td::Rating r, const bool special, const QDate &date, const int size, QWidget *parent)
+PixelLabel::PixelLabel(td::Rating const r, bool const special, QDate const &date, int const size, QWidget *parent)
     : QLabel(parent)
 {
     auto p = qobject_cast<DiaryPixels *>(parent);
@@ -254,7 +224,8 @@ PixelLabel::PixelLabel(const td::Rating r, const bool special, const QDate &date
     setFixedHeight(size);
     setFixedWidth(size);
 
-    QString stylesheet = p->rating_stylesheets->at(static_cast<int>(r));
+    auto stylesheet = *p->rating_stylesheets[static_cast<int>(r)];
+
     connect(p, &DiaryPixels::sig_changed_size, this, &PixelLabel::resize, Qt::QueuedConnection);
 
     // Set background star if necessary
@@ -285,7 +256,7 @@ PixelLabel::PixelLabel(const td::Rating r, const bool special, const QDate &date
 
 PixelLabel::~PixelLabel() {}
 
-void PixelLabel::resize(const int new_width)
+void PixelLabel::resize(int const new_width)
 {
     setFixedHeight(new_width);
     setFixedWidth(new_width);

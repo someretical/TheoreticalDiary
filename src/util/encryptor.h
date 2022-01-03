@@ -24,10 +24,10 @@
 #include <secblock.h>
 
 // Sizes are in BYTES not bits
-const int TAG_SIZE = 16;
-const int SALT_SIZE = 64;
-const int KEY_SIZE = 32;
-const int IV_SIZE = 12;
+int const TAG_SIZE = 16;
+int const SALT_SIZE = 64;
+int const KEY_SIZE = 32;
+int const IV_SIZE = 12;
 
 class Encryptor {
 public:
@@ -36,11 +36,11 @@ public:
 
     void reset();
     void regenerate_salt();
-    void set_key(const std::string &plaintext);
-    void set_salt(const std::string &salt_str);
-    void set_decrypt_iv(const std::string &iv_str);
-    void encrypt(const std::string &plaintext, std::string &encrypted);
-    std::optional<std::string> decrypt(const std::string &encrypted);
+    void set_key(std::string const &plaintext);
+    void set_salt(std::string const &salt_str);
+    void set_decrypt_iv(std::string const &iv_str);
+    void encrypt(std::string const &plaintext, std::string &encrypted);
+    std::optional<std::string> decrypt(std::string const &encrypted);
 
     bool key_set;
     std::string *encrypted_str;

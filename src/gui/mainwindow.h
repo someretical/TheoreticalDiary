@@ -51,13 +51,13 @@ public:
     Qt::ApplicationState previous_state;
 
 public slots:
-    void focus_changed(const Qt::ApplicationState state);
+    void focus_changed(Qt::ApplicationState const state);
     void inactive_time_up();
     void apply_theme();
     void show_main_menu();
-    void show_diary_menu(const QDate &date);
+    void show_diary_menu(QDate const &date);
     void show_options_menu();
-    bool save_diary(const bool ignore_errors);
+    bool save_diary(bool const ignore_errors);
     void diary_uploaded();
 
 private:

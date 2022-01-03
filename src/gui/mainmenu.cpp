@@ -18,6 +18,7 @@
 
 #include "mainmenu.h"
 #include "../core/theoreticaldiary.h"
+#include "../util/custommessageboxes.h"
 #include "../util/zipper.h"
 #include "aboutdialog.h"
 #include "mainwindow.h"
@@ -97,22 +98,9 @@ bool MainMenu::get_diary_contents()
             second.close();
         }
         else {
-            // No valid file found
-            QMessageBox rip(this);
-            QPushButton ok_button("OK", &rip);
-            ok_button.setFlat(true);
-            QFont f = ok_button.font();
-            f.setPointSize(11);
-            ok_button.setFont(f);
-
-            rip.setFont(f);
-            rip.setText("No diary was found.");
-            rip.setInformativeText("You can create a new diary by clicking the "
-                                   "\"New\" button in the main menu.");
-            rip.addButton(&ok_button, QMessageBox::AcceptRole);
-            rip.setDefaultButton(&ok_button);
-            rip.setTextInteractionFlags(Qt::NoTextInteraction);
-            rip.exec();
+            // No valid file found.
+            td::ok_messagebox(this, "No diary was found.",
+                "You can create a new diary by clicking the \"New\" button in the main menu.");
 
             ui->decrypt_button->setEnabled(true);
             ui->import_button->setEnabled(true);
@@ -136,17 +124,16 @@ void MainMenu::decrypt_diary()
     ui->new_button->setEnabled(false);
     ui->options_button->setEnabled(false);
 
-    const auto &password = ui->password_box->text().toStdString();
+    auto const &password = ui->password_box->text().toStdString();
     ui->password_box->setText("");
 
-    const auto &opt = get_diary_contents();
+    auto const &opt = get_diary_contents();
     if (!opt)
         return;
 
     // If the password box is empty, try to decompress immediately.
-    if (password.empty()) {
+    if (password.empty())
         return decrypt_diary_cb(false);
-    }
 
     auto &str = TheoreticalDiary::instance()->encryptor->encrypted_str;
     TheoreticalDiary::instance()->encryptor->set_salt(str->substr(0, SALT_SIZE));
@@ -170,11 +157,11 @@ void MainMenu::decrypt_diary()
     emit TheoreticalDiary::instance()->sig_begin_hash(password);
 }
 
-void MainMenu::decrypt_diary_cb(const bool do_decrypt)
+void MainMenu::decrypt_diary_cb(bool const do_decrypt)
 {
     std::string decrypted;
     if (do_decrypt) {
-        const auto &res =
+        auto const &res =
             TheoreticalDiary::instance()->encryptor->decrypt(*TheoreticalDiary::instance()->encryptor->encrypted_str);
         if (!res) {
             ui->alert_text->setText("Wrong password.");
@@ -221,28 +208,14 @@ void MainMenu::import_diary()
     if (!TheoreticalDiary::instance()->confirm_overwrite(this))
         return;
 
-    const auto &filename =
+    auto const &filename =
         QFileDialog::getOpenFileName(this, "Import diary", QDir::homePath(), "JSON (*.json);;All files");
     if (filename.isEmpty())
         return;
 
     std::ifstream ifs(filename.toStdString());
     if (ifs.fail()) {
-        QMessageBox rip(this);
-        QPushButton ok_button("OK", &rip);
-        ok_button.setFlat(true);
-        QFont f = ok_button.font();
-        f.setPointSize(11);
-        ok_button.setFont(f);
-
-        rip.setFont(f);
-        rip.setText("Read error.");
-        rip.setInformativeText("The app was unable to read the contents of the file.");
-        rip.addButton(&ok_button, QMessageBox::AcceptRole);
-        rip.setDefaultButton(&ok_button);
-        rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-        rip.exec();
+        td::ok_messagebox(this, "Read error.", "The app was unable to read the contents of the file.");
         return;
     }
 
@@ -254,24 +227,10 @@ void MainMenu::import_diary()
     ifs.close();
 
     if (!TheoreticalDiary::instance()->diary_holder->load(content)) {
-        QMessageBox rip(this);
-        QPushButton ok_button("OK", &rip);
-        ok_button.setFlat(true);
-        QFont f = ok_button.font();
-        f.setPointSize(11);
-        ok_button.setFont(f);
-
-        rip.setFont(f);
-        rip.setText("Parsing error.");
-        rip.setInformativeText("The app was unable to read the contents of the diary.");
-        rip.addButton(&ok_button, QMessageBox::AcceptRole);
-        rip.setDefaultButton(&ok_button);
-        rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-        rip.exec();
-        return;
+        td::ok_messagebox(this, "Read error.", "The app was unable to read the contents of the file.");
     }
-
-    TheoreticalDiary::instance()->diary_changed();
-    qobject_cast<MainWindow *>(parentWidget()->parentWidget())->show_diary_menu(QDate::currentDate());
+    else {
+        TheoreticalDiary::instance()->diary_changed();
+        qobject_cast<MainWindow *>(parentWidget()->parentWidget())->show_diary_menu(QDate::currentDate());
+    }
 }

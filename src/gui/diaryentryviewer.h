@@ -22,6 +22,7 @@
 #include "diaryeditor.h"
 
 #include <QtWidgets>
+#include <memory>
 
 namespace Ui {
 class DiaryEntryViewer;
@@ -34,21 +35,21 @@ signals:
     void sig_re_render_theme();
 
 public:
-    explicit DiaryEntryViewer(const DiaryEditor *editor, QWidget *parent = nullptr);
+    explicit DiaryEntryViewer(DiaryEditor const *const editor, QWidget *parent = nullptr);
     ~DiaryEntryViewer();
 
-    QDate *current_month;
-    std::vector<QString> *rating_stylesheets;
-    QString *white_star;
-    QString *black_star;
+    QDate current_month;
+    std::vector<std::unique_ptr<QString>> rating_stylesheets;
+    QString white_star;
+    QString black_star;
 
 public slots:
     void apply_theme();
-    void change_month(const QDate &date, const bool ignore_month_check);
+    void change_month(QDate const &date, bool const ignore_month_check);
     void next_month();
     void prev_month();
-    void month_changed(const int month);
-    void year_changed(const QDate &date);
+    void month_changed(int const month);
+    void year_changed(QDate const &date);
 
 private:
     Ui::DiaryEntryViewer *ui;
@@ -67,7 +68,7 @@ class DiaryEntryDayLabel : public QLabel {
     Q_OBJECT
 
 public:
-    explicit DiaryEntryDayLabel(const td::LabelData &d, QWidget *parent = nullptr);
+    explicit DiaryEntryDayLabel(td::LabelData const &d, QWidget *parent = nullptr);
     ~DiaryEntryDayLabel();
 
     td::LabelData data;
@@ -80,12 +81,12 @@ class DiaryEntryDayMessage : public QLabel {
     Q_OBJECT
 
 public:
-    explicit DiaryEntryDayMessage(const std::string &m, QWidget *parent = nullptr);
+    explicit DiaryEntryDayMessage(std::string const &m, QWidget *parent = nullptr);
     ~DiaryEntryDayMessage();
 
-    static void get_trunc_first_line(const std::string &input, std::string &res);
+    static void get_trunc_first_line(std::string const &input, std::string &res);
 
-    std::string *message;
+    std::string message;
     bool expanded;
 
 public slots:

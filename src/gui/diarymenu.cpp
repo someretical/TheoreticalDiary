@@ -27,15 +27,15 @@
 
 #include <json.hpp>
 
-DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)
+DiaryMenu::DiaryMenu(QDate const &date, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)
 {
     ui->setupUi(this);
 
-    first_created = new QDate(date);
+    first_created = date;
 
     // When changes are made in the editor, the other tabs need to know about it
     // so they can update accordingly.
-    const auto &diary_editor = new DiaryEditor(this);
+    auto const diary_editor = new DiaryEditor(this);
     ui->editor->layout()->addWidget(diary_editor);
     ui->entries->layout()->addWidget(new DiaryEntryViewer(diary_editor, this));
     ui->statistics->layout()->addWidget(new DiaryStats(diary_editor, this));
@@ -51,7 +51,6 @@ DiaryMenu::DiaryMenu(const QDate &date, QWidget *parent) : QWidget(parent), ui(n
 DiaryMenu::~DiaryMenu()
 {
     delete ui;
-    delete first_created;
 }
 
 void DiaryMenu::apply_theme()
@@ -62,7 +61,7 @@ void DiaryMenu::apply_theme()
     file.close();
 }
 
-void DiaryMenu::tab_changed(const int tab)
+void DiaryMenu::tab_changed(int const tab)
 {
     switch (tab) {
     // Editor tab
@@ -84,7 +83,7 @@ void DiaryMenu::tab_changed(const int tab)
     }
 }
 
-QString DiaryMenu::get_day_suffix(const int day)
+QString DiaryMenu::get_day_suffix(int const day)
 {
     switch (day) {
     case 1:

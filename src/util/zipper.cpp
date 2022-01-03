@@ -36,7 +36,7 @@ bool Zipper::unzip(std::string &compressed, std::string &decompressed)
         unzipper.MessageEnd();
         return true;
     }
-    catch (const CryptoPP::Exception &e) {
+    catch (CryptoPP::Exception const &e) {
         return false;
     }
 }

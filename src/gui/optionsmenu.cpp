@@ -19,6 +19,7 @@
 #include "optionsmenu.h"
 #include "../core/googlewrapper.h"
 #include "../core/theoreticaldiary.h"
+#include "../util/custommessageboxes.h"
 #include "aboutdialog.h"
 #include "apiresponse.h"
 #include "licensesdialog.h"
@@ -27,7 +28,7 @@
 
 #include <fstream>
 
-OptionsMenu::OptionsMenu(const bool from_diary_editor, QWidget *parent) : QWidget(parent), ui(new Ui::OptionsMenu)
+OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidget(parent), ui(new Ui::OptionsMenu)
 {
     ui->setupUi(this);
 
@@ -69,7 +70,7 @@ OptionsMenu::~OptionsMenu()
 
 void OptionsMenu::apply_theme()
 {
-    const auto &theme = TheoreticalDiary::instance()->theme();
+    auto const &theme = TheoreticalDiary::instance()->theme();
 
     QFile file(QString(":/%1/optionsmenu.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
@@ -123,7 +124,7 @@ void OptionsMenu::setup_layout()
 
 void OptionsMenu::export_diary()
 {
-    const auto &filename = QFileDialog::getSaveFileName(
+    auto const &filename = QFileDialog::getSaveFileName(
         this, "Export diary", QString("%1/export.json").arg(QDir::homePath()), "JSON (*.json);;All files");
 
     if (filename.isEmpty())
@@ -136,37 +137,10 @@ void OptionsMenu::export_diary()
         dst << j.dump(4);
         dst.close();
 
-        QMessageBox ok(this);
-        QPushButton ok_button("OK", &ok);
-        ok_button.setFlat(true);
-        QFont f = ok_button.font();
-        f.setPointSize(11);
-        ok_button.setFont(f);
-
-        ok.setFont(f);
-        ok.setText("Diary exported.");
-        ok.addButton(&ok_button, QMessageBox::AcceptRole);
-        ok.setDefaultButton(&ok_button);
-        ok.setTextInteractionFlags(Qt::NoTextInteraction);
-
-        ok.exec();
+        td::ok_messagebox(this, "Diary exported.", "The diary has been exported in an unencrypted JSON format.");
     }
     else {
-        QMessageBox rip(this);
-        QPushButton ok_button("OK", &rip);
-        ok_button.setFlat(true);
-        QFont f = ok_button.font();
-        f.setPointSize(11);
-        ok_button.setFont(f);
-
-        rip.setFont(f);
-        rip.setText("Export failed.");
-        rip.setInformativeText("The app could not write to the specified location.");
-        rip.addButton(&ok_button, QMessageBox::AcceptRole);
-        rip.setDefaultButton(&ok_button);
-        rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-        rip.exec();
+        td::ok_messagebox(this, "Export failed.", "The app could not write to the specified location.");
     }
 }
 
@@ -181,7 +155,7 @@ void OptionsMenu::change_password()
     ui->alert_text->setText("");
     ui->alert_text->update();
 
-    const auto &password = ui->new_password->text();
+    auto const &password = ui->new_password->text();
     if (password != ui->new_password_confirm->text()) {
         ui->alert_text->setText("The passwords do not match.");
         ui->alert_text->update();
@@ -263,22 +237,8 @@ void OptionsMenu::flush_oauth()
     // According to the docs, this function is always successful.
     TheoreticalDiary::instance()->gwrapper->google->unlink();
 
-    QMessageBox ok(this);
-    QPushButton ok_button("OK", &ok);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    ok.setFont(f);
-    ok.setText("Credentials deleted.");
-    ok.setInformativeText("The OAuth2 credentials have been deleted.");
-    ok.addButton(&ok_button, QMessageBox::AcceptRole);
-    ok.setDefaultButton(&ok_button);
-    ok.setTextInteractionFlags(Qt::NoTextInteraction);
-
     request_end();
-    ok.exec();
+    td::ok_messagebox(this, "Credentials deleted.", "The OAuth2 credentials have been deleted.");
 }
 
 void OptionsMenu::dev_list()
@@ -287,27 +247,18 @@ void OptionsMenu::dev_list()
     TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
     // Check for OAuth2 credentials first.
-    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
-        // This makes sure that this lambda is only executed once. Consider
-        // the following situation:
-        // A request is made with an invalid token.
-        // o2 only checks IF a token exists when authenticate() is called
-        // below, it does not check if it actually works. This means that
-        // the code returned is actually td::Res::Yes which means that
-        // list_files() is called. However, this time o2 realises the token
-        // is invalid because Google sends back a 401 code. When the token
-        // is automatically refreshed by o2, the sig_oauth2_callback signal
-        // is emitted since the client is technically in a linked
-        // state again. This means td::Res::Yes is returned AGAIN and the
-        // code below is run again, meaning list_files() is called AGAIN.
-        // This is problematic as the original list_files() request goes
-        // through as well. So far, I have found that this bug causes the
-        // upload_file() function to throw a segmentation fault for some
-        // reason (please don't ask why). Anyway, this bug took a while to
-        // pin down since the stack traces of both list_files() calls were
-        // basically the same (and because of the fact that I did not know
-        // o2 called sig_oauth2_callback when the access token is
-        // refreshed).
+    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](td::Res const code) {
+        // This makes sure that this lambda is only executed once. Consider the following situation:
+        // A request is made with an invalid token. o2 only checks IF a token exists when authenticate() is called
+        // below, it does not check if it actually works. This means that the code returned is actually td::Res::Yes
+        // which means that list_files() is called. However, this time o2 realises the token is invalid because Google
+        // sends back a 401 code. When the token is automatically refreshed by o2, the sig_oauth2_callback signal is
+        // emitted since the client is technically in a linked state again. This means td::Res::Yes is returned AGAIN
+        // and the code below is run again, meaning list_files() is called AGAIN. This is problematic as the original
+        // list_files() request goes through as well. So far, I have found that this bug causes the upload_file()
+        // function to throw a segmentation fault for some reason (please don't ask why). Anyway, this bug took a while
+        // to pin down since the stack traces of both list_files() calls were basically the same (and because of the
+        // fact that I did not know o2 called sig_oauth2_callback when the access token is refreshed).
         TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
         if (td::Res::No == code) {
@@ -320,7 +271,7 @@ void OptionsMenu::dev_list()
         // List all files in drive.
         connect(TheoreticalDiary::instance()->gwrapper->requestor,
             qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](const int, const QNetworkReply::NetworkError, QByteArray data) {
+            [this](int const, QNetworkReply::NetworkError const, QByteArray data) {
                 APIResponse r(data, this);
                 request_end();
                 r.exec();
@@ -334,21 +285,7 @@ void OptionsMenu::dev_list()
 
 void OptionsMenu::dev_unknown_file()
 {
-    QMessageBox rip(this);
-    QPushButton ok_button("OK", &rip);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    rip.setFont(f);
-    rip.setText("IO failed.");
-    rip.setInformativeText("The app could not access the specified location.");
-    rip.addButton(&ok_button, QMessageBox::AcceptRole);
-    rip.setDefaultButton(&ok_button);
-    rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    rip.exec();
+    td::ok_messagebox(this, "Access failed.", "The app could not access the specified location.");
 }
 
 void OptionsMenu::dev_upload()
@@ -357,7 +294,7 @@ void OptionsMenu::dev_upload()
     TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
     // Check for OAuth2 credentials first.
-    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](td::Res const code) {
         TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
         if (td::Res::No == code) {
@@ -370,20 +307,20 @@ void OptionsMenu::dev_upload()
         // Upload file to drive.
         connect(TheoreticalDiary::instance()->gwrapper->requestor,
             qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](const int, const QNetworkReply::NetworkError, QByteArray data) {
+            [this](int const, QNetworkReply::NetworkError const, QByteArray data) {
                 APIResponse r(data, this);
                 request_end();
                 r.exec();
             });
 
-        const auto &filename = QFileDialog::getOpenFileName(this, "Upload file", QDir::homePath());
+        auto const &filename = QFileDialog::getOpenFileName(this, "Upload file", QDir::homePath());
         if (filename.isEmpty())
             return request_end();
 
         QFile f(filename);
         QFileInfo fi(f);
 
-        const auto &res = TheoreticalDiary::instance()->gwrapper->upload_file(filename, fi.fileName());
+        auto const &res = TheoreticalDiary::instance()->gwrapper->upload_file(filename, fi.fileName());
         if (td::Res::No == res) {
             request_end();
             dev_unknown_file();
@@ -399,7 +336,7 @@ void OptionsMenu::dev_download()
     TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
     // Check for OAuth2 credentials first.
-    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](td::Res const code) {
         TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
         if (td::Res::No == code) {
@@ -412,7 +349,7 @@ void OptionsMenu::dev_download()
         // Download file from drive.
         connect(TheoreticalDiary::instance()->gwrapper->requestor,
             qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](const int, const QNetworkReply::NetworkError error, QByteArray data) {
+            [this](int const, QNetworkReply::NetworkError const error, QByteArray data) {
                 request_end();
 
                 if (QNetworkReply::NoError != error) {
@@ -421,7 +358,7 @@ void OptionsMenu::dev_download()
                     return;
                 }
 
-                const auto &filename =
+                auto const &filename =
                     QFileDialog::getSaveFileName(this, "Download file", QString("%1/download").arg(QDir::homePath()));
                 if (filename.isEmpty())
                     return request_end();
@@ -449,7 +386,7 @@ void OptionsMenu::dev_update()
     TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
     // Check for OAuth2 credentials first.
-    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](td::Res const code) {
         TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
         if (td::Res::No == code) {
@@ -462,18 +399,18 @@ void OptionsMenu::dev_update()
         // Upload file to drive.
         connect(TheoreticalDiary::instance()->gwrapper->requestor,
             qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](const int, const QNetworkReply::NetworkError, QByteArray data) {
+            [this](int const, QNetworkReply::NetworkError const, QByteArray data) {
                 APIResponse r(data, this);
                 request_end();
                 r.exec();
             });
 
-        const auto &filename = QFileDialog::getOpenFileName(this, "Update file", QDir::homePath());
+        auto const &filename = QFileDialog::getOpenFileName(this, "Update file", QDir::homePath());
         if (filename.isEmpty())
             return request_end();
 
-        const auto &id = ui->dev_update_file_id->text();
-        const auto &res = TheoreticalDiary::instance()->gwrapper->update_file(id, filename);
+        auto const &id = ui->dev_update_file_id->text();
+        auto const &res = TheoreticalDiary::instance()->gwrapper->update_file(id, filename);
         if (td::Res::No == res) {
             request_end();
             dev_unknown_file();
@@ -489,7 +426,7 @@ void OptionsMenu::dev_copy()
     TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
     // Check for OAuth2 credentials first.
-    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](td::Res const code) {
         TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
         if (td::Res::No == code) {
@@ -502,7 +439,7 @@ void OptionsMenu::dev_copy()
         // Copy file on drive.
         connect(TheoreticalDiary::instance()->gwrapper->requestor,
             qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](const int, const QNetworkReply::NetworkError, QByteArray data) {
+            [this](int const, QNetworkReply::NetworkError const, QByteArray data) {
                 APIResponse r(data, this);
                 request_end();
                 r.exec();
@@ -521,7 +458,7 @@ void OptionsMenu::dev_delete()
     TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
     // Check for OAuth2 credentials first.
-    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](const td::Res code) {
+    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_oauth2_callback, [this](td::Res const code) {
         TheoreticalDiary::instance()->gwrapper->dc_oauth_slots();
 
         if (td::Res::No == code) {
@@ -534,7 +471,7 @@ void OptionsMenu::dev_delete()
         // Delete file on drive.
         connect(TheoreticalDiary::instance()->gwrapper->requestor,
             qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](const int, const QNetworkReply::NetworkError error, QByteArray data) {
+            [this](int const, QNetworkReply::NetworkError const error, QByteArray data) {
                 request_end();
 
                 if (QNetworkReply::NoError != error) {

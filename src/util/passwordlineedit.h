@@ -28,13 +28,13 @@ public:
     PasswordLineEdit(QWidget *parent = nullptr);
 
 private slots:
-    void onPressed();
-    void onReleased();
+    void on_pressed();
+    void on_released();
 
 private:
     QToolButton *button;
 
-    QString get_eye_icon(bool on);
+    QString get_eye_icon(bool const on);
 };
 
 #endif // PASSWORDLINEEDIT_H

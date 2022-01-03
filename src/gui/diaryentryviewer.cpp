@@ -23,18 +23,18 @@
 
 #include <sstream>
 
-const int LONGEST_LINE_LENGTH = 110;
-const int DAY_LABEL_SIZE = 50;
+int const LONGEST_LINE_LENGTH = 110;
+int const DAY_LABEL_SIZE = 50;
 
-DiaryEntryViewer::DiaryEntryViewer(const DiaryEditor *editor, QWidget *parent)
+DiaryEntryViewer::DiaryEntryViewer(DiaryEditor const *const editor, QWidget *parent)
     : QWidget(parent), ui(new Ui::DiaryEntryViewer)
 {
     ui->setupUi(this);
 
-    current_month = new QDate(*qobject_cast<DiaryMenu *>(parent)->first_created);
-    rating_stylesheets = new std::vector<QString>();
-    black_star = new QString("");
-    white_star = new QString("");
+    current_month = qobject_cast<DiaryMenu *>(parent)->first_created;
+    rating_stylesheets = std::vector<std::unique_ptr<QString>>();
+    black_star = QString("");
+    white_star = QString("");
 
     // Navigator slots
     connect(ui->month_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
@@ -48,7 +48,7 @@ DiaryEntryViewer::DiaryEntryViewer(const DiaryEditor *editor, QWidget *parent)
         Qt::QueuedConnection);
     apply_theme();
 
-    change_month(*current_month, true);
+    change_month(current_month, true);
     // Make scroll bar hit the bottom
     QTimer::singleShot(0, this, [&]() {
         ui->scrollArea->widget()->adjustSize();
@@ -60,15 +60,11 @@ DiaryEntryViewer::DiaryEntryViewer(const DiaryEditor *editor, QWidget *parent)
 DiaryEntryViewer::~DiaryEntryViewer()
 {
     delete ui;
-    delete current_month;
-    delete rating_stylesheets;
-    delete black_star;
-    delete white_star;
 }
 
 void DiaryEntryViewer::apply_theme()
 {
-    const auto &theme = TheoreticalDiary::instance()->theme();
+    auto const &theme = TheoreticalDiary::instance()->theme();
 
     QFile file(QString(":/%1/diary_entry_list/base.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
@@ -82,32 +78,33 @@ void DiaryEntryViewer::apply_theme()
 
     file.setFileName(":/global/white_star.qss");
     file.open(QIODevice::ReadOnly);
-    *white_star = file.readAll();
+    white_star = file.readAll();
     file.close();
 
     file.setFileName(":/global/black_star.qss");
     file.open(QIODevice::ReadOnly);
-    *black_star = file.readAll();
+    black_star = file.readAll();
     file.close();
 
-    rating_stylesheets->clear();
+    for (auto &ss_ptr : rating_stylesheets)
+        ss_ptr.reset();
+
+    rating_stylesheets.clear();
+
     for (int i = 0; i < 6; ++i) {
         file.setFileName(QString(":/%1/diary_entry_list/%2.qss").arg(theme, QString::number(i)));
         file.open(QIODevice::ReadOnly);
-        rating_stylesheets->push_back(file.readAll());
+        rating_stylesheets.push_back(std::make_unique<QString>(file.readAll()));
         file.close();
     }
 
     emit sig_re_render_theme();
 }
 
-void DiaryEntryViewer::change_month(const QDate &date, const bool ignore_month_check)
+void DiaryEntryViewer::change_month(QDate const &date, bool const ignore_month_check)
 {
-    if (!ignore_month_check) {
-        if (current_month->year() == date.year() && current_month->month() == date.month()) {
-            return;
-        }
-    }
+    if (!ignore_month_check && current_month.year() == date.year() && current_month.month() == date.month())
+        return;
 
     // Remove everything from current grid
     QLayoutItem *child;
@@ -125,14 +122,14 @@ void DiaryEntryViewer::change_month(const QDate &date, const bool ignore_month_c
         ui->year_edit->setDate(date);
     }
     else {
-        ui->month_dropdown->setCurrentIndex(current_month->month() - 1);
-        ui->year_edit->setDate(*current_month);
+        ui->month_dropdown->setCurrentIndex(current_month.month() - 1);
+        ui->year_edit->setDate(current_month);
     }
 
     ui->month_dropdown->blockSignals(false);
     ui->year_edit->blockSignals(false);
 
-    const auto &opt = TheoreticalDiary::instance()->diary_holder->get_monthmap(date.isValid() ? date : *current_month);
+    auto const &opt = TheoreticalDiary::instance()->diary_holder->get_monthmap(date.isValid() ? date : current_month);
     if (!opt) {
         auto label = new QLabel("It seems there are no entries yet for this month...", this);
         label->setAlignment(Qt::AlignCenter);
@@ -140,13 +137,13 @@ void DiaryEntryViewer::change_month(const QDate &date, const bool ignore_month_c
         f.setPointSize(11);
         label->setFont(f);
 
-        *current_month = date;
+        current_month = date;
         return ui->entry_grid->addWidget(label);
     }
 
     int row_counter = 0;
-    for (const auto &i : (*opt)->second) {
-        const auto &[important, rating, message, dummy] = i.second;
+    for (auto const &i : (*opt)->second) {
+        auto const &[important, rating, message, dummy] = i.second;
 
         // Don't add any days that don't have text entries
         if (message.empty())
@@ -171,12 +168,12 @@ void DiaryEntryViewer::change_month(const QDate &date, const bool ignore_month_c
         ui->entry_grid->addWidget(label);
     }
 
-    *current_month = date;
+    current_month = date;
 }
 
 void DiaryEntryViewer::next_month()
 {
-    const QDate next = ui->year_edit->date().addMonths(1);
+    QDate const next = ui->year_edit->date().addMonths(1);
     if (next.isValid()) {
         change_month(next, false);
 
@@ -191,7 +188,7 @@ void DiaryEntryViewer::next_month()
 
 void DiaryEntryViewer::prev_month()
 {
-    const QDate prev = ui->year_edit->date().addMonths(-1);
+    QDate const prev = ui->year_edit->date().addMonths(-1);
     if (prev.isValid()) {
         change_month(prev, false);
 
@@ -204,12 +201,12 @@ void DiaryEntryViewer::prev_month()
     }
 }
 
-void DiaryEntryViewer::month_changed(const int)
+void DiaryEntryViewer::month_changed(int)
 {
     change_month(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1), false);
 }
 
-void DiaryEntryViewer::year_changed(const QDate &date)
+void DiaryEntryViewer::year_changed(QDate const &date)
 {
     if (date.isValid())
         change_month(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1), false);
@@ -218,7 +215,7 @@ void DiaryEntryViewer::year_changed(const QDate &date)
 /*
  * DiaryEntryDayLabel class
  */
-DiaryEntryDayLabel::DiaryEntryDayLabel(const td::LabelData &d, QWidget *parent) : QLabel(parent)
+DiaryEntryDayLabel::DiaryEntryDayLabel(td::LabelData const &d, QWidget *parent) : QLabel(parent)
 {
     data = d;
     setText(QString::number(d.day));
@@ -245,7 +242,7 @@ DiaryEntryDayLabel::~DiaryEntryDayLabel() {}
 void DiaryEntryDayLabel::apply_theme()
 {
     // Set colour theme
-    QString stylesheet((*data.parent->rating_stylesheets)[data.rating]);
+    QString stylesheet(*(data.parent->rating_stylesheets)[data.rating]);
 
     // Set background star if necessary
     if (data.special) {
@@ -273,9 +270,9 @@ void DiaryEntryDayLabel::apply_theme()
 /*
  * DiaryEntryDayMessage class
  */
-DiaryEntryDayMessage::DiaryEntryDayMessage(const std::string &m, QWidget *parent) : QLabel(parent)
+DiaryEntryDayMessage::DiaryEntryDayMessage(std::string const &m, QWidget *parent) : QLabel(parent)
 {
-    message = new std::string(m);
+    message = std::string(m);
     expanded = false;
 
     // Set text
@@ -298,10 +295,7 @@ DiaryEntryDayMessage::DiaryEntryDayMessage(const std::string &m, QWidget *parent
     apply_theme();
 }
 
-DiaryEntryDayMessage::~DiaryEntryDayMessage()
-{
-    delete message;
-}
+DiaryEntryDayMessage::~DiaryEntryDayMessage() {}
 
 void DiaryEntryDayMessage::apply_theme() {}
 
@@ -312,17 +306,17 @@ void DiaryEntryDayMessage::mouseDoubleClickEvent(QMouseEvent *event)
 
     if (expanded) {
         std::string truncated;
-        DiaryEntryDayMessage::get_trunc_first_line(*message, truncated);
+        DiaryEntryDayMessage::get_trunc_first_line(message, truncated);
         setText(QString::fromStdString(truncated));
     }
     else {
-        setText(QString::fromStdString(*message));
+        setText(QString::fromStdString(message));
     }
 
     expanded = !expanded;
 }
 
-void DiaryEntryDayMessage::get_trunc_first_line(const std::string &input, std::string &res)
+void DiaryEntryDayMessage::get_trunc_first_line(std::string const &input, std::string &res)
 {
     // Get first line
     // https://stackoverflow.com/a/5059112

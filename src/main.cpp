@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     // Make sure only 1 instance of the app is running at all times
     // Courtesy of https://stackoverflow.com/a/28172162
     RunGuard guard("theoreticaldiary");
-    if (!guard.tryToRun())
+    if (!guard.try_to_run())
         return 0;
 
     QGuiApplication::setAttribute(Qt::AA_DisableHighDpiScaling);

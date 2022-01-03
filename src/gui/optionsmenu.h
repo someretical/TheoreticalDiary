@@ -29,7 +29,7 @@ class OptionsMenu : public QWidget {
     Q_OBJECT
 
 public:
-    explicit OptionsMenu(const bool from_diary_editor, QWidget *parent = nullptr);
+    explicit OptionsMenu(bool const from_diary_editor, QWidget *parent = nullptr);
     ~OptionsMenu();
 
     void dev_unknown_file();

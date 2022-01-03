@@ -17,16 +17,17 @@
  */
 
 #include "googlewrapper.h"
+#include "../util/custommessageboxes.h"
 #include "o0settingsstore.h"
 #include "theoreticaldiary.h"
 
 #include <json.hpp>
 
-const char *CLIENT_ID = "71530390003-2fr89p1c0unpd1n169munqajeepnhdco.apps.googleusercontent.com";
-const char *CLIENT_SECRET = "zuyjH1Cd_8pL4Q-OFNLjNCJ7";
-const char *SCOPE = "https://www.googleapis.com/auth/userinfo.profile "
+char const *CLIENT_ID = "71530390003-2fr89p1c0unpd1n169munqajeepnhdco.apps.googleusercontent.com";
+char const *CLIENT_SECRET = "zuyjH1Cd_8pL4Q-OFNLjNCJ7";
+char const *SCOPE = "https://www.googleapis.com/auth/userinfo.profile "
                     "https://www.googleapis.com/auth/drive.appdata";
-const int PORT = 8888;
+int const PORT = 8888;
 
 GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent)
 {
@@ -36,9 +37,10 @@ GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent)
     google->setScope(SCOPE);
     google->setLocalPort(PORT);
 
-    primary_backup_id = new QString("");
-    secondary_backup_id = new QString("");
+    primary_backup_id = QString("");
+    secondary_backup_id = QString("");
     silent_upload_diary = false;
+    current_dialog_parent = nullptr;
 
     QVariantMap params;
     params["access_type"] = QVariant("offline");
@@ -64,11 +66,9 @@ GoogleWrapper::~GoogleWrapper()
     delete google;
     delete manager;
     delete requestor;
-    delete primary_backup_id;
-    delete secondary_backup_id;
 }
 
-void GoogleWrapper::open_browser(const QUrl &url)
+void GoogleWrapper::open_browser(QUrl const &url)
 {
     if (!QDesktopServices::openUrl(url))
         emit sig_oauth2_callback(td::Res::No);
@@ -102,7 +102,7 @@ void GoogleWrapper::auth_err()
 
 void GoogleWrapper::revoke_access()
 {
-    QUrl url(QString(+"https://oauth2.googleapis.com/revoke?token=%1").arg(google->token()));
+    QUrl url(QString("https://oauth2.googleapis.com/revoke?token=%1").arg(google->token()));
     QNetworkRequest req(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     requestor->post(req, "");
@@ -127,7 +127,7 @@ void GoogleWrapper::list_files()
     requestor->get(req);
 }
 
-td::Res GoogleWrapper::upload_file(const QString &local_path, const QString &name)
+td::Res GoogleWrapper::upload_file(QString const &local_path, QString const &name)
 {
     QFile *file = new QFile(local_path);
     if (!file->open(QIODevice::ReadOnly))
@@ -151,12 +151,12 @@ td::Res GoogleWrapper::upload_file(const QString &local_path, const QString &nam
     multi_part->append(media);
 
     // The content type and content length headers are automatically set by Qt.
-    TheoreticalDiary::instance()->gwrapper->requestor->post(req, multi_part);
+    requestor->post(req, multi_part);
 
     return td::Res::Yes;
 }
 
-void GoogleWrapper::copy_file(const QString &id, const QString &new_name)
+void GoogleWrapper::copy_file(QString const &id, QString const &new_name)
 {
     QUrl url(QString("https://www.googleapis.com/drive/v3/files/%1/copy").arg(id));
     QNetworkRequest req(url);
@@ -165,7 +165,7 @@ void GoogleWrapper::copy_file(const QString &id, const QString &new_name)
     requestor->post(req, QString("{\"name\":\"%1\",\"parents\":[\"appDataFolder\"]}").arg(new_name).toUtf8());
 }
 
-void GoogleWrapper::download_file(const QString &id)
+void GoogleWrapper::download_file(QString const &id)
 {
     QUrl url(QString("https://www.googleapis.com/drive/v3/files/"
                      "%1?alt=media")
@@ -174,7 +174,7 @@ void GoogleWrapper::download_file(const QString &id)
     requestor->get(req);
 }
 
-void GoogleWrapper::delete_file(const QString &id)
+void GoogleWrapper::delete_file(QString const &id)
 {
     QUrl url(QString("https://www.googleapis.com/drive/v3/files/"
                      "%1")
@@ -183,7 +183,7 @@ void GoogleWrapper::delete_file(const QString &id)
     requestor->deleteResource(req);
 }
 
-td::Res GoogleWrapper::update_file(const QString &id, const QString &local_path)
+td::Res GoogleWrapper::update_file(QString const &id, QString const &local_path)
 {
     QFile *file = new QFile(local_path);
     if (!file->open(QIODevice::ReadOnly))
@@ -207,65 +207,37 @@ td::Res GoogleWrapper::update_file(const QString &id, const QString &local_path)
     multi_part->append(metadata);
     multi_part->append(media);
 
-    TheoreticalDiary::instance()->gwrapper->requestor->customRequest(req, "PATCH", multi_part);
+    requestor->customRequest(req, "PATCH", multi_part);
 
     return td::Res::Yes;
 }
 
 void GoogleWrapper::display_auth_error(QWidget *p)
 {
-    QMessageBox rip(p);
-    QPushButton ok_button("OK", &rip);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    rip.setFont(f);
-    rip.setText("Authentication error.");
-    rip.setInformativeText("The app was unable to authenticate with Google.");
-    rip.addButton(&ok_button, QMessageBox::AcceptRole);
-    rip.setDefaultButton(&ok_button);
-    rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    rip.exec();
+    td::ok_messagebox(p, "Authentication error.", "The app was unable to authenticate with Google.");
 }
 
 void GoogleWrapper::display_network_error(QWidget *p)
 {
-    QMessageBox rip(p);
-    QPushButton ok_button("OK", &rip);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    rip.setFont(f);
-    rip.setText("Network error.");
-    rip.setInformativeText("The app encountered a network error.");
-    rip.addButton(&ok_button, QMessageBox::AcceptRole);
-    rip.setDefaultButton(&ok_button);
-    rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    rip.exec();
+    td::ok_messagebox(p, "Network error.", "The app encountered a network error.");
 }
 
-void GoogleWrapper::get_file_ids(const QByteArray &data)
+void GoogleWrapper::get_file_ids(QByteArray const &data)
 {
-    *primary_backup_id = "";
-    *secondary_backup_id = "";
+    primary_backup_id = QString("");
+    secondary_backup_id = QString("");
 
-    auto json = nlohmann::json::parse(data.toStdString(), nullptr, false);
+    auto const &json = nlohmann::json::parse(data.toStdString(), nullptr, false);
     if (json.is_discarded())
         return;
 
-    for (const auto &file : json["files"]) {
+    for (auto const &file : json["files"]) {
         if ("drive#file" == file["kind"] && "application/octet-stream" == file["mimeType"]) {
             if ("diary.dat" == file["name"]) {
-                *primary_backup_id = QString::fromStdString(file["id"]);
+                primary_backup_id = QString::fromStdString(file["id"]);
             }
             else if ("diary.dat.bak" == file["name"]) {
-                *secondary_backup_id = QString::fromStdString(file["id"]);
+                secondary_backup_id = QString::fromStdString(file["id"]);
             }
         }
     }
@@ -290,7 +262,7 @@ void GoogleWrapper::download_diary(QWidget *p)
      * - Inform the user that the download was successful.
      */
 
-    connect(this, &GoogleWrapper::sig_oauth2_callback, [&](const td::Res code) {
+    connect(this, &GoogleWrapper::sig_oauth2_callback, [&](td::Res const code) {
         dc_oauth_slots();
 
         if (td::Res::No == code) {
@@ -306,7 +278,7 @@ void GoogleWrapper::download_diary(QWidget *p)
     authenticate();
 }
 
-void GoogleWrapper::download__list_files_cb(const int, const QNetworkReply::NetworkError error, const QByteArray data)
+void GoogleWrapper::download__list_files_cb(int const, QNetworkReply::NetworkError const error, QByteArray const data)
 {
     if (QNetworkReply::NoError != error) {
         emit sig_request_end();
@@ -315,36 +287,22 @@ void GoogleWrapper::download__list_files_cb(const int, const QNetworkReply::Netw
 
     get_file_ids(data);
 
-    if (primary_backup_id->isEmpty() && secondary_backup_id->isEmpty()) {
-        QMessageBox rip(current_dialog_parent);
-        QPushButton ok_button("OK", &rip);
-        ok_button.setFlat(true);
-        QFont f = ok_button.font();
-        f.setPointSize(11);
-        ok_button.setFont(f);
-
-        rip.setFont(f);
-        rip.setText("No backups found.");
-        rip.setInformativeText("No backups could be found on Google Drive.");
-        rip.addButton(&ok_button, QMessageBox::AcceptRole);
-        rip.setDefaultButton(&ok_button);
-        rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
+    if (primary_backup_id.isEmpty() && secondary_backup_id.isEmpty()) {
         emit sig_request_end();
-        rip.exec();
-        return;
+        td::ok_messagebox(current_dialog_parent, "No backups found.", "No backups could be found on Google Drive.");
     }
+    else {
+        auto const &id = primary_backup_id.isEmpty() ? secondary_backup_id : primary_backup_id;
 
-    const QString id = primary_backup_id->isEmpty() ? *secondary_backup_id : *primary_backup_id;
-
-    dc_requestor_slots();
-    connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
-        &GoogleWrapper::download__download_file_cb);
-    download_file(id);
+        dc_requestor_slots();
+        connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
+            &GoogleWrapper::download__download_file_cb);
+        download_file(id);
+    }
 }
 
 void GoogleWrapper::download__download_file_cb(
-    const int, const QNetworkReply::NetworkError error, const QByteArray data)
+    int const, QNetworkReply::NetworkError const error, QByteArray const data)
 {
     if (QNetworkReply::NoError != error) {
         emit sig_request_end();
@@ -353,51 +311,23 @@ void GoogleWrapper::download__download_file_cb(
 
     QFile file(QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location()));
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        QMessageBox rip(current_dialog_parent);
-        QPushButton ok_button("OK", &rip);
-        ok_button.setFlat(true);
-        QFont f = ok_button.font();
-        f.setPointSize(11);
-        ok_button.setFont(f);
-
-        rip.setFont(f);
-        rip.setText("Download failed.");
-        rip.setInformativeText("The app could not write to the diary location.");
-        rip.addButton(&ok_button, QMessageBox::AcceptRole);
-        rip.setDefaultButton(&ok_button);
-        rip.setTextInteractionFlags(Qt::NoTextInteraction);
+        emit sig_request_end();
+        td::ok_messagebox(current_dialog_parent, "Download failed.", "The app could not write to the diary location.");
+    }
+    else {
+        // At the moment, the data is written all in one go as o2 does not yet provide any download updates. This is
+        // really bad practice so TODO: add own implementation of a download notifier so the data buffer can be piped
+        // into the file every time a new chunk arrives.
+        file.write(data);
+        file.close();
 
         emit sig_request_end();
-        rip.exec();
-        return;
+        td::ok_messagebox(
+            current_dialog_parent, "Diary downloaded.", "The diary has been downloaded from Google Drive.");
     }
-    // At the moment, the data is written all in one go as
-    // o2 does not yet provide any download updates. This is
-    // really bad practice so TODO: add own implementation
-    // of a download notifier so the data buffer can be
-    // piped into the file every time a new chunk arrives.
-    file.write(data);
-    file.close();
-
-    QMessageBox ok(current_dialog_parent);
-    QPushButton ok_button("OK", &ok);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    ok.setFont(f);
-    ok.setText("Diary downloaded.");
-    ok.setInformativeText("The diary has been downloaded from Google Drive.");
-    ok.addButton(&ok_button, QMessageBox::AcceptRole);
-    ok.setDefaultButton(&ok_button);
-    ok.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    emit sig_request_end();
-    ok.exec();
 }
 
-void GoogleWrapper::upload_diary(QWidget *p, const bool silent)
+void GoogleWrapper::upload_diary(QWidget *p, bool const silent)
 {
     dc_oauth_slots();
     current_dialog_parent = p;
@@ -415,7 +345,7 @@ void GoogleWrapper::upload_diary(QWidget *p, const bool silent)
      * - Inform the user that the upload was successful.
      */
 
-    connect(this, &GoogleWrapper::sig_oauth2_callback, [&](const td::Res code) {
+    connect(this, &GoogleWrapper::sig_oauth2_callback, [&](td::Res const code) {
         dc_oauth_slots();
 
         if (td::Res::No == code) {
@@ -431,27 +361,12 @@ void GoogleWrapper::upload_diary(QWidget *p, const bool silent)
     authenticate();
 }
 
-void GoogleWrapper::display_read_error()
+void GoogleWrapper::display_read_error(QWidget *p)
 {
-    QMessageBox rip(current_dialog_parent);
-    QPushButton ok_button("OK", &rip);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    rip.setFont(f);
-    rip.setText("Read error.");
-    rip.setInformativeText("The app was unable to read the contents of the diary.");
-    rip.addButton(&ok_button, QMessageBox::AcceptRole);
-    rip.setDefaultButton(&ok_button);
-    rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    emit sig_request_end();
-    rip.exec();
+    td::ok_messagebox(p, "Read error.", "The app was unable to read the contents of the diary.");
 }
 
-void GoogleWrapper::upload__list_files_cb(const int, const QNetworkReply::NetworkError error, const QByteArray data)
+void GoogleWrapper::upload__list_files_cb(int const, QNetworkReply::NetworkError const error, QByteArray const data)
 {
     if (QNetworkReply::NoError != error) {
         emit sig_request_end();
@@ -460,23 +375,23 @@ void GoogleWrapper::upload__list_files_cb(const int, const QNetworkReply::Networ
 
     get_file_ids(data);
     dc_requestor_slots();
-    if (primary_backup_id->isEmpty()) {
+    if (primary_backup_id.isEmpty()) {
         connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
             &GoogleWrapper::upload__upload_file_cb);
 
-        const auto &res = TheoreticalDiary::instance()->gwrapper->upload_file(
+        auto const &res = TheoreticalDiary::instance()->gwrapper->upload_file(
             QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location()), QString("diary.dat"));
         if (td::Res::No == res)
-            display_read_error();
+            display_read_error(current_dialog_parent);
     }
     else {
         connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
             &GoogleWrapper::upload__copy_file_cb);
-        copy_file(*primary_backup_id, QString("diary.dat.bak"));
+        copy_file(primary_backup_id, QString("diary.dat.bak"));
     }
 }
 
-void GoogleWrapper::upload__copy_file_cb(const int, const QNetworkReply::NetworkError error, const QByteArray)
+void GoogleWrapper::upload__copy_file_cb(int const, QNetworkReply::NetworkError const error, QByteArray const)
 {
     if (QNetworkReply::NoError != error) {
         emit sig_request_end();
@@ -484,24 +399,24 @@ void GoogleWrapper::upload__copy_file_cb(const int, const QNetworkReply::Network
     }
 
     dc_requestor_slots();
-    if (secondary_backup_id->isEmpty()) {
+    if (secondary_backup_id.isEmpty()) {
         connect(TheoreticalDiary::instance()->gwrapper->requestor,
             qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
             &GoogleWrapper::upload__upload_file_cb);
 
-        const auto &name = QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location());
-        const auto &res = update_file(*primary_backup_id, name);
+        auto const &name = QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location());
+        auto const &res = update_file(primary_backup_id, name);
         if (td::Res::No == res)
-            display_read_error();
+            display_read_error(current_dialog_parent);
     }
     else {
         connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
             &GoogleWrapper::upload__delete_file_cb);
-        delete_file(*secondary_backup_id);
+        delete_file(secondary_backup_id);
     }
 }
 
-void GoogleWrapper::upload__delete_file_cb(const int, const QNetworkReply::NetworkError error, QByteArray)
+void GoogleWrapper::upload__delete_file_cb(int const, QNetworkReply::NetworkError const error, QByteArray const)
 {
     if (QNetworkReply::NoError != error) {
         emit sig_request_end();
@@ -512,36 +427,21 @@ void GoogleWrapper::upload__delete_file_cb(const int, const QNetworkReply::Netwo
     connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
         &GoogleWrapper::upload__upload_file_cb);
 
-    const auto &name = QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location());
-    const auto &res = update_file(*primary_backup_id, name);
+    auto const &name = QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location());
+    auto const &res = update_file(primary_backup_id, name);
     if (td::Res::No == res)
-        display_read_error();
+        display_read_error(current_dialog_parent);
 }
 
-void GoogleWrapper::upload__upload_file_cb(const int, const QNetworkReply::NetworkError error, const QByteArray)
+void GoogleWrapper::upload__upload_file_cb(int const, QNetworkReply::NetworkError const error, QByteArray const)
 {
     emit sig_request_end();
 
     if (QNetworkReply::NoError != error)
         return display_network_error(current_dialog_parent);
 
-    if (!silent_upload_diary) {
-        QMessageBox ok(current_dialog_parent);
-        QPushButton ok_button("OK", &ok);
-        ok_button.setFlat(true);
-        QFont f = ok_button.font();
-        f.setPointSize(11);
-        ok_button.setFont(f);
-
-        ok.setFont(f);
-        ok.setText("Diary uploaded.");
-        ok.setInformativeText("The diary has been uploaded to Google Drive.");
-        ok.addButton(&ok_button, QMessageBox::AcceptRole);
-        ok.setDefaultButton(&ok_button);
-        ok.setTextInteractionFlags(Qt::NoTextInteraction);
-
-        ok.exec();
-    }
+    if (!silent_upload_diary)
+        td::ok_messagebox(current_dialog_parent, "Diary uploaded.", "The diary has been uploaded to Google Drive.");
 
     qDebug() << "Uploaded diary to Google Drive.";
 }

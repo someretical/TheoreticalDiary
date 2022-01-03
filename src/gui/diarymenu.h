@@ -29,16 +29,16 @@ class DiaryMenu : public QWidget {
     Q_OBJECT
 
 public:
-    explicit DiaryMenu(const QDate &date, QWidget *parent = nullptr);
+    explicit DiaryMenu(QDate const &date, QWidget *parent = nullptr);
     ~DiaryMenu();
 
-    static QString get_day_suffix(const int day);
+    static QString get_day_suffix(int const day);
 
-    QDate *first_created;
+    QDate first_created;
 
 public slots:
     void apply_theme();
-    void tab_changed(const int tab);
+    void tab_changed(int const tab);
 
 private:
     Ui::DiaryMenu *ui;

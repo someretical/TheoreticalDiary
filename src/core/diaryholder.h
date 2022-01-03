@@ -34,13 +34,13 @@ struct Entry {
     time_t last_updated;
 };
 
-inline void to_json(nlohmann::json &j, const Entry &e)
+inline void to_json(nlohmann::json &j, Entry const &e)
 {
     j = nlohmann::json{
         {"important", e.important}, {"rating", e.rating}, {"message", e.message}, {"last_updated", e.last_updated}};
 }
 
-inline void from_json(const nlohmann::json &j, Entry &e)
+inline void from_json(nlohmann::json const &j, Entry &e)
 {
     j.at("important").get_to<bool>(e.important);
     j.at("rating").get_to<Rating>(e.rating);
@@ -57,12 +57,12 @@ struct Metadata {
     time_t last_updated;
 };
 
-inline void to_json(nlohmann::json &j, const Metadata &m)
+inline void to_json(nlohmann::json &j, Metadata const &m)
 {
     j = nlohmann::json{{"version", m.version}, {"last_updated", m.last_updated}};
 }
 
-inline void from_json(const nlohmann::json &j, Metadata &m)
+inline void from_json(nlohmann::json const &j, Metadata &m)
 {
     j.at("version").get_to<int>(m.version);
     j.at("last_updated").get_to<time_t>(m.last_updated);
@@ -72,12 +72,12 @@ struct Settings {
     bool sync;
 };
 
-inline void to_json(nlohmann::json &j, const Settings &s)
+inline void to_json(nlohmann::json &j, Settings const &s)
 {
     j = nlohmann::json{{"sync", s.sync}};
 }
 
-inline void from_json(const nlohmann::json &j, Settings &s)
+inline void from_json(nlohmann::json const &j, Settings &s)
 {
     j.at("sync").get_to<bool>(s.sync);
 }
@@ -88,12 +88,12 @@ struct Diary {
     Settings settings;
 };
 
-inline void to_json(nlohmann::json &j, const Diary &d)
+inline void to_json(nlohmann::json &j, Diary const &d)
 {
     j = nlohmann::json{{"log", d.log}, {"metadata", d.metadata}, {"settings", d.settings}};
 }
 
-inline void from_json(const nlohmann::json &j, Diary &d)
+inline void from_json(nlohmann::json const &j, Diary &d)
 {
     j.at("log").get_to<DiaryLog>(d.log);
     j.at("metadata").get_to<Metadata>(d.metadata);
@@ -111,11 +111,11 @@ public:
     bool load(std::string &raw);
     void init();
 
-    std::optional<td::DiaryLog::iterator> get_yearmap(const QDate &date);
-    std::optional<td::YearMap::iterator> get_monthmap(const QDate &date);
-    std::optional<td::MonthMap::iterator> get_entry(const QDate &date);
-    void create_entry(const QDate &date, const td::Entry &entry);
-    void delete_entry(const QDate &date);
+    std::optional<td::DiaryLog::iterator> get_yearmap(QDate const &date) const;
+    std::optional<td::YearMap::iterator> get_monthmap(QDate const &date) const;
+    std::optional<td::MonthMap::iterator> get_entry(QDate const &date) const;
+    void create_entry(QDate const &date, td::Entry const &entry);
+    void delete_entry(QDate const &date);
 
     td::Diary *diary;
 };

@@ -19,7 +19,7 @@
 #include "runguard.h"
 
 namespace {
-QString generateKeyHash(const QString &key, const QString &salt)
+QString generate_key_hash(QString const &key, QString const &salt)
 {
     QByteArray data;
 
@@ -31,16 +31,16 @@ QString generateKeyHash(const QString &key, const QString &salt)
 }
 } // namespace
 
-RunGuard::RunGuard(const QString &key)
-    : key(key), memLockKey(generateKeyHash(key, "_memLockKey")), sharedmemKey(generateKeyHash(key, "_sharedmemKey")),
-      sharedMem(sharedmemKey), memLock(memLockKey, 1)
+RunGuard::RunGuard(QString const &key)
+    : key(key), mem_lock_key(generate_key_hash(key, "_mem_lock_key")),
+      shared_mem_key(generate_key_hash(key, "_shared_mem_key")), shared_mem(shared_mem_key), mem_lock(mem_lock_key, 1)
 {
-    memLock.acquire();
+    mem_lock.acquire();
     {
-        QSharedMemory fix(sharedmemKey); // Fix for *nix: http://habrahabr.ru/post/173281/
+        QSharedMemory fix(shared_mem_key); // Fix for *nix: http://habrahabr.ru/post/173281/
         fix.attach();
     }
-    memLock.release();
+    mem_lock.release();
 }
 
 RunGuard::~RunGuard()
@@ -48,28 +48,28 @@ RunGuard::~RunGuard()
     release();
 }
 
-bool RunGuard::isAnotherRunning()
+bool RunGuard::is_another_running()
 {
-    if (sharedMem.isAttached())
+    if (shared_mem.isAttached())
         return false;
 
-    memLock.acquire();
-    const bool isRunning = sharedMem.attach();
+    mem_lock.acquire();
+    bool const isRunning = shared_mem.attach();
     if (isRunning)
-        sharedMem.detach();
-    memLock.release();
+        shared_mem.detach();
+    mem_lock.release();
 
     return isRunning;
 }
 
-bool RunGuard::tryToRun()
+bool RunGuard::try_to_run()
 {
-    if (isAnotherRunning()) // Extra check
+    if (is_another_running()) // Extra check
         return false;
 
-    memLock.acquire();
-    const bool result = sharedMem.create(sizeof(quint64));
-    memLock.release();
+    mem_lock.acquire();
+    bool const result = shared_mem.create(sizeof(quint64));
+    mem_lock.release();
     if (!result) {
         release();
         return false;
@@ -80,8 +80,8 @@ bool RunGuard::tryToRun()
 
 void RunGuard::release()
 {
-    memLock.acquire();
-    if (sharedMem.isAttached())
-        sharedMem.detach();
-    memLock.release();
+    mem_lock.acquire();
+    if (shared_mem.isAttached())
+        shared_mem.detach();
+    mem_lock.release();
 }

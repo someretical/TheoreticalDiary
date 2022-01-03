@@ -22,6 +22,7 @@
 #include "diaryeditor.h"
 
 #include <QtWidgets>
+#include <memory>
 
 namespace Ui {
 class DiaryPixels;
@@ -31,19 +32,19 @@ class DiaryPixels : public QWidget {
     Q_OBJECT
 
 signals:
-    void sig_changed_size(const int new_width);
+    void sig_changed_size(int const new_width);
 
 public:
-    explicit DiaryPixels(const DiaryEditor *editor, QWidget *parent = nullptr);
+    explicit DiaryPixels(DiaryEditor const *editor, QWidget *parent = nullptr);
     ~DiaryPixels();
 
     void resizeEvent(QResizeEvent *);
     int calculate_size();
 
-    QDate *current_year;
-    std::vector<QString> *rating_stylesheets;
-    QString *white_star;
-    QString *black_star;
+    QDate current_year;
+    std::vector<std::unique_ptr<QString>> rating_stylesheets;
+    QString white_star;
+    QString black_star;
 
 public slots:
     void apply_theme();
@@ -59,11 +60,11 @@ class PixelLabel : public QLabel {
 
 public:
     explicit PixelLabel(
-        const td::Rating r, const bool special, const QDate &date, const int size, QWidget *parent = nullptr);
+        td::Rating const r, bool const special, QDate const &date, int const size, QWidget *parent = nullptr);
     ~PixelLabel();
 
 public slots:
-    void resize(const int new_width);
+    void resize(int const new_width);
 };
 
 #endif // DIARYPIXELS_H

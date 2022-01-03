@@ -18,6 +18,7 @@
 
 #include "mainwindow.h"
 #include "../core/theoreticaldiary.h"
+#include "../util/custommessageboxes.h"
 #include "../util/zipper.h"
 #include "diarymenu.h"
 #include "mainmenu.h"
@@ -64,7 +65,7 @@ void MainWindow::diary_uploaded()
     TheoreticalDiary::instance()->diary_file_modified = false;
 }
 
-void MainWindow::focus_changed(const Qt::ApplicationState state)
+void MainWindow::focus_changed(Qt::ApplicationState const state)
 {
     if ((Qt::ApplicationActive == state && td::Window::DiaryEditor == current_window) ||
         (Qt::ApplicationActive == state && td::Window::DiaryEditor == last_window &&
@@ -126,16 +127,13 @@ void MainWindow::clear_grid()
 {
     QWidget *w;
 
-    // This code is so unbelievably janky, there is a ONE HUNDRED PERCENT chance
-    // it will bite me back in the future. Basically, if there is some modal
-    // widget like a dialog or message box that is open and is assigned on the
-    // stack when clear_grid() is called, the application will seg fault because
-    // Qt tries to free memory allocated on the stack. The fix for this is to
-    // close all active modal widgets before deleting the parent widget. NOTE THAT
-    // CLOSE != DELETE. IF THE MODAL WAS DYNAMICALLY CREATED, THE
-    // WA_DELETE_ON_CLOSE FLAG NEEDS TO BE SET. I don't know if this will cause
-    // another seg fault though. Also for some reason, the compiler wants me to
-    // enclose the assignment in the while loop in another set of parentheses. :o
+    // This code is so unbelievably janky, there is a ONE HUNDRED PERCENT chance it will bite me back in the future.
+    // Basically, if there is some modal widget like a dialog or message box that is open and is assigned on the stack
+    // when clear_grid() is called, the application will seg fault because Qt tries to free memory allocated on the
+    // stack. The fix for this is to close all active modal widgets before deleting the parent widget. NOTE THAT CLOSE
+    // != DELETE. IF THE MODAL WAS DYNAMICALLY CREATED, THE WA_DELETE_ON_CLOSE FLAG NEEDS TO BE SET. I don't know if
+    // this will cause another seg fault though. Also for some reason, the compiler wants me to enclose the assignment
+    // in the while loop in another set of parentheses. :o
     while ((w = QApplication::activeModalWidget()))
         w->close();
 
@@ -157,7 +155,7 @@ void MainWindow::show_main_menu()
 
 void MainWindow::show_options_menu()
 {
-    const auto on_diary_editor = td::Window::DiaryEditor == current_window;
+    auto const on_diary_editor = td::Window::DiaryEditor == current_window;
     last_window = current_window;
     current_window = td::Window::Options;
 
@@ -165,7 +163,7 @@ void MainWindow::show_options_menu()
     ui->central_widget->layout()->addWidget(new OptionsMenu(on_diary_editor, this));
 }
 
-void MainWindow::show_diary_menu(const QDate &date)
+void MainWindow::show_diary_menu(QDate const &date)
 {
     last_window = current_window;
     current_window = td::Window::DiaryEditor;
@@ -176,24 +174,10 @@ void MainWindow::show_diary_menu(const QDate &date)
 
 void MainWindow::save_error()
 {
-    QMessageBox rip(this);
-    QPushButton ok_button("OK", &rip);
-    ok_button.setFlat(true);
-    QFont f = ok_button.font();
-    f.setPointSize(11);
-    ok_button.setFont(f);
-
-    rip.setFont(f);
-    rip.setText("Save error.");
-    rip.setInformativeText("The app was unable to save the contents of the diary.");
-    rip.addButton(&ok_button, QMessageBox::AcceptRole);
-    rip.setDefaultButton(&ok_button);
-    rip.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    rip.exec();
+    td::ok_messagebox(this, "Save error.", "The app was unable to save the contents of the diary.");
 }
 
-bool MainWindow::save_diary(const bool ignore_errors)
+bool MainWindow::save_diary(bool const ignore_errors)
 {
     std::string primary_path = TheoreticalDiary::instance()->data_location().toStdString() + "/diary.dat";
     std::string backup_path = TheoreticalDiary::instance()->data_location().toStdString() + "/diary.dat.bak";
@@ -209,7 +193,7 @@ bool MainWindow::save_diary(const bool ignore_errors)
 
     // Update last_updated
     TheoreticalDiary::instance()->diary_holder->diary->metadata.last_updated = QDateTime::currentSecsSinceEpoch();
-    const nlohmann::json j = *(TheoreticalDiary::instance()->diary_holder->diary);
+    nlohmann::json const j = *(TheoreticalDiary::instance()->diary_holder->diary);
 
     // Gzip JSON
     std::string compressed, encrypted;
@@ -217,7 +201,7 @@ bool MainWindow::save_diary(const bool ignore_errors)
     Zipper::zip(compressed, decompressed);
 
     // Encrypt if there is a password set
-    const auto key_set = TheoreticalDiary::instance()->encryptor->key_set;
+    auto const key_set = TheoreticalDiary::instance()->encryptor->key_set;
     if (key_set)
         TheoreticalDiary::instance()->encryptor->encrypt(compressed, encrypted);
 
@@ -241,29 +225,8 @@ bool MainWindow::save_diary(const bool ignore_errors)
 
 int MainWindow::confirm_exit_to_main_menu()
 {
-    QMessageBox confirm(this);
-
-    QPushButton discard_button("Do not save", &confirm);
-    QFont f = discard_button.font();
-    f.setPointSize(11);
-    discard_button.setFont(f);
-    discard_button.setStyleSheet(*TheoreticalDiary::instance()->danger_button_style);
-    QPushButton save_button("Save", &confirm);
-    save_button.setFont(f);
-    QPushButton cancel_button("Cancel", &confirm);
-    cancel_button.setFlat(true);
-    cancel_button.setFont(f);
-
-    confirm.setFont(f);
-    confirm.setText("There are unsaved changes.");
-    confirm.setInformativeText("Are you sure you want to quit without saving?");
-    confirm.addButton(&save_button, QMessageBox::AcceptRole);
-    confirm.addButton(&cancel_button, QMessageBox::RejectRole);
-    confirm.addButton(&discard_button, QMessageBox::DestructiveRole);
-    confirm.setDefaultButton(&save_button);
-    confirm.setTextInteractionFlags(Qt::NoTextInteraction);
-
-    return confirm.exec();
+    return td::ync_messagebox(this, "Save", "Cancel", "Do not save", "There are unsaved changes.",
+        "Are you sure you want to quit without saving?");
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

@@ -36,6 +36,7 @@ SOURCES += \
     src/gui/mainwindow.cpp \
     src/gui/optionsmenu.cpp \
     src/main.cpp \
+    src/util/custommessageboxes.cpp \
     src/util/encryptor.cpp \
     src/util/passwordlineedit.cpp \
     src/util/runguard.cpp \
@@ -57,6 +58,7 @@ HEADERS += \
     src/gui/mainmenu.h \
     src/gui/mainwindow.h \
     src/gui/optionsmenu.h \
+    src/util/custommessageboxes.h \
     src/util/encryptor.h \
     src/util/passwordlineedit.h \
     src/util/runguard.h \

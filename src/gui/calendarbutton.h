@@ -41,17 +41,17 @@ class CalendarButton : public QPushButton {
     Q_OBJECT
 
 signals:
-    void sig_clicked(const int day);
+    void sig_clicked(int const day);
 
 public:
-    explicit CalendarButton(const td::CalendarButtonData &d);
+    explicit CalendarButton(td::CalendarButtonData const &d);
     ~CalendarButton();
 
     td::CalendarButtonData data;
 
 public slots:
     void clicked_on();
-    void re_render(const td::CalendarButtonData &d);
+    void re_render(td::CalendarButtonData const &d);
 };
 
 #endif // CALENDARBUTTON_H

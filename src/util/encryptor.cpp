@@ -63,9 +63,9 @@ void Encryptor::regenerate_salt()
     prng.GenerateBlock(salt->data(), SALT_SIZE);
 }
 
-void Encryptor::set_key(const std::string &plaintext)
+void Encryptor::set_key(std::string const &plaintext)
 {
-    CryptoPP::SecByteBlock byte_block(reinterpret_cast<const CryptoPP::byte *>(plaintext.data()), plaintext.size());
+    CryptoPP::SecByteBlock byte_block(reinterpret_cast<CryptoPP::byte const *>(plaintext.data()), plaintext.size());
     CryptoPP::Scrypt scrypt;
     key_set = true;
 
@@ -75,9 +75,9 @@ void Encryptor::set_key(const std::string &plaintext)
         key->data(), KEY_SIZE, byte_block.data(), byte_block.size(), salt->data(), SALT_SIZE, 1 << 15, 8, 16);
 }
 
-void Encryptor::set_salt(const std::string &salt_str)
+void Encryptor::set_salt(std::string const &salt_str)
 {
-    salt->Assign(CryptoPP::SecByteBlock(reinterpret_cast<const CryptoPP::byte *>(salt_str.data()), SALT_SIZE));
+    salt->Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(salt_str.data()), SALT_SIZE));
 }
 
 /*
@@ -92,7 +92,7 @@ void Encryptor::set_salt(const std::string &salt_str)
  */
 
 // Requires a salt be already set
-void Encryptor::encrypt(const std::string &plaintext, std::string &encrypted)
+void Encryptor::encrypt(std::string const &plaintext, std::string &encrypted)
 {
     CryptoPP::AutoSeededRandomPool prng;
     CryptoPP::SecByteBlock iv(IV_SIZE);
@@ -104,25 +104,25 @@ void Encryptor::encrypt(const std::string &plaintext, std::string &encrypted)
     // Put content to be encrypted in the encryption AND authentication channel.
     CryptoPP::AuthenticatedEncryptionFilter encryption_filter(
         encryptor, new CryptoPP::StringSink(encrypted), false, TAG_SIZE);
-    encryption_filter.ChannelPut("", reinterpret_cast<const CryptoPP::byte *>(plaintext.data()), plaintext.size());
+    encryption_filter.ChannelPut("", reinterpret_cast<CryptoPP::byte const *>(plaintext.data()), plaintext.size());
     encryption_filter.ChannelMessageEnd("");
 
     // Prepend the IV
-    const std::string iv_str(reinterpret_cast<const char *>(iv.data()), IV_SIZE);
+    std::string const iv_str(reinterpret_cast<char const *>(iv.data()), IV_SIZE);
     encrypted.insert(0, iv_str);
 
     // Prepend the salt
-    const std::string salt_str(reinterpret_cast<const char *>(salt->data()), SALT_SIZE);
+    std::string const salt_str(reinterpret_cast<char const *>(salt->data()), SALT_SIZE);
     encrypted.insert(0, salt_str);
 }
 
-void Encryptor::set_decrypt_iv(const std::string &iv_str)
+void Encryptor::set_decrypt_iv(std::string const &iv_str)
 {
-    decrypt_iv->Assign(CryptoPP::SecByteBlock(reinterpret_cast<const CryptoPP::byte *>(iv_str.data()), IV_SIZE));
+    decrypt_iv->Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(iv_str.data()), IV_SIZE));
 }
 
 // Requires a salt and IV already set
-std::optional<std::string> Encryptor::decrypt(const std::string &encrypted)
+std::optional<std::string> Encryptor::decrypt(std::string const &encrypted)
 {
     try {
         CryptoPP::GCM<CryptoPP::AES>::Decryption decryptor;
@@ -137,13 +137,13 @@ std::optional<std::string> Encryptor::decrypt(const std::string &encrypted)
             TAG_SIZE);
 
         // There is only data in the encrypted and authenticated channel.
-        decryption_filter.ChannelPut("", reinterpret_cast<const CryptoPP::byte *>(mac_value.data()), mac_value.size());
+        decryption_filter.ChannelPut("", reinterpret_cast<CryptoPP::byte const *>(mac_value.data()), mac_value.size());
         decryption_filter.ChannelPut(
-            "", reinterpret_cast<const CryptoPP::byte *>(encrypted_data.data()), encrypted_data.size());
+            "", reinterpret_cast<CryptoPP::byte const *>(encrypted_data.data()), encrypted_data.size());
         decryption_filter.ChannelMessageEnd("");
 
         // Test the authenticity of the data.
-        const bool success = decryption_filter.GetLastResult();
+        bool const success = decryption_filter.GetLastResult();
         if (!success)
             return std::nullopt;
 
@@ -159,7 +159,7 @@ std::optional<std::string> Encryptor::decrypt(const std::string &encrypted)
 
         return std::optional(plaintext);
     }
-    catch (const CryptoPP::HashVerificationFilter::HashVerificationFailed &e) {
+    catch (CryptoPP::HashVerificationFilter::HashVerificationFailed const &e) {
         return std::nullopt;
     }
 }
