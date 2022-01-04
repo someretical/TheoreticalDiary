@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// The code in this file was adapted from https://stackoverflow.com/a/51194796.
+// The code in this file was adapted from https://stackoverflow.com/a/51194796
 
 #ifndef PASSWORDLINEEDIT_H
 #define PASSWORDLINEEDIT_H

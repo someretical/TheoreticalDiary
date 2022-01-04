@@ -78,12 +78,12 @@ void CalendarButton::re_render(td::CalendarButtonData const &d)
         }
     }
 
-    // Set colour scheme
+    // Set colour scheme.
     auto const r = d.rating.value_or(*data.rating);
     data.rating = std::optional(r);
     stylesheet.append(*((*data.parent)->rating_stylesheets)[static_cast<int>(r)]);
 
-    // Give border if selected
+    // Give border if selected.
     data.selected = std::optional(d.selected.value_or(*data.selected));
     if (*data.selected) {
         stylesheet.append((*data.parent)->selected_stylesheet);

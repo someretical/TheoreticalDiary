@@ -19,7 +19,7 @@
 #ifndef GOOGLEWRAPPER_H
 #define GOOGLEWRAPPER_H
 
-// Foward declaration
+// Foward declaration.
 namespace td {
 enum Res : int;
 }
@@ -57,8 +57,7 @@ public:
 private:
     void get_file_ids(QByteArray const &data);
 
-    // These exist as members here because it's too annoying to pass them through
-    // 4 callbacks.
+    // These exist as members here because it's too annoying to pass them through 4 callbacks.
     bool silent_upload_diary;
     QString primary_backup_id;
     QString secondary_backup_id;

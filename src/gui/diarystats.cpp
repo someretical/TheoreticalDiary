@@ -39,16 +39,16 @@ DiaryStats::DiaryStats(DiaryEditor const *editor, QWidget *parent) : QWidget(par
 {
     ui->setupUi(this);
 
-    // Initilise pie chart
+    // Initilise pie chart.
     auto pie_chart = new QChart();
     pie_chart->setMargins(QMargins(0, 0, 0, 0));
     pie_chart->setBackgroundVisible(false);
     pie_chart->legend()->hide();
-    pie_chart->setEnabled(false); // Disables scrolling (at the cost of what?)
+    pie_chart->setEnabled(false); // Disables scrolling (at the cost of what?).
     ui->pie_chart_view->setRenderHint(QPainter::Antialiasing);
     ui->pie_chart_view->setChart(pie_chart);
 
-    // Initialise polar chart
+    // Initialise polar chart.
     auto polar_chart = new QPolarChart();
     polar_chart->setMargins(QMargins(0, 0, 0, 0));
     polar_chart->setBackgroundVisible(false);
@@ -57,7 +57,7 @@ DiaryStats::DiaryStats(DiaryEditor const *editor, QWidget *parent) : QWidget(par
     ui->polar_chart_view->setRenderHint(QPainter::Antialiasing);
     ui->polar_chart_view->setChart(polar_chart);
 
-    // Initialise spline chart
+    // Initialise spline chart.
     auto spline_chart = new QChart();
     spline_chart->setMargins(QMargins(0, 0, 0, 0));
     spline_chart->setBackgroundVisible(false);
@@ -70,7 +70,7 @@ DiaryStats::DiaryStats(DiaryEditor const *editor, QWidget *parent) : QWidget(par
 
     connect(editor, &DiaryEditor::sig_re_render, this, &DiaryStats::render_stats, Qt::QueuedConnection);
 
-    // Navigator slots
+    // Navigator slots.
     connect(ui->month_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DiaryStats::month_changed,
         Qt::QueuedConnection);
     connect(ui->year_edit, &QDateEdit::dateChanged, this, &DiaryStats::year_changed, Qt::QueuedConnection);
@@ -278,15 +278,13 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
         for (auto const &[day, data] : (*opt)->second) {
             auto const &[important, rating, dummy, d2] = data;
             if (td::Rating::Unknown != rating) {
-                // Each spline series covers a segment made from consecutive days with
-                // known ratings. This is done to prevent the warping of the spline line
-                // if there are large gaps between days with ratings. Map elements are
-                // ordered so there is no problem just iterating over a map.
+                // Each spline series covers a segment made from consecutive days with known ratings. This is done to
+                // prevent the warping of the spline line if there are large gaps between days with ratings. Map
+                // elements are ordered so there is no problem just iterating over a map.
 
                 if (prev_day != day - 1 && day != 1) {
-                    // Consecutive day chain broken so add the current spline series to
-                    // the chart and create a new spline series. The chart takes ownership
-                    // of the spline series after it is added.
+                    // Consecutive day chain broken so add the current spline series to the chart and create a new
+                    // spline series. The chart takes ownership of the spline series after it is added.
                     prev_day = day;
 
                     current_spline_series = new QSplineSeries();
@@ -386,7 +384,7 @@ void DiaryStats::render_stats(QDate const &date, bool const ignore_month_check)
 
     current_month = date;
 
-    // Update the selector UI
+    // Update the selector UI.
     ui->month_dropdown->blockSignals(true);
     ui->year_edit->blockSignals(true);
 

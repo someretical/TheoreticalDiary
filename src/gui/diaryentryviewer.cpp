@@ -49,7 +49,7 @@ DiaryEntryViewer::DiaryEntryViewer(DiaryEditor const *const editor, QWidget *par
     apply_theme();
 
     change_month(current_month, true);
-    // Make scroll bar hit the bottom
+    // Make scroll bar hit the bottom.
     QTimer::singleShot(0, this, [&]() {
         ui->scrollArea->widget()->adjustSize();
         ui->scrollArea->widget()->update();
@@ -106,14 +106,14 @@ void DiaryEntryViewer::change_month(QDate const &date, bool const ignore_month_c
     if (!ignore_month_check && current_month.year() == date.year() && current_month.month() == date.month())
         return;
 
-    // Remove everything from current grid
+    // Remove everything from current grid.
     QLayoutItem *child;
     while ((child = ui->entry_grid->takeAt(0)) != 0) {
         delete child->widget();
         delete child;
     }
 
-    // Update the selector UI
+    // Update the selector UI.
     ui->month_dropdown->blockSignals(true);
     ui->year_edit->blockSignals(true);
 
@@ -145,7 +145,7 @@ void DiaryEntryViewer::change_month(QDate const &date, bool const ignore_month_c
     for (auto const &i : (*opt)->second) {
         auto const &[important, rating, message, dummy] = i.second;
 
-        // Don't add any days that don't have text entries
+        // Don't add any days that don't have text entries.
         if (message.empty())
             continue;
 
@@ -241,10 +241,10 @@ DiaryEntryDayLabel::~DiaryEntryDayLabel() {}
 
 void DiaryEntryDayLabel::apply_theme()
 {
-    // Set colour theme
+    // Set colour theme.
     QString stylesheet(*(data.parent->rating_stylesheets)[data.rating]);
 
-    // Set background star if necessary
+    // Set background star if necessary.
     if (data.special) {
         switch (data.rating) {
         case td::Rating::Unknown:
@@ -275,7 +275,7 @@ DiaryEntryDayMessage::DiaryEntryDayMessage(std::string const &m, QWidget *parent
     message = std::string(m);
     expanded = false;
 
-    // Set text
+    // Set text.
     std::string truncated;
     DiaryEntryDayMessage::get_trunc_first_line(m, truncated);
     setText(QString::fromStdString(truncated));
@@ -318,21 +318,21 @@ void DiaryEntryDayMessage::mouseDoubleClickEvent(QMouseEvent *event)
 
 void DiaryEntryDayMessage::get_trunc_first_line(std::string const &input, std::string &res)
 {
-    // Get first line
+    // Get first line.
     // https://stackoverflow.com/a/5059112
     std::istringstream f(input);
     std::string second_line_exists;
     std::getline(f, res);
 
-    // Truncate line and append ... if it's too long
+    // Truncate line and append ... if it's too long.
     if (LONGEST_LINE_LENGTH < res.size()) {
         res.resize(LONGEST_LINE_LENGTH);
 
         res.append("...");
     }
     else if (std::getline(f, second_line_exists)) {
-        // There can be multiple lines in an entry where the first line does not
-        // have at least LONGEST_LINE_LENGTH characters.
+        // There can be multiple lines in an entry where the first line does not have at least LONGEST_LINE_LENGTH
+        // characters.
         res.append("...");
     }
 }

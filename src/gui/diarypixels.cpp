@@ -117,7 +117,7 @@ void DiaryPixels::render_grid()
     ui->render_button->setEnabled(false);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-    // Remove everything from current grid
+    // Remove everything from current grid.
     QLayoutItem *child;
     while ((child = ui->grid->takeAt(0)) != 0) {
         delete child->widget();
@@ -128,7 +128,7 @@ void DiaryPixels::render_grid()
 
     auto const &opt = TheoreticalDiary::instance()->diary_holder->get_yearmap(current_year);
 
-    // Set new grid
+    // Set new grid.
     if (!opt) {
         auto label = new QLabel("It seems there are no entries yet for this year...", this);
         auto f = label->font();
@@ -228,7 +228,7 @@ PixelLabel::PixelLabel(td::Rating const r, bool const special, QDate const &date
 
     connect(p, &DiaryPixels::sig_changed_size, this, &PixelLabel::resize, Qt::QueuedConnection);
 
-    // Set background star if necessary
+    // Set background star if necessary.
     if (special) {
         switch (r) {
         case td::Rating::Unknown:

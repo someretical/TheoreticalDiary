@@ -52,7 +52,7 @@ public:
 
     QShortcut *save_shortcut;
 
-    // This is an array of 6 stylesheets
+    // This is an array of 6 stylesheets.
     std::vector<std::unique_ptr<QString>> rating_stylesheets;
     QString base_stylesheet;
     QString selected_stylesheet;
@@ -62,7 +62,7 @@ public:
 public slots:
     void apply_theme();
 
-    // Calendar widget
+    // Calendar widget.
     void render_month(QDate const &date, std::optional<td::YearMap::iterator> const &iter);
     void change_month(QDate const &date, bool const suppress_confirm);
     void render_day(td::CalendarButtonData const &d, bool const set_info_pane);
@@ -72,7 +72,7 @@ public slots:
     void year_changed(QDate const &date);
     void date_clicked(int const day);
 
-    // Info pane
+    // Info pane.
     void update_info_pane(QDate const &date, td::Entry const &entry);
     void update_day(bool const suppress_message);
     void delete_day();

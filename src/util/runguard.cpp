@@ -18,7 +18,6 @@
 
 #include "runguard.h"
 
-namespace {
 QString generate_key_hash(QString const &key, QString const &salt)
 {
     QByteArray data;
@@ -29,7 +28,6 @@ QString generate_key_hash(QString const &key, QString const &salt)
 
     return data;
 }
-} // namespace
 
 RunGuard::RunGuard(QString const &key)
     : key(key), mem_lock_key(generate_key_hash(key, "_mem_lock_key")),
@@ -64,7 +62,7 @@ bool RunGuard::is_another_running()
 
 bool RunGuard::try_to_run()
 {
-    if (is_another_running()) // Extra check
+    if (is_another_running()) // Extra check.
         return false;
 
     mem_lock.acquire();

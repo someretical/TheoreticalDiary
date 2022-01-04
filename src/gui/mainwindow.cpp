@@ -83,7 +83,7 @@ void MainWindow::focus_changed(Qt::ApplicationState const state)
 
 void MainWindow::exit_diary_to_main_menu()
 {
-    // Clean up
+    // Clean up.
     TheoreticalDiary::instance()->diary_modified = false;
     TheoreticalDiary::instance()->diary_holder->init();
     TheoreticalDiary::instance()->encryptor->reset();
@@ -109,8 +109,7 @@ void MainWindow::inactive_time_up()
 
     emit sig_update_diary();
     if (TheoreticalDiary::instance()->diary_modified)
-        save_diary(true); // Passing true makes save_diary fail silently instead of
-                          // triggering a popup dialog.
+        save_diary(true); // Passing true makes save_diary fail silently instead of triggering a popup dialog.
 
     exit_diary_to_main_menu();
 }
@@ -182,7 +181,7 @@ bool MainWindow::save_diary(bool const ignore_errors)
     std::string primary_path = TheoreticalDiary::instance()->data_location().toStdString() + "/diary.dat";
     std::string backup_path = TheoreticalDiary::instance()->data_location().toStdString() + "/diary.dat.bak";
 
-    // Backup existing diary first
+    // Backup existing diary first.
     std::ifstream src(primary_path, std::ios::binary);
     if (!src.fail()) {
         std::ofstream dst(backup_path, std::ios::binary);
@@ -191,21 +190,21 @@ bool MainWindow::save_diary(bool const ignore_errors)
     }
     src.close();
 
-    // Update last_updated
+    // Update last_updated.
     TheoreticalDiary::instance()->diary_holder->diary->metadata.last_updated = QDateTime::currentSecsSinceEpoch();
     nlohmann::json const j = *(TheoreticalDiary::instance()->diary_holder->diary);
 
-    // Gzip JSON
+    // Gzip JSON.
     std::string compressed, encrypted;
     std::string decompressed = j.dump();
     Zipper::zip(compressed, decompressed);
 
-    // Encrypt if there is a password set
+    // Encrypt if there is a password set.
     auto const key_set = TheoreticalDiary::instance()->encryptor->key_set;
     if (key_set)
         TheoreticalDiary::instance()->encryptor->encrypt(compressed, encrypted);
 
-    // Write to file
+    // Write to file.
     std::ofstream ofs(primary_path, std::ios::binary);
     if (!ofs.fail()) {
         ofs << (key_set ? encrypted : compressed);
@@ -235,8 +234,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore();
     }
     else if (td::Window::Options == current_window && td::Window::DiaryEditor == last_window) {
-        event->ignore(); // Don't close the main window, but exit to the diary
-                         // menu.
+        event->ignore(); // Don't close the main window, but exit to the diary menu.
         show_diary_menu(QDate::currentDate());
     }
     else if (td::Window::Options == current_window && td::Window::Main == last_window) {

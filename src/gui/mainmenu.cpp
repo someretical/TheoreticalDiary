@@ -80,7 +80,7 @@ bool MainMenu::get_diary_contents()
     if (!first.fail()) {
         // Taken from
         // https://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
-        // Resizing the string upfront increases performance
+        // Resizing the string upfront increases performance.
         first.seekg(0, std::ios::end);
         str->resize(first.tellg());
         first.seekg(0, std::ios::beg);
@@ -153,7 +153,7 @@ void MainMenu::decrypt_diary()
     connect(TheoreticalDiary::instance(), &TheoreticalDiary::sig_begin_hash, worker, &HashWorker::hash,
         Qt::QueuedConnection);
 
-    // The signal must be emitted to ensure the thread is run properly
+    // The signal must be emitted to ensure the thread is run properly.
     emit TheoreticalDiary::instance()->sig_begin_hash(password);
 }
 

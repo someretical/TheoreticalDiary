@@ -33,8 +33,7 @@ DiaryMenu::DiaryMenu(QDate const &date, QWidget *parent) : QWidget(parent), ui(n
 
     first_created = date;
 
-    // When changes are made in the editor, the other tabs need to know about it
-    // so they can update accordingly.
+    // When changes are made in the editor, the other tabs need to know about it so they can update accordingly.
     auto const diary_editor = new DiaryEditor(this);
     ui->editor->layout()->addWidget(diary_editor);
     ui->entries->layout()->addWidget(new DiaryEntryViewer(diary_editor, this));

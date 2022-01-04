@@ -19,7 +19,7 @@
 #ifndef THOERETICALDIARY_H
 #define THOERETICALDIARY_H
 
-// Forward declaration
+// Forward declaration.
 class GoogleWrapper;
 
 #include "../util/encryptor.h"
@@ -61,19 +61,19 @@ public:
     Encryptor *encryptor;
     QSettings *settings;
 
-    // Change trackers
+    // Change trackers.
     bool diary_modified;
     bool diary_file_modified;
 
-    // During asynchronous operations like password hashing and network requests,
-    // the window should not be able to be closed.
+    // During asynchronous operations like password hashing and network requests, the window should not be able to be
+    // closed.
     bool closeable;
 
     // See https://doc.qt.io/qt-5/qthread.html for multithreading
     QThread worker_thread;
     QString application_theme;
 
-    // Cached stylesheets
+    // Cached stylesheets.
     QString danger_button_style;
 
 public slots:
@@ -85,10 +85,8 @@ private:
 };
 
 // The set_key() function is blocking
-// This means that if it is called from the same thread as the GUI processes
-// events, the GUI will freeze during hashing.
-// Obviously, this is undesirable behaviour so the function should be performed
-// in a worker on a separate thread.
+// This means that if it is called from the same thread as the GUI processes events, the GUI will freeze during hashing.
+// Obviously, this is undesirable behaviour so the function should be performed in a worker on a separate thread.
 
 class HashWorker : public QObject {
     Q_OBJECT

@@ -27,8 +27,8 @@
 
 // The encryption algorithm was adapted from the AES-GCM-Test.zip file from
 // https://www.cryptopp.com/wiki/Advanced_Encryption_Standard#Downloads
-// The hashing algorithm was adopted from
-// https://www.cryptopp.com/wiki/Scrypt#OpenMP
+
+// The hashing algorithm was adopted from https://www.cryptopp.com/wiki/Scrypt#OpenMP
 
 Encryptor::Encryptor()
 {
@@ -69,8 +69,8 @@ void Encryptor::set_key(std::string const &plaintext)
     CryptoPP::Scrypt scrypt;
     key_set = true;
 
-    // This is supposed to be computationally expensive to make it hard to brute
-    // force attack. It SHOULD take a reasonable amount of time.
+    // This is supposed to be computationally expensive to make it hard to brute force attack. It SHOULD take a
+    // reasonable amount of time. Unfortunately it takes WAY longer on Windows compared with Linux.
     scrypt.DeriveKey(
         key->data(), KEY_SIZE, byte_block.data(), byte_block.size(), salt->data(), SALT_SIZE, 1 << 15, 8, 16);
 }
@@ -91,7 +91,7 @@ void Encryptor::set_salt(std::string const &salt_str)
  * The IV is different every time.
  */
 
-// Requires a salt be already set
+// Requires a salt be already set.
 void Encryptor::encrypt(std::string const &plaintext, std::string &encrypted)
 {
     CryptoPP::AutoSeededRandomPool prng;
@@ -107,11 +107,11 @@ void Encryptor::encrypt(std::string const &plaintext, std::string &encrypted)
     encryption_filter.ChannelPut("", reinterpret_cast<CryptoPP::byte const *>(plaintext.data()), plaintext.size());
     encryption_filter.ChannelMessageEnd("");
 
-    // Prepend the IV
+    // Prepend the IV.
     std::string const iv_str(reinterpret_cast<char const *>(iv.data()), IV_SIZE);
     encrypted.insert(0, iv_str);
 
-    // Prepend the salt
+    // Prepend the salt.
     std::string const salt_str(reinterpret_cast<char const *>(salt->data()), SALT_SIZE);
     encrypted.insert(0, salt_str);
 }
@@ -121,7 +121,7 @@ void Encryptor::set_decrypt_iv(std::string const &iv_str)
     decrypt_iv->Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(iv_str.data()), IV_SIZE));
 }
 
-// Requires a salt and IV already set
+// Requires a salt and IV already set.
 std::optional<std::string> Encryptor::decrypt(std::string const &encrypted)
 {
     try {

@@ -48,13 +48,13 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc,
     closeable = true;
     application_theme = QString("dark");
 
-    // Load global stylesheets
+    // Load global stylesheets.
     file.setFileName(QString(":/%1/dangerbutton.qss").arg(TheoreticalDiary::instance()->theme()));
     file.open(QIODevice::ReadOnly);
     danger_button_style = QString(file.readAll());
     file.close();
 
-    // Create app directory
+    // Create app directory.
     QDir dir(data_location());
     if (!dir.exists())
         dir.mkpath(".");
@@ -85,7 +85,7 @@ TheoreticalDiary *TheoreticalDiary::instance()
 
 void TheoreticalDiary::load_fonts()
 {
-    // Load main font
+    // Load main font.
     QFontDatabase::addApplicationFont(":/Roboto/Roboto-Black.ttf");
     QFontDatabase::addApplicationFont(":/Roboto/Roboto-BlackItalic.ttf");
     QFontDatabase::addApplicationFont(":/Roboto/Roboto-Bold.ttf");
@@ -105,7 +105,7 @@ void TheoreticalDiary::load_fonts()
     QFontDatabase::addApplicationFont(":/Roboto/Roboto-Condensed-LightItalic.ttf");
     QFontDatabase::addApplicationFont(":/Roboto/Roboto-Condensed-Regular.ttf");
 
-    // Load monospace font
+    // Load monospace font.
     QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Thin.ttf");
     QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-ExtraLight.ttf");
     QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Light.ttf");
