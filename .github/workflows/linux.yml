@@ -29,24 +29,26 @@ jobs:
         run: |
           qmake CONFIG+=release
           make -j$(nproc)
-          make install INSTALL_ROOT=appdir
+          make install INSTALL_ROOT=TheoreticalDiary.AppDir
           
-      - name: Build AppImage
+      - name: Build AppImage and upload
+        id: build_appimage
         run: |
-          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          wget --no-verbose https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget --no-verbose https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x ./linuxdeploy-x86_64.AppImage
           chmod +x ./linuxdeploy-plugin-qt-x86_64.AppImage
-          mkdir -p "appdir/usr/share/metainfo/"
-          cp "me.someretical.TheoreticalDiary.appdata.xml" "appdir/usr/share/metainfo/"
+          mkdir -p "TheoreticalDiary.AppDir/usr/share/metainfo/"
+          cp "me.someretical.TheoreticalDiary.appdata.xml" "TheoreticalDiary.AppDir/usr/share/metainfo/"
           export VERSION="$(cat text/VERSION.txt)"
           export OUTPUT="TheoreticalDiary-v${VERSION}-x86_64.AppImage"
+          echo ::set-output name=full_name::${OUTPUT}
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
           sudo ldconfig /usr/local/lib
-          ./linuxdeploy-x86_64.AppImage --desktop-file="me.someretical.TheoreticalDiary.desktop" --icon-file="images/linux_icons/256x256/theoreticaldiary.png" --appdir="appdir" --plugin=qt --output=appimage --executable="appdir/usr/bin/theoreticaldiary"
+          ./linuxdeploy-x86_64.AppImage --desktop-file="me.someretical.TheoreticalDiary.desktop" --icon-file="images/linux_icons/256x256/theoreticaldiary.png" --appdir="TheoreticalDiary.AppDir" --plugin=qt --output=appimage --executable="TheoreticalDiary.AppDir/usr/bin/theoreticaldiary"
 
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: theoreticaldiary-x86_64
-          path: "./${OUTPUT}"
+          name: ${{steps.build_appimage.outputs.full_name}}
+          path: ${{steps.build_appimage.outputs.full_name}}

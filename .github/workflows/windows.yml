@@ -31,15 +31,23 @@ jobs:
       - name: qmake and nmake
         run: |
           qmake theoreticaldiary.pro CONFIG+=release
+          set CL=/MP
           nmake qmake_all
           nmake
           nmake clean
 
       - name: Link DLLs
-        run: windeployqt release/theoreticaldiary.exe --compiler-runtime
+        id: link_dlls
+        shell: cmd
+        run: |
+          windeployqt release\\theoreticaldiary.exe --compiler-runtime
+          set /p VERSION=<"text/VERSION.txt"
+          set FILE_NAME=TheoreticalDiary-v%VERSION%-x86_64
+          rename "release\\theoreticaldiary.exe" "%FILE_NAME%.exe"
+          echo ::set-output name=file_name::%FILE_NAME%
 
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: theoreticaldiary-x86_64
+          name: ${{steps.link_dlls.outputs.file_name}}
           path: release

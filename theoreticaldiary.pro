@@ -93,7 +93,7 @@ win32:RC_ICONS = images/windows_icons/icon.ico
 win32:VERSION = 1.0.0.0
 win32:QMAKE_TARGET_COMPANY = someretical
 win32:QMAKE_TARGET_PRODUCT = "TheoreticalDiary"
-win32:QMAKE_TARGET_DESCRIPTION = "TheoreticalDiary"
+win32:QMAKE_TARGET_DESCRIPTION = "Digital diary."
 win32:QMAKE_TARGET_COPYRIGHT = 2022
 
 RESOURCES += \
@@ -101,6 +101,3 @@ RESOURCES += \
     images/images.qrc \
     styles/styles.qrc \
     text/text.qrc
-
-DISTFILES += \
-    styles/global/licensedialog.qss
