@@ -16,42 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CALENDARBUTTON_H
-#define CALENDARBUTTON_H
-
-class DiaryEditor;
-
-#include "../core/internalmanager.h"
-#include "diaryeditor.h"
+#ifndef EVENTFILTERS_H
+#define EVENTFILTERS_H
 
 #include <QtWidgets>
-#include <optional>
 
-namespace td {
-struct CalendarButtonData {
-    std::optional<int> day;
-    std::optional<DiaryEditor *> parent;
-    std::optional<bool> important;
-    std::optional<td::Rating> rating;
-    std::optional<bool> selected;
-};
-} // namespace td
-
-class CalendarButton : public QPushButton {
-    Q_OBJECT
-
-signals:
-    void sig_clicked(int const day);
-
-public:
-    explicit CalendarButton(td::CalendarButtonData const &d);
-    ~CalendarButton();
-
-    td::CalendarButtonData data;
-
-public slots:
-    void clicked_on();
-    void re_render(td::CalendarButtonData const &d);
+class BusyFilter : public QObject {
+protected:
+    bool eventFilter(QObject *, QEvent *event);
 };
 
-#endif // CALENDARBUTTON_H
+#endif // EVENTFILTERS_H

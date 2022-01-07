@@ -19,6 +19,8 @@
 #ifndef ZIPPER_H
 #define ZIPPER_H
 
+#include <files.h>
+#include <gzip.h>
 #include <string>
 
 class Zipper {

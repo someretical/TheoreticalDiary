@@ -19,8 +19,10 @@
 #ifndef DIARYSTATS_H
 #define DIARYSTATS_H
 
-#include "diaryeditor.h"
+#include "../core/diaryholder.h"
+#include "../core/internalmanager.h"
 
+#include <QtCharts>
 #include <QtWidgets>
 #include <optional>
 
@@ -32,7 +34,7 @@ class DiaryStats : public QWidget {
     Q_OBJECT
 
 public:
-    explicit DiaryStats(DiaryEditor const *editor, QWidget *parent = nullptr);
+    explicit DiaryStats(QWidget *parent = nullptr);
     ~DiaryStats();
 
     static std::vector<int> get_rating_stats(std::optional<td::YearMap::iterator> const &opt, int const total_days);
@@ -42,11 +44,11 @@ public:
     void render_spline_chart(std::optional<td::YearMap::iterator> const &opt);
     void render_comparison(std::vector<int> const &rating_counts);
 
-    QDate current_month;
+    QDate current_date;
 
 public slots:
-    void apply_theme();
-    void render_stats(QDate const &date, bool const ignore_month_check);
+    void update_theme();
+    void render_stats(QDate const &date);
     void next_month();
     void prev_month();
     void month_changed(int const month);

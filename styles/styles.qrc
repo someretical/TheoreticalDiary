@@ -36,5 +36,6 @@
         <file>global/mainmenu.qss</file>
         <file>dark/optionsmenu.qss</file>
         <file>global/aboutdialog.qss</file>
+        <file>global/licensesdialog.qss</file>
     </qresource>
 </RCC>

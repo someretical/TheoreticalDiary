@@ -19,105 +19,39 @@
 #ifndef DIARYHOLDER_H
 #define DIARYHOLDER_H
 
+#include "../util/custommessageboxes.h"
+#include "../util/encryptor.h"
+#include "../util/zipper.h"
+#include "internalmanager.h"
+
 #include <QtWidgets>
 #include <cryptlib.h>
 #include <json.hpp>
 #include <optional>
 
-namespace td {
-enum Rating { Unknown, VeryBad, Bad, Ok, Good, VeryGood };
-
-struct Entry {
-    bool important;
-    Rating rating;
-    std::string message;
-    time_t last_updated;
-};
-
-inline void to_json(nlohmann::json &j, Entry const &e)
-{
-    j = nlohmann::json{
-        {"important", e.important}, {"rating", e.rating}, {"message", e.message}, {"last_updated", e.last_updated}};
-}
-
-inline void from_json(nlohmann::json const &j, Entry &e)
-{
-    j.at("important").get_to<bool>(e.important);
-    j.at("rating").get_to<Rating>(e.rating);
-    j.at("message").get_to<std::string>(e.message);
-    j.at("last_updated").get_to<time_t>(e.last_updated);
-}
-
-typedef std::map<int, Entry> MonthMap;
-typedef std::map<int, MonthMap> YearMap;
-typedef std::map<int, YearMap> DiaryLog;
-
-struct Metadata {
-    int version;
-    time_t last_updated;
-};
-
-inline void to_json(nlohmann::json &j, Metadata const &m)
-{
-    j = nlohmann::json{{"version", m.version}, {"last_updated", m.last_updated}};
-}
-
-inline void from_json(nlohmann::json const &j, Metadata &m)
-{
-    j.at("version").get_to<int>(m.version);
-    j.at("last_updated").get_to<time_t>(m.last_updated);
-}
-
-struct Settings {
-    bool sync;
-};
-
-inline void to_json(nlohmann::json &j, Settings const &s)
-{
-    j = nlohmann::json{{"sync", s.sync}};
-}
-
-inline void from_json(nlohmann::json const &j, Settings &s)
-{
-    j.at("sync").get_to<bool>(s.sync);
-}
-
-struct Diary {
-    DiaryLog log;
-    Metadata metadata;
-    Settings settings;
-};
-
-inline void to_json(nlohmann::json &j, Diary const &d)
-{
-    j = nlohmann::json{{"log", d.log}, {"metadata", d.metadata}, {"settings", d.settings}};
-}
-
-inline void from_json(nlohmann::json const &j, Diary &d)
-{
-    j.at("log").get_to<DiaryLog>(d.log);
-    j.at("metadata").get_to<Metadata>(d.metadata);
-    j.at("settings").get_to<Settings>(d.settings);
-}
-
-namespace OldVersions {
-}
-} // namespace td
-
 class DiaryHolder {
 public:
     DiaryHolder();
     ~DiaryHolder();
+    static DiaryHolder *instance();
+
     bool load(std::string &raw);
+    bool load(std::string &&raw)
+    {
+        // If there's ever going to be more than one argument, see
+        // https://stackoverflow.com/questions/17644133/function-that-accepts-both-lvalue-and-rvalue-arguments#comment25693290_17644133
+        return load(raw);
+    }
+    bool save(); // It is the responsibility of the caller to start and end busy mode as well as show the error!
     void init();
 
-    std::optional<td::DiaryLog::iterator> get_yearmap(QDate const &date) const;
-    std::optional<td::YearMap::iterator> get_monthmap(QDate const &date) const;
-    std::optional<td::MonthMap::iterator> get_entry(QDate const &date) const;
+    std::optional<td::DiaryLog::iterator> get_yearmap(QDate const &date);
+    std::optional<td::YearMap::iterator> get_monthmap(QDate const &date);
+    std::optional<td::MonthMap::iterator> get_entry(QDate const &date);
     void create_entry(QDate const &date, td::Entry const &entry);
     void delete_entry(QDate const &date);
 
-    td::Diary *diary;
+    td::Diary diary;
 };
 
 #endif // DIARYHOLDER_H

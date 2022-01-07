@@ -24,6 +24,9 @@ struct CalendarButtonData;
 }
 
 #include "../core/diaryholder.h"
+#include "../core/internalmanager.h"
+#include "../util/custommessageboxes.h"
+#include "../util/misc.h"
 #include "calendarbutton.h"
 
 #include <QtWidgets>
@@ -42,7 +45,7 @@ signals:
     void sig_re_render(QDate const &date, bool const ignore_month_check);
 
 public:
-    explicit DiaryEditor(QWidget *parent = nullptr);
+    explicit DiaryEditor(QDate const &date, QWidget *parent = nullptr);
     ~DiaryEditor();
 
     bool confirm_switch();
@@ -60,7 +63,7 @@ public:
     QString black_star;
 
 public slots:
-    void apply_theme();
+    void update_theme();
 
     // Calendar widget.
     void render_month(QDate const &date, std::optional<td::YearMap::iterator> const &iter);
@@ -74,7 +77,7 @@ public slots:
 
     // Info pane.
     void update_info_pane(QDate const &date, td::Entry const &entry);
-    void update_day(bool const suppress_message);
+    void update_day(bool const suppress_error);
     void delete_day();
     void reset_day();
 

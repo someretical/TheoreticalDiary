@@ -17,7 +17,6 @@
  */
 
 #include "calendarbutton.h"
-#include "diaryeditor.h"
 
 CalendarButton::CalendarButton(td::CalendarButtonData const &d) : QPushButton(qobject_cast<QWidget *>(*d.parent))
 {
@@ -30,6 +29,8 @@ CalendarButton::CalendarButton(td::CalendarButtonData const &d) : QPushButton(qo
     QFont f = font();
     f.setPointSize(16);
     setFont(f);
+
+    update();
 
     // Apply new themes if requested
     connect(*d.parent, &DiaryEditor::sig_re_render_buttons, this, &CalendarButton::re_render, Qt::QueuedConnection);
@@ -81,7 +82,7 @@ void CalendarButton::re_render(td::CalendarButtonData const &d)
     // Set colour scheme.
     auto const r = d.rating.value_or(*data.rating);
     data.rating = std::optional(r);
-    stylesheet.append(*((*data.parent)->rating_stylesheets)[static_cast<int>(r)]);
+    stylesheet.append(*(((*data.parent)->rating_stylesheets)[static_cast<int>(r)]));
 
     // Give border if selected.
     data.selected = std::optional(d.selected.value_or(*data.selected));

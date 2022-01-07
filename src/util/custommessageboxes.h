@@ -19,10 +19,11 @@
 #ifndef CUSTOMMESSAGEBOXES_H
 #define CUSTOMMESSAGEBOXES_H
 
-#include "../core/theoreticaldiary.h"
+#include "../core/internalmanager.h"
 
 #include <QtWidgets>
 #include <string>
+#include <sys/stat.h>
 
 namespace td {
 int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom);
@@ -30,5 +31,18 @@ int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
 int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string const &&reject_text,
     std::string const &&destroy_text, std::string &&top, std::string const &&bottom);
 } // namespace td
+
+namespace cmb {
+bool prompt_confirm_overwrite(QWidget *parent);
+void display_auth_error(QWidget *parent);
+void display_network_error(QWidget *parent);
+void display_io_error(QWidget *parent);
+void display_drive_file_error(QWidget *parent);
+void save_error(QWidget *parent);
+void dev_unknown_file(QWidget *p);
+int confirm_exit_to_main_menu(QWidget *p);
+void diary_downloaded(QWidget *p);
+void diary_uploaded(QWidget *p);
+} // namespace cmb
 
 #endif // CUSTOMMESSAGEBOXES_H

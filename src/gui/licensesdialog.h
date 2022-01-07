@@ -19,6 +19,8 @@
 #ifndef LICENSESDIALOG_H
 #define LICENSESDIALOG_H
 
+#include "../core/internalmanager.h"
+
 #include <QtWidgets>
 
 namespace Ui {
@@ -33,7 +35,7 @@ public:
     ~LicensesDialog();
 
 public slots:
-    void apply_theme();
+    void update_theme();
 
 private:
     Ui::LicensesDialog *ui;

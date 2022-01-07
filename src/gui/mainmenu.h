@@ -19,9 +19,15 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
 
-#include "../core/theoreticaldiary.h"
+#include "../core/diaryholder.h"
+#include "../core/googlewrapper.h"
+#include "../util/encryptor.h"
+#include "../util/hashcontroller.h"
+#include "mainwindow.h"
 
 #include <QtWidgets>
+#include <fstream>
+#include <sstream>
 
 namespace Ui {
 class MainMenu;
@@ -35,17 +41,17 @@ public:
     ~MainMenu();
 
 public slots:
-    void apply_theme();
+    void update_theme();
     void decrypt_diary();
     void new_diary();
     void import_diary();
     void open_options();
     bool get_diary_contents();
-    void decrypt_diary_cb(bool const do_decrypt = true);
+    void decrypt_diary_cb(bool const perform_decrypt);
 
 private:
     Ui::MainMenu *ui;
-    QShortcut *enter;
+    QShortcut *enter_shortcut;
 };
 
 #endif // MAINMENU_H

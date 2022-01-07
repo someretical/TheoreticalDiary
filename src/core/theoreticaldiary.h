@@ -19,23 +19,21 @@
 #ifndef THOERETICALDIARY_H
 #define THOERETICALDIARY_H
 
-// Forward declaration.
+class DiaryHolder;
 class GoogleWrapper;
 
 #include "../util/encryptor.h"
 #include "diaryholder.h"
 #include "googlewrapper.h"
+#include "internalmanager.h"
 
 #include <QtWidgets>
 #include <json.hpp>
+#include <string>
 #include <sys/stat.h>
 
 // This is required so std::string can be passed via signals and slots.
 Q_DECLARE_METATYPE(std::string)
-
-namespace td {
-enum Res : int { Yes, No };
-} // namespace td
 
 /*
  * TheoreticalDiary class
@@ -43,63 +41,17 @@ enum Res : int { Yes, No };
 class TheoreticalDiary : public QApplication {
     Q_OBJECT
 
-signals:
-    void sig_begin_hash(std::string const &plaintext);
-    void apply_theme();
-
 public:
     TheoreticalDiary(int &argc, char **argv);
     ~TheoreticalDiary();
     static TheoreticalDiary *instance();
 
-    QString data_location() const;
-    QString theme() const;
-    bool confirm_overwrite(QWidget *p) const;
-
+    // These two have to be pointers because the Q_OBJECT macro removes the assignment operator.
     GoogleWrapper *gwrapper;
-    DiaryHolder *diary_holder;
-    Encryptor *encryptor;
     QSettings *settings;
-
-    // Change trackers.
-    bool diary_modified;
-    bool diary_file_modified;
-
-    // During asynchronous operations like password hashing and network requests, the window should not be able to be
-    // closed.
-    bool closeable;
-
-    // See https://doc.qt.io/qt-5/qthread.html for multithreading
-    QThread worker_thread;
-    QString application_theme;
-
-    // Cached stylesheets.
-    QString danger_button_style;
-
-public slots:
-    void diary_changed();
-    void diary_file_changed();
-
-private:
-    void load_fonts();
-};
-
-// The set_key() function is blocking
-// This means that if it is called from the same thread as the GUI processes events, the GUI will freeze during hashing.
-// Obviously, this is undesirable behaviour so the function should be performed in a worker on a separate thread.
-
-class HashWorker : public QObject {
-    Q_OBJECT
-
-public slots:
-    void hash(std::string const &plaintext)
-    {
-        TheoreticalDiary::instance()->encryptor->set_key(plaintext);
-        emit done();
-    }
-
-signals:
-    void done(bool const do_decrypt = true);
+    DiaryHolder *diary_holder; // Has to be a pointer due to cyclic dependency.
+    Encryptor *encryptor;      // This is a pointer just for consistency's sake.
+    InternalManager *internal_manager;
 };
 
 #endif // THOERETICALDIARY_H

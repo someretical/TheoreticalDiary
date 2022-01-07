@@ -26,6 +26,13 @@ void extend_top_line(std::string &top)
         top.append(MAX_LINE_LENGTH - top.size(), ' ');
 }
 
+QString get_danger_stylesheet()
+{
+    QFile file(QString(":/%1/dangerbutton.qss").arg(InternalManager::instance()->get_theme()));
+    file.open(QIODevice::ReadOnly);
+    return QString(file.readAll());
+}
+
 namespace td {
 int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom)
 {
@@ -55,7 +62,7 @@ int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
     QFont f = yes.font();
     f.setPointSize(11);
     yes.setFont(f);
-    yes.setStyleSheet(TheoreticalDiary::instance()->danger_button_style);
+    yes.setStyleSheet(get_danger_stylesheet());
     QPushButton no("NO", &msgbox);
     no.setFlat(true);
     no.setFont(f);
@@ -81,7 +88,7 @@ int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string
     QFont f = destroy_button.font();
     f.setPointSize(11);
     destroy_button.setFont(f);
-    destroy_button.setStyleSheet(TheoreticalDiary::instance()->danger_button_style);
+    destroy_button.setStyleSheet(get_danger_stylesheet());
 
     QPushButton accept_button(QString::fromStdString(accept_text), &msgbox);
     accept_button.setFont(f);
@@ -101,3 +108,66 @@ int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string
     return msgbox.exec();
 }
 } // namespace td
+
+namespace cmb {
+bool prompt_confirm_overwrite(QWidget *p)
+{
+    struct stat buf;
+    auto const &path = InternalManager::instance()->data_location().toStdString() + "/diary.dat";
+
+    // Check if file exists https://stackoverflow.com/a/6296808
+    if (stat(path.c_str(), &buf) != 0)
+        return true;
+
+    auto res = td::yn_messagebox(p, "Existing diary found.", "Are you sure you want to overwrite the existing diary?");
+
+    return QMessageBox::AcceptRole == res;
+}
+
+void display_auth_error(QWidget *p)
+{
+    td::ok_messagebox(p, "Authentication error.", "The app was unable to authenticate with Google.");
+}
+
+void display_network_error(QWidget *p)
+{
+    td::ok_messagebox(p, "Network error.", "The app encountered a network error.");
+}
+
+void display_io_error(QWidget *p)
+{
+    td::ok_messagebox(p, "IO error.", "The app was unable to read from/write to the specified location.");
+}
+
+void display_drive_file_error(QWidget *p)
+{
+    td::ok_messagebox(
+        p, "Google Drive error.", "The app was unable to write to/download the specified Google Drive files.");
+}
+
+void save_error(QWidget *p)
+{
+    td::ok_messagebox(p, "Save error.", "The app was unable to save the contents of the diary.");
+}
+
+void dev_unknown_file(QWidget *p)
+{
+    td::ok_messagebox(p, "Access failed.", "The app could not access the specified location.");
+}
+
+int confirm_exit_to_main_menu(QWidget *p)
+{
+    return td::ync_messagebox(p, "Save", "Cancel", "Do not save", "There are unsaved changes.",
+        "Are you sure you want to quit without saving?");
+}
+
+void diary_downloaded(QWidget *p)
+{
+    td::ok_messagebox(p, "Diary downloaded.", "The diary has been downloaded from Google Drive.");
+}
+
+void diary_uploaded(QWidget *p)
+{
+    td::ok_messagebox(p, "Diary uploaded.", "The diary has been uploaded to Google Drive.");
+}
+} // namespace cmb

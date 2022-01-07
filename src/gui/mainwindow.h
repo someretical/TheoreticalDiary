@@ -19,14 +19,21 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "../core/diaryholder.h"
+#include "../core/googlewrapper.h"
+#include "../core/internalmanager.h"
+#include "../util/custommessageboxes.h"
+#include "../util/encryptor.h"
+#include "diarymenu.h"
+#include "mainmenu.h"
+#include "optionsmenu.h"
+
 #include <QtWidgets>
+#include <fstream>
+#include <json.hpp>
 
 namespace Ui {
 class MainWindow;
-}
-
-namespace td {
-enum Window : int { Main, DiaryEditor, Options };
 }
 
 class MainWindow : public QMainWindow {
@@ -39,6 +46,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    static MainWindow *instance();
     void clear_grid();
     void exit_diary_to_main_menu();
     void closeEvent(QCloseEvent *event);
@@ -53,18 +61,13 @@ public:
 public slots:
     void focus_changed(Qt::ApplicationState const state);
     void inactive_time_up();
-    void apply_theme();
+    void update_theme();
     void show_main_menu();
-    void show_diary_menu(QDate const &date);
+    void show_diary_menu();
     void show_options_menu();
-    bool save_diary(bool const ignore_errors);
-    void diary_uploaded();
 
 private:
     Ui::MainWindow *ui;
-
-    void save_error();
-    int confirm_exit_to_main_menu();
 };
 
 #endif // MAINWINDOW_H

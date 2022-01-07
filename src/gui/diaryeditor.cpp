@@ -17,22 +17,19 @@
  */
 
 #include "diaryeditor.h"
-#include "../core/theoreticaldiary.h"
-#include "../util/custommessageboxes.h"
-#include "diarymenu.h"
-#include "mainwindow.h"
 #include "ui_diaryeditor.h"
 
-DiaryEditor::DiaryEditor(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryEditor)
+DiaryEditor::DiaryEditor(QDate const &date, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryEditor)
 {
     ui->setupUi(this);
     ui->alert_text->setText("");
+    ui->alert_text->update();
 
-    // These will be filled when apply_theme is called.
-    base_stylesheet = QString("");
-    selected_stylesheet = QString("");
-    white_star = QString("");
-    black_star = QString("");
+    // These will be filled when update_theme is called.
+    base_stylesheet = QString();
+    selected_stylesheet = QString();
+    white_star = QString();
+    black_star = QString();
     rating_stylesheets = std::vector<std::unique_ptr<QString>>();
 
     current_month_offset = 0;
@@ -58,20 +55,23 @@ DiaryEditor::DiaryEditor(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryEdi
     connect(ui->delete_button, &QPushButton::clicked, this, &DiaryEditor::delete_day, Qt::QueuedConnection);
     connect(ui->reset_button, &QPushButton::clicked, this, &DiaryEditor::reset_day, Qt::QueuedConnection);
 
-    // Trigger unsaved changes.
-    connect(ui->rating_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), TheoreticalDiary::instance(),
-        &TheoreticalDiary::diary_changed, Qt::QueuedConnection);
-    connect(ui->special_box, &QCheckBox::clicked, TheoreticalDiary::instance(), &TheoreticalDiary::diary_changed,
+    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryEditor::update_theme,
         Qt::QueuedConnection);
-    connect(ui->entry_edit, &QPlainTextEdit::textChanged, TheoreticalDiary::instance(),
-        &TheoreticalDiary::diary_changed, Qt::QueuedConnection);
-
-    connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this, &DiaryEditor::apply_theme,
-        Qt::QueuedConnection);
-    apply_theme();
+    update_theme();
 
     // Render current month.
-    change_month(qobject_cast<DiaryMenu *>(parent)->first_created, true);
+    // This needs to be done AFTER all the themes have been loaded since the CalendarButtons need to access the
+    // stylesheets.
+    auto current_date = date;
+    change_month(current_date, true);
+
+    // Trigger unsaved changes.
+    connect(ui->rating_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+        [&]() { InternalManager::instance()->internal_diary_changed = true; });
+    connect(ui->special_box, &QCheckBox::clicked, this,
+        [&]() { InternalManager::instance()->internal_diary_changed = true; });
+    connect(ui->entry_edit, &QPlainTextEdit::textChanged, this,
+        [&]() { InternalManager::instance()->internal_diary_changed = true; });
 }
 
 DiaryEditor::~DiaryEditor()
@@ -80,9 +80,9 @@ DiaryEditor::~DiaryEditor()
     delete save_shortcut;
 }
 
-void DiaryEditor::apply_theme()
+void DiaryEditor::update_theme()
 {
-    auto const &theme = TheoreticalDiary::instance()->theme();
+    auto const &theme = InternalManager::instance()->get_theme();
 
     QFile file(QString(":/%1/diaryeditor.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
@@ -219,13 +219,16 @@ bool DiaryEditor::confirm_switch()
         break;
     }
 
-    TheoreticalDiary::instance()->diary_modified = false;
+    InternalManager::instance()->internal_diary_changed = false;
     return true;
 }
 
+// The suppress_confirm parameter squashes the confirm_switch dialog. This is to ensure that when the menu is first
+// loaded by the New/Import button, the user isn't confronted with the confirm_switch dialog. (As making a new diary
+// sets the internal_diary_changed variable to true.
 void DiaryEditor::change_month(QDate const &date, bool const suppress_confirm)
 {
-    if (!suppress_confirm && TheoreticalDiary::instance()->diary_modified && !confirm_switch())
+    if (InternalManager::instance()->internal_diary_changed && !suppress_confirm && !confirm_switch())
         return;
 
     // Remove everything from current grid.
@@ -251,12 +254,14 @@ void DiaryEditor::change_month(QDate const &date, bool const suppress_confirm)
     ui->year_edit->blockSignals(false);
 
     // Render current month.
-    render_month(first_day, TheoreticalDiary::instance()->diary_holder->get_monthmap(date));
+    render_month(first_day, DiaryHolder::instance()->get_monthmap(date));
 
     // Render current day.
     td::CalendarButtonData const d{
         std::optional(date.day()), std::nullopt, std::nullopt, std::nullopt, std::optional(true)};
     render_day(d, true);
+
+    emit InternalManager::instance()->update_data(date);
 }
 
 void DiaryEditor::render_day(td::CalendarButtonData const &d, bool const set_info_pane)
@@ -269,10 +274,10 @@ void DiaryEditor::render_day(td::CalendarButtonData const &d, bool const set_inf
     button->re_render(d);
 
     if (set_info_pane) {
-        auto const &current_date = QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, *d.day);
-        auto const &opt = TheoreticalDiary::instance()->diary_holder->get_entry(current_date);
+        auto const &new_date = QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, *d.day);
+        auto const &opt = DiaryHolder::instance()->get_entry(new_date);
 
-        update_info_pane(current_date, opt ? (*opt)->second : td::Entry{false, td::Rating::Unknown, "", 0});
+        update_info_pane(new_date, opt ? (*opt)->second : td::Entry{false, td::Rating::Unknown, "", 0});
     }
 }
 
@@ -313,7 +318,7 @@ void DiaryEditor::date_clicked(int const day)
     if (day == last_selected_day)
         return;
 
-    if (TheoreticalDiary::instance()->diary_modified && !confirm_switch())
+    if (InternalManager::instance()->internal_diary_changed && !confirm_switch())
         return;
 
     td::CalendarButtonData const old{
@@ -330,8 +335,8 @@ void DiaryEditor::date_clicked(int const day)
 void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
 {
     ui->date_label->setText(QString("%1 %2%3 %4")
-                                .arg(date.toString("dddd"), QString::number(date.day()),
-                                    DiaryMenu::get_day_suffix(date.day()), date.toString("MMMM")));
+                                .arg(date.toString("dddd"), QString::number(date.day()), misc::get_day_suffix(date.day()),
+                                    date.toString("MMMM")));
     ui->date_label->update();
 
     ui->rating_dropdown->blockSignals(true);
@@ -358,26 +363,25 @@ void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
     ui->entry_edit->blockSignals(false);
 }
 
-void DiaryEditor::update_day(bool const suppress_message)
+// The suppress_error parameter stops the save error box from popping up.
+// This is useful when locking the diary as typically the user is AFK.
+// The app shouldn't get stuck on the save error dialog as then it wouldn't be able to lock itself properly.
+void DiaryEditor::update_day(bool const suppress_error)
 {
+    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
     // Add the entry to the in memory map.
-    auto const &current_date =
+    auto const &new_date =
         QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, last_selected_day);
     td::Entry const e{ui->special_box->isChecked(), static_cast<td::Rating>(ui->rating_dropdown->currentIndex()),
         ui->entry_edit->toPlainText().toStdString(), QDateTime::currentSecsSinceEpoch()};
 
-    TheoreticalDiary::instance()->diary_holder->create_entry(current_date, e);
+    DiaryHolder::instance()->create_entry(new_date, e);
 
     // Actually try and save the diary.
-    auto const &res = qobject_cast<MainWindow *>(
-        parentWidget()->parentWidget()->parentWidget()->parentWidget()->parentWidget()->parentWidget())
-                          ->save_diary(false);
-    if (!res)
-        return; // The save error window will be shown by the function.
-
-    if (!suppress_message) {
-        ui->alert_text->setText("Saved entry.");
-        ui->alert_text->update();
+    if (!DiaryHolder::instance()->save() && suppress_error) {
+        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        cmb::save_error(this);
+        return;
     }
 
     td::CalendarButtonData const d{std::optional(last_selected_day), std::nullopt,
@@ -394,7 +398,8 @@ void DiaryEditor::update_day(bool const suppress_message)
     ui->last_edited->update();
 
     // This updates the information in the other tabs.
-    emit sig_re_render(current_date, true);
+    // The pixels tab should call end_busy_mode when it is done re rendering.
+    InternalManager::instance()->update_data(new_date);
 }
 
 void DiaryEditor::delete_day()
@@ -407,33 +412,36 @@ void DiaryEditor::delete_day()
             return;
     }
 
+    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+
     // Remove the entry from the in memory map.
-    auto const &current_date =
+    auto const &new_date =
         QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, last_selected_day);
-    TheoreticalDiary::instance()->diary_holder->delete_entry(current_date);
+    DiaryHolder::instance()->delete_entry(new_date);
 
     // Actually try and save the diary.
-    auto const &res = qobject_cast<MainWindow *>(
-        parentWidget()->parentWidget()->parentWidget()->parentWidget()->parentWidget()->parentWidget())
-                          ->save_diary(false);
-    if (!res)
-        return; // The save error window will be shown by the function.
+    if (!DiaryHolder::instance()->save()) {
+        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        cmb::save_error(this);
+        return;
+    }
 
     ui->alert_text->setText("Deleted entry.");
     ui->alert_text->update();
 
-    update_info_pane(current_date, td::Entry{false, td::Rating::Unknown, "", 0});
+    update_info_pane(new_date, td::Entry{false, td::Rating::Unknown, "", 0});
 
     td::CalendarButtonData const d{std::optional(last_selected_day), std::nullopt, std::optional(false),
         std::optional(static_cast<td::Rating>(td::Rating::Unknown)), std::nullopt};
     render_day(d, false);
 
-    emit sig_re_render(current_date, true);
+    // This updates the information in the other tabs.
+    // The pixels tab should call end_busy_mode when it is done re rendering.
+    InternalManager::instance()->update_data(new_date);
 }
 
 void DiaryEditor::reset_day()
 {
-    change_month(
-        qobject_cast<DiaryMenu *>(parentWidget()->parentWidget()->parentWidget()->parentWidget())->first_created,
-        false);
+    auto current_date = QDate::currentDate();
+    change_month(current_date, false);
 }

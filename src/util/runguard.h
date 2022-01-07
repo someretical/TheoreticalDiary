@@ -19,7 +19,7 @@
 #ifndef RUNGUARD_H
 #define RUNGUARD_H
 
-#include <QtCore>
+#include <QtWidgets>
 
 class RunGuard {
 public:

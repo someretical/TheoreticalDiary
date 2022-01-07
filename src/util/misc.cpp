@@ -16,35 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DIARYMENU_H
-#define DIARYMENU_H
+#include "misc.h"
 
-#include "../core/internalmanager.h"
-#include "diaryeditor.h"
-#include "diaryentryviewer.h"
-#include "diarypixels.h"
-#include "diarystats.h"
-#include "mainwindow.h"
-
-#include <QtWidgets>
-
-namespace Ui {
-class DiaryMenu;
+namespace misc {
+QString get_day_suffix(int const day)
+{
+    switch (day) {
+    case 1:
+    case 21:
+    case 31:
+        return "st";
+    case 2:
+    case 22:
+        return "nd";
+    case 3:
+    case 23:
+        return "rd";
+    default:
+        return "th";
+    }
 }
-
-class DiaryMenu : public QWidget {
-    Q_OBJECT
-
-public:
-    explicit DiaryMenu(QWidget *parent = nullptr);
-    ~DiaryMenu();
-
-public slots:
-    void update_theme();
-    void tab_changed(int const tab);
-
-private:
-    Ui::DiaryMenu *ui;
-};
-
-#endif // DIARYMENU_H
+} // namespace misc

@@ -21,15 +21,15 @@ jobs:
       - name: Build cryptopp
         run: |
           cd external-libs/cryptopp
-          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp -lgomp" make -j8 dynamic cryptest.exe
-          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp -lgomp" make -j8 libcryptopp.a libcryptopp.so cryptest.exe
+          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp -lgomp" make -j$(nproc) dynamic cryptest.exe
+          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp -lgomp" make -j$(nproc) libcryptopp.a libcryptopp.so cryptest.exe
           sudo make install PREFIX=/usr/local
 
       - name: Qmake and make
         run: |
           qmake CONFIG+=release
-          make -j8
-          make install INSTALL_ROOT=AppDir
+          make -j$(nproc)
+          make install INSTALL_ROOT=appdir
           
       - name: Build AppImage
         run: |
@@ -37,15 +37,16 @@ jobs:
           wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x ./linuxdeploy-x86_64.AppImage
           chmod +x ./linuxdeploy-plugin-qt-x86_64.AppImage
-          mkdir -p AppDir/usr/share/metainfo
-          cp ./io.github.someretical.theoreticaldiary.appdata.xml AppDir/usr/share/metainfo/io.github.someretical.theoreticaldiary.appdata.xml
-          export OUTPUT=TheoreticalDiary.AppImage
+          mkdir -p "appdir/usr/share/metainfo/"
+          cp "me.someretical.TheoreticalDiary.appdata.xml" "appdir/usr/share/metainfo/"
+          export VERSION="$(cat text/VERSION.txt)"
+          export OUTPUT="TheoreticalDiary-v${VERSION}-x86_64.AppImage"
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
           sudo ldconfig /usr/local/lib
-          ./linuxdeploy-x86_64.AppImage -eAppDir/opt/theoreticaldiary/bin/theoreticaldiary -dio.github.someretical.theoreticaldiary.desktop -iimages/linux_icons/hicolor/256x256/apps/theoreticaldiary.png --appdir AppDir --plugin qt --output appimage
+          ./linuxdeploy-x86_64.AppImage --desktop-file="me.someretical.TheoreticalDiary.desktop" --icon-file="images/linux_icons/256x256/theoreticaldiary.png" --appdir="appdir" --plugin=qt --output=appimage --executable="appdir/usr/bin/theoreticaldiary"
 
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
           name: theoreticaldiary-x86_64
-          path: ./TheoreticalDiary.AppImage
+          path: "./${OUTPUT}"

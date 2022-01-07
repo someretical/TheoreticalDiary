@@ -19,7 +19,6 @@
 // The code in this file was adapted from https://stackoverflow.com/a/51194796.
 
 #include "passwordlineedit.h"
-#include "../core/theoreticaldiary.h"
 
 PasswordLineEdit::PasswordLineEdit(QWidget *parent) : QLineEdit(parent)
 {
@@ -48,5 +47,5 @@ void PasswordLineEdit::on_released()
 QString PasswordLineEdit::get_eye_icon(bool const on)
 {
     return QString(":/themes/%1/passwordlineedit/%2.svg")
-        .arg(TheoreticalDiary::instance()->theme(), on ? "eye_on" : "eye_off");
+        .arg(InternalManager::instance()->get_theme(), on ? "eye_on" : "eye_off");
 }

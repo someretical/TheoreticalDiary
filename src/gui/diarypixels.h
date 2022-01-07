@@ -19,9 +19,12 @@
 #ifndef DIARYPIXELS_H
 #define DIARYPIXELS_H
 
-#include "diaryeditor.h"
+#include "../core/diaryholder.h"
+#include "../core/internalmanager.h"
+#include "../util/misc.h"
 
 #include <QtWidgets>
+#include <algorithm>
 #include <memory>
 
 namespace Ui {
@@ -35,19 +38,19 @@ signals:
     void sig_changed_size(int const new_width);
 
 public:
-    explicit DiaryPixels(DiaryEditor const *editor, QWidget *parent = nullptr);
+    explicit DiaryPixels(QWidget *parent = nullptr);
     ~DiaryPixels();
 
     void resizeEvent(QResizeEvent *);
     int calculate_size();
 
-    QDate current_year;
+    QDate current_date;
     std::vector<std::unique_ptr<QString>> rating_stylesheets;
     QString white_star;
     QString black_star;
 
 public slots:
-    void apply_theme();
+    void update_theme();
     void render_grid();
     void export_image();
 

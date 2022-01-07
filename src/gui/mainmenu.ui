@@ -92,7 +92,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../../images/images.qrc">:/linux_icons/hicolor/scalable/apps/theoreticaldiary.svg</pixmap>
+         <pixmap resource="../../images/images.qrc">:/linux_icons/scalable/theoreticaldiary.svg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>

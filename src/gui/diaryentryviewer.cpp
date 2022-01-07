@@ -17,24 +17,18 @@
  */
 
 #include "diaryentryviewer.h"
-#include "../core/theoreticaldiary.h"
-#include "diarymenu.h"
 #include "ui_diaryentryviewer.h"
-
-#include <sstream>
 
 int const LONGEST_LINE_LENGTH = 110;
 int const DAY_LABEL_SIZE = 50;
 
-DiaryEntryViewer::DiaryEntryViewer(DiaryEditor const *const editor, QWidget *parent)
-    : QWidget(parent), ui(new Ui::DiaryEntryViewer)
+DiaryEntryViewer::DiaryEntryViewer(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryEntryViewer)
 {
     ui->setupUi(this);
 
-    current_month = qobject_cast<DiaryMenu *>(parent)->first_created;
     rating_stylesheets = std::vector<std::unique_ptr<QString>>();
-    black_star = QString("");
-    white_star = QString("");
+    black_star = QString();
+    white_star = QString();
 
     // Navigator slots
     connect(ui->month_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
@@ -43,18 +37,20 @@ DiaryEntryViewer::DiaryEntryViewer(DiaryEditor const *const editor, QWidget *par
     connect(ui->next_month, &QPushButton::clicked, this, &DiaryEntryViewer::next_month, Qt::QueuedConnection);
     connect(ui->prev_month, &QPushButton::clicked, this, &DiaryEntryViewer::prev_month, Qt::QueuedConnection);
 
-    connect(editor, &DiaryEditor::sig_re_render, this, &DiaryEntryViewer::change_month, Qt::QueuedConnection);
-    connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this, &DiaryEntryViewer::apply_theme,
+    connect(InternalManager::instance(), &InternalManager::update_data, this, &DiaryEntryViewer::change_month,
         Qt::QueuedConnection);
-    apply_theme();
+    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryEntryViewer::update_theme,
+        Qt::QueuedConnection);
+    update_theme();
 
-    change_month(current_month, true);
     // Make scroll bar hit the bottom.
     QTimer::singleShot(0, this, [&]() {
         ui->scrollArea->widget()->adjustSize();
         ui->scrollArea->widget()->update();
         ui->scrollArea->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
     });
+
+    // current_date is initialised by &InternalManager::change_month signal.
 }
 
 DiaryEntryViewer::~DiaryEntryViewer()
@@ -62,9 +58,9 @@ DiaryEntryViewer::~DiaryEntryViewer()
     delete ui;
 }
 
-void DiaryEntryViewer::apply_theme()
+void DiaryEntryViewer::update_theme()
 {
-    auto const &theme = TheoreticalDiary::instance()->theme();
+    auto const &theme = InternalManager::instance()->get_theme();
 
     QFile file(QString(":/%1/diary_entry_list/base.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
@@ -98,14 +94,11 @@ void DiaryEntryViewer::apply_theme()
         file.close();
     }
 
-    emit sig_re_render_theme();
+    emit sig_update_labels();
 }
 
-void DiaryEntryViewer::change_month(QDate const &date, bool const ignore_month_check)
+void DiaryEntryViewer::change_month(QDate const &date)
 {
-    if (!ignore_month_check && current_month.year() == date.year() && current_month.month() == date.month())
-        return;
-
     // Remove everything from current grid.
     QLayoutItem *child;
     while ((child = ui->entry_grid->takeAt(0)) != 0) {
@@ -122,14 +115,14 @@ void DiaryEntryViewer::change_month(QDate const &date, bool const ignore_month_c
         ui->year_edit->setDate(date);
     }
     else {
-        ui->month_dropdown->setCurrentIndex(current_month.month() - 1);
-        ui->year_edit->setDate(current_month);
+        ui->month_dropdown->setCurrentIndex(current_date.month() - 1);
+        ui->year_edit->setDate(current_date);
     }
 
     ui->month_dropdown->blockSignals(false);
     ui->year_edit->blockSignals(false);
 
-    auto const &opt = TheoreticalDiary::instance()->diary_holder->get_monthmap(date.isValid() ? date : current_month);
+    auto const &opt = DiaryHolder::instance()->get_monthmap(date.isValid() ? date : current_date);
     if (!opt) {
         auto label = new QLabel("It seems there are no entries yet for this month...", this);
         label->setAlignment(Qt::AlignCenter);
@@ -137,7 +130,7 @@ void DiaryEntryViewer::change_month(QDate const &date, bool const ignore_month_c
         f.setPointSize(11);
         label->setFont(f);
 
-        current_month = date;
+        current_date = date;
         return ui->entry_grid->addWidget(label);
     }
 
@@ -168,14 +161,14 @@ void DiaryEntryViewer::change_month(QDate const &date, bool const ignore_month_c
         ui->entry_grid->addWidget(label);
     }
 
-    current_month = date;
+    current_date = date;
 }
 
 void DiaryEntryViewer::next_month()
 {
     QDate const next = ui->year_edit->date().addMonths(1);
     if (next.isValid()) {
-        change_month(next, false);
+        change_month(next);
 
         // Make scroll bar hit top.
         QTimer::singleShot(0, this, [&]() {
@@ -190,7 +183,7 @@ void DiaryEntryViewer::prev_month()
 {
     QDate const prev = ui->year_edit->date().addMonths(-1);
     if (prev.isValid()) {
-        change_month(prev, false);
+        change_month(prev);
 
         // Make scroll bar hit bottom.
         QTimer::singleShot(0, this, [&]() {
@@ -203,13 +196,13 @@ void DiaryEntryViewer::prev_month()
 
 void DiaryEntryViewer::month_changed(int)
 {
-    change_month(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1), false);
+    change_month(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1));
 }
 
 void DiaryEntryViewer::year_changed(QDate const &date)
 {
     if (date.isValid())
-        change_month(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1), false);
+        change_month(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1));
 }
 
 /*
@@ -230,19 +223,19 @@ DiaryEntryDayLabel::DiaryEntryDayLabel(td::LabelData const &d, QWidget *parent) 
 
     update();
 
-    connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this, &DiaryEntryDayLabel::apply_theme,
+    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryEntryDayLabel::update_theme,
         Qt::QueuedConnection);
     connect(
-        d.parent, &DiaryEntryViewer::sig_re_render_theme, this, &DiaryEntryDayLabel::apply_theme, Qt::QueuedConnection);
-    apply_theme();
+        d.parent, &DiaryEntryViewer::sig_update_labels, this, &DiaryEntryDayLabel::update_theme, Qt::QueuedConnection);
+    update_theme();
 }
 
 DiaryEntryDayLabel::~DiaryEntryDayLabel() {}
 
-void DiaryEntryDayLabel::apply_theme()
+void DiaryEntryDayLabel::update_theme()
 {
     // Set colour theme.
-    QString stylesheet(*(data.parent->rating_stylesheets)[data.rating]);
+    QString stylesheet(*(data.parent->rating_stylesheets)[static_cast<int>(data.rating)]);
 
     // Set background star if necessary.
     if (data.special) {
@@ -290,14 +283,14 @@ DiaryEntryDayMessage::DiaryEntryDayMessage(std::string const &m, QWidget *parent
 
     setCursor(QCursor(Qt::PointingHandCursor));
 
-    connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this, &DiaryEntryDayMessage::apply_theme,
+    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryEntryDayMessage::update_theme,
         Qt::QueuedConnection);
-    apply_theme();
+    update_theme();
 }
 
 DiaryEntryDayMessage::~DiaryEntryDayMessage() {}
 
-void DiaryEntryDayMessage::apply_theme() {}
+void DiaryEntryDayMessage::update_theme() {}
 
 void DiaryEntryDayMessage::mouseDoubleClickEvent(QMouseEvent *event)
 {
@@ -312,6 +305,7 @@ void DiaryEntryDayMessage::mouseDoubleClickEvent(QMouseEvent *event)
     else {
         setText(QString::fromStdString(message));
     }
+    update();
 
     expanded = !expanded;
 }

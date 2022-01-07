@@ -18,9 +18,6 @@
 
 #include "zipper.h"
 
-#include <files.h>
-#include <gzip.h>
-
 void Zipper::zip(std::string &compressed, std::string &decompressed)
 {
     CryptoPP::Gzip zipper(new CryptoPP::StringSink(compressed));

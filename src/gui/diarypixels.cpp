@@ -17,17 +17,12 @@
  */
 
 #include "diarypixels.h"
-#include "../core/theoreticaldiary.h"
-#include "../util/custommessageboxes.h"
-#include "diarymenu.h"
 #include "ui_diarypixels.h"
-
-#include <algorithm>
 
 char const *MONTH_LETTERS = "JFMAMJJASOND";
 int const LABEL_SIZE = 36;
 
-DiaryPixels::DiaryPixels(DiaryEditor const *editor, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPixels)
+DiaryPixels::DiaryPixels(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPixels)
 {
     ui->setupUi(this);
 
@@ -35,18 +30,18 @@ DiaryPixels::DiaryPixels(DiaryEditor const *editor, QWidget *parent) : QWidget(p
     black_star = QString("");
     white_star = QString("");
 
-    current_year = QDate::currentDate();
-    ui->year_edit->setDate(current_year);
+    ui->year_edit->setDate(QDate::currentDate());
 
-    connect(editor, &DiaryEditor::sig_re_render, this, &DiaryPixels::render_grid, Qt::QueuedConnection);
+    connect(InternalManager::instance(), &InternalManager::update_data, this, &DiaryPixels::render_grid,
+        Qt::QueuedConnection);
     connect(ui->render_button, &QPushButton::clicked, this, &DiaryPixels::render_grid, Qt::QueuedConnection);
     connect(ui->export_img_button, &QPushButton::clicked, this, &DiaryPixels::export_image, Qt::QueuedConnection);
 
-    connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this, &DiaryPixels::apply_theme,
+    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryPixels::update_theme,
         Qt::QueuedConnection);
-    apply_theme();
+    update_theme();
 
-    render_grid();
+    // current_date is initialised by &InternalManager::change_month signal.
 }
 
 DiaryPixels::~DiaryPixels()
@@ -54,9 +49,9 @@ DiaryPixels::~DiaryPixels()
     delete ui;
 }
 
-void DiaryPixels::apply_theme()
+void DiaryPixels::update_theme()
 {
-    auto const &theme = TheoreticalDiary::instance()->theme();
+    auto const &theme = InternalManager::instance()->get_theme();
 
     QFile file(QString(":/%1/diarypixels.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
@@ -114,8 +109,7 @@ int DiaryPixels::calculate_size()
 
 void DiaryPixels::render_grid()
 {
-    ui->render_button->setEnabled(false);
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
 
     // Remove everything from current grid.
     QLayoutItem *child;
@@ -124,9 +118,9 @@ void DiaryPixels::render_grid()
         delete child;
     }
 
-    current_year = ui->year_edit->date();
+    current_date = ui->year_edit->date();
 
-    auto const &opt = TheoreticalDiary::instance()->diary_holder->get_yearmap(current_year);
+    auto const &opt = DiaryHolder::instance()->get_yearmap(current_date);
 
     // Set new grid.
     if (!opt) {
@@ -137,13 +131,11 @@ void DiaryPixels::render_grid()
 
         ui->grid->addWidget(label, 0, 0, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
 
-        ui->render_button->setEnabled(true);
-        QApplication::restoreOverrideCursor();
-        return;
+        return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
     }
 
     auto &&date = QDate::currentDate();
-    auto const year = current_year.year();
+    auto const year = current_date.year();
     auto const size = calculate_size();
 
     for (int month = 0; month < 12; ++month) {
@@ -157,7 +149,7 @@ void DiaryPixels::render_grid()
         label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         ui->grid->addWidget(label, month, 0);
 
-        int days = QDate(current_year.year(), month + 1, 1).daysInMonth();
+        int days = QDate(current_date.year(), month + 1, 1).daysInMonth();
 
         // This block runs if the month doesn't exist at all.
         auto const &monthmap = (*opt)->second;
@@ -188,8 +180,7 @@ void DiaryPixels::render_grid()
         }
     }
 
-    ui->render_button->setEnabled(true);
-    QApplication::restoreOverrideCursor();
+    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 }
 
 void DiaryPixels::export_image()
@@ -250,8 +241,7 @@ PixelLabel::PixelLabel(td::Rating const r, bool const special, QDate const &date
 
     setStyleSheet(stylesheet);
 
-    setToolTip(QString("%1 %2%3").arg(
-        date.toString("MMMM"), QString::number(date.day()), DiaryMenu::get_day_suffix(date.day())));
+    setToolTip(QString("%1 %2%3").arg(date.toString("MMMM"), QString::number(date.day()), misc::get_day_suffix(date.day())));
 }
 
 PixelLabel::~PixelLabel() {}

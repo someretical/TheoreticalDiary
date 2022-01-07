@@ -9,7 +9,7 @@ unix:LIBS += \
 win32:LIBS += \
     -l"external-libs/cryptopp/cryptlib"
 
-QT += core gui network charts
+QT += core gui charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,6 +22,7 @@ CONFIG += c++17
 SOURCES += \
     src/core/diaryholder.cpp \
     src/core/googlewrapper.cpp \
+    src/core/internalmanager.cpp \
     src/core/theoreticaldiary.cpp \
     src/gui/aboutdialog.cpp \
     src/gui/apiresponse.cpp \
@@ -38,6 +39,8 @@ SOURCES += \
     src/main.cpp \
     src/util/custommessageboxes.cpp \
     src/util/encryptor.cpp \
+    src/util/eventfilters.cpp \
+    src/util/misc.cpp \
     src/util/passwordlineedit.cpp \
     src/util/runguard.cpp \
     src/util/zipper.cpp
@@ -45,6 +48,7 @@ SOURCES += \
 HEADERS += \
     src/core/diaryholder.h \
     src/core/googlewrapper.h \
+    src/core/internalmanager.h \
     src/core/theoreticaldiary.h \
     src/gui/aboutdialog.h \
     src/gui/apiresponse.h \
@@ -60,6 +64,9 @@ HEADERS += \
     src/gui/optionsmenu.h \
     src/util/custommessageboxes.h \
     src/util/encryptor.h \
+    src/util/eventfilters.h \
+    src/util/hashcontroller.h \
+    src/util/misc.h \
     src/util/passwordlineedit.h \
     src/util/runguard.h \
     src/util/zipper.h
@@ -79,18 +86,21 @@ FORMS += \
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
+else: unix:!android: target.path = /usr/bin
 !isEmpty(target.path): INSTALLS += target
 
 win32:RC_ICONS = images/windows_icons/icon.ico
 win32:VERSION = 1.0.0.0
 win32:QMAKE_TARGET_COMPANY = someretical
-win32:QMAKE_TARGET_PRODUCT = "Theoretical Diary"
-win32:QMAKE_TARGET_DESCRIPTION = "Theoretical Diary"
-win32:QMAKE_TARGET_COPYRIGHT = 2021
+win32:QMAKE_TARGET_PRODUCT = "TheoreticalDiary"
+win32:QMAKE_TARGET_DESCRIPTION = "TheoreticalDiary"
+win32:QMAKE_TARGET_COPYRIGHT = 2022
 
 RESOURCES += \
     fonts/fonts.qrc \
     images/images.qrc \
     styles/styles.qrc \
     text/text.qrc
+
+DISTFILES += \
+    styles/global/licensedialog.qss

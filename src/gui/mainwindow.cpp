@@ -17,16 +17,9 @@
  */
 
 #include "mainwindow.h"
-#include "../core/theoreticaldiary.h"
-#include "../util/custommessageboxes.h"
-#include "../util/zipper.h"
-#include "diarymenu.h"
-#include "mainmenu.h"
-#include "optionsmenu.h"
 #include "ui_mainwindow.h"
 
-#include <fstream>
-#include <json.hpp>
+MainWindow *main_window_ptr;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -34,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     setWindowTitle(QApplication::applicationName());
 
+    main_window_ptr = this;
     current_window = td::Window::Main;
     last_window = td::Window::Main;
 
@@ -42,12 +36,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     timer->setTimerType(Qt::CoarseTimer);
     connect(timer, &QTimer::timeout, this, &MainWindow::inactive_time_up, Qt::QueuedConnection);
 
-    connect(TheoreticalDiary::instance()->gwrapper, &GoogleWrapper::sig_request_end, this, &MainWindow::diary_uploaded,
+    connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainWindow::update_theme,
         Qt::QueuedConnection);
-
-    connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this, &MainWindow::apply_theme,
-        Qt::QueuedConnection);
-    apply_theme();
+    update_theme();
 
     show_main_menu();
 }
@@ -58,24 +49,21 @@ MainWindow::~MainWindow()
     delete timer;
 }
 
-void MainWindow::diary_uploaded()
+MainWindow *MainWindow::instance()
 {
-    QApplication::restoreOverrideCursor();
-    TheoreticalDiary::instance()->closeable = true;
-    TheoreticalDiary::instance()->diary_file_modified = false;
+    return main_window_ptr;
 }
 
 void MainWindow::focus_changed(Qt::ApplicationState const state)
 {
-    if ((Qt::ApplicationActive == state && td::Window::DiaryEditor == current_window) ||
-        (Qt::ApplicationActive == state && td::Window::DiaryEditor == last_window &&
-            td::Window::Options == current_window)) {
-        timer->stop();
+    if (Qt::ApplicationActive == state) {
+        if (td::Window::Editor == current_window || td::Window::Editor == last_window)
+            timer->stop();
     }
-    else if ((Qt::ApplicationInactive == state && td::Window::DiaryEditor == current_window) ||
-             (Qt::ApplicationInactive == state && td::Window::DiaryEditor == last_window &&
-                 td::Window::Options == current_window)) {
-        timer->start(300000); // 5 mins = 300000 ms
+    else if (Qt::ApplicationInactive == state) {
+        if ((td::Window::Editor == last_window && td::Window::Options == current_window) ||
+            td::Window::Editor == current_window)
+            timer->start(300000); // 5 mins = 300000 ms
     }
 
     previous_state = state;
@@ -84,16 +72,39 @@ void MainWindow::focus_changed(Qt::ApplicationState const state)
 void MainWindow::exit_diary_to_main_menu()
 {
     // Clean up.
-    TheoreticalDiary::instance()->diary_modified = false;
-    TheoreticalDiary::instance()->diary_holder->init();
-    TheoreticalDiary::instance()->encryptor->reset();
+    InternalManager::instance()->internal_diary_changed = false;
+    DiaryHolder::instance()->init();
 
     // Backup on Google Drive.
-    if (TheoreticalDiary::instance()->settings->value("sync_enabled", false).toBool() &&
-        TheoreticalDiary::instance()->diary_file_modified) {
-        TheoreticalDiary::instance()->closeable = false;
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        TheoreticalDiary::instance()->gwrapper->upload_diary(this, true);
+    if (InternalManager::instance()->settings->value("sync_enabled", false).toBool() &&
+        InternalManager::instance()->diary_file_changed) {
+        GoogleWrapper::instance()->upload_diary([this](const td::GWrapperError err) {
+            InternalManager::instance()->diary_file_changed = false;
+            GoogleWrapper::instance()->encrypt_credentials();
+            Encryptor::instance()->reset();
+            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+
+            switch (err) {
+            case td::GWrapperError::Auth:
+                cmb::display_auth_error(this);
+                break;
+            case td::GWrapperError::Network:
+                cmb::display_network_error(this);
+                break;
+            case td::GWrapperError::IO:
+                cmb::display_io_error(this);
+                break;
+            case td::GWrapperError::DriveFile:
+                cmb::display_drive_file_error(this);
+                break;
+            case td::GWrapperError::None:
+                cmb::diary_uploaded(this);
+                break;
+            }
+        });
+    }
+    else {
+        Encryptor::instance()->reset();
     }
 
     show_main_menu();
@@ -108,24 +119,21 @@ void MainWindow::inactive_time_up()
         return;
 
     emit sig_update_diary();
-    if (TheoreticalDiary::instance()->diary_modified)
-        save_diary(true); // Passing true makes save_diary fail silently instead of triggering a popup dialog.
+    if (InternalManager::instance()->internal_diary_changed)
+        DiaryHolder::instance()->save(); // Ignore any errors.
 
     exit_diary_to_main_menu();
 }
 
-void MainWindow::apply_theme()
+void MainWindow::update_theme()
 {
-    QFile file(QString(":/%1/material_cyan_dark.qss").arg(TheoreticalDiary::instance()->theme()));
+    QFile file(QString(":/%1/material_cyan_dark.qss").arg(InternalManager::instance()->get_theme()));
     file.open(QIODevice::ReadOnly);
     setStyleSheet(file.readAll());
-    file.close();
 }
 
 void MainWindow::clear_grid()
 {
-    QWidget *w;
-
     // This code is so unbelievably janky, there is a ONE HUNDRED PERCENT chance it will bite me back in the future.
     // Basically, if there is some modal widget like a dialog or message box that is open and is assigned on the stack
     // when clear_grid() is called, the application will seg fault because Qt tries to free memory allocated on the
@@ -133,6 +141,7 @@ void MainWindow::clear_grid()
     // != DELETE. IF THE MODAL WAS DYNAMICALLY CREATED, THE WA_DELETE_ON_CLOSE FLAG NEEDS TO BE SET. I don't know if
     // this will cause another seg fault though. Also for some reason, the compiler wants me to enclose the assignment
     // in the while loop in another set of parentheses. :o
+    QWidget *w;
     while ((w = QApplication::activeModalWidget()))
         w->close();
 
@@ -154,7 +163,7 @@ void MainWindow::show_main_menu()
 
 void MainWindow::show_options_menu()
 {
-    auto const on_diary_editor = td::Window::DiaryEditor == current_window;
+    auto const on_diary_editor = td::Window::Editor == current_window;
     last_window = current_window;
     current_window = td::Window::Options;
 
@@ -162,96 +171,46 @@ void MainWindow::show_options_menu()
     ui->central_widget->layout()->addWidget(new OptionsMenu(on_diary_editor, this));
 }
 
-void MainWindow::show_diary_menu(QDate const &date)
+void MainWindow::show_diary_menu()
 {
     last_window = current_window;
-    current_window = td::Window::DiaryEditor;
+    current_window = td::Window::Editor;
 
     clear_grid();
-    ui->central_widget->layout()->addWidget(new DiaryMenu(date, this));
-}
-
-void MainWindow::save_error()
-{
-    td::ok_messagebox(this, "Save error.", "The app was unable to save the contents of the diary.");
-}
-
-bool MainWindow::save_diary(bool const ignore_errors)
-{
-    std::string primary_path = TheoreticalDiary::instance()->data_location().toStdString() + "/diary.dat";
-    std::string backup_path = TheoreticalDiary::instance()->data_location().toStdString() + "/diary.dat.bak";
-
-    // Backup existing diary first.
-    std::ifstream src(primary_path, std::ios::binary);
-    if (!src.fail()) {
-        std::ofstream dst(backup_path, std::ios::binary);
-        dst << src.rdbuf();
-        dst.close();
-    }
-    src.close();
-
-    // Update last_updated.
-    TheoreticalDiary::instance()->diary_holder->diary->metadata.last_updated = QDateTime::currentSecsSinceEpoch();
-    nlohmann::json const j = *(TheoreticalDiary::instance()->diary_holder->diary);
-
-    // Gzip JSON.
-    std::string compressed, encrypted;
-    std::string decompressed = j.dump();
-    Zipper::zip(compressed, decompressed);
-
-    // Encrypt if there is a password set.
-    auto const key_set = TheoreticalDiary::instance()->encryptor->key_set;
-    if (key_set)
-        TheoreticalDiary::instance()->encryptor->encrypt(compressed, encrypted);
-
-    // Write to file.
-    std::ofstream ofs(primary_path, std::ios::binary);
-    if (!ofs.fail()) {
-        ofs << (key_set ? encrypted : compressed);
-        ofs.close();
-
-        TheoreticalDiary::instance()->diary_modified = false;
-        TheoreticalDiary::instance()->diary_file_changed();
-        return true;
-    }
-    else {
-        if (!ignore_errors)
-            save_error();
-
-        return false;
-    }
-}
-
-int MainWindow::confirm_exit_to_main_menu()
-{
-    return td::ync_messagebox(this, "Save", "Cancel", "Do not save", "There are unsaved changes.",
-        "Are you sure you want to quit without saving?");
+    ui->central_widget->layout()->addWidget(new DiaryMenu(this));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (!TheoreticalDiary::instance()->closeable) {
+    if (InternalManager::instance()->app_busy) {
         event->ignore();
     }
-    else if (td::Window::Options == current_window && td::Window::DiaryEditor == last_window) {
+    else if (td::Window::Options == current_window && td::Window::Editor == last_window) {
         event->ignore(); // Don't close the main window, but exit to the diary menu.
-        show_diary_menu(QDate::currentDate());
+        show_diary_menu();
     }
     else if (td::Window::Options == current_window && td::Window::Main == last_window) {
         event->ignore(); // Don't close the main window, but exit to the main menu.
         show_main_menu();
     }
-    else if (td::Window::DiaryEditor == current_window) {
+    else if (td::Window::Editor == current_window) {
         event->ignore(); // Don't close the main window, but exit to the main menu.
 
-        if (TheoreticalDiary::instance()->diary_modified) {
-            switch (confirm_exit_to_main_menu()) {
-            case QMessageBox::AcceptRole:
+        if (InternalManager::instance()->internal_diary_changed) {
+            switch (cmb::confirm_exit_to_main_menu(this)) {
+            case QMessageBox::AcceptRole: {
                 // If the diary failed to save, don't exit to the main menu.
-                if (!save_diary(false))
-                    return;
+                InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+                auto saved = DiaryHolder::instance()->save();
+                InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+
+                if (!saved)
+                    return cmb::save_error(this);
+
                 break;
-                // Cancel button was pressed.
+            }
+
+            // Cancel button was pressed.
             case QMessageBox::RejectRole:
                 return;
             }

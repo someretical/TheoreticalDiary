@@ -19,42 +19,18 @@
 #ifndef DIARYENTRYVIEWER_H
 #define DIARYENTRYVIEWER_H
 
-#include "diaryeditor.h"
+#include "../core/diaryholder.h"
+#include "../core/internalmanager.h"
 
 #include <QtWidgets>
 #include <memory>
+#include <sstream>
 
 namespace Ui {
 class DiaryEntryViewer;
 }
 
-class DiaryEntryViewer : public QWidget {
-    Q_OBJECT
-
-signals:
-    void sig_re_render_theme();
-
-public:
-    explicit DiaryEntryViewer(DiaryEditor const *const editor, QWidget *parent = nullptr);
-    ~DiaryEntryViewer();
-
-    QDate current_month;
-    std::vector<std::unique_ptr<QString>> rating_stylesheets;
-    QString white_star;
-    QString black_star;
-
-public slots:
-    void apply_theme();
-    void change_month(QDate const &date, bool const ignore_month_check);
-    void next_month();
-    void prev_month();
-    void month_changed(int const month);
-    void year_changed(QDate const &date);
-
-private:
-    Ui::DiaryEntryViewer *ui;
-};
-
+class DiaryEntryViewer;
 namespace td {
 struct LabelData {
     DiaryEntryViewer *parent;
@@ -63,6 +39,33 @@ struct LabelData {
     bool special;
 };
 } // namespace td
+
+class DiaryEntryViewer : public QWidget {
+    Q_OBJECT
+
+signals:
+    void sig_update_labels();
+
+public:
+    explicit DiaryEntryViewer(QWidget *parent = nullptr);
+    ~DiaryEntryViewer();
+
+    QDate current_date;
+    std::vector<std::unique_ptr<QString>> rating_stylesheets;
+    QString white_star;
+    QString black_star;
+
+public slots:
+    void update_theme();
+    void change_month(QDate const &date);
+    void next_month();
+    void prev_month();
+    void month_changed(int const month);
+    void year_changed(QDate const &date);
+
+private:
+    Ui::DiaryEntryViewer *ui;
+};
 
 class DiaryEntryDayLabel : public QLabel {
     Q_OBJECT
@@ -74,7 +77,7 @@ public:
     td::LabelData data;
 
 public slots:
-    void apply_theme();
+    void update_theme();
 };
 
 class DiaryEntryDayMessage : public QLabel {
@@ -90,7 +93,7 @@ public:
     bool expanded;
 
 public slots:
-    void apply_theme();
+    void update_theme();
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);

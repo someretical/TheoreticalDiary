@@ -17,37 +17,32 @@
  */
 
 #include "googlewrapper.h"
-#include "../util/custommessageboxes.h"
-#include "o0settingsstore.h"
-#include "theoreticaldiary.h"
-
-#include <json.hpp>
 
 char const *CLIENT_ID = "71530390003-2fr89p1c0unpd1n169munqajeepnhdco.apps.googleusercontent.com";
 char const *CLIENT_SECRET = "zuyjH1Cd_8pL4Q-OFNLjNCJ7";
 char const *SCOPE = "https://www.googleapis.com/auth/userinfo.profile "
                     "https://www.googleapis.com/auth/drive.appdata";
 int const PORT = 8888;
+GoogleWrapper *google_wrapper_ptr;
 
 GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent)
 {
+    google_wrapper_ptr = this;
     google = new O2Google(this);
     google->setClientId(CLIENT_ID);
     google->setClientSecret(CLIENT_SECRET);
     google->setScope(SCOPE);
     google->setLocalPort(PORT);
 
-    primary_backup_id = QString("");
-    secondary_backup_id = QString("");
-    silent_upload_diary = false;
-    current_dialog_parent = nullptr;
+    primary_backup_id = QString();
+    secondary_backup_id = QString();
 
     QVariantMap params;
     params["access_type"] = QVariant("offline");
     google->setExtraRequestParams(params);
 
     auto settings = new QSettings(
-        QString("%1/%2").arg(TheoreticalDiary::instance()->data_location(), "config.ini"), QSettings::IniFormat);
+        QString("%1/%2").arg(InternalManager::instance()->data_location(), "config.ini"), QSettings::IniFormat);
     auto settings_store = new O0SettingsStore(settings, QApplication::applicationName() /* This is NOT secure!!! */);
     google->setStore(settings_store);
 
@@ -68,10 +63,15 @@ GoogleWrapper::~GoogleWrapper()
     delete requestor;
 }
 
+GoogleWrapper *GoogleWrapper::instance()
+{
+    return google_wrapper_ptr;
+}
+
 void GoogleWrapper::open_browser(QUrl const &url)
 {
     if (!QDesktopServices::openUrl(url))
-        emit sig_oauth2_callback(td::Res::No);
+        emit sig_oauth2_callback(false);
 }
 
 void GoogleWrapper::authenticate()
@@ -79,25 +79,90 @@ void GoogleWrapper::authenticate()
     google->link();
 }
 
+bool GoogleWrapper::encrypt_credentials()
+{
+    nlohmann::json const j = td::Credentials{google->token().toStdString(), google->refreshToken().toStdString()};
+
+    // Gzip JSON.
+    std::string compressed, encrypted;
+    std::string decompressed = j.dump();
+    Zipper::zip(compressed, decompressed);
+
+    // Encrypt if there is a password set.
+    auto const key_set = Encryptor::instance()->key_set;
+    if (key_set)
+        Encryptor::instance()->encrypt(compressed, encrypted);
+
+    // Write to file.
+    std::ofstream ofs(
+        InternalManager::instance()->data_location().toStdString() + "/credentials.secret", std::ios::binary);
+    if (!ofs.fail()) {
+        ofs << (key_set ? encrypted : compressed);
+        qDebug() << "Encrypted tokens.";
+        return true;
+    }
+
+    qDebug() << "Failed to encrypt tokens.";
+    return false;
+}
+
+bool GoogleWrapper::decrypt_credentials(bool const perform_decrypt)
+{
+    std::ifstream ifs(InternalManager::instance()->data_location().toStdString() + "/credentials.secret");
+    if (ifs.fail())
+        return false;
+
+    std::stringstream stream;
+    stream << ifs.rdbuf();
+    Encryptor::instance()->encrypted_str.assign(stream.str());
+
+    std::string decrypted;
+    if (perform_decrypt) {
+        auto const &res = Encryptor::instance()->decrypt(Encryptor::instance()->encrypted_str);
+        if (!res)
+            return false;
+
+        decrypted.assign(*res);
+    }
+
+    std::string decompressed;
+    if (!Zipper::unzip((perform_decrypt ? decrypted : Encryptor::instance()->encrypted_str), decompressed))
+        return false;
+
+    auto const &json = nlohmann::json::parse(decompressed, nullptr, false);
+    if (json.is_discarded())
+        return false;
+
+    try {
+        auto credentials = json.get<td::Credentials>();
+        google->setToken(QString::fromStdString(credentials.access_token));
+        google->setRefreshToken(QString::fromStdString(credentials.refresh_token));
+
+        qDebug() << "Decrypted tokens.";
+        return true;
+    }
+    catch (nlohmann::json::exception const &e) {
+        return false;
+    }
+}
+
 void GoogleWrapper::auth_ok()
 {
-    // Not going to lie, this is the first time I have used regular expressions
-    // for the ENTIRE project. Feels kind of dirty using such a high level feature
-    // in a comparatively low level language like c++.
+    // Quite possibly the ONLY regular expression in the entire project :o
     QStringList scope_list = google->scope().split(QRegularExpression("\\+|\\s"));
     QStringList required_list = QString(SCOPE).split(" ");
     std::sort(scope_list.begin(), scope_list.end());
     std::sort(required_list.begin(), required_list.end());
 
     if (scope_list != required_list)
-        emit sig_oauth2_callback(td::Res::No);
+        emit sig_oauth2_callback(false);
     else
-        emit sig_oauth2_callback(td::Res::Yes);
+        emit sig_oauth2_callback(true);
 }
 
 void GoogleWrapper::auth_err()
 {
-    emit sig_oauth2_callback(td::Res::No);
+    emit sig_oauth2_callback(false);
 }
 
 void GoogleWrapper::revoke_access()
@@ -127,11 +192,11 @@ void GoogleWrapper::list_files()
     requestor->get(req);
 }
 
-td::Res GoogleWrapper::upload_file(QString const &local_path, QString const &name)
+bool GoogleWrapper::upload_file(QString const &local_path, QString const &name)
 {
     QFile *file = new QFile(local_path);
     if (!file->open(QIODevice::ReadOnly))
-        return td::Res::No;
+        return false;
 
     QUrl url("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart");
     QNetworkRequest req(url);
@@ -153,7 +218,7 @@ td::Res GoogleWrapper::upload_file(QString const &local_path, QString const &nam
     // The content type and content length headers are automatically set by Qt.
     requestor->post(req, multi_part);
 
-    return td::Res::Yes;
+    return true;
 }
 
 void GoogleWrapper::copy_file(QString const &id, QString const &new_name)
@@ -183,11 +248,11 @@ void GoogleWrapper::delete_file(QString const &id)
     requestor->deleteResource(req);
 }
 
-td::Res GoogleWrapper::update_file(QString const &id, QString const &local_path)
+bool GoogleWrapper::update_file(QString const &id, QString const &local_path)
 {
     QFile *file = new QFile(local_path);
     if (!file->open(QIODevice::ReadOnly))
-        return td::Res::No;
+        return false;
 
     QUrl url(QString("https://www.googleapis.com/upload/drive/v3/files/"
                      "%1?uploadType=multipart")
@@ -209,23 +274,13 @@ td::Res GoogleWrapper::update_file(QString const &id, QString const &local_path)
 
     requestor->customRequest(req, "PATCH", multi_part);
 
-    return td::Res::Yes;
-}
-
-void GoogleWrapper::display_auth_error(QWidget *p)
-{
-    td::ok_messagebox(p, "Authentication error.", "The app was unable to authenticate with Google.");
-}
-
-void GoogleWrapper::display_network_error(QWidget *p)
-{
-    td::ok_messagebox(p, "Network error.", "The app encountered a network error.");
+    return true;
 }
 
 void GoogleWrapper::get_file_ids(QByteArray const &data)
 {
-    primary_backup_id = QString("");
-    secondary_backup_id = QString("");
+    primary_backup_id = QString();
+    secondary_backup_id = QString();
 
     auto const &json = nlohmann::json::parse(data.toStdString(), nullptr, false);
     if (json.is_discarded())
@@ -243,10 +298,11 @@ void GoogleWrapper::get_file_ids(QByteArray const &data)
     }
 }
 
-void GoogleWrapper::download_diary(QWidget *p)
+void GoogleWrapper::download_diary(final_cb_t const &final_cb)
 {
+    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+    final_callback = final_cb;
     dc_oauth_slots();
-    current_dialog_parent = p;
 
     /*
      * Download process:
@@ -262,13 +318,11 @@ void GoogleWrapper::download_diary(QWidget *p)
      * - Inform the user that the download was successful.
      */
 
-    connect(this, &GoogleWrapper::sig_oauth2_callback, [&](td::Res const code) {
+    connect(this, &GoogleWrapper::sig_oauth2_callback, [&](bool const success) {
         dc_oauth_slots();
 
-        if (td::Res::No == code) {
-            emit sig_request_end();
-            return display_auth_error(current_dialog_parent);
-        }
+        if (!success)
+            return final_callback(td::GWrapperError::Auth);
 
         dc_requestor_slots();
         connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
@@ -280,16 +334,13 @@ void GoogleWrapper::download_diary(QWidget *p)
 
 void GoogleWrapper::download__list_files_cb(int const, QNetworkReply::NetworkError const error, QByteArray const data)
 {
-    if (QNetworkReply::NoError != error) {
-        emit sig_request_end();
-        return display_network_error(current_dialog_parent);
-    }
+    if (QNetworkReply::NoError != error)
+        return final_callback(td::GWrapperError::Network);
 
     get_file_ids(data);
 
     if (primary_backup_id.isEmpty() && secondary_backup_id.isEmpty()) {
-        emit sig_request_end();
-        td::ok_messagebox(current_dialog_parent, "No backups found.", "No backups could be found on Google Drive.");
+        final_callback(td::GWrapperError::DriveFile);
     }
     else {
         auto const &id = primary_backup_id.isEmpty() ? secondary_backup_id : primary_backup_id;
@@ -304,34 +355,28 @@ void GoogleWrapper::download__list_files_cb(int const, QNetworkReply::NetworkErr
 void GoogleWrapper::download__download_file_cb(
     int const, QNetworkReply::NetworkError const error, QByteArray const data)
 {
-    if (QNetworkReply::NoError != error) {
-        emit sig_request_end();
-        return display_network_error(current_dialog_parent);
-    }
+    if (QNetworkReply::NoError != error)
+        return final_callback(td::GWrapperError::Network);
 
-    QFile file(QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location()));
+    QFile file(QString("%1/diary.dat").arg(InternalManager::instance()->data_location()));
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        emit sig_request_end();
-        td::ok_messagebox(current_dialog_parent, "Download failed.", "The app could not write to the diary location.");
+        final_callback(td::GWrapperError::IO);
     }
     else {
         // At the moment, the data is written all in one go as o2 does not yet provide any download updates. This is
         // really bad practice so TODO: add own implementation of a download notifier so the data buffer can be piped
         // into the file every time a new chunk arrives.
         file.write(data);
-        file.close();
 
-        emit sig_request_end();
-        td::ok_messagebox(
-            current_dialog_parent, "Diary downloaded.", "The diary has been downloaded from Google Drive.");
+        final_callback(td::GWrapperError::None);
     }
 }
 
-void GoogleWrapper::upload_diary(QWidget *p, bool const silent)
+void GoogleWrapper::upload_diary(final_cb_t const &final_cb)
 {
+    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+    final_callback = final_cb;
     dc_oauth_slots();
-    current_dialog_parent = p;
-    silent_upload_diary = silent;
 
     /*
      * Upload process:
@@ -345,13 +390,11 @@ void GoogleWrapper::upload_diary(QWidget *p, bool const silent)
      * - Inform the user that the upload was successful.
      */
 
-    connect(this, &GoogleWrapper::sig_oauth2_callback, [&](td::Res const code) {
+    connect(this, &GoogleWrapper::sig_oauth2_callback, [&](bool const success) {
         dc_oauth_slots();
 
-        if (td::Res::No == code) {
-            emit sig_request_end();
-            return display_auth_error(current_dialog_parent);
-        }
+        if (!success)
+            return final_callback(td::GWrapperError::Auth);
 
         dc_requestor_slots();
         connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
@@ -361,17 +404,10 @@ void GoogleWrapper::upload_diary(QWidget *p, bool const silent)
     authenticate();
 }
 
-void GoogleWrapper::display_read_error(QWidget *p)
-{
-    td::ok_messagebox(p, "Read error.", "The app was unable to read the contents of the diary.");
-}
-
 void GoogleWrapper::upload__list_files_cb(int const, QNetworkReply::NetworkError const error, QByteArray const data)
 {
-    if (QNetworkReply::NoError != error) {
-        emit sig_request_end();
-        return display_network_error(current_dialog_parent);
-    }
+    if (QNetworkReply::NoError != error)
+        return final_callback(td::GWrapperError::Network);
 
     get_file_ids(data);
     dc_requestor_slots();
@@ -379,10 +415,10 @@ void GoogleWrapper::upload__list_files_cb(int const, QNetworkReply::NetworkError
         connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
             &GoogleWrapper::upload__upload_file_cb);
 
-        auto const &res = TheoreticalDiary::instance()->gwrapper->upload_file(
-            QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location()), QString("diary.dat"));
-        if (td::Res::No == res)
-            display_read_error(current_dialog_parent);
+        auto const success = upload_file(
+            QString("%1/diary.dat").arg(InternalManager::instance()->data_location()), QString("diary.dat"));
+        if (!success)
+            return final_callback(td::GWrapperError::IO);
     }
     else {
         connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
@@ -393,21 +429,18 @@ void GoogleWrapper::upload__list_files_cb(int const, QNetworkReply::NetworkError
 
 void GoogleWrapper::upload__copy_file_cb(int const, QNetworkReply::NetworkError const error, QByteArray const)
 {
-    if (QNetworkReply::NoError != error) {
-        emit sig_request_end();
-        return display_network_error(current_dialog_parent);
-    }
+    if (QNetworkReply::NoError != error)
+        return final_callback(td::GWrapperError::Network);
 
     dc_requestor_slots();
     if (secondary_backup_id.isEmpty()) {
-        connect(TheoreticalDiary::instance()->gwrapper->requestor,
-            qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
+        connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
             &GoogleWrapper::upload__upload_file_cb);
 
-        auto const &name = QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location());
-        auto const &res = update_file(primary_backup_id, name);
-        if (td::Res::No == res)
-            display_read_error(current_dialog_parent);
+        auto const &name = QString("%1/diary.dat").arg(InternalManager::instance()->data_location());
+        auto const success = update_file(primary_backup_id, name);
+        if (!success)
+            return final_callback(td::GWrapperError::IO);
     }
     else {
         connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
@@ -418,30 +451,20 @@ void GoogleWrapper::upload__copy_file_cb(int const, QNetworkReply::NetworkError 
 
 void GoogleWrapper::upload__delete_file_cb(int const, QNetworkReply::NetworkError const error, QByteArray const)
 {
-    if (QNetworkReply::NoError != error) {
-        emit sig_request_end();
-        return display_network_error(current_dialog_parent);
-    }
+    if (QNetworkReply::NoError != error)
+        return final_callback(td::GWrapperError::Network);
 
     dc_requestor_slots();
     connect(requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), this,
         &GoogleWrapper::upload__upload_file_cb);
 
-    auto const &name = QString("%1/diary.dat").arg(TheoreticalDiary::instance()->data_location());
-    auto const &res = update_file(primary_backup_id, name);
-    if (td::Res::No == res)
-        display_read_error(current_dialog_parent);
+    auto const &name = QString("%1/diary.dat").arg(InternalManager::instance()->data_location());
+    auto const success = update_file(primary_backup_id, name);
+    if (!success)
+        return final_callback(td::GWrapperError::IO);
 }
 
 void GoogleWrapper::upload__upload_file_cb(int const, QNetworkReply::NetworkError const error, QByteArray const)
 {
-    emit sig_request_end();
-
-    if (QNetworkReply::NoError != error)
-        return display_network_error(current_dialog_parent);
-
-    if (!silent_upload_diary)
-        td::ok_messagebox(current_dialog_parent, "Diary uploaded.", "The diary has been uploaded to Google Drive.");
-
-    qDebug() << "Uploaded diary to Google Drive.";
+    final_callback(QNetworkReply::NoError != error ? td::GWrapperError::Network : td::GWrapperError::None);
 }

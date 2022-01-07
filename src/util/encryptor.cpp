@@ -18,49 +18,44 @@
 
 #include "encryptor.h"
 
-#include <aes.h>
-#include <files.h>
-#include <filters.h>
-#include <gcm.h>
-#include <osrng.h>
-#include <scrypt.h>
-
 // The encryption algorithm was adapted from the AES-GCM-Test.zip file from
 // https://www.cryptopp.com/wiki/Advanced_Encryption_Standard#Downloads
 
 // The hashing algorithm was adopted from https://www.cryptopp.com/wiki/Scrypt#OpenMP
 
+Encryptor *encryptor_ptr;
+
 Encryptor::Encryptor()
 {
-    salt = new CryptoPP::SecByteBlock(SALT_SIZE);
-    key = new CryptoPP::SecByteBlock(KEY_SIZE);
+    encryptor_ptr = this;
+    salt = CryptoPP::SecByteBlock(SALT_SIZE);
+    key = CryptoPP::SecByteBlock(KEY_SIZE);
     key_set = false;
-    decrypt_iv = new CryptoPP::SecByteBlock(IV_SIZE);
-    encrypted_str = new std::string();
+    decrypt_iv = CryptoPP::SecByteBlock(IV_SIZE);
+    encrypted_str = std::string();
 }
 
-Encryptor::~Encryptor()
+Encryptor::~Encryptor() {}
+
+Encryptor *Encryptor::instance()
 {
-    delete salt;
-    delete key;
-    delete decrypt_iv;
-    delete encrypted_str;
+    return encryptor_ptr;
 }
 
 void Encryptor::reset()
 {
-    salt->Assign(CryptoPP::SecByteBlock(SALT_SIZE));
-    key->Assign(CryptoPP::SecByteBlock(KEY_SIZE));
+    salt.Assign(CryptoPP::SecByteBlock(SALT_SIZE));
+    key.Assign(CryptoPP::SecByteBlock(KEY_SIZE));
     key_set = false;
-    decrypt_iv->Assign(CryptoPP::SecByteBlock(IV_SIZE));
-    encrypted_str->clear();
-    encrypted_str->resize(0);
+    decrypt_iv.Assign(CryptoPP::SecByteBlock(IV_SIZE));
+    encrypted_str.clear();
+    encrypted_str.resize(0);
 }
 
 void Encryptor::regenerate_salt()
 {
     CryptoPP::AutoSeededRandomPool prng;
-    prng.GenerateBlock(salt->data(), SALT_SIZE);
+    prng.GenerateBlock(salt.data(), SALT_SIZE);
 }
 
 void Encryptor::set_key(std::string const &plaintext)
@@ -72,12 +67,12 @@ void Encryptor::set_key(std::string const &plaintext)
     // This is supposed to be computationally expensive to make it hard to brute force attack. It SHOULD take a
     // reasonable amount of time. Unfortunately it takes WAY longer on Windows compared with Linux.
     scrypt.DeriveKey(
-        key->data(), KEY_SIZE, byte_block.data(), byte_block.size(), salt->data(), SALT_SIZE, 1 << 15, 8, 16);
+        key.data(), KEY_SIZE, byte_block.data(), byte_block.size(), salt.data(), SALT_SIZE, 1 << 15, 8, 16);
 }
 
 void Encryptor::set_salt(std::string const &salt_str)
 {
-    salt->Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(salt_str.data()), SALT_SIZE));
+    salt.Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(salt_str.data()), SALT_SIZE));
 }
 
 /*
@@ -99,7 +94,7 @@ void Encryptor::encrypt(std::string const &plaintext, std::string &encrypted)
     CryptoPP::GCM<CryptoPP::AES>::Encryption encryptor;
 
     prng.GenerateBlock(iv, IV_SIZE);
-    encryptor.SetKeyWithIV(key->data(), KEY_SIZE, iv, IV_SIZE);
+    encryptor.SetKeyWithIV(key.data(), KEY_SIZE, iv, IV_SIZE);
 
     // Put content to be encrypted in the encryption AND authentication channel.
     CryptoPP::AuthenticatedEncryptionFilter encryption_filter(
@@ -112,13 +107,13 @@ void Encryptor::encrypt(std::string const &plaintext, std::string &encrypted)
     encrypted.insert(0, iv_str);
 
     // Prepend the salt.
-    std::string const salt_str(reinterpret_cast<char const *>(salt->data()), SALT_SIZE);
+    std::string const salt_str(reinterpret_cast<char const *>(salt.data()), SALT_SIZE);
     encrypted.insert(0, salt_str);
 }
 
 void Encryptor::set_decrypt_iv(std::string const &iv_str)
 {
-    decrypt_iv->Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(iv_str.data()), IV_SIZE));
+    decrypt_iv.Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(iv_str.data()), IV_SIZE));
 }
 
 // Requires a salt and IV already set.
@@ -126,7 +121,7 @@ std::optional<std::string> Encryptor::decrypt(std::string const &encrypted)
 {
     try {
         CryptoPP::GCM<CryptoPP::AES>::Decryption decryptor;
-        decryptor.SetKeyWithIV(key->data(), KEY_SIZE, *decrypt_iv, IV_SIZE);
+        decryptor.SetKeyWithIV(key.data(), KEY_SIZE, decrypt_iv, IV_SIZE);
 
         std::string encrypted_data = encrypted.substr(0, encrypted.size() - TAG_SIZE);
         std::string mac_value = encrypted.substr(encrypted.size() - TAG_SIZE);

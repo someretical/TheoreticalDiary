@@ -1,11 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>linux_icons/hicolor/128x128/apps/theoreticaldiary.png</file>
-        <file>linux_icons/hicolor/16x16/apps/theoreticaldiary.png</file>
-        <file>linux_icons/hicolor/256x256/apps/theoreticaldiary.png</file>
-        <file>linux_icons/hicolor/32x32/apps/theoreticaldiary.png</file>
-        <file>linux_icons/hicolor/64x64/apps/theoreticaldiary.png</file>
-        <file>linux_icons/hicolor/scalable/apps/theoreticaldiary.svg</file>
+        <file>linux_icons/256x256/theoreticaldiary.png</file>
+        <file>linux_icons/scalable/theoreticaldiary.svg</file>
         <file>themes/dark/disabled/base.svg</file>
         <file>themes/dark/disabled/branch-closed.svg</file>
         <file>themes/dark/disabled/branch-end.svg</file>

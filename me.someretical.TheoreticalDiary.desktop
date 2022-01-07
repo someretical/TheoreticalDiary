@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=TheoreticalDiary
+Comment=Digital diary
+Exec=theoreticaldiary %f
+Icon=theoreticaldiary
+Categories=Office;
+StartupWMClass=theoreticaldiary
+Version=1.0

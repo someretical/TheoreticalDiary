@@ -19,8 +19,14 @@
 #ifndef ENCRYPTOR_H
 #define ENCRYPTOR_H
 
+#include <aes.h>
 #include <cryptlib.h>
+#include <files.h>
+#include <filters.h>
+#include <gcm.h>
 #include <optional>
+#include <osrng.h>
+#include <scrypt.h>
 #include <secblock.h>
 
 // Sizes are in BYTES not bits
@@ -32,6 +38,7 @@ int const IV_SIZE = 12;
 class Encryptor {
 public:
     Encryptor();
+    static Encryptor *instance();
     ~Encryptor();
 
     void reset();
@@ -43,12 +50,12 @@ public:
     std::optional<std::string> decrypt(std::string const &encrypted);
 
     bool key_set;
-    std::string *encrypted_str;
+    std::string encrypted_str;
 
 private:
-    CryptoPP::SecByteBlock *salt;
-    CryptoPP::SecByteBlock *key;
-    CryptoPP::SecByteBlock *decrypt_iv;
+    CryptoPP::SecByteBlock salt;
+    CryptoPP::SecByteBlock key;
+    CryptoPP::SecByteBlock decrypt_iv;
 };
 
 #endif // ENCRYPTOR_H

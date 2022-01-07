@@ -17,12 +17,7 @@
  */
 
 #include "diarystats.h"
-#include "../core/diaryholder.h"
-#include "../core/theoreticaldiary.h"
-#include "diarymenu.h"
 #include "ui_diarystats.h"
-
-#include <QtCharts>
 
 using namespace QtCharts;
 
@@ -35,7 +30,7 @@ QColor const light_grey = QColor(49, 54, 59, 255 /* background colour */).lighte
 QColor const colours[] = {QColor(84, 110, 122, 51), QColor(123, 31, 162, 255), QColor(94, 53, 177, 255),
     QColor(25, 118, 210, 255), QColor(0, 151, 167, 255), QColor(76, 175, 80, 255)};
 
-DiaryStats::DiaryStats(DiaryEditor const *editor, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats)
+DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats)
 {
     ui->setupUi(this);
 
@@ -66,9 +61,8 @@ DiaryStats::DiaryStats(DiaryEditor const *editor, QWidget *parent) : QWidget(par
     ui->spline_chart_view->setRenderHint(QPainter::Antialiasing);
     ui->spline_chart_view->setChart(spline_chart);
 
-    current_month = qobject_cast<DiaryMenu *>(parent)->first_created;
-
-    connect(editor, &DiaryEditor::sig_re_render, this, &DiaryStats::render_stats, Qt::QueuedConnection);
+    connect(InternalManager::instance(), &InternalManager::update_data, this, &DiaryStats::render_stats,
+        Qt::QueuedConnection);
 
     // Navigator slots.
     connect(ui->month_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DiaryStats::month_changed,
@@ -77,11 +71,11 @@ DiaryStats::DiaryStats(DiaryEditor const *editor, QWidget *parent) : QWidget(par
     connect(ui->next_month, &QPushButton::clicked, this, &DiaryStats::next_month, Qt::QueuedConnection);
     connect(ui->prev_month, &QPushButton::clicked, this, &DiaryStats::prev_month, Qt::QueuedConnection);
 
-    connect(TheoreticalDiary::instance(), &TheoreticalDiary::apply_theme, this, &DiaryStats::apply_theme,
+    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryStats::update_theme,
         Qt::QueuedConnection);
-    apply_theme();
+    update_theme();
 
-    render_stats(current_month, true);
+    // current_date is initialised by &InternalManager::change_month signal.
 }
 
 DiaryStats::~DiaryStats()
@@ -89,9 +83,9 @@ DiaryStats::~DiaryStats()
     delete ui;
 }
 
-void DiaryStats::apply_theme()
+void DiaryStats::update_theme()
 {
-    auto const &theme = TheoreticalDiary::instance()->theme();
+    auto const &theme = InternalManager::instance()->get_theme();
 
     QFile file(QString(":/global/diarystats.qss"));
     file.open(QIODevice::ReadOnly);
@@ -101,7 +95,6 @@ void DiaryStats::apply_theme()
     file.setFileName(QString(":/%1/diarystats.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
     stylesheet.append(file.readAll());
-    file.close();
 
     setStyleSheet(stylesheet);
 }
@@ -110,25 +103,25 @@ void DiaryStats::next_month()
 {
     auto const &&next = ui->year_edit->date().addMonths(1);
     if (next.isValid())
-        render_stats(next, false);
+        render_stats(next);
 }
 
 void DiaryStats::prev_month()
 {
     auto const &&prev = ui->year_edit->date().addMonths(-1);
     if (prev.isValid())
-        render_stats(prev, false);
+        render_stats(prev);
 }
 
 void DiaryStats::month_changed(int const)
 {
-    render_stats(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1), false);
+    render_stats(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1));
 }
 
 void DiaryStats::year_changed(QDate const &date)
 {
     if (date.isValid())
-        render_stats(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1), false);
+        render_stats(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1));
 }
 
 void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
@@ -139,9 +132,9 @@ void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
     auto *pie_series = new QPieSeries();
     pie_series->setPieEndAngle(330);
 
-    if (current_month.daysInMonth() == rating_counts[0]) {
+    if (current_date.daysInMonth() == rating_counts[0]) {
         // If there is no data for the current month, display an empty pie chart.
-        pie_series->append(ratings[0], current_month.daysInMonth());
+        pie_series->append(ratings[0], current_date.daysInMonth());
         auto slice = pie_series->slices().at(0);
         slice->setBrush(colours[0]);
         slice->setLabelColor(QColor(Qt::white));
@@ -180,7 +173,7 @@ void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
 void DiaryStats::render_polar_chart(std::optional<td::YearMap::iterator> const &opt)
 {
     auto chart = qobject_cast<QPolarChart *>(ui->polar_chart_view->chart());
-    auto const angular_max = current_month.daysInMonth();
+    auto const angular_max = current_date.daysInMonth();
 
     chart->removeAllSeries();
     for (auto const &i : chart->axes())
@@ -240,7 +233,7 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
 
     auto x_axis = new QValueAxis();
     chart->addAxis(x_axis, Qt::AlignBottom);
-    x_axis->setRange(1, current_month.daysInMonth());
+    x_axis->setRange(1, current_date.daysInMonth());
     x_axis->setTickCount(15);
     x_axis->setGridLineColor(light_grey);
     x_axis->setLabelsColor(QColor(Qt::white));
@@ -317,7 +310,7 @@ void DiaryStats::render_comparison(std::vector<int> const &rating_counts)
     ui->t5->setText(QString::number(rating_counts[5]));
     ui->ts->setText(QString::number(rating_counts[6]));
 
-    auto const &prev_month = current_month.addMonths(-1);
+    auto const &prev_month = current_date.addMonths(-1);
     if (!prev_month.isValid()) {
         ui->l0->setText("N/A");
         ui->l1->setText("N/A");
@@ -337,8 +330,8 @@ void DiaryStats::render_comparison(std::vector<int> const &rating_counts)
         return;
     }
 
-    auto const &prev_stats = DiaryStats::get_rating_stats(
-        TheoreticalDiary::instance()->diary_holder->get_monthmap(prev_month), prev_month.daysInMonth());
+    auto const &prev_stats =
+        DiaryStats::get_rating_stats(DiaryHolder::instance()->get_monthmap(prev_month), prev_month.daysInMonth());
 
     ui->l0->setText(QString::number(prev_stats[0]));
     ui->l1->setText(QString::number(prev_stats[1]));
@@ -377,12 +370,9 @@ std::vector<int> DiaryStats::get_rating_stats(std::optional<td::YearMap::iterato
     return rating_counts;
 }
 
-void DiaryStats::render_stats(QDate const &date, bool const ignore_month_check)
+void DiaryStats::render_stats(QDate const &date)
 {
-    if (!ignore_month_check && current_month.year() == date.year() && current_month.month() == date.month())
-        return;
-
-    current_month = date;
+    current_date = date;
 
     // Update the selector UI.
     ui->month_dropdown->blockSignals(true);
@@ -393,15 +383,15 @@ void DiaryStats::render_stats(QDate const &date, bool const ignore_month_check)
         ui->year_edit->setDate(date);
     }
     else {
-        ui->month_dropdown->setCurrentIndex(current_month.month() - 1);
-        ui->year_edit->setDate(current_month);
+        ui->month_dropdown->setCurrentIndex(current_date.month() - 1);
+        ui->year_edit->setDate(current_date);
     }
 
     ui->month_dropdown->blockSignals(false);
     ui->year_edit->blockSignals(false);
 
-    auto const &opt = TheoreticalDiary::instance()->diary_holder->get_monthmap(current_month);
-    auto const &rating_counts = DiaryStats::get_rating_stats(opt, current_month.daysInMonth());
+    auto const &opt = DiaryHolder::instance()->get_monthmap(current_date);
+    auto const &rating_counts = DiaryStats::get_rating_stats(opt, current_date.daysInMonth());
 
     render_pie_chart(rating_counts);
     render_polar_chart(opt);

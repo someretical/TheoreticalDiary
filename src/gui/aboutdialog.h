@@ -19,7 +19,9 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
-#include <QDialog>
+#include "../core/internalmanager.h"
+
+#include <QtWidgets>
 
 namespace Ui {
 class AboutDialog;
@@ -33,7 +35,7 @@ public:
     ~AboutDialog();
 
 public slots:
-    void apply_theme();
+    void update_theme();
 
 private:
     Ui::AboutDialog *ui;

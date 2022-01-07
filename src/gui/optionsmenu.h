@@ -19,7 +19,18 @@
 #ifndef OPTIONSMENU_H
 #define OPTIONSMENU_H
 
+#include "../core/diaryholder.h"
+#include "../core/internalmanager.h"
+#include "../util/custommessageboxes.h"
+#include "../util/encryptor.h"
+#include "../util/hashcontroller.h"
+#include "aboutdialog.h"
+#include "apiresponse.h"
+#include "licensesdialog.h"
+#include "mainwindow.h"
+
 #include <QtWidgets>
+#include <fstream>
 
 namespace Ui {
 class OptionsMenu;
@@ -32,16 +43,14 @@ public:
     explicit OptionsMenu(bool const from_diary_editor, QWidget *parent = nullptr);
     ~OptionsMenu();
 
-    void dev_unknown_file();
-
 public slots:
-    void apply_theme();
+    void update_theme();
     void back();
     void save_settings();
     void setup_layout();
     void export_diary();
     void change_password();
-    void change_password_cb();
+    void change_password_cb(bool const);
     void download_backup();
     void upload_diary();
     void flush_oauth();
@@ -53,13 +62,10 @@ public slots:
     void dev_delete();
     void show_about();
     void show_licenses();
-    void request_end();
 
 private:
     Ui::OptionsMenu *ui;
     bool diary_editor_mode;
-
-    void request_start();
 };
 
 #endif // OPTIONSMENU_H
