@@ -37,7 +37,7 @@ class MainMenu : public QWidget {
     Q_OBJECT
 
 public:
-    explicit MainMenu(QWidget *parent = nullptr);
+    explicit MainMenu(bool const show_locked_message, QWidget *parent = nullptr);
     ~MainMenu();
 
 public slots:

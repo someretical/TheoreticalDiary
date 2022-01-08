@@ -142,8 +142,13 @@ void DiaryEntryViewer::change_month(QDate const &date)
         if (message.empty())
             continue;
 
+        // Ideally, the message should have been trimmed when the entry itself was saved. However, that was not always
+        // the case so the message has to be trimmed here for backwards compatability.
+        auto trimmed_str = message;
+        misc::trim(trimmed_str);
+
         auto day = new DiaryEntryDayLabel(td::LabelData{this, i.first, rating, important}, this);
-        auto formatted_msg = new DiaryEntryDayMessage(message, this);
+        auto formatted_msg = new DiaryEntryDayMessage(trimmed_str, this);
         auto spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         ui->entry_grid->addWidget(day, row_counter, 0, 1, 1, Qt::AlignTop | Qt::AlignLeft);

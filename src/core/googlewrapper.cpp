@@ -41,7 +41,7 @@ GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent)
     params["access_type"] = QVariant("offline");
     google->setExtraRequestParams(params);
 
-    // To stop o2 from writing to the disk, a dummy real only file from the resource file is provided.
+    // To stop o2 from writing to the disk, a dummy read only file from the resource file is provided.
     // Don't want o2 to write to disk because a custom encryption method is already employed.
     auto settings = new QSettings(":/dummysettings", QSettings::IniFormat);
     auto settings_store = new O0SettingsStore(settings, QApplication::applicationName() /* Placeholder value */);
@@ -158,6 +158,7 @@ bool GoogleWrapper::decrypt_credentials(bool const perform_decrypt)
         auto credentials = json.get<td::Credentials>();
         google->setToken(credentials.access_token.data());
         google->setRefreshToken(credentials.refresh_token.data());
+        google->setLinked(true);
 
         qDebug() << "Decrypted tokens.";
         return true;

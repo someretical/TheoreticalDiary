@@ -19,12 +19,12 @@
 #include "mainmenu.h"
 #include "ui_mainmenu.h"
 
-MainMenu::MainMenu(QWidget *parent) : QWidget(parent), ui(new Ui::MainMenu)
+MainMenu::MainMenu(bool const show_locked_message, QWidget *parent) : QWidget(parent), ui(new Ui::MainMenu)
 {
     ui->setupUi(this);
     ui->version->setText("Version " + QApplication::applicationVersion());
     ui->version->update();
-    ui->alert_text->setText("");
+    ui->alert_text->setText(show_locked_message ? "Diary locked due to inactivity." : "");
     ui->alert_text->update();
 
     QTimer::singleShot(0, [&]() { ui->password_box->setFocus(); });

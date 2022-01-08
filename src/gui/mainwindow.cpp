@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     restore_state();
 
-    show_main_menu();
+    show_main_menu(false);
 }
 
 MainWindow::~MainWindow()
@@ -84,7 +84,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             Encryptor::instance()->reset();
             InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
-            if (locked) {
+            if (!locked) {
                 switch (err) {
                 case td::GWrapperError::Auth:
                     cmb::display_auth_error(this);
@@ -111,7 +111,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
     }
 
     qDebug() << "Calling show_main_menu from exit_diary_to_main_menu.";
-    show_main_menu();
+    show_main_menu(locked);
 }
 
 void MainWindow::lock_diary()
@@ -164,13 +164,13 @@ void MainWindow::clear_grid()
     }
 }
 
-void MainWindow::show_main_menu()
+void MainWindow::show_main_menu(bool const show_locked_message)
 {
     last_window = current_window;
     current_window = td::Window::Main;
 
     clear_grid();
-    ui->central_widget->layout()->addWidget(new MainMenu(this));
+    ui->central_widget->layout()->addWidget(new MainMenu(show_locked_message, this));
 }
 
 void MainWindow::show_options_menu()
@@ -218,7 +218,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
     else if (td::Window::Options == current_window && td::Window::Main == last_window) {
         event->ignore(); // Don't close the main window, but exit to the main menu.
-        show_main_menu();
+        show_main_menu(false);
     }
     else if (td::Window::Editor == current_window) {
         event->ignore(); // Don't close the main window, but exit to the main menu.

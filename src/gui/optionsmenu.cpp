@@ -70,7 +70,7 @@ void OptionsMenu::back()
     if (diary_editor_mode)
         return MainWindow::instance()->show_diary_menu();
 
-    MainWindow::instance()->show_main_menu();
+    MainWindow::instance()->show_main_menu(false);
 }
 
 void OptionsMenu::save_settings()

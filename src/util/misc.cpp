@@ -37,24 +37,53 @@ QString get_day_suffix(int const day)
     }
 }
 
-std::string get_trunc_first_line(std::string const &input, int const max_line_len)
+bool is_not_space(int ch)
 {
-    // Get first line https://stackoverflow.com/a/5059112
-    std::istringstream f(input);
-    std::string second_line_exists, res;
-    std::getline(f, res);
-
-    // Truncate line and append ... if it's too long.
-    if (max_line_len < res.size()) {
-        res.resize(max_line_len);
-
-        res.append("...");
-    }
-    else if (std::getline(f, second_line_exists)) {
-        // There can be multiple lines in an entry where the first line does not have at least LONGEST_LINE_LENGTH
-        // characters.
-        res.append("...");
-    }
+    return !std::isspace(ch);
 }
 
+void ltrim(std::string &s)
+{
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), is_not_space));
+}
+
+void rtrim(std::string &s)
+{
+    s.erase(std::find_if(s.rbegin(), s.rend(), is_not_space).base(), s.end());
+}
+
+void trim(std::string &s)
+{
+    rtrim(s);
+    ltrim(s);
+}
+
+// Assumes trimmed input!
+std::string get_trunc_first_line(std::string input, int max_line_len)
+{
+    std::string first_line;
+    auto newlines_exist = input.find('\n') != std::string::npos;
+
+    if (newlines_exist) {
+        std::istringstream stream(input);
+        std::getline(stream, first_line);
+    }
+    else {
+        first_line = std::move(input);
+    }
+
+    // Truncate line and append ... if it's too long.
+    // Cast max_line_len from 'int const' to 'long unsigned int'.
+    if (first_line.size() > static_cast<std::make_unsigned<decltype(max_line_len)>::type>(max_line_len)) {
+        first_line.resize(max_line_len);
+        first_line.append("...");
+    }
+    else if (newlines_exist) {
+        // There can be multiple lines in an entry where the first line does not have at least LONGEST_LINE_LENGTH
+        // characters.
+        first_line.append("...");
+    }
+
+    return first_line;
+}
 } // namespace misc

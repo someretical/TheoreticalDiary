@@ -73,9 +73,9 @@ inline void from_json(nlohmann::json const &j, Metadata &m)
 struct Settings {
 };
 
-inline void to_json(nlohmann::json &j, Settings const &s) {}
+inline void to_json(nlohmann::json & /* j */, Settings const & /* s */) {}
 
-inline void from_json(nlohmann::json const &j, Settings &s) {}
+inline void from_json(nlohmann::json const & /* j */, Settings & /* s */) {}
 
 struct Diary {
     DiaryLog log;
