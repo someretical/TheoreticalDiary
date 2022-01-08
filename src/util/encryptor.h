@@ -29,11 +29,14 @@
 #include <scrypt.h>
 #include <secblock.h>
 
+// tencrypt for theoretical encryption. I am a shameless plug.
+namespace tencrypt {
 // Sizes are in BYTES not bits
 int const TAG_SIZE = 16;
 int const SALT_SIZE = 64;
 int const KEY_SIZE = 32;
 int const IV_SIZE = 12;
+} // namespace tencrypt
 
 class Encryptor {
 public:
@@ -46,10 +49,13 @@ public:
     void set_key(std::string const &plaintext);
     void set_salt(std::string const &salt_str);
     void set_decrypt_iv(std::string const &iv_str);
+    void parse_encrypted_string(std::string &encrypted);
     void encrypt(std::string const &plaintext, std::string &encrypted);
     std::optional<std::string> decrypt(std::string const &encrypted);
 
     bool key_set;
+    // This string exists as a cache of only the encrypted part of the string when trying to decrypt the diary.
+    // The full diary string includes the salt and the IV.
     std::string encrypted_str;
 
 private:

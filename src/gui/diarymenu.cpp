@@ -53,20 +53,20 @@ void DiaryMenu::update_theme()
 void DiaryMenu::tab_changed(int const tab)
 {
     switch (tab) {
-    // Editor tab
     case 0:
+        qDebug() << "Switched to editor tab.";
         break;
-    // List tab
     case 1:
+        qDebug() << "Switched to entry list tab.";
         break;
-    // Stats tab
     case 2:
+        qDebug() << "Switched to stats tab.";
         break;
-    // Pixels tab
     case 3:
+        qDebug() << "Switched to pixels tab.";
         break;
-    // Options tab
     case 4:
+        qDebug() << "Switched to options tab.";
         MainWindow::instance()->show_options_menu();
         break;
     }

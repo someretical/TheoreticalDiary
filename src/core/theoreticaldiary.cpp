@@ -74,7 +74,7 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc,
     gwrapper = new GoogleWrapper(this);
     diary_holder = new DiaryHolder();
     encryptor = new Encryptor();
-    internal_manager = new InternalManager(td::Theme::Dark); // TODO add light mode.
+    internal_manager = new InternalManager();
 
     // Create app directory.
     QDir dir(internal_manager->data_location());

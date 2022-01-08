@@ -21,9 +21,35 @@
 
 #include <QtWidgets>
 
+/*
+ * BusyFilter class.
+ */
 class BusyFilter : public QObject {
 protected:
     bool eventFilter(QObject *, QEvent *event);
+};
+
+/*
+ * InactiveFilter class.
+ */
+class InactiveFilter : public QObject {
+    Q_OBJECT
+
+signals:
+    void sig_inactive_timeout();
+
+public:
+    InactiveFilter(int const i, QObject *parent = nullptr);
+    ~InactiveFilter();
+
+    QTimer *timer;
+    int interval;
+
+public slots:
+    void slot_inactive_timeout();
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // EVENTFILTERS_H

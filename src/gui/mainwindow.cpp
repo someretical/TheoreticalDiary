@@ -31,14 +31,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     current_window = td::Window::Main;
     last_window = td::Window::Main;
 
-    previous_state = Qt::ApplicationActive;
-    timer = new QTimer(this);
-    timer->setTimerType(Qt::CoarseTimer);
-    connect(timer, &QTimer::timeout, this, &MainWindow::inactive_time_up, Qt::QueuedConnection);
-
+    connect(InternalManager::instance()->inactive_filter, &InactiveFilter::sig_inactive_timeout, this,
+        &MainWindow::lock_diary);
     connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainWindow::update_theme,
         Qt::QueuedConnection);
     update_theme();
+
+    restore_state();
 
     show_main_menu();
 }
@@ -46,7 +45,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete timer;
 }
 
 MainWindow *MainWindow::instance()
@@ -54,75 +52,86 @@ MainWindow *MainWindow::instance()
     return main_window_ptr;
 }
 
-void MainWindow::focus_changed(Qt::ApplicationState const state)
+void MainWindow::store_state()
 {
-    if (Qt::ApplicationActive == state) {
-        if (td::Window::Editor == current_window || td::Window::Editor == last_window)
-            timer->stop();
-    }
-    else if (Qt::ApplicationInactive == state) {
-        if ((td::Window::Editor == last_window && td::Window::Options == current_window) ||
-            td::Window::Editor == current_window)
-            timer->start(300000); // 5 mins = 300000 ms
-    }
-
-    previous_state = state;
+    InternalManager::instance()->settings->setValue("geometry", saveGeometry());
+    InternalManager::instance()->settings->setValue("window_state", saveState());
+    qDebug() << "Stored window state.";
 }
 
-void MainWindow::exit_diary_to_main_menu()
+void MainWindow::restore_state()
+{
+    auto geo = InternalManager::instance()->settings->value("geometry", "").toByteArray();
+    auto state = InternalManager::instance()->settings->value("window_state", "").toByteArray();
+    restoreGeometry(geo);
+    restoreState(state);
+    qDebug() << "Restored window state.";
+}
+
+// The locked parameter indicates if the diary was locked due to inactivity. If it was, then, don't display any dialogs.
+void MainWindow::exit_diary_to_main_menu(bool const locked)
 {
     // Clean up.
     InternalManager::instance()->internal_diary_changed = false;
     DiaryHolder::instance()->init();
 
     // Backup on Google Drive.
-    if (InternalManager::instance()->settings->value("sync_enabled", false).toBool() &&
+    if (InternalManager::instance()->settings->value("sync_enabled").toBool() &&
         InternalManager::instance()->diary_file_changed) {
-        GoogleWrapper::instance()->upload_diary([this](const td::GWrapperError err) {
+        GoogleWrapper::instance()->upload_diary([this, locked](const td::GWrapperError err) {
             InternalManager::instance()->diary_file_changed = false;
             GoogleWrapper::instance()->encrypt_credentials();
             Encryptor::instance()->reset();
             InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
-            switch (err) {
-            case td::GWrapperError::Auth:
-                cmb::display_auth_error(this);
-                break;
-            case td::GWrapperError::Network:
-                cmb::display_network_error(this);
-                break;
-            case td::GWrapperError::IO:
-                cmb::display_io_error(this);
-                break;
-            case td::GWrapperError::DriveFile:
-                cmb::display_drive_file_error(this);
-                break;
-            case td::GWrapperError::None:
-                cmb::diary_uploaded(this);
-                break;
+            if (locked) {
+                switch (err) {
+                case td::GWrapperError::Auth:
+                    cmb::display_auth_error(this);
+                    break;
+                case td::GWrapperError::Network:
+                    cmb::display_network_error(this);
+                    break;
+                case td::GWrapperError::IO:
+                    cmb::display_io_error(this);
+                    break;
+                case td::GWrapperError::DriveFile:
+                    cmb::display_drive_file_error(this);
+                    break;
+                case td::GWrapperError::None:
+                    cmb::diary_uploaded(this);
+                    break;
+                }
             }
         });
     }
     else {
+        GoogleWrapper::instance()->encrypt_credentials();
         Encryptor::instance()->reset();
     }
 
+    qDebug() << "Calling show_main_menu from exit_diary_to_main_menu.";
     show_main_menu();
 }
 
-void MainWindow::inactive_time_up()
+void MainWindow::lock_diary()
 {
-    timer->stop();
-
+    qDebug() << "Timeout detected.";
     if (td::Window::Main == current_window ||
-        (td::Window::Options == current_window && td::Window::Main == last_window))
+        (td::Window::Options == current_window && td::Window::Main == last_window)) {
+        // This isn't implemented because I don't believe it's a high risk for those tokens to be leaked?
+        // In any case, if that ever DOES prove a threat, I can just uncomment the code below.
+        // GoogleWrapper::instance()->google->unlink();
+        // qDebug() << "Unlinked potential Google due to inactivity on the main menu.";
         return;
+    }
 
     emit sig_update_diary();
     if (InternalManager::instance()->internal_diary_changed)
         DiaryHolder::instance()->save(); // Ignore any errors.
 
-    exit_diary_to_main_menu();
+    qDebug() << "Locking diary.";
+    exit_diary_to_main_menu(true);
 }
 
 void MainWindow::update_theme()
@@ -142,11 +151,14 @@ void MainWindow::clear_grid()
     // this will cause another seg fault though. Also for some reason, the compiler wants me to enclose the assignment
     // in the while loop in another set of parentheses. :o
     QWidget *w;
-    while ((w = QApplication::activeModalWidget()))
+    while ((w = QApplication::activeModalWidget())) {
+        qDebug() << "Clearing grid of:" << w;
         w->close();
+    }
 
     QLayoutItem *child;
     while ((child = ui->central_widget->layout()->takeAt(0))) {
+        qDebug() << "Clearing grid of:" << child->widget() << child;
         child->widget()->deleteLater();
         delete child;
     }
@@ -184,6 +196,21 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (InternalManager::instance()->app_busy) {
         event->ignore();
+
+        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+
+        auto res = td::yn_messagebox(this, "Are you sure you want to force close the application?",
+            "The application is currently performing an action. If you choose to close it now, all unsaved changes "
+            "will be lost!");
+        switch (res) {
+        case QMessageBox::AcceptRole:
+            qDebug() << "App forced closed by the user.";
+            QCoreApplication::exit(1);
+            break;
+        case QMessageBox::RejectRole:
+            InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+            qDebug() << "Ignored close request due to app being busy.";
+        }
     }
     else if (td::Window::Options == current_window && td::Window::Editor == last_window) {
         event->ignore(); // Don't close the main window, but exit to the diary menu.
@@ -216,9 +243,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
             }
         }
 
-        exit_diary_to_main_menu();
+        exit_diary_to_main_menu(false);
     }
     else {
+        store_state();
+        qDebug() << "Exiting application.";
         event->accept(); // Actually exit the application.
     }
 }

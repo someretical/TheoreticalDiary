@@ -62,6 +62,7 @@ void MainMenu::update_theme()
 
 void MainMenu::open_options()
 {
+    qDebug() << "Showing options menu.";
     MainWindow::instance()->show_options_menu();
 }
 
@@ -73,23 +74,28 @@ bool MainMenu::get_diary_contents()
 
     if (!first.fail()) {
         stream << first.rdbuf();
+        qDebug() << "Loaded diary contents from primary file.";
     }
     else {
         std::ifstream second(InternalManager::instance()->data_location().toStdString() + "/diary.dat.bak");
 
-        if (!second.fail())
+        if (!second.fail()) {
             stream << second.rdbuf();
-        else
+            qDebug() << "Loaded diary contents from backup file.";
+        }
+        else {
+            qDebug() << "Failed to get diary contents from primary AND backup file.";
             return false;
+        }
     }
 
     Encryptor::instance()->encrypted_str.assign(stream.str());
-
     return true;
 }
 
 void MainMenu::decrypt_diary()
 {
+    qDebug() << "Attempting to decrypt diary...";
     InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
 
     auto const &password = ui->password_box->text().toStdString();
@@ -105,15 +111,21 @@ void MainMenu::decrypt_diary()
         return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
     }
 
-    // If the password box is empty, try to decompress immediately.
-    if (password.empty())
-        return decrypt_diary_cb(false);
-
     auto &str = Encryptor::instance()->encrypted_str;
-    Encryptor::instance()->set_salt(str.substr(0, SALT_SIZE));
-    str.erase(0, SALT_SIZE);
-    Encryptor::instance()->set_decrypt_iv(str.substr(0, IV_SIZE));
-    str.erase(0, IV_SIZE);
+    // If the password box is empty, try to decompress immediately.
+    // If the encrypted string length is too short, throw the same error.
+    // This is the simplest way of letting a user know their file is scuffed.
+    // The app can't just crash when there is indeed a file present.
+    if (password.empty() || str.size() <= tencrypt::SALT_SIZE + tencrypt::IV_SIZE) {
+        if (str.size() <= tencrypt::SALT_SIZE + tencrypt::IV_SIZE)
+            qDebug() << "Diary file found but way too short to be decrypted.";
+        else
+            qDebug() << "No password to hash in decrypt_diary.";
+
+        return decrypt_diary_cb(false);
+    }
+
+    Encryptor::instance()->parse_encrypted_string(str);
 
     ui->alert_text->setText("Decrypting...");
     ui->alert_text->update();
@@ -145,6 +157,7 @@ void MainMenu::decrypt_diary_cb(bool const perform_decrypt)
         DiaryHolder::instance()->load(decompressed)) {
 
         GoogleWrapper::instance()->decrypt_credentials(perform_decrypt);
+        qDebug() << "Decryption and decompression of diary successful. Loading diary menu...";
         return MainWindow::instance()->show_diary_menu();
         // show_diary_menu instantiates the diary pixels tab which in turn will call end_busy_mode once it's done
         // rendering.
@@ -167,6 +180,7 @@ void MainMenu::new_diary()
     DiaryHolder::instance()->init();
     InternalManager::instance()->internal_diary_changed = true;
 
+    qDebug() << "Showing diary menu from new diary.";
     MainWindow::instance()->show_diary_menu();
 }
 
@@ -194,6 +208,7 @@ void MainMenu::import_diary()
     }
     else {
         InternalManager::instance()->internal_diary_changed = true;
+        qDebug() << "Showing diary menu from import diary.";
         MainWindow::instance()->show_diary_menu();
     }
 }

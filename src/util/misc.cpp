@@ -36,4 +36,25 @@ QString get_day_suffix(int const day)
         return "th";
     }
 }
+
+std::string get_trunc_first_line(std::string const &input, int const max_line_len)
+{
+    // Get first line https://stackoverflow.com/a/5059112
+    std::istringstream f(input);
+    std::string second_line_exists, res;
+    std::getline(f, res);
+
+    // Truncate line and append ... if it's too long.
+    if (max_line_len < res.size()) {
+        res.resize(max_line_len);
+
+        res.append("...");
+    }
+    else if (std::getline(f, second_line_exists)) {
+        // There can be multiple lines in an entry where the first line does not have at least LONGEST_LINE_LENGTH
+        // characters.
+        res.append("...");
+    }
+}
+
 } // namespace misc

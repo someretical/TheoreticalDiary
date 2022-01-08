@@ -17,11 +17,25 @@
  */
 
 #include "encryptor.h"
+#include <QDebug>
 
 // The encryption algorithm was adapted from the AES-GCM-Test.zip file from
 // https://www.cryptopp.com/wiki/Advanced_Encryption_Standard#Downloads
 
 // The hashing algorithm was adopted from https://www.cryptopp.com/wiki/Scrypt#OpenMP
+
+/*
+ * Layout of encrypted string:
+ *
+ * [SALT_SIZE bytes for the salt]
+ * [IV_SIZE bytes for the IV]
+ * [... actual encrypted content]
+ *
+ * The salt is regenerated every time the password is changed.
+ * The IV is different every time.
+ */
+
+using namespace tencrypt;
 
 Encryptor *encryptor_ptr;
 
@@ -49,13 +63,14 @@ void Encryptor::reset()
     key_set = false;
     decrypt_iv.Assign(CryptoPP::SecByteBlock(IV_SIZE));
     encrypted_str.clear();
-    encrypted_str.resize(0);
+    qDebug() << "Encryptor reset.";
 }
 
 void Encryptor::regenerate_salt()
 {
     CryptoPP::AutoSeededRandomPool prng;
     prng.GenerateBlock(salt.data(), SALT_SIZE);
+    qDebug() << "Salt regenerated.";
 }
 
 void Encryptor::set_key(std::string const &plaintext)
@@ -73,18 +88,16 @@ void Encryptor::set_key(std::string const &plaintext)
 void Encryptor::set_salt(std::string const &salt_str)
 {
     salt.Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(salt_str.data()), SALT_SIZE));
+    qDebug() << "New salt set.";
 }
 
-/*
- * Layout of encrypted string:
- *
- * [SALT_SIZE bytes for the salt]
- * [IV_SIZE bytes for the IV]
- * [... actual encrypted content]
- *
- * The salt is regenerated every time the password is changed.
- * The IV is different every time.
- */
+void Encryptor::parse_encrypted_string(std::string &encrypted)
+{
+    set_salt(encrypted.substr(0, SALT_SIZE));
+    encrypted.erase(0, SALT_SIZE);
+    set_decrypt_iv(encrypted.substr(0, IV_SIZE));
+    encrypted.erase(0, IV_SIZE);
+}
 
 // Requires a salt be already set.
 void Encryptor::encrypt(std::string const &plaintext, std::string &encrypted)
@@ -114,6 +127,7 @@ void Encryptor::encrypt(std::string const &plaintext, std::string &encrypted)
 void Encryptor::set_decrypt_iv(std::string const &iv_str)
 {
     decrypt_iv.Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(iv_str.data()), IV_SIZE));
+    qDebug() << "New decrypt IV set.";
 }
 
 // Requires a salt and IV already set.

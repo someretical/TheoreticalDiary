@@ -45,8 +45,8 @@ int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
 
     msgbox.setFont(f);
     extend_top_line(top);
-    msgbox.setText(QString::fromStdString(top));
-    msgbox.setInformativeText(QString::fromStdString(bottom));
+    msgbox.setText(top.data());
+    msgbox.setInformativeText(bottom.data());
     msgbox.addButton(&ok_button, QMessageBox::AcceptRole);
     msgbox.setDefaultButton(&ok_button);
     msgbox.setTextInteractionFlags(Qt::NoTextInteraction);
@@ -69,8 +69,8 @@ int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
 
     msgbox.setFont(f);
     extend_top_line(top);
-    msgbox.setText(QString::fromStdString(top));
-    msgbox.setInformativeText(QString::fromStdString(bottom));
+    msgbox.setText(top.data());
+    msgbox.setInformativeText(bottom.data());
     msgbox.addButton(&yes, QMessageBox::AcceptRole);
     msgbox.addButton(&no, QMessageBox::RejectRole);
     msgbox.setDefaultButton(&no);
@@ -84,21 +84,21 @@ int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string
 {
     QMessageBox msgbox(parent);
 
-    QPushButton destroy_button(QString::fromStdString(destroy_text), &msgbox);
+    QPushButton destroy_button(destroy_text.data(), &msgbox);
     QFont f = destroy_button.font();
     f.setPointSize(11);
     destroy_button.setFont(f);
     destroy_button.setStyleSheet(get_danger_stylesheet());
 
-    QPushButton accept_button(QString::fromStdString(accept_text), &msgbox);
+    QPushButton accept_button(accept_text.data(), &msgbox);
     accept_button.setFont(f);
-    QPushButton cancel_button(QString::fromStdString(reject_text), &msgbox);
+    QPushButton cancel_button(reject_text.data(), &msgbox);
     cancel_button.setFlat(true);
     cancel_button.setFont(f);
     msgbox.setFont(f);
     extend_top_line(top);
-    msgbox.setText(QString::fromStdString(top));
-    msgbox.setInformativeText(QString::fromStdString(bottom));
+    msgbox.setText(top.data());
+    msgbox.setInformativeText(bottom.data());
     msgbox.addButton(&accept_button, QMessageBox::AcceptRole);
     msgbox.addButton(&cancel_button, QMessageBox::RejectRole);
     msgbox.addButton(&destroy_button, QMessageBox::DestructiveRole);

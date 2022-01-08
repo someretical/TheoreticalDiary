@@ -19,23 +19,26 @@
 #include "internalmanager.h"
 
 InternalManager *i_m_ptr;
+int const TIMEOUT_MS = 1000 * 60 * 5; // 5 minutes.
 
-InternalManager::InternalManager(const td::Theme t)
+InternalManager::InternalManager()
 {
     i_m_ptr = this;
-    theme = t;
     app_busy = false;
     internal_diary_changed = false;
     diary_file_changed = false;
 
+    inactive_filter = new InactiveFilter(TIMEOUT_MS, this);
+    QApplication::instance()->installEventFilter(inactive_filter);
+
     settings = new QSettings(QString("%1/%2").arg(data_location(), "config.ini"), QSettings::IniFormat, this);
-    if (!settings->contains("sync_enabled"))
-        settings->setValue("sync_enabled", false);
+    init_settings(false);
 }
 
 InternalManager::~InternalManager()
 {
     delete settings;
+    delete inactive_filter;
 }
 
 InternalManager *InternalManager::instance()
@@ -43,9 +46,18 @@ InternalManager *InternalManager::instance()
     return i_m_ptr;
 }
 
+void InternalManager::init_settings(const bool force_reset)
+{
+    if (!settings->contains("sync_enabled") || force_reset)
+        settings->setValue("sync_enabled", false);
+
+    if (!settings->contains("theme") || force_reset)
+        settings->setValue("theme", static_cast<int>(td::Theme::Dark));
+}
+
 QString InternalManager::get_theme()
 {
-    return QString(td::Theme::Light == theme ? "light" : "dark");
+    return QString(td::Theme::Light == static_cast<td::Theme>(settings->value("theme").toInt()) ? "light" : "dark");
 }
 
 QString InternalManager::data_location()
@@ -56,7 +68,7 @@ QString InternalManager::data_location()
 
 void InternalManager::start_busy_mode(int const line, std::string const &func, std::string const &file)
 {
-    qDebug() << "!!! Attempted start busy:" << line << QString::fromStdString(func) << QString::fromStdString(file);
+    qDebug() << "!!! Attempted start busy:" << line << func.data() << file.data();
 
     if (app_busy)
         return;
@@ -68,7 +80,7 @@ void InternalManager::start_busy_mode(int const line, std::string const &func, s
 
 void InternalManager::end_busy_mode(int const line, std::string const &func, std::string const &file)
 {
-    qDebug() << "!!! Attempted end busy:" << line << QString::fromStdString(func) << QString::fromStdString(file);
+    qDebug() << "!!! Attempted end busy:" << line << func.data() << file.data();
 
     if (!app_busy)
         return;

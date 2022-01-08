@@ -168,6 +168,7 @@ void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
 
     ui->pie_chart_view->chart()->addSeries(pie_series);
     ui->pie_chart_view->update();
+    qDebug() << "Rendered pie chart.";
 }
 
 void DiaryStats::render_polar_chart(std::optional<td::YearMap::iterator> const &opt)
@@ -221,6 +222,7 @@ void DiaryStats::render_polar_chart(std::optional<td::YearMap::iterator> const &
     }
 
     chart->update();
+    qDebug() << "Rendered polar chart.";
 }
 
 void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const &opt)
@@ -298,6 +300,7 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
     }
 
     chart->update();
+    qDebug() << "Rendered spline chart.";
 }
 
 void DiaryStats::render_comparison(std::vector<int> const &rating_counts)
@@ -348,6 +351,8 @@ void DiaryStats::render_comparison(std::vector<int> const &rating_counts)
     ui->d4->setText(QString::number(rating_counts[4] - prev_stats[4]));
     ui->d5->setText(QString::number(rating_counts[5] - prev_stats[5]));
     ui->ds->setText(QString::number(rating_counts[6] - prev_stats[6]));
+
+    qDebug() << "Rendered stats table.";
 }
 
 std::vector<int> DiaryStats::get_rating_stats(std::optional<td::YearMap::iterator> const &opt, int const total_days)
@@ -397,4 +402,6 @@ void DiaryStats::render_stats(QDate const &date)
     render_polar_chart(opt);
     render_spline_chart(opt);
     render_comparison(rating_counts);
+
+    qDebug() << "Rendered stats for:" << date;
 }

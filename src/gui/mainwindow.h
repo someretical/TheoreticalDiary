@@ -48,19 +48,16 @@ public:
 
     static MainWindow *instance();
     void clear_grid();
-    void exit_diary_to_main_menu();
+    void exit_diary_to_main_menu(bool const locked);
+    void store_state();
+    void restore_state();
     void closeEvent(QCloseEvent *event);
 
     td::Window current_window;
     td::Window last_window;
 
-    // Timer used to lock diary if window is left inactive for too long.
-    QTimer *timer;
-    Qt::ApplicationState previous_state;
-
 public slots:
-    void focus_changed(Qt::ApplicationState const state);
-    void inactive_time_up();
+    void lock_diary();
     void update_theme();
     void show_main_menu();
     void show_diary_menu();

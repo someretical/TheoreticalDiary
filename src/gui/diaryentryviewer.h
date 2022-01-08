@@ -21,10 +21,10 @@
 
 #include "../core/diaryholder.h"
 #include "../core/internalmanager.h"
+#include "../util/misc.h"
 
 #include <QtWidgets>
 #include <memory>
-#include <sstream>
 
 namespace Ui {
 class DiaryEntryViewer;
@@ -86,8 +86,6 @@ class DiaryEntryDayMessage : public QLabel {
 public:
     explicit DiaryEntryDayMessage(std::string const &m, QWidget *parent = nullptr);
     ~DiaryEntryDayMessage();
-
-    static void get_trunc_first_line(std::string const &input, std::string &res);
 
     std::string message;
     bool expanded;

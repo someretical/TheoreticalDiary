@@ -3,5 +3,6 @@
         <file>CONTRIBUTORS.txt</file>
         <file>LICENSES.txt</file>
         <file>VERSION.txt</file>
+        <file>dummysettings</file>
     </qresource>
 </RCC>

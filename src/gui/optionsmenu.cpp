@@ -75,15 +75,8 @@ void OptionsMenu::back()
 
 void OptionsMenu::save_settings()
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
     InternalManager::instance()->settings->setValue("sync_enabled", ui->sync_checkbox->isChecked());
-
-    if (diary_editor_mode && !DiaryHolder::instance()->save()) {
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-        return cmb::save_error(this);
-    }
-
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+    qDebug() << "Saved settings.";
     back();
 }
 
@@ -110,8 +103,11 @@ void OptionsMenu::setup_layout()
         ui->dev_delete_button->setEnabled(false);
         ui->dev_delete_file_id->setEnabled(false);
     }
+    else {
+        ui->download_backup_button->setEnabled(false);
+    }
 
-    ui->sync_checkbox->setChecked(InternalManager::instance()->settings->value("sync_enabled", false).toBool());
+    ui->sync_checkbox->setChecked(InternalManager::instance()->settings->value("sync_enabled").toBool());
 }
 
 void OptionsMenu::export_diary()
@@ -168,6 +164,7 @@ void OptionsMenu::change_password()
         emit hash_controller->operate(password.toStdString());
     }
     else {
+        qDebug() << "Resetting password to nothing.";
         Encryptor::instance()->reset();
         change_password_cb(false);
     }
@@ -203,7 +200,6 @@ void OptionsMenu::download_backup()
             cmb::display_drive_file_error(this);
             break;
         case td::GWrapperError::None:
-            InternalManager::instance()->diary_file_changed = false;
             cmb::diary_downloaded(this);
             break;
         }

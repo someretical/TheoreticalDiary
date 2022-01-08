@@ -34,7 +34,7 @@ DiaryPixels::DiaryPixels(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPix
 
     connect(InternalManager::instance(), &InternalManager::update_data, this, &DiaryPixels::render_grid,
         Qt::QueuedConnection);
-    connect(ui->render_button, &QPushButton::clicked, this, &DiaryPixels::render_grid, Qt::QueuedConnection);
+    connect(ui->render_button, &QPushButton::clicked, this, &DiaryPixels::render_button_clicked, Qt::QueuedConnection);
     connect(ui->export_img_button, &QPushButton::clicked, this, &DiaryPixels::export_image, Qt::QueuedConnection);
 
     connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryPixels::update_theme,
@@ -107,7 +107,12 @@ int DiaryPixels::calculate_size()
     return std::max({LABEL_SIZE, final_width, final_height});
 }
 
-void DiaryPixels::render_grid()
+void DiaryPixels::render_button_clicked()
+{
+    render_grid(ui->year_edit->date());
+}
+
+void DiaryPixels::render_grid(QDate const &new_date)
 {
     InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
 
@@ -118,8 +123,7 @@ void DiaryPixels::render_grid()
         delete child;
     }
 
-    current_date = ui->year_edit->date();
-
+    current_date = new_date;
     auto const &opt = DiaryHolder::instance()->get_yearmap(current_date);
 
     // Set new grid.
@@ -134,7 +138,7 @@ void DiaryPixels::render_grid()
         return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
     }
 
-    auto &&date = QDate::currentDate();
+    auto &&tmp_date = QDate::currentDate();
     auto const year = current_date.year();
     auto const size = calculate_size();
 
@@ -156,8 +160,8 @@ void DiaryPixels::render_grid()
         auto const &iter = monthmap.find(month + 1 /* Month is index 1 based */);
         if (iter == monthmap.end()) {
             for (int day = 0; day < days; ++day) {
-                date.setDate(year, month + 1, day + 1);
-                ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, false, date, size, this), month,
+                tmp_date.setDate(year, month + 1, day + 1);
+                ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, false, tmp_date, size, this), month,
                     day + 1 /* +1 here because of the month label added at the start of each row */);
             }
 
@@ -169,18 +173,19 @@ void DiaryPixels::render_grid()
             auto const &entrymap = iter->second;
             auto const &iter2 = entrymap.find(day + 1 /* day is index 1 based */);
 
-            date.setDate(year, month + 1, day + 1);
+            tmp_date.setDate(year, month + 1, day + 1);
             if (iter2 == entrymap.end()) {
-                ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, false, date, size, this), month, day + 1);
+                ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, false, tmp_date, size, this), month, day + 1);
             }
             else {
                 auto const &[important, rating, dummy, d2] = iter2->second;
-                ui->grid->addWidget(new PixelLabel(rating, important, date, size, this), month, day + 1);
+                ui->grid->addWidget(new PixelLabel(rating, important, tmp_date, size, this), month, day + 1);
             }
         }
     }
 
     InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+    qDebug() << "Rendered pixels grid" << current_date;
 }
 
 void DiaryPixels::export_image()
@@ -241,7 +246,8 @@ PixelLabel::PixelLabel(td::Rating const r, bool const special, QDate const &date
 
     setStyleSheet(stylesheet);
 
-    setToolTip(QString("%1 %2%3").arg(date.toString("MMMM"), QString::number(date.day()), misc::get_day_suffix(date.day())));
+    setToolTip(
+        QString("%1 %2%3").arg(date.toString("MMMM"), QString::number(date.day()), misc::get_day_suffix(date.day())));
 }
 
 PixelLabel::~PixelLabel() {}

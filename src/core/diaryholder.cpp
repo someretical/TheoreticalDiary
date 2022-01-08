@@ -25,7 +25,7 @@ DiaryHolder::DiaryHolder()
 {
     diary_holder_ptr = this;
     diary = td::Diary{
-        td::DiaryLog(), td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()}, td::Settings{false}};
+        td::DiaryLog(), td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()}, td::Settings{}};
 }
 
 DiaryHolder::~DiaryHolder() {}
@@ -37,15 +37,18 @@ DiaryHolder *DiaryHolder::instance()
 
 void DiaryHolder::init()
 {
+    qDebug() << "Initialised diary.";
     diary = td::Diary{
-        td::DiaryLog(), td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()}, td::Settings{false}};
+        td::DiaryLog(), td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()}, td::Settings{}};
 }
 
 bool DiaryHolder::load(std::string &raw)
 {
     auto const &json = nlohmann::json::parse(raw, nullptr, false);
-    if (json.is_discarded())
+    if (json.is_discarded()) {
+        qDebug() << "Invalid diary JSON being loaded.";
         return false;
+    }
 
     // Here is where updating save versions will occur *if* I every actually get
     // around to doing this which will probably never happen because I'm the only
@@ -55,9 +58,11 @@ bool DiaryHolder::load(std::string &raw)
         diary = json.get<td::Diary>();
     }
     catch (nlohmann::json::exception const &e) {
+        qDebug() << "Exception while loading JSON diary.";
         return false;
     }
 
+    qDebug() << "JSON diary loading successful.";
     return true;
 }
 
@@ -71,8 +76,10 @@ bool DiaryHolder::save()
     if (!src.fail()) {
         std::ofstream dst(backup_path, std::ios::binary);
 
-        if (dst.fail())
+        if (dst.fail()) {
+            qDebug() << "Couldn't find secondary backup path for saving diary.";
             return false;
+        }
 
         dst << src.rdbuf();
     }
@@ -82,8 +89,7 @@ bool DiaryHolder::save()
     nlohmann::json const j = diary;
 
     // Gzip JSON.
-    std::string compressed, encrypted;
-    std::string decompressed = j.dump();
+    std::string compressed, encrypted, decompressed = j.dump();
     Zipper::zip(compressed, decompressed);
 
     // Encrypt if there is a password set.
@@ -102,6 +108,7 @@ bool DiaryHolder::save()
         return true;
     }
     else {
+        qDebug() << "Couldn't write to diary location on disk.";
         return false;
     }
 }

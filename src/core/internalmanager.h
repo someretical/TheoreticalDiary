@@ -71,18 +71,11 @@ inline void from_json(nlohmann::json const &j, Metadata &m)
 }
 
 struct Settings {
-    bool sync;
 };
 
-inline void to_json(nlohmann::json &j, Settings const &s)
-{
-    j = nlohmann::json{{"sync", s.sync}};
-}
+inline void to_json(nlohmann::json &j, Settings const &s) {}
 
-inline void from_json(nlohmann::json const &j, Settings &s)
-{
-    j.at("sync").get_to<bool>(s.sync);
-}
+inline void from_json(nlohmann::json const &j, Settings &s) {}
 
 struct Diary {
     DiaryLog log;
@@ -144,7 +137,7 @@ signals:
     void update_data(const QDate &new_date);
 
 public:
-    InternalManager(const td::Theme t);
+    InternalManager();
     ~InternalManager();
     static InternalManager *instance();
 
@@ -152,11 +145,12 @@ public:
     QString data_location();
     void start_busy_mode(int const line, std::string const &func, std::string const &file);
     void end_busy_mode(int const line, std::string const &func, std::string const &file);
+    void init_settings(bool const force_reset);
 
     QSettings *settings;
-    td::Theme theme;
-    bool app_busy;
+    InactiveFilter *inactive_filter;
     BusyFilter busy_filter;
+    bool app_busy;
     bool internal_diary_changed;
     bool diary_file_changed;
 };

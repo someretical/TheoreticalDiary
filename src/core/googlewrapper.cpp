@@ -41,9 +41,10 @@ GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent)
     params["access_type"] = QVariant("offline");
     google->setExtraRequestParams(params);
 
-    auto settings = new QSettings(
-        QString("%1/%2").arg(InternalManager::instance()->data_location(), "config.ini"), QSettings::IniFormat);
-    auto settings_store = new O0SettingsStore(settings, QApplication::applicationName() /* This is NOT secure!!! */);
+    // To stop o2 from writing to the disk, a dummy real only file from the resource file is provided.
+    // Don't want o2 to write to disk because a custom encryption method is already employed.
+    auto settings = new QSettings(":/dummysettings", QSettings::IniFormat);
+    auto settings_store = new O0SettingsStore(settings, QApplication::applicationName() /* Placeholder value */);
     google->setStore(settings_store);
 
     manager = new QNetworkAccessManager(this);
@@ -70,12 +71,17 @@ GoogleWrapper *GoogleWrapper::instance()
 
 void GoogleWrapper::open_browser(QUrl const &url)
 {
-    if (!QDesktopServices::openUrl(url))
+    qDebug() << "Attempting to open browser for authentication.";
+
+    if (!QDesktopServices::openUrl(url)) {
         emit sig_oauth2_callback(false);
+        qDebug() << "Failed to open browser for authentication.";
+    }
 }
 
 void GoogleWrapper::authenticate()
 {
+    qDebug() << "Attempting to link Google.";
     google->link();
 }
 
@@ -84,8 +90,7 @@ bool GoogleWrapper::encrypt_credentials()
     nlohmann::json const j = td::Credentials{google->token().toStdString(), google->refreshToken().toStdString()};
 
     // Gzip JSON.
-    std::string compressed, encrypted;
-    std::string decompressed = j.dump();
+    std::string compressed, encrypted, decompressed = j.dump();
     Zipper::zip(compressed, decompressed);
 
     // Encrypt if there is a password set.
@@ -93,55 +98,72 @@ bool GoogleWrapper::encrypt_credentials()
     if (key_set)
         Encryptor::instance()->encrypt(compressed, encrypted);
 
+    qDebug() << (key_set ? "Encrypted tokens." : "No encryption key set for tokens.");
+
     // Write to file.
     std::ofstream ofs(
         InternalManager::instance()->data_location().toStdString() + "/credentials.secret", std::ios::binary);
     if (!ofs.fail()) {
         ofs << (key_set ? encrypted : compressed);
-        qDebug() << "Encrypted tokens.";
+        qDebug() << "Saved tokens.";
         return true;
     }
 
-    qDebug() << "Failed to encrypt tokens.";
+    qDebug() << "Failed to write encrypted tokens to disk.";
     return false;
 }
 
 bool GoogleWrapper::decrypt_credentials(bool const perform_decrypt)
 {
     std::ifstream ifs(InternalManager::instance()->data_location().toStdString() + "/credentials.secret");
-    if (ifs.fail())
+    if (ifs.fail()) {
+        qDebug() << "Couldn't find encrypted token file. perform_decrypt is " << perform_decrypt;
         return false;
+    }
 
     std::stringstream stream;
     stream << ifs.rdbuf();
-    Encryptor::instance()->encrypted_str.assign(stream.str());
+    std::string decrypted, str = stream.str();
 
-    std::string decrypted;
     if (perform_decrypt) {
-        auto const &res = Encryptor::instance()->decrypt(Encryptor::instance()->encrypted_str);
-        if (!res)
+        if (str.size() <= tencrypt::SALT_SIZE + tencrypt::IV_SIZE) {
+            qDebug() << "Token file found but way too short to be decrypted.";
             return false;
+        }
+        else {
+            Encryptor::instance()->parse_encrypted_string(str);
+            auto const &res = Encryptor::instance()->decrypt(str);
+            if (!res) {
+                qDebug() << "Bad token decrypt.";
+                return false;
+            }
 
-        decrypted.assign(*res);
+            decrypted.assign(*res);
+        }
     }
 
     std::string decompressed;
-    if (!Zipper::unzip((perform_decrypt ? decrypted : Encryptor::instance()->encrypted_str), decompressed))
+    if (!Zipper::unzip((perform_decrypt ? decrypted : str), decompressed)) {
+        qDebug() << "Couldn't decompress the tokens." << perform_decrypt;
         return false;
+    }
 
     auto const &json = nlohmann::json::parse(decompressed, nullptr, false);
-    if (json.is_discarded())
+    if (json.is_discarded()) {
+        qDebug() << "Invalid token JSON" << perform_decrypt;
         return false;
+    }
 
     try {
         auto credentials = json.get<td::Credentials>();
-        google->setToken(QString::fromStdString(credentials.access_token));
-        google->setRefreshToken(QString::fromStdString(credentials.refresh_token));
+        google->setToken(credentials.access_token.data());
+        google->setRefreshToken(credentials.refresh_token.data());
 
         qDebug() << "Decrypted tokens.";
         return true;
     }
     catch (nlohmann::json::exception const &e) {
+        qDebug() << "Exception during parsing JSON." << perform_decrypt;
         return false;
     }
 }
@@ -154,14 +176,19 @@ void GoogleWrapper::auth_ok()
     std::sort(scope_list.begin(), scope_list.end());
     std::sort(required_list.begin(), required_list.end());
 
-    if (scope_list != required_list)
+    if (scope_list != required_list) {
+        qDebug() << "Scopes don't match.";
         emit sig_oauth2_callback(false);
-    else
+    }
+    else {
+        qDebug() << "Scopes do match.";
         emit sig_oauth2_callback(true);
+    }
 }
 
 void GoogleWrapper::auth_err()
 {
+    qDebug() << "Authentication error.";
     emit sig_oauth2_callback(false);
 }
 
@@ -171,11 +198,13 @@ void GoogleWrapper::revoke_access()
     QNetworkRequest req(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     requestor->post(req, "");
+    qDebug() << "Attempted to revoke access via Google.";
 }
 
 void GoogleWrapper::dc_oauth_slots()
 {
     disconnect(this, &GoogleWrapper::sig_oauth2_callback, nullptr, nullptr);
+    qDebug() << "Disconnected all oauth slots.";
 }
 
 void GoogleWrapper::dc_requestor_slots()
@@ -183,6 +212,7 @@ void GoogleWrapper::dc_requestor_slots()
     disconnect(
         requestor, qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished), nullptr, nullptr);
     disconnect(requestor, &O2Requestor::uploadProgress, nullptr, nullptr);
+    qDebug() << "Disconnected all requestor slots.";
 }
 
 void GoogleWrapper::list_files()
@@ -190,13 +220,17 @@ void GoogleWrapper::list_files()
     QUrl url("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder");
     QNetworkRequest req(url);
     requestor->get(req);
+    qDebug() << "Attempted to list drive files.";
 }
 
 bool GoogleWrapper::upload_file(QString const &local_path, QString const &name)
 {
+    qDebug() << "Uploading file" << local_path << name;
     QFile *file = new QFile(local_path);
-    if (!file->open(QIODevice::ReadOnly))
+    if (!file->open(QIODevice::ReadOnly)) {
+        qDebug() << "Couldn't find local file to upload:" << local_path;
         return false;
+    }
 
     QUrl url("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart");
     QNetworkRequest req(url);
@@ -223,6 +257,7 @@ bool GoogleWrapper::upload_file(QString const &local_path, QString const &name)
 
 void GoogleWrapper::copy_file(QString const &id, QString const &new_name)
 {
+    qDebug() << "Copying file:" << id << new_name;
     QUrl url(QString("https://www.googleapis.com/drive/v3/files/%1/copy").arg(id));
     QNetworkRequest req(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -232,6 +267,7 @@ void GoogleWrapper::copy_file(QString const &id, QString const &new_name)
 
 void GoogleWrapper::download_file(QString const &id)
 {
+    qDebug() << "Downloading file:" << id;
     QUrl url(QString("https://www.googleapis.com/drive/v3/files/"
                      "%1?alt=media")
                  .arg(id));
@@ -241,6 +277,7 @@ void GoogleWrapper::download_file(QString const &id)
 
 void GoogleWrapper::delete_file(QString const &id)
 {
+    qDebug() << "Deleting file:" << id;
     QUrl url(QString("https://www.googleapis.com/drive/v3/files/"
                      "%1")
                  .arg(id));
@@ -250,9 +287,12 @@ void GoogleWrapper::delete_file(QString const &id)
 
 bool GoogleWrapper::update_file(QString const &id, QString const &local_path)
 {
+    qDebug() << "Updating file:" << id << local_path;
     QFile *file = new QFile(local_path);
-    if (!file->open(QIODevice::ReadOnly))
+    if (!file->open(QIODevice::ReadOnly)) {
+        qDebug() << "Couldn't find local file to update:" << local_path;
         return false;
+    }
 
     QUrl url(QString("https://www.googleapis.com/upload/drive/v3/files/"
                      "%1?uploadType=multipart")
@@ -283,8 +323,10 @@ void GoogleWrapper::get_file_ids(QByteArray const &data)
     secondary_backup_id = QString();
 
     auto const &json = nlohmann::json::parse(data.toStdString(), nullptr, false);
-    if (json.is_discarded())
+    if (json.is_discarded()) {
+        qDebug() << "Failed to parse drive file IDs:" << data;
         return;
+    }
 
     for (auto const &file : json["files"]) {
         if ("drive#file" == file["kind"] && "application/octet-stream" == file["mimeType"]) {
@@ -296,10 +338,13 @@ void GoogleWrapper::get_file_ids(QByteArray const &data)
             }
         }
     }
+
+    qDebug() << "Parsed drive file IDs:" << primary_backup_id << secondary_backup_id;
 }
 
 void GoogleWrapper::download_diary(final_cb_t const &final_cb)
 {
+    qDebug() << "Downloading diary...";
     InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
     final_callback = final_cb;
     dc_oauth_slots();
@@ -334,6 +379,7 @@ void GoogleWrapper::download_diary(final_cb_t const &final_cb)
 
 void GoogleWrapper::download__list_files_cb(int const, QNetworkReply::NetworkError const error, QByteArray const data)
 {
+    qDebug() << "Flow passed through cb" << __LINE__ << __func__ << __FILE__;
     if (QNetworkReply::NoError != error)
         return final_callback(td::GWrapperError::Network);
 
@@ -355,6 +401,7 @@ void GoogleWrapper::download__list_files_cb(int const, QNetworkReply::NetworkErr
 void GoogleWrapper::download__download_file_cb(
     int const, QNetworkReply::NetworkError const error, QByteArray const data)
 {
+    qDebug() << "Flow passed through cb" << __LINE__ << __func__ << __FILE__;
     if (QNetworkReply::NoError != error)
         return final_callback(td::GWrapperError::Network);
 
@@ -364,8 +411,8 @@ void GoogleWrapper::download__download_file_cb(
     }
     else {
         // At the moment, the data is written all in one go as o2 does not yet provide any download updates. This is
-        // really bad practice so TODO: add own implementation of a download notifier so the data buffer can be piped
-        // into the file every time a new chunk arrives.
+        // really bad practice so TODO: add own implementation of a download notifier so the data buffer can be
+        // piped into the file every time a new chunk arrives.
         file.write(data);
 
         final_callback(td::GWrapperError::None);
@@ -374,6 +421,7 @@ void GoogleWrapper::download__download_file_cb(
 
 void GoogleWrapper::upload_diary(final_cb_t const &final_cb)
 {
+    qDebug() << "Uploading diary...";
     InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
     final_callback = final_cb;
     dc_oauth_slots();
@@ -406,6 +454,7 @@ void GoogleWrapper::upload_diary(final_cb_t const &final_cb)
 
 void GoogleWrapper::upload__list_files_cb(int const, QNetworkReply::NetworkError const error, QByteArray const data)
 {
+    qDebug() << "Flow passed through cb" << __LINE__ << __func__ << __FILE__;
     if (QNetworkReply::NoError != error)
         return final_callback(td::GWrapperError::Network);
 
@@ -429,6 +478,7 @@ void GoogleWrapper::upload__list_files_cb(int const, QNetworkReply::NetworkError
 
 void GoogleWrapper::upload__copy_file_cb(int const, QNetworkReply::NetworkError const error, QByteArray const)
 {
+    qDebug() << "Flow passed through cb" << __LINE__ << __func__ << __FILE__;
     if (QNetworkReply::NoError != error)
         return final_callback(td::GWrapperError::Network);
 
@@ -451,6 +501,7 @@ void GoogleWrapper::upload__copy_file_cb(int const, QNetworkReply::NetworkError 
 
 void GoogleWrapper::upload__delete_file_cb(int const, QNetworkReply::NetworkError const error, QByteArray const)
 {
+    qDebug() << "Flow passed through cb" << __LINE__ << __func__ << __FILE__;
     if (QNetworkReply::NoError != error)
         return final_callback(td::GWrapperError::Network);
 
@@ -466,5 +517,6 @@ void GoogleWrapper::upload__delete_file_cb(int const, QNetworkReply::NetworkErro
 
 void GoogleWrapper::upload__upload_file_cb(int const, QNetworkReply::NetworkError const error, QByteArray const)
 {
+    qDebug() << "Flow passed through cb" << __LINE__ << __func__ << __FILE__;
     final_callback(QNetworkReply::NoError != error ? td::GWrapperError::Network : td::GWrapperError::None);
 }

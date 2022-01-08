@@ -19,7 +19,7 @@
 #include "diaryentryviewer.h"
 #include "ui_diaryentryviewer.h"
 
-int const LONGEST_LINE_LENGTH = 110;
+int const MAX_LINE_LEN = 110;
 int const DAY_LABEL_SIZE = 50;
 
 DiaryEntryViewer::DiaryEntryViewer(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryEntryViewer)
@@ -162,6 +162,8 @@ void DiaryEntryViewer::change_month(QDate const &date)
     }
 
     current_date = date;
+
+    qDebug() << "Changed diary entry viewer month:" << date;
 }
 
 void DiaryEntryViewer::next_month()
@@ -269,9 +271,7 @@ DiaryEntryDayMessage::DiaryEntryDayMessage(std::string const &m, QWidget *parent
     expanded = false;
 
     // Set text.
-    std::string truncated;
-    DiaryEntryDayMessage::get_trunc_first_line(m, truncated);
-    setText(QString::fromStdString(truncated));
+    setText(misc::get_trunc_first_line(m, MAX_LINE_LEN).data());
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
 
@@ -297,36 +297,12 @@ void DiaryEntryDayMessage::mouseDoubleClickEvent(QMouseEvent *event)
     if (event->button() != Qt::LeftButton)
         return;
 
-    if (expanded) {
-        std::string truncated;
-        DiaryEntryDayMessage::get_trunc_first_line(message, truncated);
-        setText(QString::fromStdString(truncated));
-    }
-    else {
-        setText(QString::fromStdString(message));
-    }
+    if (expanded)
+        setText(misc::get_trunc_first_line(message, MAX_LINE_LEN).data());
+    else
+        setText(message.data());
+
     update();
 
     expanded = !expanded;
-}
-
-void DiaryEntryDayMessage::get_trunc_first_line(std::string const &input, std::string &res)
-{
-    // Get first line.
-    // https://stackoverflow.com/a/5059112
-    std::istringstream f(input);
-    std::string second_line_exists;
-    std::getline(f, res);
-
-    // Truncate line and append ... if it's too long.
-    if (LONGEST_LINE_LENGTH < res.size()) {
-        res.resize(LONGEST_LINE_LENGTH);
-
-        res.append("...");
-    }
-    else if (std::getline(f, second_line_exists)) {
-        // There can be multiple lines in an entry where the first line does not have at least LONGEST_LINE_LENGTH
-        // characters.
-        res.append("...");
-    }
 }

@@ -18,65 +18,99 @@
 
 #include "eventfilters.h"
 
+/*
+ * BusyFilter class.
+ */
 bool BusyFilter::eventFilter(QObject *, QEvent *event)
 {
     switch (event->type()) {
-    // Fall through.
     case QEvent::DragEnter:
-    // Fall through.
     case QEvent::DragLeave:
-    // Fall through.
     case QEvent::DragMove:
-    // Fall through.
     case QEvent::Drop:
-    // Fall through.
     case QEvent::GraphicsSceneDragMove:
-    // Fall through.
     case QEvent::GraphicsSceneDrop:
-    // Fall through.
     case QEvent::GraphicsSceneHelp:
-    // Fall through.
     case QEvent::GraphicsSceneMouseDoubleClick:
-    // Fall through.
     case QEvent::GraphicsSceneMousePress:
-    // Fall through.
     case QEvent::GraphicsSceneMouseRelease:
-    // Fall through.
     case QEvent::GraphicsSceneWheel:
-    // Fall through.
     case QEvent::InputMethod:
-    // Fall through.
     case QEvent::InputMethodQuery:
-    // Fall through.
     case QEvent::KeyPress:
-    // Fall through.
     case QEvent::KeyRelease:
-    // Fall through.
     case QEvent::MouseButtonDblClick:
-    // Fall through.
     case QEvent::MouseButtonPress:
-    // Fall through.
     case QEvent::MouseButtonRelease:
-    // Fall through.
     case QEvent::Shortcut:
-    // Fall through.
     case QEvent::ShortcutOverride:
-    // Fall through.
     case QEvent::TabletPress:
-    // Fall through.
     case QEvent::TabletRelease:
-    // Fall through.
     case QEvent::TouchBegin:
-    // Fall through.
     case QEvent::TouchCancel:
-    // Fall through.
     case QEvent::TouchEnd:
-    // Fall through.
     case QEvent::TouchUpdate:
-    // Fall through.
-    case QEvent::Wheel:
         return true;
     default:
         return false;
     }
+}
+
+/*
+ * InactiveFilter class.
+ * Thanks to https://www.qtcentre.org/threads/1464-Detecting-user-inaction
+ */
+InactiveFilter::InactiveFilter(int const i, QObject *parent) : QObject(parent)
+{
+    interval = i;
+    timer = new QTimer(this);
+    timer->setSingleShot(false);
+    timer->start(interval);
+    connect(timer, &QTimer::timeout, this, &InactiveFilter::slot_inactive_timeout);
+}
+
+InactiveFilter::~InactiveFilter()
+{
+    delete timer;
+}
+
+bool InactiveFilter::eventFilter(QObject *obj, QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::DragEnter:
+    case QEvent::DragLeave:
+    case QEvent::DragMove:
+    case QEvent::Drop:
+    case QEvent::GraphicsSceneDragMove:
+    case QEvent::GraphicsSceneDrop:
+    case QEvent::GraphicsSceneHelp:
+    case QEvent::GraphicsSceneMouseDoubleClick:
+    case QEvent::GraphicsSceneMousePress:
+    case QEvent::GraphicsSceneMouseRelease:
+    case QEvent::GraphicsSceneWheel:
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::Shortcut:
+    case QEvent::ShortcutOverride:
+    case QEvent::TabletPress:
+    case QEvent::TabletRelease:
+    case QEvent::TouchBegin:
+    case QEvent::TouchCancel:
+    case QEvent::TouchEnd:
+    case QEvent::TouchUpdate:
+        timer->start(interval);
+        break;
+    default:
+        break;
+    }
+
+    return QObject::eventFilter(obj, event);
+}
+
+void InactiveFilter::slot_inactive_timeout()
+{
+    emit sig_inactive_timeout();
 }

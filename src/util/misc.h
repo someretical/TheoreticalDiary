@@ -20,9 +20,12 @@
 #define MISC_H
 
 #include <QtWidgets>
+#include <sstream>
+#include <string>
 
 namespace misc {
 QString get_day_suffix(int const day);
-}
+std::string get_trunc_first_line(std::string const &input, int const max_line_len);
+} // namespace misc
 
 #endif // MISC_H

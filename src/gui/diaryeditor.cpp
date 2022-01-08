@@ -201,6 +201,8 @@ void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::ite
     // them up so they don't expand downwards.
     while (current_row_length < 7)
         ui->dates->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum), row, current_row_length++, 1, 1);
+
+    qDebug() << "Rendered month editor (first day of month):" << date;
 }
 
 bool DiaryEditor::confirm_switch()
@@ -262,6 +264,7 @@ void DiaryEditor::change_month(QDate const &date, bool const suppress_confirm)
     render_day(d, true);
 
     emit InternalManager::instance()->update_data(date);
+    qDebug() << "Changed month in editor and broadcasted update_data:" << date;
 }
 
 void DiaryEditor::render_day(td::CalendarButtonData const &d, bool const set_info_pane)
@@ -335,8 +338,8 @@ void DiaryEditor::date_clicked(int const day)
 void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
 {
     ui->date_label->setText(QString("%1 %2%3 %4")
-                                .arg(date.toString("dddd"), QString::number(date.day()), misc::get_day_suffix(date.day()),
-                                    date.toString("MMMM")));
+                                .arg(date.toString("dddd"), QString::number(date.day()),
+                                    misc::get_day_suffix(date.day()), date.toString("MMMM")));
     ui->date_label->update();
 
     ui->rating_dropdown->blockSignals(true);
@@ -356,11 +359,13 @@ void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
 
     ui->rating_dropdown->setCurrentIndex(static_cast<int>(entry.rating));
     ui->special_box->setChecked(entry.important);
-    ui->entry_edit->setPlainText(QString::fromStdString(entry.message));
+    ui->entry_edit->setPlainText(entry.message.data());
 
     ui->rating_dropdown->blockSignals(false);
     ui->special_box->blockSignals(false);
     ui->entry_edit->blockSignals(false);
+
+    qDebug() << "Updated info pane:" << date;
 }
 
 // The suppress_error parameter stops the save error box from popping up.
@@ -400,6 +405,7 @@ void DiaryEditor::update_day(bool const suppress_error)
     // This updates the information in the other tabs.
     // The pixels tab should call end_busy_mode when it is done re rendering.
     InternalManager::instance()->update_data(new_date);
+    qDebug() << "Updated entry and broadcasted update_data:" << new_date;
 }
 
 void DiaryEditor::delete_day()
@@ -438,6 +444,7 @@ void DiaryEditor::delete_day()
     // This updates the information in the other tabs.
     // The pixels tab should call end_busy_mode when it is done re rendering.
     InternalManager::instance()->update_data(new_date);
+    qDebug() << "Deleted entry and broadcasted update_data:" << new_date;
 }
 
 void DiaryEditor::reset_day()

@@ -35,6 +35,7 @@ public slots:
     void hash(std::string const &plaintext)
     {
         Encryptor::instance()->set_key(plaintext);
+        qDebug() << "Hashing done.";
         emit done();
     }
 
