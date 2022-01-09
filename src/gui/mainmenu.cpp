@@ -24,8 +24,9 @@ MainMenu::MainMenu(bool const show_locked_message, QWidget *parent) : QWidget(pa
     ui->setupUi(this);
     ui->version->setText("Version " + QApplication::applicationVersion());
     ui->version->update();
-    ui->alert_text->setText(show_locked_message ? "Diary locked due to inactivity." : "");
-    ui->alert_text->update();
+    ui->app_name->setText(QApplication::applicationName());
+    ui->app_name->update();
+    ui->pwd_alert_text->set_text(show_locked_message ? "Diary locked due to inactivity." : "");
 
     QTimer::singleShot(0, [&]() { ui->password_box->setFocus(); });
 
@@ -42,8 +43,8 @@ MainMenu::MainMenu(bool const show_locked_message, QWidget *parent) : QWidget(pa
     connect(ui->quit_button, &QPushButton::clicked, qobject_cast<MainWindow *>(parent), &MainWindow::close,
         Qt::QueuedConnection);
 
-    connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainMenu::update_theme,
-        Qt::QueuedConnection);
+    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainMenu::update_theme,
+    //        Qt::QueuedConnection);
     update_theme();
 }
 
@@ -101,8 +102,7 @@ void MainMenu::decrypt_diary()
     auto const &password = ui->password_box->text().toStdString();
     ui->password_box->setText("");
     ui->password_box->update();
-    ui->alert_text->setText("");
-    ui->alert_text->update();
+    ui->pwd_alert_text->set_text("");
 
     auto const &opt = get_diary_contents();
     if (!opt) {
@@ -122,13 +122,13 @@ void MainMenu::decrypt_diary()
         else
             qDebug() << "No password to hash in decrypt_diary.";
 
+        ui->pwd_alert_text->set_text("Parsing diary...", false);
         return decrypt_diary_cb(false);
     }
 
     Encryptor::instance()->parse_encrypted_string(str);
 
-    ui->alert_text->setText("Decrypting...");
-    ui->alert_text->update();
+    ui->pwd_alert_text->set_text("Decrypting...", false);
 
     auto hash_controller = new HashController();
     connect(hash_controller, &HashController::sig_done, this, &MainMenu::decrypt_diary_cb, Qt::QueuedConnection);
@@ -144,8 +144,7 @@ void MainMenu::decrypt_diary_cb(bool const perform_decrypt)
         auto const &res = Encryptor::instance()->decrypt(Encryptor::instance()->encrypted_str);
         if (!res)
             return QTimer::singleShot(2000, [&]() {
-                ui->alert_text->setText("Wrong password.");
-                ui->alert_text->update();
+                ui->pwd_alert_text->set_text("Wrong password.");
                 InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
             });
 
@@ -165,8 +164,7 @@ void MainMenu::decrypt_diary_cb(bool const perform_decrypt)
 
     // 2000ms delay here to stop the app from getting spammed.
     QTimer::singleShot(2000, [&]() {
-        ui->alert_text->setText("Unable to parse diary.");
-        ui->alert_text->update();
+        ui->pwd_alert_text->set_text("Unable to parse diary.");
         InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
     });
 }

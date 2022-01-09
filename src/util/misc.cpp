@@ -42,23 +42,7 @@ bool is_not_space(int ch)
     return !std::isspace(ch);
 }
 
-void ltrim(std::string &s)
-{
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), is_not_space));
-}
-
-void rtrim(std::string &s)
-{
-    s.erase(std::find_if(s.rbegin(), s.rend(), is_not_space).base(), s.end());
-}
-
-void trim(std::string &s)
-{
-    rtrim(s);
-    ltrim(s);
-}
-
-// Assumes trimmed input!
+// Assumes trimmed input!!!
 std::string get_trunc_first_line(std::string input, int max_line_len)
 {
     std::string first_line;

@@ -60,7 +60,7 @@ DiaryEntryViewer::~DiaryEntryViewer()
 
 void DiaryEntryViewer::update_theme()
 {
-    auto const &theme = InternalManager::instance()->get_theme();
+    auto const &theme = InternalManager::instance()->get_theme_str();
 
     QFile file(QString(":/%1/diary_entry_list/base.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
@@ -144,11 +144,9 @@ void DiaryEntryViewer::change_month(QDate const &date)
 
         // Ideally, the message should have been trimmed when the entry itself was saved. However, that was not always
         // the case so the message has to be trimmed here for backwards compatability.
-        auto trimmed_str = message;
-        misc::trim(trimmed_str);
-
+        auto msg_copy = message;
         auto day = new DiaryEntryDayLabel(td::LabelData{this, i.first, rating, important}, this);
-        auto formatted_msg = new DiaryEntryDayMessage(trimmed_str, this);
+        auto formatted_msg = new DiaryEntryDayMessage(misc::trim(msg_copy), this);
         auto spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         ui->entry_grid->addWidget(day, row_counter, 0, 1, 1, Qt::AlignTop | Qt::AlignLeft);

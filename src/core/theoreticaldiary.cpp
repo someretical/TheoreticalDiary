@@ -62,7 +62,7 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc,
     setApplicationVersion(file.readAll());
     file.close();
 
-    setApplicationName("TheoreticalDiary");
+    setApplicationName("Theoretical Diary");
 
     // o2 needs these 2 set apparently.
     setOrganizationName("someretical");

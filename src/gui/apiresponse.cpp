@@ -26,10 +26,19 @@ APIResponse::APIResponse(QByteArray &res, QWidget *parent) : QDialog(parent), ui
 
     connect(ui->ok_button, &QPushButton::clicked, this, &APIResponse::accept, Qt::QueuedConnection);
 
-    setStyleSheet("QPlainTextEdit { font-family: \"Roboto Mono\" }");
+    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &AboutDialog::update_theme,
+    //        Qt::QueuedConnection);
+    update_theme();
 }
 
 APIResponse::~APIResponse()
 {
     delete ui;
+}
+
+void APIResponse::update_theme()
+{
+    QFile file(":/global/apiresponse.qss");
+    file.open(QIODevice::ReadOnly);
+    setStyleSheet(file.readAll());
 }

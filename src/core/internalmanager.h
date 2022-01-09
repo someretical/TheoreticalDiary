@@ -141,7 +141,8 @@ public:
     ~InternalManager();
     static InternalManager *instance();
 
-    QString get_theme();
+    QString get_theme_str();
+    td::Theme get_theme();
     QString data_location();
     void start_busy_mode(int const line, std::string const &func, std::string const &file);
     void end_busy_mode(int const line, std::string const &func, std::string const &file);

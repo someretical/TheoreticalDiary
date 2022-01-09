@@ -227,7 +227,7 @@
          <widget class="QDateEdit" name="year_edit">
           <property name="font">
            <font>
-            <pointsize>14</pointsize>
+            <pointsize>20</pointsize>
            </font>
           </property>
           <property name="toolTip">

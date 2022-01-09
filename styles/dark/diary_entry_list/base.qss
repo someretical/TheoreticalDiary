@@ -1,7 +1,6 @@
 DiaryEntryDayLabel {
   border: transparent;
   border-radius: 25px;
-  background-color: #FF0000;
 }
 
 DiaryEntryDayMessage {

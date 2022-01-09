@@ -1,0 +1,67 @@
+QPushButton#prev_month {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(:/themes/light/primary/leftarrow.svg);
+}
+
+QPushButton#next_month {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(:/themes/light/primary/rightarrow.svg);
+}
+
+QLabel#very_bad, QLabel#very_bad_2, QLabel#very_bad_3 {
+  background-color: rgba(123, 31, 162, 1);
+  min-width: 48px;
+  min-height: 48px;
+  border: none;
+  border-radius: 2px;
+}
+
+QLabel#bad, QLabel#bad_2, QLabel#bad_3 {
+  background-color: rgba(94, 53, 177, 1);
+  min-width: 48px;
+  min-height: 48px;
+  border: none;
+  border-radius: 2px;
+}
+
+QLabel#ok, QLabel#ok_2, QLabel#ok_3 {
+  background-color: rgba(25, 118, 210, 1);
+  min-width: 48px;
+  min-height: 48px;
+  border: none;
+  border-radius: 2px;
+}
+
+QLabel#good, QLabel#good_2, QLabel#good_3 {
+  background-color: rgba(0, 151, 167, 1);
+  min-width: 48px;
+  min-height: 48px;
+  border: none;
+  border-radius: 2px;
+}
+
+QLabel#very_good, QLabel#very_good_2, QLabel#very_good_3 {
+  background-color: rgba(76, 175, 80, 1);
+  min-width: 48px;
+  min-height: 48px;
+  border: none;
+  border-radius: 2px;
+}
+
+QLabel#unknown, QLabel#unknown_2, QLabel#unknown_3 {
+  background-color: rgba(84, 110, 122, 0.2);
+  min-width: 48px;
+  min-height: 48px;
+  border: none;
+  border-radius: 2px;
+}
+
+QLabel#starred, QLabel#starred_2, QLabel#starred_3 {
+  min-width: 48px;
+  min-height: 48px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(:/themes/global/star_black.svg);
+}

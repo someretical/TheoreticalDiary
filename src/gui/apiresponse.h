@@ -32,6 +32,9 @@ public:
     explicit APIResponse(QByteArray &res, QWidget *parent = nullptr);
     ~APIResponse();
 
+public slots:
+    void update_theme();
+
 private:
     Ui::APIResponse *ui;
 };

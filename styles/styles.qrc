@@ -15,19 +15,11 @@
         <file>dark/theoretical_calendar/1.qss</file>
         <file>dark/theoretical_calendar/5.qss</file>
         <file>dark/diaryeditor.qss</file>
-        <file>dark/diarymenu.qss</file>
-        <file>dark/material_cyan_dark.qss</file>
+        <file>dark/material_cyan.qss</file>
         <file>global/black_star.qss</file>
         <file>global/white_star.qss</file>
         <file>dark/dangerbutton.qss</file>
         <file>dark/diaryentryviewer.qss</file>
-        <file>dark/pixels/0.qss</file>
-        <file>dark/pixels/1.qss</file>
-        <file>dark/pixels/2.qss</file>
-        <file>dark/pixels/3.qss</file>
-        <file>dark/pixels/4.qss</file>
-        <file>dark/pixels/5.qss</file>
-        <file>dark/diarypixels.qss</file>
         <file>dark/diary_entry_list/0.qss</file>
         <file>dark/diarystats.qss</file>
         <file>global/diarystats.qss</file>
@@ -37,5 +29,36 @@
         <file>dark/optionsmenu.qss</file>
         <file>global/aboutdialog.qss</file>
         <file>global/licensesdialog.qss</file>
+        <file>light/material_cyan.qss</file>
+        <file>global/diarymenu.qss</file>
+        <file>global/diarypixels.qss</file>
+        <file>light/dangerbutton.qss</file>
+        <file>light/diaryeditor.qss</file>
+        <file>light/diaryentryviewer.qss</file>
+        <file>light/optionsmenu.qss</file>
+        <file>light/diary_entry_list/0.qss</file>
+        <file>light/diary_entry_list/1.qss</file>
+        <file>light/diary_entry_list/2.qss</file>
+        <file>light/diary_entry_list/3.qss</file>
+        <file>light/diary_entry_list/4.qss</file>
+        <file>light/diary_entry_list/5.qss</file>
+        <file>light/diary_entry_list/base.qss</file>
+        <file>light/theoretical_calendar/0.qss</file>
+        <file>light/theoretical_calendar/1.qss</file>
+        <file>light/theoretical_calendar/2.qss</file>
+        <file>light/theoretical_calendar/3.qss</file>
+        <file>light/theoretical_calendar/4.qss</file>
+        <file>light/theoretical_calendar/5.qss</file>
+        <file>light/theoretical_calendar/base.qss</file>
+        <file>light/theoretical_calendar/selected.qss</file>
+        <file>light/diarystats.qss</file>
+        <file>global/pixels/0.qss</file>
+        <file>global/pixels/1.qss</file>
+        <file>global/pixels/2.qss</file>
+        <file>global/pixels/3.qss</file>
+        <file>global/pixels/4.qss</file>
+        <file>global/pixels/5.qss</file>
+        <file>global/apiresponse.qss</file>
+        <file>global/alertlabel.qss</file>
     </qresource>
 </RCC>

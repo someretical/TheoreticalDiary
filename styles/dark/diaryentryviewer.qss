@@ -1,11 +1,11 @@
 QPushButton#prev_month {
   background-position: center;
   background-repeat: no-repeat;
-  background-image: url(:/themes/dark/primary/leftarrow2.svg);
+  background-image: url(:/themes/dark/primary/leftarrow.svg);
 }
 
 QPushButton#next_month {
   background-position: center;
   background-repeat: no-repeat;
-  background-image: url(:/themes/dark/primary/rightarrow2.svg);
+  background-image: url(:/themes/dark/primary/rightarrow.svg);
 }

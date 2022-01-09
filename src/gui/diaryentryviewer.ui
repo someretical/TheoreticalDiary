@@ -204,12 +204,6 @@
         </item>
         <item row="0" column="4">
          <widget class="QDateEdit" name="year_edit">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>45</height>
-           </size>
-          </property>
           <property name="font">
            <font>
             <pointsize>20</pointsize>

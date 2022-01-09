@@ -29,6 +29,8 @@ OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidge
     connect(ui->apply_button, &QPushButton::clicked, this, &OptionsMenu::save_settings, Qt::QueuedConnection);
     connect(ui->export_button, &QPushButton::clicked, this, &OptionsMenu::export_diary, Qt::QueuedConnection);
     connect(
+        ui->update_lock_timeout, &QPushButton::clicked, this, &OptionsMenu::update_lock_timeout, Qt::QueuedConnection);
+    connect(
         ui->change_password_button, &QPushButton::clicked, this, &OptionsMenu::change_password, Qt::QueuedConnection);
     connect(
         ui->download_backup_button, &QPushButton::clicked, this, &OptionsMenu::download_backup, Qt::QueuedConnection);
@@ -43,6 +45,7 @@ OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidge
     connect(ui->dev_delete_button, &QPushButton::clicked, this, &OptionsMenu::dev_delete, Qt::QueuedConnection);
     connect(ui->about_button, &QPushButton::clicked, this, &OptionsMenu::show_about, Qt::QueuedConnection);
     connect(ui->licenses_button, &QPushButton::clicked, this, &OptionsMenu::show_licenses, Qt::QueuedConnection);
+    connect(ui->reset_button, &QPushButton::clicked, this, &OptionsMenu::reset_settings, Qt::QueuedConnection);
 
     connect(InternalManager::instance(), &InternalManager::update_theme, this, &OptionsMenu::update_theme,
         Qt::QueuedConnection);
@@ -58,7 +61,7 @@ OptionsMenu::~OptionsMenu()
 
 void OptionsMenu::update_theme()
 {
-    auto const &theme = InternalManager::instance()->get_theme();
+    auto const &theme = InternalManager::instance()->get_theme_str();
 
     QFile file(QString(":/%1/optionsmenu.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
@@ -75,18 +78,37 @@ void OptionsMenu::back()
 
 void OptionsMenu::save_settings()
 {
-    InternalManager::instance()->settings->setValue("sync_enabled", ui->sync_checkbox->isChecked());
+    auto settings = InternalManager::instance()->settings;
+
+    settings->setValue("sync_enabled", ui->sync_checkbox->isChecked());
+
+    auto original_theme = InternalManager::instance()->get_theme();
+    auto new_theme = ui->theme_dropdown->currentIndex() == 0 ? td::Theme::Dark : td::Theme::Light;
+    if (original_theme != new_theme) {
+        settings->setValue("theme", static_cast<int>(new_theme));
+        InternalManager::instance()->update_theme();
+    }
+
     qDebug() << "Saved settings.";
     back();
 }
 
 void OptionsMenu::setup_layout()
 {
-    ui->alert_text->setText("");
-    ui->alert_text->update();
+    ui->pwd_alert_text->set_text("");
+    ui->lock_timeout_text->set_text("");
+
+    auto const &settings = InternalManager::instance()->settings;
+
+    auto theme = static_cast<td::Theme>(settings->value("theme").toInt());
+    ui->theme_dropdown->setCurrentIndex(td::Theme::Dark == theme ? 0 : 1);
+
+    ui->lock_timeout_textedit->setText(QString::number(settings->value("lock_timeout").toLongLong()));
 
     if (!diary_editor_mode) {
         ui->export_button->setEnabled(false);
+        ui->lock_timeout_textedit->setEnabled(false);
+        ui->update_lock_timeout->setEnabled(false);
         ui->change_password_button->setEnabled(false);
         ui->new_password->setEnabled(false);
         ui->new_password_confirm->setEnabled(false);
@@ -133,24 +155,35 @@ void OptionsMenu::export_diary()
     }
 }
 
+void OptionsMenu::update_lock_timeout()
+{
+    bool ok = true;
+    qint64 const &ms = ui->lock_timeout_textedit->text().toLongLong(&ok, 10);
+
+    if (!ok || ms < 0)
+        return ui->lock_timeout_text->set_text("Please provide a positive integer.");
+
+    InternalManager::instance()->settings->setValue("lock_timeout", ms);
+    InternalManager::instance()->inactive_filter->interval = ms;
+
+    ui->lock_timeout_text->set_text("Lock timeout updated.");
+}
+
 void OptionsMenu::change_password()
 {
     InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
 
-    ui->alert_text->setText("");
-    ui->alert_text->update();
+    ui->pwd_alert_text->set_text("");
 
     auto const &password = ui->new_password->text();
     if (password != ui->new_password_confirm->text()) {
-        ui->alert_text->setText("The passwords do not match.");
-        ui->alert_text->update();
+        ui->pwd_alert_text->set_text("The passwords do not match.");
 
         return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
     }
 
     if (0 != password.length()) {
-        ui->alert_text->setText("Changing password...");
-        ui->alert_text->update();
+        ui->pwd_alert_text->set_text("Changing password...", false);
         ui->new_password->setText("");
         ui->new_password->update();
         ui->new_password_confirm->setText("");
@@ -173,8 +206,7 @@ void OptionsMenu::change_password()
 void OptionsMenu::change_password_cb(bool const)
 {
     InternalManager::instance()->internal_diary_changed = true;
-    ui->alert_text->setText("Password updated.");
-    ui->alert_text->update();
+    ui->pwd_alert_text->set_text("Password updated.");
     InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 }
 
@@ -496,4 +528,20 @@ void OptionsMenu::show_licenses()
 {
     LicensesDialog w(this);
     w.exec();
+}
+
+void OptionsMenu::reset_settings()
+{
+    int res =
+        td::yn_messagebox(this, "Are you sure you want to reset all the settings?", "This action cannot be undone!");
+
+    switch (res) {
+    case QMessageBox::AcceptRole:
+        InternalManager::instance()->init_settings(true);
+        td::ok_messagebox(this, "Settings reset.", "Please restart the app for the changes to take effect.");
+        back();
+        break;
+    case QMessageBox::RejectRole:
+        break;
+    }
 }

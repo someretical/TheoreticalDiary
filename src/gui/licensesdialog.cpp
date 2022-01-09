@@ -29,8 +29,8 @@ LicensesDialog::LicensesDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Li
 
     connect(ui->ok_button, &QPushButton::clicked, this, &LicensesDialog::accept, Qt::QueuedConnection);
 
-    connect(InternalManager::instance(), &InternalManager::update_theme, this, &LicensesDialog::update_theme,
-        Qt::QueuedConnection);
+    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &LicensesDialog::update_theme,
+    //        Qt::QueuedConnection);
     update_theme();
 }
 

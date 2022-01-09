@@ -37,8 +37,8 @@ DiaryPixels::DiaryPixels(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPix
     connect(ui->render_button, &QPushButton::clicked, this, &DiaryPixels::render_button_clicked, Qt::QueuedConnection);
     connect(ui->export_img_button, &QPushButton::clicked, this, &DiaryPixels::export_image, Qt::QueuedConnection);
 
-    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryPixels::update_theme,
-        Qt::QueuedConnection);
+    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryPixels::update_theme,
+    //        Qt::QueuedConnection);
     update_theme();
 
     // current_date is initialised by &InternalManager::change_month signal.
@@ -51,9 +51,7 @@ DiaryPixels::~DiaryPixels()
 
 void DiaryPixels::update_theme()
 {
-    auto const &theme = InternalManager::instance()->get_theme();
-
-    QFile file(QString(":/%1/diarypixels.qss").arg(theme));
+    QFile file(":/global/diarypixels.qss");
     file.open(QIODevice::ReadOnly);
     setStyleSheet(file.readAll());
     file.close();
@@ -68,13 +66,13 @@ void DiaryPixels::update_theme()
     black_star = file.readAll();
     file.close();
 
-    for (auto &ss_ptr : rating_stylesheets)
-        ss_ptr.reset();
+    //    for (auto &ss_ptr : rating_stylesheets)
+    //        ss_ptr.reset();
 
-    rating_stylesheets.clear();
+    //    rating_stylesheets.clear();
 
     for (int i = 0; i < 6; ++i) {
-        file.setFileName(QString(":/%1/pixels/%2.qss").arg(theme, QString::number(i)));
+        file.setFileName(QString(":/global/pixels/%1.qss").arg(QString::number(i)));
         file.open(QIODevice::ReadOnly);
         rating_stylesheets.push_back(std::make_unique<QString>(file.readAll()));
         file.close();

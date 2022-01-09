@@ -60,7 +60,7 @@ bool BusyFilter::eventFilter(QObject *, QEvent *event)
  * InactiveFilter class.
  * Thanks to https://www.qtcentre.org/threads/1464-Detecting-user-inaction
  */
-InactiveFilter::InactiveFilter(int const i, QObject *parent) : QObject(parent)
+InactiveFilter::InactiveFilter(qint64 const i, QObject *parent) : QObject(parent)
 {
     interval = i;
     timer = new QTimer(this);

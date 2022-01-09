@@ -33,8 +33,8 @@ DiaryMenu::DiaryMenu(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)
 
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &DiaryMenu::tab_changed, Qt::QueuedConnection);
 
-    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryMenu::update_theme,
-        Qt::QueuedConnection);
+    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryMenu::update_theme,
+    //        Qt::QueuedConnection);
     update_theme();
 }
 
@@ -45,7 +45,7 @@ DiaryMenu::~DiaryMenu()
 
 void DiaryMenu::update_theme()
 {
-    QFile file(QString(":/%1/diarymenu.qss").arg(InternalManager::instance()->get_theme()));
+    QFile file(":/global/diarymenu.qss");
     file.open(QIODevice::ReadOnly);
     setStyleSheet(file.readAll());
 }

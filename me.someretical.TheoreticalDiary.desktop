@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=TheoreticalDiary
+Name=Theoretical Diary
 Comment=Digital diary
-Exec=theoreticaldiary %f
+Exec=theoreticaldiary
 Icon=theoreticaldiary
 Categories=Office;
 StartupWMClass=theoreticaldiary

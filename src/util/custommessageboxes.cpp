@@ -28,7 +28,7 @@ void extend_top_line(std::string &top)
 
 QString get_danger_stylesheet()
 {
-    QFile file(QString(":/%1/dangerbutton.qss").arg(InternalManager::instance()->get_theme()));
+    QFile file(QString(":/%1/dangerbutton.qss").arg(InternalManager::instance()->get_theme_str()));
     file.open(QIODevice::ReadOnly);
     return QString(file.readAll());
 }

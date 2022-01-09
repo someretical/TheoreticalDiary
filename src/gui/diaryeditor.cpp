@@ -82,7 +82,7 @@ DiaryEditor::~DiaryEditor()
 
 void DiaryEditor::update_theme()
 {
-    auto const &theme = InternalManager::instance()->get_theme();
+    auto const &theme = InternalManager::instance()->get_theme_str();
 
     QFile file(QString(":/%1/diaryeditor.qss").arg(theme));
     file.open(QIODevice::ReadOnly);

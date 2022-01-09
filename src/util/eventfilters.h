@@ -39,11 +39,11 @@ signals:
     void sig_inactive_timeout();
 
 public:
-    InactiveFilter(int const i, QObject *parent = nullptr);
+    InactiveFilter(qint64 const i, QObject *parent = nullptr);
     ~InactiveFilter();
 
     QTimer *timer;
-    int interval;
+    qint64 interval;
 
 public slots:
     void slot_inactive_timeout();

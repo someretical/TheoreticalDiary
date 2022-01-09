@@ -30,9 +30,25 @@
 namespace misc {
 QString get_day_suffix(int const day);
 std::string get_trunc_first_line(std::string input, int const max_line_len);
-void ltrim(std::string &s);
-void rtrim(std::string &s);
-void trim(std::string &s);
+bool is_not_space(int ch);
+
+// Inline functions MUST be defined in header files if they are to be used in other files!
+inline std::string &ltrim(std::string &s)
+{
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), is_not_space));
+    return s;
+}
+
+inline std::string &rtrim(std::string &s)
+{
+    s.erase(std::find_if(s.rbegin(), s.rend(), is_not_space).base(), s.end());
+    return s;
+}
+
+inline std::string &trim(std::string &s)
+{
+    return ltrim(rtrim(s));
+}
 } // namespace misc
 
 #endif // MISC_H

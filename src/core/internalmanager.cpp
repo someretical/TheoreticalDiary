@@ -19,7 +19,6 @@
 #include "internalmanager.h"
 
 InternalManager *i_m_ptr;
-int const TIMEOUT_MS = 1000 * 60 * 5; // 5 minutes.
 
 InternalManager::InternalManager()
 {
@@ -28,11 +27,11 @@ InternalManager::InternalManager()
     internal_diary_changed = false;
     diary_file_changed = false;
 
-    inactive_filter = new InactiveFilter(TIMEOUT_MS, this);
-    QApplication::instance()->installEventFilter(inactive_filter);
-
     settings = new QSettings(QString("%1/%2").arg(data_location(), "config.ini"), QSettings::IniFormat, this);
     init_settings(false);
+
+    inactive_filter = new InactiveFilter(settings->value("lock_timeout").toLongLong(), this);
+    QApplication::instance()->installEventFilter(inactive_filter);
 }
 
 InternalManager::~InternalManager()
@@ -53,11 +52,19 @@ void InternalManager::init_settings(const bool force_reset)
 
     if (!settings->contains("theme") || force_reset)
         settings->setValue("theme", static_cast<int>(td::Theme::Dark));
+
+    if (!settings->contains("lock_timeout") || force_reset)
+        settings->setValue("lock_timeout", static_cast<qint64>(300000 /* 5 minutes */));
 }
 
-QString InternalManager::get_theme()
+td::Theme InternalManager::get_theme()
 {
-    return QString(td::Theme::Light == static_cast<td::Theme>(settings->value("theme").toInt()) ? "light" : "dark");
+    return static_cast<td::Theme>(settings->value("theme").toInt());
+}
+
+QString InternalManager::get_theme_str()
+{
+    return QString(td::Theme::Light == get_theme() ? "light" : "dark");
 }
 
 QString InternalManager::data_location()

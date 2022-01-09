@@ -49,6 +49,7 @@ public slots:
     void save_settings();
     void setup_layout();
     void export_diary();
+    void update_lock_timeout();
     void change_password();
     void change_password_cb(bool const);
     void download_backup();
@@ -62,6 +63,7 @@ public slots:
     void dev_delete();
     void show_about();
     void show_licenses();
+    void reset_settings();
 
 private:
     Ui::OptionsMenu *ui;

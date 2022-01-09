@@ -25,14 +25,18 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
     ui->version_placeholder->setText(QApplication::applicationVersion());
     ui->version_placeholder->update();
 
+    auto description = ui->description->text();
+    ui->description->setText(description.replace("%APPNAME%", QApplication::applicationName()));
+    ui->description->update();
+
     QFile file(":/CONTRIBUTORS.txt");
     file.open(QIODevice::ReadOnly);
     ui->contributors->setPlainText(file.readAll());
 
     connect(ui->ok_button, &QPushButton::clicked, this, &AboutDialog::accept, Qt::QueuedConnection);
 
-    connect(InternalManager::instance(), &InternalManager::update_theme, this, &AboutDialog::update_theme,
-        Qt::QueuedConnection);
+    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &AboutDialog::update_theme,
+    //        Qt::QueuedConnection);
     update_theme();
 }
 

@@ -37,6 +37,7 @@ SOURCES += \
     src/gui/mainwindow.cpp \
     src/gui/optionsmenu.cpp \
     src/main.cpp \
+    src/util/alertlabel.cpp \
     src/util/custommessageboxes.cpp \
     src/util/encryptor.cpp \
     src/util/eventfilters.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     src/gui/mainmenu.h \
     src/gui/mainwindow.h \
     src/gui/optionsmenu.h \
+    src/util/alertlabel.h \
     src/util/custommessageboxes.h \
     src/util/encryptor.h \
     src/util/eventfilters.h \
@@ -101,3 +103,7 @@ RESOURCES += \
     images/images.qrc \
     styles/styles.qrc \
     text/text.qrc
+
+DISTFILES += \
+    styles/global/alertlabel.qss \
+    styles/global/apiresponse.qss

@@ -47,5 +47,5 @@ void PasswordLineEdit::on_released()
 QString PasswordLineEdit::get_eye_icon(bool const on)
 {
     return QString(":/themes/%1/passwordlineedit/%2.svg")
-        .arg(InternalManager::instance()->get_theme(), on ? "eye_on" : "eye_off");
+        .arg(InternalManager::instance()->get_theme_str(), on ? "eye_on" : "eye_off");
 }

@@ -136,7 +136,9 @@ void MainWindow::lock_diary()
 
 void MainWindow::update_theme()
 {
-    QFile file(QString(":/%1/material_cyan_dark.qss").arg(InternalManager::instance()->get_theme()));
+    auto theme = InternalManager::instance()->get_theme_str();
+
+    QFile file(QString(":/%1/material_cyan.qss").arg(theme));
     file.open(QIODevice::ReadOnly);
     setStyleSheet(file.readAll());
 }

@@ -1,14 +1,37 @@
 QScrollArea#scrollArea {
-  background-color: #31363b;
-  border: 1px solid #232629;
-  border-radius: 4px;
   padding: 8px;
-}
-
-QLabel#alert_text {
-  color: #FF0000;
+  background-color: #31363b;
+  border: 2px solid #4f5b62;
+  border-radius: 4px;
 }
 
 QLineEdit {
   font-family: "Roboto Mono"
+}
+
+QPushButton#reset_button,
+QPushButton#change_password_button {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+QPushButton:checked#reset_button,
+QPushButton:pressed#reset_button,
+QPushButton:checked#change_password_button,
+QPushButton:pressed#change_password_button {
+  color: #31363b;
+  background-color: #dc3545;
+}
+
+QPushButton:flat:hover#reset_button,
+QPushButton:flat:hover#change_password_button {
+  background-color: rgba(220, 53, 69, 0.2);
+}
+
+QPushButton:flat:pressed#reset_button,
+QPushButton:flat:checked#reset_button,
+QPushButton:flat:pressed#change_password_button,
+QPushButton:flat:checked#change_password_button {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
 }
