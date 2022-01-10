@@ -1,6 +1,6 @@
 /*
  * This file is part of Theoretical Diary.
- * Copyright (C) 2021  someretical
+ * Copyright (C) 2022 someretical
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -105,6 +105,8 @@ void DiaryStats::update_theme()
     stylesheet.append(file.readAll());
 
     setStyleSheet(stylesheet);
+
+    render_stats(QDate::currentDate());
 }
 
 void DiaryStats::next_month()

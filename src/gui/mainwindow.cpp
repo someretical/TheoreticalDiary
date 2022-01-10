@@ -1,6 +1,6 @@
 /*
  * This file is part of Theoretical Diary.
- * Copyright (C) 2021  someretical
+ * Copyright (C) 2022 someretical
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,22 +24,17 @@ MainWindow *main_window_ptr;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    main_window_ptr = this;
 
     setWindowTitle(QApplication::applicationName());
-
-    main_window_ptr = this;
-    current_window = td::Window::Main;
-    last_window = td::Window::Main;
+    restore_state();
+    show_main_menu(false);
 
     connect(InternalManager::instance()->inactive_filter, &InactiveFilter::sig_inactive_timeout, this,
         &MainWindow::lock_diary);
     connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainWindow::update_theme,
         Qt::QueuedConnection);
     update_theme();
-
-    restore_state();
-
-    show_main_menu(false);
 }
 
 MainWindow::~MainWindow()
@@ -117,8 +112,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
 void MainWindow::lock_diary()
 {
     qDebug() << "Timeout detected.";
-    if (td::Window::Main == current_window ||
-        (td::Window::Options == current_window && td::Window::Main == last_window)) {
+    if (td::Window::Main == current_window || td::Window::Options == current_window) {
         // This isn't implemented because I don't believe it's a high risk for those tokens to be leaked?
         // In any case, if that ever DOES prove a threat, I can just uncomment the code below.
         // GoogleWrapper::instance()->google->unlink();
@@ -168,7 +162,6 @@ void MainWindow::clear_grid()
 
 void MainWindow::show_main_menu(bool const show_locked_message)
 {
-    last_window = current_window;
     current_window = td::Window::Main;
 
     clear_grid();
@@ -177,17 +170,14 @@ void MainWindow::show_main_menu(bool const show_locked_message)
 
 void MainWindow::show_options_menu()
 {
-    auto const on_diary_editor = td::Window::Editor == current_window;
-    last_window = current_window;
     current_window = td::Window::Options;
 
     clear_grid();
-    ui->central_widget->layout()->addWidget(new OptionsMenu(on_diary_editor, this));
+    ui->central_widget->layout()->addWidget(new StandaloneOptions(this));
 }
 
 void MainWindow::show_diary_menu()
 {
-    last_window = current_window;
     current_window = td::Window::Editor;
 
     clear_grid();
@@ -214,11 +204,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
             qDebug() << "Ignored close request due to app being busy.";
         }
     }
-    else if (td::Window::Options == current_window && td::Window::Editor == last_window) {
-        event->ignore(); // Don't close the main window, but exit to the diary menu.
-        show_diary_menu();
-    }
-    else if (td::Window::Options == current_window && td::Window::Main == last_window) {
+    else if (td::Window::Options == current_window) {
         event->ignore(); // Don't close the main window, but exit to the main menu.
         show_main_menu(false);
     }

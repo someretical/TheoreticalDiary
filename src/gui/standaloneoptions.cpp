@@ -16,27 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef APIRESPONSE_H
-#define APIRESPONSE_H
+#include "standaloneoptions.h"
+#include "ui_standaloneoptions.h"
 
-#include <QtWidgets>
+StandaloneOptions::StandaloneOptions(QWidget *parent) : QWidget(parent), ui(new Ui::StandaloneOptions)
+{
+    ui->setupUi(this);
+    ui->settings_frame->layout()->addWidget(new OptionsMenu(false, this));
 
-namespace Ui {
-class APIResponse;
+    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &StandaloneOptions::update_theme,
+    //        Qt::QueuedConnection);
+    update_theme();
 }
 
-class APIResponse : public QDialog {
-    Q_OBJECT
+StandaloneOptions::~StandaloneOptions()
+{
+    delete ui;
+}
 
-public:
-    explicit APIResponse(QByteArray &res, QWidget *parent = nullptr);
-    ~APIResponse();
-
-public slots:
-    void update_theme();
-
-private:
-    Ui::APIResponse *ui;
-};
-
-#endif // APIRESPONSE_H
+void StandaloneOptions::update_theme()
+{
+    QFile file(":/global/standaloneoptions.qss");
+    file.open(QIODevice::ReadOnly);
+    setStyleSheet(file.readAll());
+}

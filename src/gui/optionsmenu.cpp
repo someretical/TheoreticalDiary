@@ -1,6 +1,6 @@
 /*
  * This file is part of Theoretical Diary.
- * Copyright (C) 2021  someretical
+ * Copyright (C) 2022 someretical
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,10 +70,8 @@ void OptionsMenu::update_theme()
 
 void OptionsMenu::back()
 {
-    if (diary_editor_mode)
-        return MainWindow::instance()->show_diary_menu();
-
-    MainWindow::instance()->show_main_menu(false);
+    if (!diary_editor_mode)
+        MainWindow::instance()->show_main_menu(false);
 }
 
 void OptionsMenu::save_settings()
@@ -127,6 +125,7 @@ void OptionsMenu::setup_layout()
     }
     else {
         ui->download_backup_button->setEnabled(false);
+        ui->ok_button->setVisible(false);
     }
 
     ui->sync_checkbox->setChecked(InternalManager::instance()->settings->value("sync_enabled").toBool());

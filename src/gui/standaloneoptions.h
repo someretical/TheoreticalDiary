@@ -16,27 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef APIRESPONSE_H
-#define APIRESPONSE_H
+#ifndef STANDALONEOPTIONS_H
+#define STANDALONEOPTIONS_H
 
-#include <QtWidgets>
+#include "optionsmenu.h"
+
+#include <QWidget>
 
 namespace Ui {
-class APIResponse;
+class StandaloneOptions;
 }
 
-class APIResponse : public QDialog {
+class StandaloneOptions : public QWidget {
     Q_OBJECT
 
 public:
-    explicit APIResponse(QByteArray &res, QWidget *parent = nullptr);
-    ~APIResponse();
+    explicit StandaloneOptions(QWidget *parent = nullptr);
+    ~StandaloneOptions();
 
 public slots:
     void update_theme();
 
 private:
-    Ui::APIResponse *ui;
+    Ui::StandaloneOptions *ui;
 };
 
-#endif // APIRESPONSE_H
+#endif // STANDALONEOPTIONS_H

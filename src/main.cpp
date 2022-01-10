@@ -1,6 +1,6 @@
 /*
  * This file is part of Theoretical Diary.
- * Copyright (C) 2021  someretical
+ * Copyright (C) 2022 someretical
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,14 @@
  */
 
 #include "core/theoreticaldiary.h"
+#include "gui/calendarbutton.h"
 #include "gui/mainwindow.h"
 #include "util/runguard.h"
 
 #include <QtCore>
+
+Q_DECLARE_METATYPE(std::string)
+Q_DECLARE_METATYPE(td::CalendarButtonData)
 
 int main(int argc, char **argv)
 {
@@ -43,6 +47,7 @@ int main(int argc, char **argv)
 
     // This is required so std::string can be passed via signals and slots.
     qRegisterMetaType<std::string>();
+    qRegisterMetaType<td::CalendarButtonData>();
 
     TheoreticalDiary app(argc, argv);
 

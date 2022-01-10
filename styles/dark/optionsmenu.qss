@@ -1,10 +1,3 @@
-QScrollArea#scrollArea {
-  padding: 8px;
-  background-color: #31363b;
-  border: 2px solid #4f5b62;
-  border-radius: 4px;
-}
-
 QLineEdit {
   font-family: "Roboto Mono"
 }

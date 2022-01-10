@@ -36,6 +36,7 @@ SOURCES += \
     src/gui/mainmenu.cpp \
     src/gui/mainwindow.cpp \
     src/gui/optionsmenu.cpp \
+    src/gui/standaloneoptions.cpp \
     src/main.cpp \
     src/util/alertlabel.cpp \
     src/util/custommessageboxes.cpp \
@@ -63,6 +64,7 @@ HEADERS += \
     src/gui/mainmenu.h \
     src/gui/mainwindow.h \
     src/gui/optionsmenu.h \
+    src/gui/standaloneoptions.h \
     src/util/alertlabel.h \
     src/util/custommessageboxes.h \
     src/util/encryptor.h \
@@ -84,7 +86,8 @@ FORMS += \
     src/gui/licensesdialog.ui \
     src/gui/mainmenu.ui \
     src/gui/mainwindow.ui \
-    src/gui/optionsmenu.ui
+    src/gui/optionsmenu.ui \
+    src/gui/standaloneoptions.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -105,5 +108,4 @@ RESOURCES += \
     text/text.qrc
 
 DISTFILES += \
-    styles/global/alertlabel.qss \
-    styles/global/apiresponse.qss
+    styles/global/standaloneoptions.qss

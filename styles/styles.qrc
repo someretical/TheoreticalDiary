@@ -60,5 +60,6 @@
         <file>global/pixels/5.qss</file>
         <file>global/apiresponse.qss</file>
         <file>global/alertlabel.qss</file>
+        <file>global/standaloneoptions.qss</file>
     </qresource>
 </RCC>

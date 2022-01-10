@@ -1,6 +1,6 @@
 /*
  * This file is part of Theoretical Diary.
- * Copyright (C) 2021  someretical
+ * Copyright (C) 2022 someretical
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,9 +31,6 @@ class GoogleWrapper;
 #include <json.hpp>
 #include <string>
 #include <sys/stat.h>
-
-// This is required so std::string can be passed via signals and slots.
-Q_DECLARE_METATYPE(std::string)
 
 /*
  * TheoreticalDiary class

@@ -1,6 +1,6 @@
 /*
  * This file is part of Theoretical Diary.
- * Copyright (C) 2021  someretical
+ * Copyright (C) 2022 someretical
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "../util/encryptor.h"
 #include "diarymenu.h"
 #include "mainmenu.h"
-#include "optionsmenu.h"
+#include "standaloneoptions.h"
 
 #include <QtWidgets>
 #include <fstream>
@@ -54,7 +54,6 @@ public:
     void closeEvent(QCloseEvent *event);
 
     td::Window current_window;
-    td::Window last_window;
 
 public slots:
     void lock_diary();

@@ -169,7 +169,7 @@
        </property>
       </layout>
      </widget>
-     <widget class="QWidget" name="options_tab">
+     <widget class="QWidget" name="settings_tab">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>

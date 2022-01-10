@@ -1,6 +1,6 @@
 /*
  * This file is part of Theoretical Diary.
- * Copyright (C) 2021  someretical
+ * Copyright (C) 2022 someretical
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ DiaryMenu::DiaryMenu(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)
     ui->pixels->layout()->addWidget(new DiaryPixels(this));
     // DiaryEditor has to be initialised last because it tells all the other widgets to update.
     ui->editor->layout()->addWidget(new DiaryEditor(date, this));
+    ui->settings_tab->layout()->addWidget(new OptionsMenu(true, this));
 
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &DiaryMenu::tab_changed, Qt::QueuedConnection);
 
@@ -67,7 +68,6 @@ void DiaryMenu::tab_changed(int const tab)
         break;
     case 4:
         qDebug() << "Switched to options tab.";
-        MainWindow::instance()->show_options_menu();
         break;
     }
 }

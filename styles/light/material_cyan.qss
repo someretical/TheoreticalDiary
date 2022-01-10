@@ -1245,7 +1245,7 @@ QListView QLineEdit {
 QToolTip {
   padding: 4px;
   border: 1px solid #e6e6e6;
-  border-radius: 4px;
+  border-radius: 0px;
   color: #555555;
   background-color: #ffffff;
 }
