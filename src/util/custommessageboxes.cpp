@@ -18,24 +18,13 @@
 
 #include "custommessageboxes.h"
 
-int const MAX_LINE_LENGTH = 100;
-
-void extend_top_line(std::string &top)
-{
-    if (top.size() < MAX_LINE_LENGTH)
-        top.append(MAX_LINE_LENGTH - top.size(), ' ');
-}
-
-QString get_danger_stylesheet()
-{
-    QFile file(QString(":/%1/dangerbutton.qss").arg(InternalManager::instance()->get_theme_str()));
-    file.open(QIODevice::ReadOnly);
-    return QString(file.readAll());
-}
+long unsigned int const MAX_LINE_LENGTH = 100;
 
 namespace td {
 int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom)
 {
+    misc::clear_message_boxes();
+
     QMessageBox msgbox(parent);
     QPushButton ok_button("OK", &msgbox);
     ok_button.setFlat(true);
@@ -44,7 +33,7 @@ int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
     ok_button.setFont(f);
 
     msgbox.setFont(f);
-    extend_top_line(top);
+    misc::extend_top_line(top, MAX_LINE_LENGTH);
     msgbox.setText(top.data());
     msgbox.setInformativeText(bottom.data());
     msgbox.addButton(&ok_button, QMessageBox::AcceptRole);
@@ -56,19 +45,21 @@ int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
 
 int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom)
 {
+    misc::clear_message_boxes();
+
     QMessageBox msgbox(parent);
 
     QPushButton yes("YES", &msgbox);
     QFont f = yes.font();
     f.setPointSize(11);
     yes.setFont(f);
-    yes.setStyleSheet(get_danger_stylesheet());
+    yes.setStyleSheet(misc::get_danger_stylesheet());
     QPushButton no("NO", &msgbox);
     no.setFlat(true);
     no.setFont(f);
 
     msgbox.setFont(f);
-    extend_top_line(top);
+    misc::extend_top_line(top, MAX_LINE_LENGTH);
     msgbox.setText(top.data());
     msgbox.setInformativeText(bottom.data());
     msgbox.addButton(&yes, QMessageBox::AcceptRole);
@@ -82,13 +73,15 @@ int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
 int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string const &&reject_text,
     std::string const &&destroy_text, std::string &&top, std::string const &&bottom)
 {
+    misc::clear_message_boxes();
+
     QMessageBox msgbox(parent);
 
     QPushButton destroy_button(destroy_text.data(), &msgbox);
     QFont f = destroy_button.font();
     f.setPointSize(11);
     destroy_button.setFont(f);
-    destroy_button.setStyleSheet(get_danger_stylesheet());
+    destroy_button.setStyleSheet(misc::get_danger_stylesheet());
 
     QPushButton accept_button(accept_text.data(), &msgbox);
     accept_button.setFont(f);
@@ -96,7 +89,7 @@ int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string
     cancel_button.setFlat(true);
     cancel_button.setFont(f);
     msgbox.setFont(f);
-    extend_top_line(top);
+    misc::extend_top_line(top, MAX_LINE_LENGTH);
     msgbox.setText(top.data());
     msgbox.setInformativeText(bottom.data());
     msgbox.addButton(&accept_button, QMessageBox::AcceptRole);

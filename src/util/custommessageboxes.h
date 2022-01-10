@@ -20,6 +20,7 @@
 #define CUSTOMMESSAGEBOXES_H
 
 #include "../core/internalmanager.h"
+#include "misc.h"
 
 #include <QtWidgets>
 #include <string>

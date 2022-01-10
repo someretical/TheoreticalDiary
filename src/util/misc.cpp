@@ -70,4 +70,26 @@ std::string get_trunc_first_line(std::string input, int max_line_len)
 
     return first_line;
 }
+
+void extend_top_line(std::string &top, long unsigned int const max_line_len)
+{
+    if (top.size() < max_line_len)
+        top.append(max_line_len - top.size(), ' ');
+}
+
+QString get_danger_stylesheet()
+{
+    QFile file(QString(":/%1/dangerbutton.qss").arg(InternalManager::instance()->get_theme_str()));
+    file.open(QIODevice::ReadOnly);
+    return QString(file.readAll());
+}
+
+void clear_message_boxes()
+{
+    QWidget *w;
+    while ((w = QApplication::activeModalWidget())) {
+        qDebug() << "Removing message_box:" << w;
+        w->close();
+    }
+}
 } // namespace misc

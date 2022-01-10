@@ -200,6 +200,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
             QCoreApplication::exit(1);
             break;
         case QMessageBox::RejectRole:
+            // There is a situation where the operation completes before the user can answer the messagebox. In this
+            // case, the app becomes softlocked as the dialog relocks the window after completing.
+            // TODO somehow fix this?
+            // One possible fix is to make all dialogs that can interrupt this one close all other dialogs before they
+            // appear. However, that is not very maintenance friendly so I will not be doing that.
             InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
             qDebug() << "Ignored close request due to app being busy.";
         }

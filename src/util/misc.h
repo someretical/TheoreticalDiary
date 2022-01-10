@@ -19,6 +19,8 @@
 #ifndef MISC_H
 #define MISC_H
 
+#include "../core/internalmanager.h"
+
 #include <QtWidgets>
 #include <algorithm>
 #include <cctype>
@@ -49,6 +51,10 @@ inline std::string &trim(std::string &s)
 {
     return ltrim(rtrim(s));
 }
+
+void extend_top_line(std::string &top, long unsigned int const max_line_len);
+QString get_danger_stylesheet();
+void clear_message_boxes();
 } // namespace misc
 
 #endif // MISC_H

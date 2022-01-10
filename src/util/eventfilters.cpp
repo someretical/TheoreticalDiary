@@ -112,5 +112,6 @@ bool InactiveFilter::eventFilter(QObject *obj, QEvent *event)
 
 void InactiveFilter::slot_inactive_timeout()
 {
-    emit sig_inactive_timeout();
+    if (0 != interval)
+        emit sig_inactive_timeout();
 }
