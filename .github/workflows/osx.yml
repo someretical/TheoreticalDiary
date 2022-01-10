@@ -40,12 +40,12 @@ jobs:
       - name: macdeployqt
         id: macdeploy
         run: |
-          export FIRST_NAME="TheoreticalDiary-v$(cat text/VERSION.txt)-x86_64"
-          echo ::set-output name=first_name::${FIRST_NAME}
-          macdeployqt TheoreticalDiary.app
+          export FULL_NAME="TheoreticalDiary-v$(cat text/VERSION.txt)-x86_64.app"
+          echo ::set-output name=full_name::${FULL_NAME}
+          macdeployqt TheoreticalDiary.app -verbose=2
 
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: ${{steps.macdeploy.outputs.first_name}}
+          name: ${{steps.macdeploy.outputs.full_name}}
           path: TheoreticalDiary.app

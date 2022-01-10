@@ -11,6 +11,8 @@ macx:LIBS += \
 
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
 
+ICON = images/osx_icons/icons.icns
+
 win32:LIBS += \
     -l"external-libs/cryptopp/cryptlib"
 
