@@ -36,18 +36,17 @@ jobs:
           nmake
           nmake clean
 
-      - name: Link DLLs
-        id: link_dlls
+      - name: windeployqt
+        id: windeploy
         shell: cmd
         run: |
           windeployqt release\\theoreticaldiary.exe --compiler-runtime
           set /p VERSION=<"text/VERSION.txt"
           set FILE_NAME=TheoreticalDiary-v%VERSION%-x86_64
-          rename "release\\theoreticaldiary.exe" "%FILE_NAME%.exe"
           echo ::set-output name=file_name::%FILE_NAME%
 
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: ${{steps.link_dlls.outputs.file_name}}
+          name: ${{steps.windeploy.outputs.file_name}}
           path: release

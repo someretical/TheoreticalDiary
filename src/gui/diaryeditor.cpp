@@ -145,7 +145,7 @@ void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::ite
     for (int i = current_month_offset; i < 7; ++i, ++days_added) {
         // Render the day if it has a corresponding entry.
         // There are 2 entirely separate flows here simply because there are 2 checks required to see if the entry is
-        // present. I could use goto but hat's kind of messy and harder to keep track of compared to plain old copy
+        // present. I could use goto but that's kind of messy and harder to keep track of compared to plain old copy
         // pasting.
         if (opt) {
             auto const &monthmap = (*opt)->second;

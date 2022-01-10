@@ -21,11 +21,11 @@ jobs:
       - name: Build cryptopp
         run: |
           cd external-libs/cryptopp
-          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp -lgomp" make -j$(nproc) dynamic cryptest.exe
-          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp -lgomp" make -j$(nproc) libcryptopp.a libcryptopp.so cryptest.exe
+          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp" make -j$(nproc) dynamic cryptest.exe
+          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp" make -j$(nproc) libcryptopp.a libcryptopp.so cryptest.exe
           sudo make install PREFIX=/usr/local
 
-      - name: Qmake and make
+      - name: qmake and make
         run: |
           qmake CONFIG+=release
           make -j$(nproc)
@@ -41,7 +41,9 @@ jobs:
           mkdir -p "TheoreticalDiary.AppDir/usr/share/metainfo/"
           cp "me.someretical.TheoreticalDiary.appdata.xml" "TheoreticalDiary.AppDir/usr/share/metainfo/"
           export VERSION="$(cat text/VERSION.txt)"
-          export OUTPUT="TheoreticalDiary-v${VERSION}-x86_64.AppImage"
+          export FIRST_NAME="TheoreticalDiary-v${VERSION}-x86_64"
+          export OUTPUT="${FIRST_NAME}.AppImage"
+          echo ::set-output name=first_name::${FIRST_NAME}
           echo ::set-output name=full_name::${OUTPUT}
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
           sudo ldconfig /usr/local/lib
@@ -50,5 +52,5 @@ jobs:
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: ${{steps.build_appimage.outputs.full_name}}
+          name: ${{steps.build_appimage.outputs.first_name}}
           path: ${{steps.build_appimage.outputs.full_name}}

@@ -60,7 +60,6 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc,
     QFile file(":/VERSION.txt");
     file.open(QIODevice::ReadOnly);
     setApplicationVersion(file.readAll());
-    file.close();
 
     setApplicationName("Theoretical Diary");
 
@@ -71,15 +70,15 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc,
     setDesktopFileName("me.someretical.TheoreticalDiary.desktop");
     setWindowIcon(QIcon(":/linux_icons/256x256/theoreticaldiary.png"));
 
-    gwrapper = new GoogleWrapper(this);
-    diary_holder = new DiaryHolder();
-    encryptor = new Encryptor();
-    internal_manager = new InternalManager();
-
     // Create app directory.
     QDir dir(internal_manager->data_location());
     if (!dir.exists())
         dir.mkpath(".");
+
+    gwrapper = new GoogleWrapper(this);
+    diary_holder = new DiaryHolder();
+    encryptor = new Encryptor();
+    internal_manager = new InternalManager();
 }
 
 TheoreticalDiary::~TheoreticalDiary()

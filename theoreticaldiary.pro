@@ -6,6 +6,11 @@ INCLUDEPATH += external-libs/json/single_include/nlohmann \
 unix:LIBS += \
     -L/usr/lib/ -lcryptopp
 
+macx:LIBS += \
+    -L/usr/lib/
+
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
+
 win32:LIBS += \
     -l"external-libs/cryptopp/cryptlib"
 
@@ -106,6 +111,3 @@ RESOURCES += \
     images/images.qrc \
     styles/styles.qrc \
     text/text.qrc
-
-DISTFILES += \
-    styles/global/standaloneoptions.qss
