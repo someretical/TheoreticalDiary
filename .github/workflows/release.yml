@@ -1,0 +1,198 @@
+on:
+  push:
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+jobs:
+  windows_build:
+    name: Windows build
+    runs-on: windows-latest
+    outputs:
+      upload_name: ${{steps.windeploy.outputs.file_name}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with: 
+          submodules: 'recursive'
+
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.10.0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2.6.2
+        with:
+          host: windows
+          modules: 'qtcharts'
+          extra: --external 7z
+      
+      - name: Build cryptopp
+        run: |
+          cd external-libs/cryptopp 
+          nmake /f cryptest.nmake CXXFLAGS="/DNDEBUG /D_NDEBUG /Oi /Oy /O3 /MD /openmp"
+
+      - name: qmake and nmake
+        run: |
+          qmake theoreticaldiary.pro CONFIG+=release
+          set CL=/MP
+          nmake qmake_all
+          nmake
+          nmake clean
+
+      - name: windeployqt
+        id: windeploy
+        shell: cmd
+        run: |
+          windeployqt release\\theoreticaldiary.exe --compiler-runtime
+          set /p VERSION=<"text/VERSION.txt"
+          set FILE_NAME=TheoreticalDiary-v%VERSION%-x86_64
+          echo ::set-output name=file_name::%FILE_NAME%
+
+      - name: Upload to Github
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{steps.windeploy.outputs.file_name}}
+          path: release
+
+  osx_build:
+    name: OSX build
+    runs-on: macos-10.15
+    outputs:
+      upload_name: ${{steps.macdeploy.outputs.full_name}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with: 
+          submodules: 'recursive'
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2.6.2
+        with:
+          host: mac
+          modules: 'qtcharts'
+          extra: --external 7z
+      
+      - name: Build cryptopp
+        run: |
+          brew install llvm libomp
+          cd external-libs/cryptopp
+          export CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp -L/usr/local/opt/llvm/lib -I/usr/local/opt/llvm/include"
+          export CC="/usr/local/opt/llvm/bin/clang"
+          export CXX="/usr/local/opt/llvm/bin/clang++"
+          make -j$(sysctl -n hw.logicalcpu) dynamic cryptest.exe
+          make -j$(sysctl -n hw.logicalcpu) libcryptopp.a libcryptopp.so cryptest.exe
+          sudo make install PREFIX=/usr/local
+
+      - name: qmake and make
+        run: |
+          sudo xcode-select -s /Applications/Xcode_12.1.1.app/Contents/Developer
+          qmake QMAKE_CC="/usr/local/opt/llvm/bin/clang" QMAKE_CXX="/usr/local/opt/llvm/bin/clang++" CONFIG+=release QMAKE_LIBS+="-L/usr/local/opt/llvm/lib -L/usr/local/lib" INCLUDEPATH+="-I/usr/local/opt/llvm/include"
+          make -j$(sysctl -n hw.logicalcpu)
+          
+      - name: macdeployqt
+        id: macdeploy
+        run: |
+          export FULL_NAME="TheoreticalDiary-v$(cat text/VERSION.txt)-x86_64.app"
+          echo ::set-output name=full_name::${FULL_NAME}
+          macdeployqt TheoreticalDiary.app -verbose=2
+
+      - name: Upload to Github
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{steps.macdeploy.outputs.full_name}}
+          path: TheoreticalDiary.app
+
+  linux_build:
+    name: Linux build
+    runs-on: ubuntu-20.04
+    outputs:
+      upload_name: ${{steps.build_appimage.outputs.full_name}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with: 
+          submodules: 'recursive'
+      
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt install qt5-default
+          sudo apt install libqt5charts5 libqt5charts5-dev
+          sudo apt install nlohmann-json3-dev
+          sudo apt install patchelf
+
+      - name: Build cryptopp
+        run: |
+          cd external-libs/cryptopp
+          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp" make -j$(nproc) dynamic cryptest.exe
+          CXXFLAGS="-DNDEBUG -g2 -O3 -fopenmp" make -j$(nproc) libcryptopp.a libcryptopp.so cryptest.exe
+          sudo make install PREFIX=/usr/local
+
+      - name: qmake and make
+        run: |
+          qmake CONFIG+=release
+          make -j$(nproc)
+          make install INSTALL_ROOT=TheoreticalDiary.AppDir
+          
+      - name: Build AppImage
+        id: build_appimage
+        run: |
+          wget --no-verbose https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget --no-verbose https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x ./linuxdeploy-x86_64.AppImage
+          chmod +x ./linuxdeploy-plugin-qt-x86_64.AppImage
+          mkdir -p "TheoreticalDiary.AppDir/usr/share/metainfo/"
+          cp "me.someretical.TheoreticalDiary.appdata.xml" "TheoreticalDiary.AppDir/usr/share/metainfo/"
+          export VERSION="$(cat text/VERSION.txt)"
+          export OUTPUT="TheoreticalDiary-v${VERSION}-x86_64.AppImage"
+          echo ::set-output name=full_name::${OUTPUT}
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+          sudo ldconfig /usr/local/lib
+          ./linuxdeploy-x86_64.AppImage --desktop-file="me.someretical.TheoreticalDiary.desktop" --icon-file="images/linux_icons/256x256/theoreticaldiary.png" --appdir="TheoreticalDiary.AppDir" --plugin=qt --output=appimage --executable="TheoreticalDiary.AppDir/usr/bin/theoreticaldiary"
+
+      - name: Upload to Github
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{steps.build_appimage.outputs.full_name}}
+          path: ${{steps.build_appimage.outputs.full_name}}
+    
+  draft_release:
+    name: Create draft release
+    runs-on: ubuntu-20.04
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows_build, osx_build, linux_build]
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Zip Windows build
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r "${{needs.windows_build.outputs.upload_name}}.zip" ${{needs.windows_build.outputs.upload_name}}
+
+      - name: Zip OSX build
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r "${{needs.osx_build.outputs.upload_name}}.zip" ${{needs.osx_build.outputs.upload_name}}
+
+      - name: Generate hashes
+        run: |
+          sha256sum "${{needs.windows_build.outputs.upload_name}}.zip" > sha256.txt
+          md5sum "${{needs.windows_build.outputs.upload_name}}.zip" > md5.txt
+          sha256sum "${{needs.osx_build.outputs.upload_name}}.zip" >> sha256.txt
+          md5sum "${{needs.osx_build.outputs.upload_name}}.zip" >> md5.txt
+          cd ${{needs.linux_build.outputs.upload_name}}
+          sha256sum ${{needs.linux_build.outputs.upload_name}} >> ../sha256.txt
+          md5sum ${{needs.linux_build.outputs.upload_name}} >> ../md5.txt
+
+      - name: Create draft release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{secrets.GITHUB_TOKEN}}"
+          draft: true
+          files: |
+            ${{needs.windows_build.outputs.upload_name}}.zip
+            ${{needs.osx_build.outputs.upload_name}}.zip
+            ${{needs.linux_build.outputs.upload_name}}/${{needs.linux_build.outputs.upload_name}}
+            sha256.txt
+            md5.txt
