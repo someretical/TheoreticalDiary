@@ -76,6 +76,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
         GoogleWrapper::instance()->upload_diary([this, locked](const td::GWrapperError err) {
             InternalManager::instance()->diary_file_changed = false;
             GoogleWrapper::instance()->encrypt_credentials();
+            GoogleWrapper::instance()->google->unlink();
             Encryptor::instance()->reset();
             InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
@@ -102,6 +103,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
     }
     else {
         GoogleWrapper::instance()->encrypt_credentials();
+        GoogleWrapper::instance()->google->unlink();
         Encryptor::instance()->reset();
     }
 

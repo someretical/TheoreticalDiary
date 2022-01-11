@@ -164,6 +164,7 @@ void OptionsMenu::update_lock_timeout()
 
     InternalManager::instance()->settings->setValue("lock_timeout", ms);
     InternalManager::instance()->inactive_filter->interval = ms;
+    InternalManager::instance()->inactive_filter->timer->start();
 
     ui->lock_timeout_text->set_text("Lock timeout updated.");
 }
