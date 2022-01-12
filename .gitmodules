@@ -8,3 +8,6 @@
 [submodule "external-libs/someretical-o2"]
 	path = external-libs/someretical-o2
 	url = https://github.com/someretical/o2.git
+[submodule "external-libs/asyncfuture"]
+	path = external-libs/asyncfuture
+	url = https://github.com/benlau/asyncfuture.git
