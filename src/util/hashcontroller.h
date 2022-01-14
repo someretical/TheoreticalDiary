@@ -19,8 +19,6 @@
 #ifndef HASHWORKER_H
 #define HASHWORKER_H
 
-class TheoreticalDiary;
-
 #include "encryptor.h"
 
 #include <QtWidgets>

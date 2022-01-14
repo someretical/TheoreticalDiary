@@ -21,8 +21,6 @@
 #ifndef PASSWORDLINEEDIT_H
 #define PASSWORDLINEEDIT_H
 
-#include "../core/internalmanager.h"
-
 #include <QtWidgets>
 
 class PasswordLineEdit : public QLineEdit {

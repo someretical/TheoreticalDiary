@@ -19,15 +19,9 @@
 #ifndef MISC_H
 #define MISC_H
 
-#include "../core/internalmanager.h"
-
 #include <QtWidgets>
 #include <algorithm>
-#include <cctype>
-#include <sstream>
 #include <string>
-#include <type_traits>
-#include <utility>
 
 namespace misc {
 QString get_day_suffix(int const day);

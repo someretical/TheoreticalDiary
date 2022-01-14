@@ -19,18 +19,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "../core/diaryholder.h"
-#include "../core/googlewrapper.h"
-#include "../core/internalmanager.h"
-#include "../util/custommessageboxes.h"
-#include "../util/encryptor.h"
-#include "diarymenu.h"
-#include "mainmenu.h"
-#include "standaloneoptions.h"
-
 #include <QtWidgets>
-#include <fstream>
-#include <json.hpp>
+
+#include "../core/internalmanager.h"
 
 namespace Ui {
 class MainWindow;

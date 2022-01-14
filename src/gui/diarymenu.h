@@ -19,14 +19,6 @@
 #ifndef DIARYMENU_H
 #define DIARYMENU_H
 
-#include "../core/internalmanager.h"
-#include "diaryeditor.h"
-#include "diaryentryviewer.h"
-#include "diarypixels.h"
-#include "diarystats.h"
-#include "mainwindow.h"
-#include "optionsmenu.h"
-
 #include <QtWidgets>
 
 namespace Ui {

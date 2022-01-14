@@ -19,6 +19,7 @@
 // The code in this file was adapted from https://stackoverflow.com/a/51194796.
 
 #include "passwordlineedit.h"
+#include "../core/internalmanager.h"
 
 PasswordLineEdit::PasswordLineEdit(QWidget *parent) : QLineEdit(parent)
 {

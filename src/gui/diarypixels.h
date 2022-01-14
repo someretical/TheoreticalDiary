@@ -19,13 +19,10 @@
 #ifndef DIARYPIXELS_H
 #define DIARYPIXELS_H
 
-#include "../core/diaryholder.h"
-#include "../core/internalmanager.h"
-#include "../util/misc.h"
-
 #include <QtWidgets>
-#include <algorithm>
 #include <memory>
+
+#include "../core/internalmanager.h"
 
 namespace Ui {
 class DiaryPixels;

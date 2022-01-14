@@ -17,6 +17,7 @@
  */
 
 #include "diarystats.h"
+#include "../core/diaryholder.h"
 #include "ui_diarystats.h"
 
 using namespace QtCharts;

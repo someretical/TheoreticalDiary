@@ -17,6 +17,7 @@
  */
 
 #include "standaloneoptions.h"
+#include "optionsmenu.h"
 #include "ui_standaloneoptions.h"
 
 StandaloneOptions::StandaloneOptions(QWidget *parent) : QWidget(parent), ui(new Ui::StandaloneOptions)

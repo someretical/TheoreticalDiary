@@ -19,12 +19,10 @@
 #ifndef DIARYENTRYVIEWER_H
 #define DIARYENTRYVIEWER_H
 
-#include "../core/diaryholder.h"
-#include "../core/internalmanager.h"
-#include "../util/misc.h"
-
 #include <QtWidgets>
 #include <memory>
+
+#include "../core/internalmanager.h"
 
 namespace Ui {
 class DiaryEntryViewer;

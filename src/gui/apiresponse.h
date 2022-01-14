@@ -29,7 +29,7 @@ class APIResponse : public QDialog {
     Q_OBJECT
 
 public:
-    explicit APIResponse(QByteArray &res, QWidget *parent = nullptr);
+    explicit APIResponse(QByteArray const &res, QWidget *parent = nullptr);
     ~APIResponse();
 
 public slots:

@@ -19,15 +19,11 @@
 #ifndef DIARYHOLDER_H
 #define DIARYHOLDER_H
 
-#include "../util/custommessageboxes.h"
-#include "../util/encryptor.h"
-#include "../util/zipper.h"
-#include "internalmanager.h"
-
 #include <QtWidgets>
-#include <cryptlib.h>
-#include <json.hpp>
 #include <optional>
+#include <string>
+
+#include "internalmanager.h"
 
 class DiaryHolder {
 public:

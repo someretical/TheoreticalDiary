@@ -20,15 +20,11 @@
 #define THOERETICALDIARY_H
 
 class DiaryHolder;
+class Encryptor;
 class GoogleWrapper;
-
-#include "../util/encryptor.h"
-#include "diaryholder.h"
-#include "googlewrapper.h"
-#include "internalmanager.h"
+class InternalManager;
 
 #include <QtWidgets>
-#include <json.hpp>
 #include <string>
 #include <sys/stat.h>
 

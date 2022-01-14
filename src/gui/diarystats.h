@@ -19,12 +19,11 @@
 #ifndef DIARYSTATS_H
 #define DIARYSTATS_H
 
-#include "../core/diaryholder.h"
-#include "../core/internalmanager.h"
-
-#include <QtCharts>
 #include <QtWidgets>
 #include <optional>
+#include <vector>
+
+#include "../core/internalmanager.h"
 
 namespace Ui {
 class DiaryStats;

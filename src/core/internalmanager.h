@@ -19,12 +19,15 @@
 #ifndef INTERNAL_MANAGER_H
 #define INTERNAL_MANAGER_H
 
-#include "../util/eventfilters.h"
-
+#include <QtNetwork>
 #include <QtWidgets>
-#include <json.hpp>
 #include <map>
 #include <string>
+
+#include "../util/eventfilters.h"
+#include "asyncfuture.h"
+#include "json.hpp"
+#include "o2requestor.h"
 
 namespace td {
 enum class Rating { Unknown, VeryBad, Bad, Ok, Good, VeryGood };
@@ -50,9 +53,9 @@ inline void from_json(nlohmann::json const &j, Entry &e)
     j.at("last_updated").get_to<time_t>(e.last_updated);
 }
 
-typedef std::map<int, Entry> MonthMap;
-typedef std::map<int, MonthMap> YearMap;
-typedef std::map<int, YearMap> DiaryLog;
+using MonthMap = std::map<int, Entry>;
+using YearMap = std::map<int, MonthMap>;
+using DiaryLog = std::map<int, YearMap>;
 
 struct Metadata {
     int version;
@@ -119,6 +122,10 @@ inline void from_json(nlohmann::json const &j, Credentials &c)
 enum class Theme { Light, Dark };
 
 enum class Window { Main, Editor, Options };
+
+enum class LinkingResponse { Fail, ScopeMismatch, OK };
+
+using NRO = AsyncFuture::Observable<NR>;
 } // namespace td
 
 // The reason why this class exists is to redirect #include statements away from theoreticaldiary.h

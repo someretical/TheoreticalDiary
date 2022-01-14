@@ -24,10 +24,9 @@
 
 #include <QtWidgets>
 #include <string>
-#include <sys/stat.h>
 
 namespace td {
-int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom);
+void ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom);
 int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom);
 int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string const &&reject_text,
     std::string const &&destroy_text, std::string &&top, std::string const &&bottom);
@@ -35,8 +34,8 @@ int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string
 
 namespace cmb {
 bool prompt_confirm_overwrite(QWidget *parent);
+void display_scope_mismatch(QWidget *p);
 void display_auth_error(QWidget *parent);
-void display_network_error(QWidget *parent);
 void display_io_error(QWidget *parent);
 void display_drive_file_error(QWidget *parent);
 void save_error(QWidget *parent);

@@ -19,7 +19,7 @@
 #include "apiresponse.h"
 #include "ui_apiresponse.h"
 
-APIResponse::APIResponse(QByteArray &res, QWidget *parent) : QDialog(parent), ui(new Ui::APIResponse)
+APIResponse::APIResponse(QByteArray const &res, QWidget *parent) : QDialog(parent), ui(new Ui::APIResponse)
 {
     ui->setupUi(this);
     ui->res->setPlainText(res);

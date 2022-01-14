@@ -16,18 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <sys/stat.h>
+
 #include "custommessageboxes.h"
 
 long unsigned int const MAX_LINE_LENGTH = 100;
 
 namespace td {
-int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom)
+void ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom)
 {
     misc::clear_message_boxes();
 
     QMessageBox msgbox(parent);
+
     QPushButton ok_button("OK", &msgbox);
     ok_button.setFlat(true);
+
     QFont f = ok_button.font();
     f.setPointSize(11);
     ok_button.setFont(f);
@@ -40,7 +44,8 @@ int ok_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
     msgbox.setDefaultButton(&ok_button);
     msgbox.setTextInteractionFlags(Qt::NoTextInteraction);
 
-    return msgbox.exec();
+    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+    msgbox.exec();
 }
 
 int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom)
@@ -50,10 +55,12 @@ int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
     QMessageBox msgbox(parent);
 
     QPushButton yes("YES", &msgbox);
+    yes.setStyleSheet(misc::get_danger_stylesheet());
+
     QFont f = yes.font();
     f.setPointSize(11);
     yes.setFont(f);
-    yes.setStyleSheet(misc::get_danger_stylesheet());
+
     QPushButton no("NO", &msgbox);
     no.setFlat(true);
     no.setFont(f);
@@ -67,6 +74,7 @@ int yn_messagebox(QWidget *parent, std::string &&top, std::string const &&bottom
     msgbox.setDefaultButton(&no);
     msgbox.setTextInteractionFlags(Qt::NoTextInteraction);
 
+    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
     return msgbox.exec();
 }
 
@@ -78,16 +86,19 @@ int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string
     QMessageBox msgbox(parent);
 
     QPushButton destroy_button(destroy_text.data(), &msgbox);
+    destroy_button.setStyleSheet(misc::get_danger_stylesheet());
+
     QFont f = destroy_button.font();
     f.setPointSize(11);
     destroy_button.setFont(f);
-    destroy_button.setStyleSheet(misc::get_danger_stylesheet());
 
     QPushButton accept_button(accept_text.data(), &msgbox);
     accept_button.setFont(f);
+
     QPushButton cancel_button(reject_text.data(), &msgbox);
     cancel_button.setFlat(true);
     cancel_button.setFont(f);
+
     msgbox.setFont(f);
     misc::extend_top_line(top, MAX_LINE_LENGTH);
     msgbox.setText(top.data());
@@ -98,6 +109,7 @@ int ync_messagebox(QWidget *parent, std::string const &&accept_text, std::string
     msgbox.setDefaultButton(&accept_button);
     msgbox.setTextInteractionFlags(Qt::NoTextInteraction);
 
+    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
     return msgbox.exec();
 }
 } // namespace td
@@ -122,20 +134,20 @@ void display_auth_error(QWidget *p)
     td::ok_messagebox(p, "Authentication error.", "The app was unable to authenticate with Google.");
 }
 
-void display_network_error(QWidget *p)
+void display_scope_mismatch(QWidget *p)
 {
-    td::ok_messagebox(p, "Network error.", "The app encountered a network error.");
+    td::ok_messagebox(p, "Scope mismatch.", "The granted scopes do not match the minimum requirements.");
 }
 
 void display_io_error(QWidget *p)
 {
-    td::ok_messagebox(p, "IO error.", "The app was unable to read from/write to the specified location.");
+    td::ok_messagebox(p, "IO error.", "The app was unable to read from/write to the specified local location.");
 }
 
 void display_drive_file_error(QWidget *p)
 {
     td::ok_messagebox(
-        p, "Google Drive error.", "The app was unable to write to/download the specified Google Drive files.");
+        p, "Google Drive error.", "The app was unable to read from/write to the specified Google Drive files.");
 }
 
 void save_error(QWidget *p)
@@ -145,7 +157,7 @@ void save_error(QWidget *p)
 
 void dev_unknown_file(QWidget *p)
 {
-    td::ok_messagebox(p, "Access failed.", "The app could not access the specified location.");
+    td::ok_messagebox(p, "Access failed.", "The app could not access the specified local location.");
 }
 
 int confirm_exit_to_main_menu(QWidget *p)

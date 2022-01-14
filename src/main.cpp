@@ -16,13 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <QtCore>
+#include <string>
+
+#include "core/internalmanager.h"
 #include "core/theoreticaldiary.h"
 #include "gui/calendarbutton.h"
 #include "gui/mainwindow.h"
+#include "o2requestor.h"
 #include "util/runguard.h"
 
-#include <QtCore>
-
+Q_DECLARE_METATYPE(td::NR)
 Q_DECLARE_METATYPE(std::string)
 Q_DECLARE_METATYPE(td::CalendarButtonData)
 
@@ -45,9 +49,10 @@ int main(int argc, char **argv)
     // Remove icons from context menus
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 
-    // This is required so std::string can be passed via signals and slots.
+    // Register types so they can be used in signals and slots.
     qRegisterMetaType<std::string>();
     qRegisterMetaType<td::CalendarButtonData>();
+    qRegisterMetaType<td::NR>();
 
     TheoreticalDiary app(argc, argv);
 

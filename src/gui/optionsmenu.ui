@@ -78,9 +78,6 @@
          <pointsize>11</pointsize>
         </font>
        </property>
-       <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
-       </property>
        <property name="text">
         <string>Apply</string>
        </property>
@@ -98,9 +95,6 @@
         <font>
          <pointsize>11</pointsize>
         </font>
-       </property>
-       <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="text">
         <string>Back</string>
@@ -145,7 +139,7 @@
         <x>0</x>
         <y>0</y>
         <width>684</width>
-        <height>1191</height>
+        <height>1231</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -228,9 +222,6 @@
               <pointsize>11</pointsize>
              </font>
             </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
             <property name="text">
              <string>Change</string>
             </property>
@@ -271,9 +262,6 @@
                <font>
                 <pointsize>11</pointsize>
                </font>
-              </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
               </property>
               <property name="text">
                <string>Export</string>
@@ -331,9 +319,6 @@
               <pointsize>11</pointsize>
              </font>
             </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
             <property name="text">
              <string>About</string>
             </property>
@@ -345,9 +330,6 @@
              <font>
               <pointsize>11</pointsize>
              </font>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="text">
              <string>Licenses</string>
@@ -384,18 +366,6 @@
           <property name="verticalSpacing">
            <number>15</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Enter new password:</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_4">
             <property name="font">
@@ -408,21 +378,27 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="PasswordLineEdit" name="new_password_confirm">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_6">
             <property name="font">
              <font>
               <pointsize>11</pointsize>
              </font>
             </property>
-            <property name="maxLength">
-             <number>256</number>
+            <property name="text">
+             <string>Enter new password:</string>
             </property>
-            <property name="echoMode">
-             <enum>QLineEdit::Password</enum>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="AlertLabel" name="pwd_alert_text">
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
             </property>
-            <property name="placeholderText">
-             <string>New password (leave blank to remove password)</string>
+            <property name="text">
+             <string>Placeholder</string>
             </property>
            </widget>
           </item>
@@ -444,15 +420,21 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="AlertLabel" name="pwd_alert_text">
+          <item row="3" column="0">
+           <widget class="PasswordLineEdit" name="new_password_confirm">
             <property name="font">
              <font>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
              </font>
             </property>
-            <property name="text">
-             <string>Placeholder</string>
+            <property name="maxLength">
+             <number>256</number>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+            <property name="placeholderText">
+             <string>New password (leave blank to remove password)</string>
             </property>
            </widget>
           </item>
@@ -462,9 +444,6 @@
              <font>
               <pointsize>11</pointsize>
              </font>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="toolTip">
              <string>Update the password.</string>
@@ -491,51 +470,15 @@
           <property name="spacing">
            <number>15</number>
           </property>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_16">
+          <item row="1" column="2">
+           <widget class="QPushButton" name="dev_upload_file_button">
             <property name="font">
              <font>
               <pointsize>11</pointsize>
              </font>
             </property>
             <property name="text">
-             <string>Download file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="dev_update_file_id">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="placeholderText">
-             <string>File ID</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_17">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Update file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_18">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Copy file</string>
+             <string>Upload</string>
             </property>
            </widget>
           </item>
@@ -546,23 +489,20 @@
               <pointsize>11</pointsize>
              </font>
             </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
             <property name="text">
              <string>Copy</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="dev_copy_file_id">
+          <item row="0" column="2">
+           <widget class="QPushButton" name="dev_list_files_button">
             <property name="font">
              <font>
               <pointsize>11</pointsize>
              </font>
             </property>
-            <property name="placeholderText">
-             <string>File ID</string>
+            <property name="text">
+             <string>List</string>
             </property>
            </widget>
           </item>
@@ -578,33 +518,6 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="dev_list_files_button">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="text">
-             <string>List</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="dev_download_file_id">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="placeholderText">
-             <string>File ID</string>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="2">
            <widget class="QPushButton" name="dev_update_file_button">
             <property name="font">
@@ -612,53 +525,8 @@
               <pointsize>11</pointsize>
              </font>
             </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
             <property name="text">
              <string>Update</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_15">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Upload file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="dev_upload_file_button">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="text">
-             <string>Upload</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QPushButton" name="dev_download_file_button">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="text">
-             <string>Download</string>
             </property>
            </widget>
           </item>
@@ -674,18 +542,15 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="2">
-           <widget class="QPushButton" name="dev_delete_button">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_16">
             <property name="font">
              <font>
               <pointsize>11</pointsize>
              </font>
             </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
             <property name="text">
-             <string>Delete</string>
+             <string>Download file</string>
             </property>
            </widget>
           </item>
@@ -701,6 +566,30 @@
             </property>
            </widget>
           </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="dev_copy_file_id">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="placeholderText">
+             <string>File ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_15">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Upload file</string>
+            </property>
+           </widget>
+          </item>
           <item row="6" column="1">
            <widget class="QLineEdit" name="dev_delete_file_id">
             <property name="font">
@@ -710,6 +599,109 @@
             </property>
             <property name="placeholderText">
              <string>File ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="dev_update_file_id">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="placeholderText">
+             <string>File ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_18">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Copy file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="dev_download_file_id">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="placeholderText">
+             <string>File ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="dev_download_file_button">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Download</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2">
+           <widget class="QPushButton" name="dev_delete_button">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Delete</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Update file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="2">
+           <widget class="QPushButton" name="test_button">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Test</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QLineEdit" name="test_text_edit">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="placeholderText">
+             <string>Test</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Testing</string>
             </property>
            </widget>
           </item>
@@ -847,9 +839,6 @@
                 <pointsize>11</pointsize>
                </font>
               </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
-              </property>
               <property name="text">
                <string>Download</string>
               </property>
@@ -927,9 +916,6 @@
                 <pointsize>11</pointsize>
                </font>
               </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
-              </property>
               <property name="text">
                <string>Deauthorize</string>
               </property>
@@ -964,9 +950,6 @@
                <font>
                 <pointsize>11</pointsize>
                </font>
-              </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
               </property>
               <property name="text">
                <string>Upload</string>
@@ -1029,9 +1012,6 @@
              <font>
               <pointsize>11</pointsize>
              </font>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="text">
              <string>Reset</string>

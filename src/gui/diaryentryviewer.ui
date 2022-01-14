@@ -106,7 +106,7 @@
            <x>0</x>
            <y>0</y>
            <width>1216</width>
-           <height>539</height>
+           <height>543</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -188,9 +188,6 @@
             <pointsize>20</pointsize>
            </font>
           </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
           <property name="toolTip">
            <string>Next month.</string>
           </property>
@@ -229,9 +226,6 @@
            <font>
             <pointsize>20</pointsize>
            </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
           </property>
           <property name="toolTip">
            <string>Previous month.</string>

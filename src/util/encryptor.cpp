@@ -16,8 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "encryptor.h"
 #include <QDebug>
+#include <aes.h>
+#include <cryptlib.h>
+#include <files.h>
+#include <filters.h>
+#include <gcm.h>
+#include <osrng.h>
+#include <scrypt.h>
+
+#include "encryptor.h"
 
 // The encryption algorithm was adapted from the AES-GCM-Test.zip file from
 // https://www.cryptopp.com/wiki/Advanced_Encryption_Standard#Downloads

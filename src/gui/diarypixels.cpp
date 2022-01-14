@@ -17,6 +17,9 @@
  */
 
 #include "diarypixels.h"
+#include "../core/diaryholder.h"
+#include "../util/custommessageboxes.h"
+#include "../util/misc.h"
 #include "ui_diarypixels.h"
 
 char const *MONTH_LETTERS = "JFMAMJJASOND";

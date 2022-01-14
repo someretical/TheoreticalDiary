@@ -19,18 +19,7 @@
 #ifndef OPTIONSMENU_H
 #define OPTIONSMENU_H
 
-#include "../core/diaryholder.h"
-#include "../core/internalmanager.h"
-#include "../util/custommessageboxes.h"
-#include "../util/encryptor.h"
-#include "../util/hashcontroller.h"
-#include "aboutdialog.h"
-#include "apiresponse.h"
-#include "licensesdialog.h"
-#include "mainwindow.h"
-
 #include <QtWidgets>
-#include <fstream>
 
 namespace Ui {
 class OptionsMenu;
@@ -64,6 +53,7 @@ public slots:
     void show_about();
     void show_licenses();
     void reset_settings();
+    void test();
 
 private:
     Ui::OptionsMenu *ui;

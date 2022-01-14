@@ -17,6 +17,10 @@
  */
 
 #include "theoreticaldiary.h"
+#include "../util/encryptor.h"
+#include "diaryholder.h"
+#include "googlewrapper.h"
+#include "internalmanager.h"
 
 TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc, argv)
 {

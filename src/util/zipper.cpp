@@ -16,6 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <files.h>
+#include <gzip.h>
+
 #include "zipper.h"
 
 void Zipper::zip(std::string &compressed, std::string &decompressed)

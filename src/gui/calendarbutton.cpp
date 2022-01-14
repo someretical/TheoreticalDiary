@@ -17,6 +17,7 @@
  */
 
 #include "calendarbutton.h"
+#include "diaryeditor.h"
 
 CalendarButton::CalendarButton(td::CalendarButtonData const &d) : QPushButton(qobject_cast<QWidget *>(*d.parent))
 {

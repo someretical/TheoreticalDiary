@@ -17,6 +17,8 @@
  */
 
 #include "diaryentryviewer.h"
+#include "../core/diaryholder.h"
+#include "../util/misc.h"
 #include "ui_diaryentryviewer.h"
 
 int const MAX_LINE_LEN = 110;

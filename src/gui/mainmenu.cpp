@@ -16,7 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fstream>
+
+#include "../core/diaryholder.h"
+#include "../core/googlewrapper.h"
+#include "../core/internalmanager.h"
+#include "../util/custommessageboxes.h"
+#include "../util/encryptor.h"
+#include "../util/hashcontroller.h"
+#include "../util/zipper.h"
 #include "mainmenu.h"
+#include "mainwindow.h"
 #include "ui_mainmenu.h"
 
 MainMenu::MainMenu(bool const show_locked_message, QWidget *parent) : QWidget(parent), ui(new Ui::MainMenu)
@@ -105,11 +115,9 @@ void MainMenu::decrypt_diary()
     ui->pwd_alert_text->set_text("");
 
     auto const &opt = get_diary_contents();
-    if (!opt) {
-        td::ok_messagebox(
+    if (!opt)
+        return td::ok_messagebox(
             this, "No diary was found.", "You can create a new diary by clicking the \"New\" button in the main menu.");
-        return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-    }
 
     auto &str = Encryptor::instance()->encrypted_str;
     // If the password box is empty, try to decompress immediately.

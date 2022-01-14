@@ -21,11 +21,10 @@
 
 class DiaryEditor;
 
-#include "../core/internalmanager.h"
-#include "diaryeditor.h"
-
 #include <QtWidgets>
 #include <optional>
+
+#include "../core/internalmanager.h"
 
 namespace td {
 struct CalendarButtonData {

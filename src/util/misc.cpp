@@ -17,6 +17,7 @@
  */
 
 #include "misc.h"
+#include "../core/internalmanager.h"
 
 namespace misc {
 QString get_day_suffix(int const day)
@@ -88,8 +89,15 @@ void clear_message_boxes()
 {
     QWidget *w;
     while ((w = QApplication::activeModalWidget())) {
-        qDebug() << "Removing message_box:" << w;
-        w->close();
+        auto dialog = qobject_cast<QDialog *>(w);
+
+        if (!dialog) {
+            qDebug() << "Failed to cast widget pointer into dialog pointer:" << w;
+        }
+        else {
+            qDebug() << "Removing dialog:" << w;
+            dialog->done(QMessageBox::RejectRole);
+        }
     }
 }
 } // namespace misc

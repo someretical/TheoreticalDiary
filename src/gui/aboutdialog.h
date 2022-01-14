@@ -19,8 +19,6 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
-#include "../core/internalmanager.h"
-
 #include <QtWidgets>
 
 namespace Ui {

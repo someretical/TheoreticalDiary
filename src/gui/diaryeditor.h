@@ -19,19 +19,11 @@
 #ifndef DIARYEDITOR_H
 #define DIARYEDITOR_H
 
-namespace td {
-struct CalendarButtonData;
-}
-
-#include "../core/diaryholder.h"
-#include "../core/internalmanager.h"
-#include "../util/custommessageboxes.h"
-#include "../util/misc.h"
-#include "calendarbutton.h"
-
 #include <QtWidgets>
 #include <memory>
 #include <optional>
+
+#include "calendarbutton.h"
 
 namespace Ui {
 class DiaryEditor;

@@ -17,6 +17,9 @@
  */
 
 #include "diaryeditor.h"
+#include "../core/diaryholder.h"
+#include "../util/custommessageboxes.h"
+#include "../util/misc.h"
 #include "ui_diaryeditor.h"
 
 DiaryEditor::DiaryEditor(QDate const &date, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryEditor)
@@ -383,11 +386,8 @@ void DiaryEditor::update_day(bool const suppress_error)
     DiaryHolder::instance()->create_entry(new_date, e);
 
     // Actually try and save the diary.
-    if (!DiaryHolder::instance()->save() && suppress_error) {
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-        cmb::save_error(this);
-        return;
-    }
+    if (!DiaryHolder::instance()->save() && suppress_error)
+        return cmb::save_error(this);
 
     td::CalendarButtonData const d{std::optional(last_selected_day), std::nullopt,
         std::optional(ui->special_box->isChecked()),
@@ -426,11 +426,8 @@ void DiaryEditor::delete_day()
     DiaryHolder::instance()->delete_entry(new_date);
 
     // Actually try and save the diary.
-    if (!DiaryHolder::instance()->save()) {
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-        cmb::save_error(this);
-        return;
-    }
+    if (!DiaryHolder::instance()->save())
+        return cmb::save_error(this);
 
     ui->alert_text->setText("Deleted entry.");
     ui->alert_text->update();

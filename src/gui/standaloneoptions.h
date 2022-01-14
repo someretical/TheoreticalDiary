@@ -19,9 +19,7 @@
 #ifndef STANDALONEOPTIONS_H
 #define STANDALONEOPTIONS_H
 
-#include "optionsmenu.h"
-
-#include <QWidget>
+#include <QtWidgets>
 
 namespace Ui {
 class StandaloneOptions;

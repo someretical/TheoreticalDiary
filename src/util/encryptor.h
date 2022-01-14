@@ -19,15 +19,9 @@
 #ifndef ENCRYPTOR_H
 #define ENCRYPTOR_H
 
-#include <aes.h>
-#include <cryptlib.h>
-#include <files.h>
-#include <filters.h>
-#include <gcm.h>
 #include <optional>
-#include <osrng.h>
-#include <scrypt.h>
 #include <secblock.h>
+#include <string>
 
 // tencrypt for theoretical encryption. I am a shameless plug.
 namespace tencrypt {

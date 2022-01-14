@@ -16,6 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fstream>
+
+#include "../core/diaryholder.h"
+#include "../core/googlewrapper.h"
+#include "../core/internalmanager.h"
+#include "../util/custommessageboxes.h"
+#include "../util/hashcontroller.h"
+#include "aboutdialog.h"
+#include "apiresponse.h"
+#include "licensesdialog.h"
+#include "mainwindow.h"
 #include "optionsmenu.h"
 #include "ui_optionsmenu.h"
 
@@ -46,6 +57,7 @@ OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidge
     connect(ui->about_button, &QPushButton::clicked, this, &OptionsMenu::show_about, Qt::QueuedConnection);
     connect(ui->licenses_button, &QPushButton::clicked, this, &OptionsMenu::show_licenses, Qt::QueuedConnection);
     connect(ui->reset_button, &QPushButton::clicked, this, &OptionsMenu::reset_settings, Qt::QueuedConnection);
+    connect(ui->test_button, &QPushButton::clicked, this, &OptionsMenu::test, Qt::QueuedConnection);
 
     connect(InternalManager::instance(), &InternalManager::update_theme, this, &OptionsMenu::update_theme,
         Qt::QueuedConnection);
@@ -70,8 +82,7 @@ void OptionsMenu::update_theme()
 
 void OptionsMenu::back()
 {
-    if (!diary_editor_mode)
-        MainWindow::instance()->show_main_menu(false);
+    MainWindow::instance()->show_main_menu(false);
 }
 
 void OptionsMenu::save_settings()
@@ -88,7 +99,6 @@ void OptionsMenu::save_settings()
     }
 
     qDebug() << "Saved settings.";
-    back();
 }
 
 void OptionsMenu::setup_layout()
@@ -145,7 +155,6 @@ void OptionsMenu::export_diary()
         InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
         nlohmann::json const &j = DiaryHolder::instance()->diary;
         dst << j.dump(4);
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
         td::ok_messagebox(this, "Diary exported.", "The diary has been exported in an unencrypted JSON format.");
     }
@@ -212,310 +221,395 @@ void OptionsMenu::change_password_cb(bool const)
 
 void OptionsMenu::download_backup()
 {
+    auto gwrapper = GoogleWrapper::instance();
+    auto intman = InternalManager::instance();
+
     if (!cmb::prompt_confirm_overwrite(this))
         return;
 
-    GoogleWrapper::instance()->download_diary([this](const td::GWrapperError err) {
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+    intman->start_busy_mode(__LINE__, __func__, __FILE__);
 
-        switch (err) {
-        case td::GWrapperError::Auth:
+    auto check_error = [this, intman](td::NR const &reply) {
+        if (QNetworkReply::NoError != reply.error) {
+            td::ok_messagebox(this, "Network error.", reply.error_message.toStdString());
+            return false;
+        }
+
+        return true;
+    };
+
+    auto cb_final = [this, check_error, intman](td::NR const &reply) {
+        if (!check_error(reply))
+            return;
+
+        QFile file(QString("%1/diary.dat").arg(intman->data_location()));
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+            return cmb::display_io_error(this);
+
+        // At the moment, the data is written all in one go as o2 does not yet provide any download updates. This is
+        // really bad practice so TODO: add own implementation of a download notifier so the data buffer can be
+        // piped into the file every time a new chunk arrives.
+        file.write(reply.response);
+        cmb::diary_downloaded(this);
+    };
+
+    auto cb2 = [this, check_error, gwrapper, intman, cb_final](td::NR const &reply) {
+        if (!check_error(reply))
+            return;
+
+        auto const &[id1, id2] = gwrapper->get_file_ids(reply.response);
+
+        if (id1.isEmpty() && id2.isEmpty())
+            return cmb::display_drive_file_error(this);
+
+        gwrapper->download_file(id1.isEmpty() ? id2 : id1).subscribe(cb_final);
+    };
+
+    auto cb1 = [this, gwrapper, intman, cb2]() {
+        switch (gwrapper->verify_auth()) {
+        case td::LinkingResponse::ScopeMismatch:
+            cmb::display_scope_mismatch(this);
+            break;
+        case td::LinkingResponse::Fail:
             cmb::display_auth_error(this);
             break;
-        case td::GWrapperError::Network:
-            cmb::display_network_error(this);
-            break;
-        case td::GWrapperError::IO:
-            cmb::display_io_error(this);
-            break;
-        case td::GWrapperError::DriveFile:
-            cmb::display_drive_file_error(this);
-            break;
-        case td::GWrapperError::None:
-            cmb::diary_downloaded(this);
+        case td::LinkingResponse::OK:
+            gwrapper->list_files().subscribe(cb2);
             break;
         }
-    });
+    };
+
+    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    gwrapper->google->link();
 }
 
 void OptionsMenu::upload_diary()
 {
-    GoogleWrapper::instance()->upload_diary([this](const td::GWrapperError err) {
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+    static QString primary_id;
+    static QString secondary_id;
+    auto gwrapper = GoogleWrapper::instance();
+    auto intman = InternalManager::instance();
 
-        switch (err) {
-        case td::GWrapperError::Auth:
+    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+
+    auto check_error = [this, intman](td::NR const &reply) {
+        if (QNetworkReply::NoError != reply.error) {
+            td::ok_messagebox(this, "Network error.", reply.error_message.toStdString());
+            return false;
+        }
+
+        return true;
+    };
+
+    auto cb_final = [this, check_error, gwrapper, intman](td::NR const &reply) {
+        if (check_error(reply))
+            cmb::diary_uploaded(this);
+    };
+
+    auto upload_subroutine = [this, gwrapper, intman, cb_final]() {
+        auto file_ptr = new QFile(QString("%1/diary.dat").arg(intman->data_location()));
+
+        if (!file_ptr->open(QIODevice::ReadOnly))
+            return cmb::display_io_error(this);
+
+        if (primary_id.isEmpty())
+            gwrapper->upload_file(file_ptr, "diary.dat").subscribe(cb_final);
+        else
+            gwrapper->update_file(file_ptr, primary_id).subscribe(cb_final);
+    };
+
+    auto cb4 = [this, check_error, upload_subroutine, gwrapper, intman, cb_final](td::NR const &reply) {
+        if (!check_error(reply))
+            return;
+
+        upload_subroutine();
+    };
+
+    auto cb3 = [this, check_error, upload_subroutine, gwrapper, intman, cb4, cb_final](td::NR const &reply) {
+        if (!check_error(reply))
+            return;
+
+        if (secondary_id.isEmpty())
+            return upload_subroutine();
+
+        gwrapper->delete_file(secondary_id).subscribe(cb4);
+    };
+
+    auto cb2 = [this, check_error, upload_subroutine, gwrapper, intman, cb3, cb_final](td::NR const &reply) {
+        if (!check_error(reply))
+            return;
+
+        auto const &[id1, id2] = gwrapper->get_file_ids(reply.response);
+
+        if (id1.isEmpty())
+            return upload_subroutine();
+
+        primary_id = id1;
+        secondary_id = id2;
+        gwrapper->copy_file(id1, "diary.dat.bak").subscribe(cb3);
+    };
+
+    auto cb1 = [this, gwrapper, intman, cb2]() {
+        switch (gwrapper->verify_auth()) {
+        case td::LinkingResponse::ScopeMismatch:
+            cmb::display_scope_mismatch(this);
+            break;
+        case td::LinkingResponse::Fail:
             cmb::display_auth_error(this);
             break;
-        case td::GWrapperError::Network:
-            cmb::display_network_error(this);
-            break;
-        case td::GWrapperError::IO:
-            cmb::display_io_error(this);
-            break;
-        case td::GWrapperError::DriveFile:
-            cmb::display_drive_file_error(this);
-            break;
-        case td::GWrapperError::None:
-            cmb::diary_uploaded(this);
+        case td::LinkingResponse::OK:
+            gwrapper->list_files().subscribe(cb2);
             break;
         }
-    });
+    };
+
+    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    gwrapper->google->link();
 }
 
 void OptionsMenu::flush_oauth()
 {
     InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-    GoogleWrapper::instance()->dc_requestor_slots();
-    GoogleWrapper::instance()->revoke_access();
-    // According to the docs, this function is always successful.
-    GoogleWrapper::instance()->google->unlink();
+    auto gwrapper = GoogleWrapper::instance();
 
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-    td::ok_messagebox(this, "Credentials deleted.", "The OAuth2 credentials have been deleted.");
+    auto cb = [this, gwrapper](td::NR const &) {
+        gwrapper->google->unlink();
+        td::ok_messagebox(this, "Credentials deleted.", "The OAuth2 credentials have been deleted.");
+    };
+
+    gwrapper->revoke_access().subscribe(cb);
 }
 
 void OptionsMenu::dev_list()
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-    GoogleWrapper::instance()->dc_oauth_slots();
+    auto gwrapper = GoogleWrapper::instance();
+    auto intman = InternalManager::instance();
 
-    // Check for OAuth2 credentials first.
-    connect(GoogleWrapper::instance(), &GoogleWrapper::sig_oauth2_callback, [this](bool const success) {
-        // This makes sure that this lambda is only executed once. Consider the following situation:
-        // A request is made with an invalid token. o2 only checks IF a token exists when authenticate() is called
-        // below, it does not check if it actually works. This means that it is successful which means that list_files()
-        // is called. However, this time o2 realises the token is invalid because Google sends back a 401 code. When the
-        // token is automatically refreshed by o2, the sig_oauth2_callback signal is emitted since the client is
-        // technically in a linked state again. This means true is returned AGAIN and the code below is run again,
-        // meaning list_files() is called AGAIN. This is problematic as the original list_files() request goes through
-        // as well. So far, I have found that this bug causes the upload_file() function to throw a segmentation fault
-        // for some reason (please don't ask why). Anyway, this bug took a while to pin down since the stack traces of
-        // both list_files() calls were basically the same (and because of the fact that I did not know o2 called
-        // sig_oauth2_callback when the access token is refreshed).
-        GoogleWrapper::instance()->dc_oauth_slots();
+    intman->start_busy_mode(__LINE__, __func__, __FILE__);
 
-        if (!success) {
-            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-            return cmb::display_auth_error(this);
+    auto cb_final = [this, intman](td::NR const &reply) {
+        misc::clear_message_boxes();
+        intman->end_busy_mode(__LINE__, __func__, __FILE__);
+        APIResponse r(reply.response, this);
+        r.exec();
+    };
+
+    auto cb1 = [this, gwrapper, intman, cb_final]() {
+        switch (gwrapper->verify_auth()) {
+        case td::LinkingResponse::ScopeMismatch:
+            cmb::display_scope_mismatch(this);
+            break;
+        case td::LinkingResponse::Fail:
+            cmb::display_auth_error(this);
+            break;
+        case td::LinkingResponse::OK:
+            gwrapper->list_files().subscribe(cb_final);
+            break;
         }
+    };
 
-        GoogleWrapper::instance()->dc_requestor_slots();
-
-        // List all files in drive.
-        connect(GoogleWrapper::instance()->requestor,
-            qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](int const, QNetworkReply::NetworkError const, QByteArray data) {
-                APIResponse r(data, this);
-                InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-                r.exec();
-            });
-
-        GoogleWrapper::instance()->list_files();
-    });
-
-    GoogleWrapper::instance()->authenticate();
+    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    gwrapper->google->link();
 }
 
 void OptionsMenu::dev_upload()
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-    GoogleWrapper::instance()->dc_oauth_slots();
+    static QString filename;
+    auto gwrapper = GoogleWrapper::instance();
+    auto intman = InternalManager::instance();
 
-    // Check for OAuth2 credentials first.
-    connect(GoogleWrapper::instance(), &GoogleWrapper::sig_oauth2_callback, [this](bool const success) {
-        GoogleWrapper::instance()->dc_oauth_slots();
+    filename = QFileDialog::getOpenFileName(this, "Upload file", QDir::homePath());
+    if (filename.isEmpty())
+        return;
 
-        if (!success) {
-            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-            return cmb::display_auth_error(this);
+    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+
+    auto cb_final = [this, intman](td::NR const &reply) {
+        misc::clear_message_boxes();
+        intman->end_busy_mode(__LINE__, __func__, __FILE__);
+        APIResponse r(reply.response, this);
+        r.exec();
+    };
+
+    auto cb1 = [this, gwrapper, intman, cb_final]() {
+        switch (gwrapper->verify_auth()) {
+        case td::LinkingResponse::ScopeMismatch:
+            cmb::display_scope_mismatch(this);
+            break;
+        case td::LinkingResponse::Fail:
+            cmb::display_auth_error(this);
+            break;
+        case td::LinkingResponse::OK:
+            auto file_ptr = new QFile(filename);
+
+            if (!file_ptr->open(QIODevice::ReadOnly))
+                return cmb::display_io_error(this);
+
+            QFileInfo fileinfo(file_ptr->fileName());
+            gwrapper->upload_file(file_ptr, fileinfo.fileName()).subscribe(cb_final);
+            break;
         }
+    };
 
-        GoogleWrapper::instance()->dc_requestor_slots();
-
-        // Upload file to drive.
-        connect(GoogleWrapper::instance()->requestor,
-            qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](int const, QNetworkReply::NetworkError const, QByteArray data) {
-                APIResponse r(data, this);
-                InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-                r.exec();
-            });
-
-        auto const &filename = QFileDialog::getOpenFileName(this, "Upload file", QDir::homePath());
-        if (filename.isEmpty())
-            return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-
-        QFile f(filename);
-        QFileInfo fi(f);
-
-        auto const success2 = GoogleWrapper::instance()->upload_file(filename, fi.fileName());
-        if (!success2) {
-            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-            cmb::dev_unknown_file(this);
-        }
-    });
-
-    GoogleWrapper::instance()->authenticate();
+    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    gwrapper->google->link();
 }
 
 void OptionsMenu::dev_download()
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-    GoogleWrapper::instance()->dc_oauth_slots();
+    static QString filename;
+    auto gwrapper = GoogleWrapper::instance();
+    auto intman = InternalManager::instance();
 
-    // Check for OAuth2 credentials first.
-    connect(GoogleWrapper::instance(), &GoogleWrapper::sig_oauth2_callback, [this](bool const success) {
-        GoogleWrapper::instance()->dc_oauth_slots();
+    filename = QFileDialog::getSaveFileName(this, "Download file", QString("%1/download").arg(QDir::homePath()));
+    if (filename.isEmpty())
+        return;
 
-        if (!success) {
-            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-            return cmb::display_auth_error(this);
+    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+
+    auto cb_final = [this, intman](td::NR const &reply) {
+        if (QNetworkReply::NoError != reply.error) {
+            misc::clear_message_boxes();
+            intman->end_busy_mode(__LINE__, __func__, __FILE__);
+            APIResponse r(reply.response, this);
+            r.exec();
+            return;
         }
 
-        GoogleWrapper::instance()->dc_requestor_slots();
+        QFile file(filename);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+            return cmb::display_io_error(this);
+        file.write(reply.response);
 
-        // Download file from drive.
-        connect(GoogleWrapper::instance()->requestor,
-            qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](int const, QNetworkReply::NetworkError const error, QByteArray data) {
-                InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        misc::clear_message_boxes();
+        intman->end_busy_mode(__LINE__, __func__, __FILE__);
+        APIResponse r("File downloaded.", this);
+        r.exec();
+    };
 
-                if (QNetworkReply::NoError != error) {
-                    APIResponse r(data, this);
-                    r.exec();
-                    return;
-                }
+    auto cb1 = [this, gwrapper, intman, cb_final]() {
+        switch (gwrapper->verify_auth()) {
+        case td::LinkingResponse::ScopeMismatch:
+            cmb::display_scope_mismatch(this);
+            break;
+        case td::LinkingResponse::Fail:
+            cmb::display_auth_error(this);
+            break;
+        case td::LinkingResponse::OK:
+            gwrapper->download_file(ui->dev_download_file_id->text()).subscribe(cb_final);
+            break;
+        }
+    };
 
-                auto const &filename =
-                    QFileDialog::getSaveFileName(this, "Download file", QString("%1/download").arg(QDir::homePath()));
-                if (filename.isEmpty())
-                    return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-
-                QFile file(filename);
-                if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-                    return cmb::dev_unknown_file(this);
-                file.write(data);
-
-                QByteArray res("File downloaded.");
-                APIResponse r(res, this);
-                r.exec();
-            });
-
-        GoogleWrapper::instance()->download_file(ui->dev_download_file_id->text());
-    });
-
-    GoogleWrapper::instance()->authenticate();
+    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    gwrapper->google->link();
 }
 
 void OptionsMenu::dev_update()
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-    GoogleWrapper::instance()->dc_oauth_slots();
+    static QString filename;
+    auto gwrapper = GoogleWrapper::instance();
+    auto intman = InternalManager::instance();
 
-    // Check for OAuth2 credentials first.
-    connect(GoogleWrapper::instance(), &GoogleWrapper::sig_oauth2_callback, [this](bool const success) {
-        GoogleWrapper::instance()->dc_oauth_slots();
+    filename = QFileDialog::getOpenFileName(this, "Upload file", QDir::homePath());
+    if (filename.isEmpty())
+        return;
 
-        if (!success) {
-            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-            return cmb::display_auth_error(this);
+    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+
+    auto cb_final = [this, intman](td::NR const &reply) {
+        misc::clear_message_boxes();
+        intman->end_busy_mode(__LINE__, __func__, __FILE__);
+        APIResponse r(reply.response, this);
+        r.exec();
+    };
+
+    auto cb1 = [this, gwrapper, intman, cb_final]() {
+        switch (gwrapper->verify_auth()) {
+        case td::LinkingResponse::ScopeMismatch:
+            cmb::display_scope_mismatch(this);
+            break;
+        case td::LinkingResponse::Fail:
+            cmb::display_auth_error(this);
+            break;
+        case td::LinkingResponse::OK:
+            auto file_ptr = new QFile(filename);
+
+            if (!file_ptr->open(QIODevice::ReadOnly))
+                return cmb::display_io_error(this);
+
+            gwrapper->update_file(file_ptr, ui->dev_update_file_id->text()).subscribe(cb_final);
+            break;
         }
+    };
 
-        GoogleWrapper::instance()->dc_requestor_slots();
-
-        // Upload file to drive.
-        connect(GoogleWrapper::instance()->requestor,
-            qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](int const, QNetworkReply::NetworkError const, QByteArray data) {
-                APIResponse r(data, this);
-                InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-                r.exec();
-            });
-
-        auto const &filename = QFileDialog::getOpenFileName(this, "Update file", QDir::homePath());
-        if (filename.isEmpty())
-            return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-
-        auto const &id = ui->dev_update_file_id->text();
-        auto const success2 = GoogleWrapper::instance()->update_file(id, filename);
-        if (!success2) {
-            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-            cmb::dev_unknown_file(this);
-        }
-    });
-
-    GoogleWrapper::instance()->authenticate();
+    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    gwrapper->google->link();
 }
 
 void OptionsMenu::dev_copy()
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-    GoogleWrapper::instance()->dc_oauth_slots();
+    auto gwrapper = GoogleWrapper::instance();
+    auto intman = InternalManager::instance();
 
-    // Check for OAuth2 credentials first.
-    connect(GoogleWrapper::instance(), &GoogleWrapper::sig_oauth2_callback, [this](bool const success) {
-        GoogleWrapper::instance()->dc_oauth_slots();
+    intman->start_busy_mode(__LINE__, __func__, __FILE__);
 
-        if (!success) {
-            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-            return cmb::display_auth_error(this);
+    auto cb_final = [this, intman](td::NR const &reply) {
+        misc::clear_message_boxes();
+        intman->end_busy_mode(__LINE__, __func__, __FILE__);
+        APIResponse r(reply.response, this);
+        r.exec();
+    };
+
+    auto cb1 = [this, gwrapper, intman, cb_final]() {
+        switch (gwrapper->verify_auth()) {
+        case td::LinkingResponse::ScopeMismatch:
+            cmb::display_scope_mismatch(this);
+            break;
+        case td::LinkingResponse::Fail:
+            cmb::display_auth_error(this);
+            break;
+        case td::LinkingResponse::OK:
+            gwrapper->copy_file(ui->dev_copy_file_id->text(), ui->dev_copy_file_new_name->text()).subscribe(cb_final);
+            break;
         }
+    };
 
-        GoogleWrapper::instance()->dc_requestor_slots();
-
-        // Copy file on drive.
-        connect(GoogleWrapper::instance()->requestor,
-            qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](int const, QNetworkReply::NetworkError const, QByteArray data) {
-                APIResponse r(data, this);
-                InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-                r.exec();
-            });
-
-        GoogleWrapper::instance()->copy_file(ui->dev_copy_file_id->text(), ui->dev_copy_file_new_name->text());
-    });
-
-    GoogleWrapper::instance()->authenticate();
+    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    gwrapper->google->link();
 }
 
 void OptionsMenu::dev_delete()
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-    GoogleWrapper::instance()->dc_oauth_slots();
+    auto gwrapper = GoogleWrapper::instance();
+    auto intman = InternalManager::instance();
 
-    // Check for OAuth2 credentials first.
-    connect(GoogleWrapper::instance(), &GoogleWrapper::sig_oauth2_callback, [this](bool const success) {
-        GoogleWrapper::instance()->dc_oauth_slots();
+    intman->start_busy_mode(__LINE__, __func__, __FILE__);
 
-        if (!success) {
-            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-            return cmb::display_auth_error(this);
+    auto cb_final = [this, intman](td::NR const &reply) {
+        misc::clear_message_boxes();
+        intman->end_busy_mode(__LINE__, __func__, __FILE__);
+        APIResponse r(
+            QNetworkReply::NoError != reply.error ? reply.error_message.toLocal8Bit() : "File deleted.", this);
+        r.exec();
+    };
+
+    auto cb1 = [this, gwrapper, intman, cb_final]() {
+        switch (gwrapper->verify_auth()) {
+        case td::LinkingResponse::ScopeMismatch:
+            cmb::display_scope_mismatch(this);
+            break;
+        case td::LinkingResponse::Fail:
+            cmb::display_auth_error(this);
+            break;
+        case td::LinkingResponse::OK:
+            gwrapper->delete_file(ui->dev_delete_file_id->text()).subscribe(cb_final);
+            break;
         }
+    };
 
-        GoogleWrapper::instance()->dc_requestor_slots();
-
-        // Delete file on drive.
-        connect(GoogleWrapper::instance()->requestor,
-            qOverload<int, QNetworkReply::NetworkError, QByteArray>(&O2Requestor::finished),
-            [this](int const, QNetworkReply::NetworkError const error, QByteArray data) {
-                InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-
-                if (QNetworkReply::NoError != error) {
-                    APIResponse r(data, this);
-                    r.exec();
-                    return;
-                }
-
-                QByteArray res("File deleted.");
-                APIResponse r(res, this);
-                r.exec();
-            });
-
-        GoogleWrapper::instance()->delete_file(ui->dev_delete_file_id->text());
-    });
-
-    GoogleWrapper::instance()->authenticate();
+    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    gwrapper->google->link();
 }
 
 void OptionsMenu::show_about()
@@ -535,13 +629,10 @@ void OptionsMenu::reset_settings()
     int res =
         td::yn_messagebox(this, "Are you sure you want to reset all the settings?", "This action cannot be undone!");
 
-    switch (res) {
-    case QMessageBox::AcceptRole:
+    if (QMessageBox::AcceptRole == res) {
         InternalManager::instance()->init_settings(true);
         td::ok_messagebox(this, "Settings reset.", "Please restart the app for the changes to take effect.");
-        back();
-        break;
-    case QMessageBox::RejectRole:
-        break;
     }
 }
+
+void OptionsMenu::test() {}

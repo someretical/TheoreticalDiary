@@ -88,15 +88,18 @@
         <property name="spacing">
          <number>0</number>
         </property>
-        <item row="6" column="0">
-         <spacer name="verticalSpacer">
+        <item row="2" column="0">
+         <spacer name="verticalSpacer_4">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>15</width>
-            <height>0</height>
+            <width>20</width>
+            <height>15</height>
            </size>
           </property>
          </spacer>
@@ -107,22 +110,6 @@
            <number>7</number>
           </property>
          </layout>
-        </item>
-        <item row="0" column="0">
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>15</width>
-            <height>0</height>
-           </size>
-          </property>
-         </spacer>
         </item>
         <item row="3" column="0">
          <layout class="QGridLayout" name="gridLayout_6">
@@ -278,22 +265,6 @@
           </item>
          </layout>
         </item>
-        <item row="2" column="0">
-         <spacer name="verticalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>15</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item row="1" column="0">
          <layout class="QGridLayout" name="gridLayout_5">
           <property name="horizontalSpacing">
@@ -343,9 +314,6 @@
               <pointsize>20</pointsize>
              </font>
             </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
             <property name="toolTip">
              <string>Next month.</string>
             </property>
@@ -369,9 +337,6 @@
              <font>
               <pointsize>20</pointsize>
              </font>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="toolTip">
              <string>Previous month.</string>
@@ -412,9 +377,6 @@
              <font>
               <pointsize>20</pointsize>
              </font>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="toolTip">
              <string>Month dropdown</string>
@@ -512,6 +474,22 @@
           </item>
          </layout>
         </item>
+        <item row="0" column="0">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>15</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="4" column="0">
          <spacer name="verticalSpacer_5">
           <property name="orientation">
@@ -524,6 +502,19 @@
            <size>
             <width>20</width>
             <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="6" column="0">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>15</width>
+            <height>0</height>
            </size>
           </property>
          </spacer>
@@ -662,9 +653,6 @@
                 <pointsize>11</pointsize>
                </font>
               </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
-              </property>
               <property name="toolTip">
                <string>Rating dropdown</string>
               </property>
@@ -749,9 +737,6 @@
                 <pointsize>11</pointsize>
                </font>
               </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
-              </property>
               <property name="toolTip">
                <string>Jump to today.</string>
               </property>
@@ -770,9 +755,6 @@
                 <pointsize>11</pointsize>
                </font>
               </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
-              </property>
               <property name="toolTip">
                <string>Delete entry.</string>
               </property>
@@ -790,9 +772,6 @@
                <font>
                 <pointsize>11</pointsize>
                </font>
-              </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
               </property>
               <property name="toolTip">
                <string>Update entry.</string>
@@ -878,6 +857,9 @@
       </item>
       <item row="0" column="1">
        <widget class="Line" name="line">
+        <property name="lineWidth">
+         <number>2</number>
+        </property>
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>

@@ -16,6 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fstream>
+
+#include "../util/encryptor.h"
+#include "../util/zipper.h"
 #include "diaryholder.h"
 
 int const CURRENT_SAVE_VERSION = 4;

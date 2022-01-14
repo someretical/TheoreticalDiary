@@ -19,8 +19,6 @@
 #ifndef LICENSESDIALOG_H
 #define LICENSESDIALOG_H
 
-#include "../core/internalmanager.h"
-
 #include <QtWidgets>
 
 namespace Ui {

@@ -17,6 +17,11 @@
  */
 
 #include "diarymenu.h"
+#include "diaryeditor.h"
+#include "diaryentryviewer.h"
+#include "diarypixels.h"
+#include "diarystats.h"
+#include "optionsmenu.h"
 #include "ui_diarymenu.h"
 
 DiaryMenu::DiaryMenu(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)

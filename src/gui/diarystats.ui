@@ -92,9 +92,6 @@
             <pointsize>20</pointsize>
            </font>
           </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
           <property name="toolTip">
            <string>Previous month.</string>
           </property>
@@ -253,9 +250,6 @@
            <font>
             <pointsize>20</pointsize>
            </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
           </property>
           <property name="toolTip">
            <string>Next month.</string>
@@ -459,6 +453,9 @@
             </item>
             <item row="1" column="0">
              <widget class="Line" name="line_3">
+              <property name="lineWidth">
+               <number>2</number>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -503,6 +500,9 @@
             </item>
             <item row="1" column="0">
              <widget class="Line" name="line_2">
+              <property name="lineWidth">
+               <number>2</number>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -620,6 +620,9 @@
           </item>
           <item row="3" column="1">
            <widget class="Line" name="line_4">
+            <property name="lineWidth">
+             <number>2</number>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -640,6 +643,9 @@
           </item>
           <item row="3" column="3">
            <widget class="Line" name="line_5">
+            <property name="lineWidth">
+             <number>2</number>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -803,6 +809,9 @@
             </item>
             <item row="2" column="0">
              <widget class="Line" name="line">
+              <property name="lineWidth">
+               <number>2</number>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -841,6 +850,9 @@
           </property>
           <item row="0" column="0">
            <widget class="Line" name="line_6">
+            <property name="lineWidth">
+             <number>2</number>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
