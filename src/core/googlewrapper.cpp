@@ -17,6 +17,7 @@
  */
 
 #include <fstream>
+#include <sstream>
 
 #include "../util/encryptor.h"
 #include "../util/zipper.h"
