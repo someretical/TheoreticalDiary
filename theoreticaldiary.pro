@@ -1,5 +1,6 @@
 include(external-libs/someretical-o2/src/src.pri)
 include(external-libs/asyncfuture/asyncfuture.pri)
+include(external-libs/phantomstyle/src/phantom/phantom.pri)
 
 INCLUDEPATH += external-libs/json/single_include/nlohmann \
     external-libs/cryptopp \

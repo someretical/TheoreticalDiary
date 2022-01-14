@@ -11,3 +11,6 @@
 [submodule "external-libs/asyncfuture"]
 	path = external-libs/asyncfuture
 	url = https://github.com/benlau/asyncfuture.git
+[submodule "external-libs/phantomstyle"]
+	path = external-libs/phantomstyle
+	url = https://github.com/randrew/phantomstyle.git
