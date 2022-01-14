@@ -208,66 +208,53 @@ void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::ite
     qDebug() << "Rendered month editor (first day of month):" << date;
 }
 
-bool DiaryEditor::confirm_switch()
-{
-    auto res = td::ync_messagebox(this, "Save", "Cancel", "Do not save", "There are unsaved changes.",
-        "Are you sure you want to switch dates without saving?");
-
-    switch (res) {
-    case QMessageBox::AcceptRole:
-        // Suppress entry saved message so it doesn't appear on new date.
-        update_day(true);
-        break;
-    case QMessageBox::RejectRole:
-        return false;
-    case QMessageBox::DestructiveRole:
-        break;
-    }
-
-    InternalManager::instance()->internal_diary_changed = false;
-    return true;
-}
-
 // The suppress_confirm parameter squashes the confirm_switch dialog. This is to ensure that when the menu is first
 // loaded by the New/Import button, the user isn't confronted with the confirm_switch dialog. (As making a new diary
 // sets the internal_diary_changed variable to true.
 void DiaryEditor::change_month(QDate const &date, bool const suppress_confirm)
 {
-    if (InternalManager::instance()->internal_diary_changed && !suppress_confirm && !confirm_switch())
-        return;
+    auto cb = [this, date](int const res) {
+        if (QMessageBox::RejectRole == res)
+            return;
 
-    // Remove everything from current grid.
-    QLayoutItem *child;
-    while ((child = ui->dates->takeAt(0)) != 0) {
-        delete child->widget();
-        delete child;
-    }
+        // Remove everything from current grid.
+        QLayoutItem *child;
+        while ((child = ui->dates->takeAt(0)) != 0) {
+            delete child->widget();
+            delete child;
+        }
 
-    QDate const first_day(date.year(), date.month(), 1);
-    // dayOfWeek() returns a number from 1 to 7.
-    current_month_offset = first_day.dayOfWeek() - 1;
-    last_selected_day = date.day();
+        QDate const first_day(date.year(), date.month(), 1);
+        // dayOfWeek() returns a number from 1 to 7.
+        current_month_offset = first_day.dayOfWeek() - 1;
+        last_selected_day = date.day();
 
-    // Set the calendar widget UI (not the info pane).
-    ui->month_dropdown->blockSignals(true);
-    ui->year_edit->blockSignals(true);
+        // Set the calendar widget UI (not the info pane).
+        ui->month_dropdown->blockSignals(true);
+        ui->year_edit->blockSignals(true);
 
-    ui->month_dropdown->setCurrentIndex(date.month() - 1);
-    ui->year_edit->setDate(date);
+        ui->month_dropdown->setCurrentIndex(date.month() - 1);
+        ui->year_edit->setDate(date);
 
-    ui->month_dropdown->blockSignals(false);
-    ui->year_edit->blockSignals(false);
+        ui->month_dropdown->blockSignals(false);
+        ui->year_edit->blockSignals(false);
 
-    // Render current month.
-    render_month(first_day, DiaryHolder::instance()->get_monthmap(date));
+        // Render current month.
+        render_month(first_day, DiaryHolder::instance()->get_monthmap(date));
 
-    // Render current day.
-    td::CalendarButtonData const d{
-        std::optional(date.day()), std::nullopt, std::nullopt, std::nullopt, std::optional(true)};
-    render_day(d, true);
+        // Render current day.
+        td::CalendarButtonData const d{
+            std::optional(date.day()), std::nullopt, std::nullopt, std::nullopt, std::optional(true)};
+        render_day(d, true);
 
-    emit InternalManager::instance()->update_data(date);
-    qDebug() << "Changed month in editor and broadcasted update_data:" << date;
+        emit InternalManager::instance()->update_data(date);
+        qDebug() << "Changed month in editor and broadcasted update_data:" << date;
+    };
+
+    if (InternalManager::instance()->internal_diary_changed && !suppress_confirm)
+        return cmb::confirm_switch_date(this, cb);
+
+    cb(QMessageBox::AcceptRole);
 }
 
 void DiaryEditor::render_day(td::CalendarButtonData const &d, bool const set_info_pane)
@@ -324,18 +311,30 @@ void DiaryEditor::date_clicked(int const day)
     if (day == last_selected_day)
         return;
 
-    if (InternalManager::instance()->internal_diary_changed && !confirm_switch())
-        return;
+    auto cb = [this, day](int const res) {
+        if (QMessageBox::RejectRole == res)
+            return;
 
-    td::CalendarButtonData const old{
-        std::optional(last_selected_day), std::nullopt, std::nullopt, std::nullopt, std::optional(false)};
-    td::CalendarButtonData const n{std::optional(day), std::nullopt, std::nullopt, std::nullopt, std::optional(true)};
-    // Remove selected border from old calendar button.
-    render_day(old, false);
-    // Add selected border to new calendar button.
-    render_day(n, true);
+        if (QMessageBox::YesRole == res)
+            update_day(true); // Suppress entry saved message so it doesn't appear on new date.
 
-    last_selected_day = day;
+        td::CalendarButtonData const old{
+            std::optional(last_selected_day), std::nullopt, std::nullopt, std::nullopt, std::optional(false)};
+        td::CalendarButtonData const n{
+            std::optional(day), std::nullopt, std::nullopt, std::nullopt, std::optional(true)};
+        // Remove selected border from old calendar button.
+        render_day(old, false);
+        // Add selected border to new calendar button.
+        render_day(n, true);
+
+        last_selected_day = day;
+        InternalManager::instance()->internal_diary_changed = false;
+    };
+
+    if (InternalManager::instance()->internal_diary_changed)
+        cmb::confirm_switch_date(this, cb);
+    else
+        cb(QMessageBox::NoRole);
 }
 
 void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
@@ -387,7 +386,7 @@ void DiaryEditor::update_day(bool const suppress_error)
 
     // Actually try and save the diary.
     if (!DiaryHolder::instance()->save() && suppress_error)
-        return cmb::save_error(this);
+        return cmb::save_error(this, []() {});
 
     td::CalendarButtonData const d{std::optional(last_selected_day), std::nullopt,
         std::optional(ui->special_box->isChecked()),
@@ -410,38 +409,42 @@ void DiaryEditor::update_day(bool const suppress_error)
 
 void DiaryEditor::delete_day()
 {
-    // Shift click bypasses confirmation dialog.
-    if (Qt::ShiftModifier != QGuiApplication::keyboardModifiers()) {
-        auto res = td::yn_messagebox(this, "Delete entry.", "Are you sure you want to delete this entry?");
-
-        if (QMessageBox::AcceptRole != res)
+    auto cb = [this](int const res) {
+        if (QMessageBox::RejectRole == res)
             return;
-    }
 
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+        InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
 
-    // Remove the entry from the in memory map.
-    auto const &new_date =
-        QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, last_selected_day);
-    DiaryHolder::instance()->delete_entry(new_date);
+        // Remove the entry from the in memory map.
+        auto const &new_date =
+            QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, last_selected_day);
+        DiaryHolder::instance()->delete_entry(new_date);
 
-    // Actually try and save the diary.
-    if (!DiaryHolder::instance()->save())
-        return cmb::save_error(this);
+        // Actually try and save the diary.
+        if (!DiaryHolder::instance()->save())
+            return cmb::save_error(this, []() {});
 
-    ui->alert_text->setText("Deleted entry.");
-    ui->alert_text->update();
+        ui->alert_text->setText("Deleted entry.");
+        ui->alert_text->update();
 
-    update_info_pane(new_date, td::Entry{false, td::Rating::Unknown, "", 0});
+        update_info_pane(new_date, td::Entry{false, td::Rating::Unknown, "", 0});
 
-    td::CalendarButtonData const d{std::optional(last_selected_day), std::nullopt, std::optional(false),
-        std::optional(static_cast<td::Rating>(td::Rating::Unknown)), std::nullopt};
-    render_day(d, false);
+        td::CalendarButtonData const d{std::optional(last_selected_day), std::nullopt, std::optional(false),
+            std::optional(static_cast<td::Rating>(td::Rating::Unknown)), std::nullopt};
+        render_day(d, false);
 
-    // This updates the information in the other tabs.
-    // The pixels tab should call end_busy_mode when it is done re rendering.
-    InternalManager::instance()->update_data(new_date);
-    qDebug() << "Deleted entry and broadcasted update_data:" << new_date;
+        // This updates the information in the other tabs.
+        // The pixels tab should call end_busy_mode when it is done re rendering.
+        InternalManager::instance()->update_data(new_date);
+        qDebug() << "Deleted entry and broadcasted update_data:" << new_date;
+    };
+
+    // Shift click bypasses confirmation dialog.
+    if (Qt::ShiftModifier != QGuiApplication::keyboardModifiers())
+        return cmb::yn_messagebox(
+            this, cb, "Are you sure you want to delete this entry?", "This action is not reversible!");
+
+    cb(QMessageBox::AcceptRole);
 }
 
 void DiaryEditor::reset_day()

@@ -17,12 +17,14 @@
  */
 
 #include <fstream>
+#include <utility>
 
 #include "../core/diaryholder.h"
 #include "../core/googlewrapper.h"
 #include "../core/internalmanager.h"
 #include "../util/custommessageboxes.h"
 #include "../util/hashcontroller.h"
+#include "../util/misc.h"
 #include "aboutdialog.h"
 #include "apiresponse.h"
 #include "licensesdialog.h"
@@ -156,11 +158,12 @@ void OptionsMenu::export_diary()
         nlohmann::json const &j = DiaryHolder::instance()->diary;
         dst << j.dump(4);
 
-        td::ok_messagebox(this, "Diary exported.", "The diary has been exported in an unencrypted JSON format.");
+        return cmb::ok_messagebox(
+            this, []() {}, "The diary has been exported in an unencrypted JSON format.",
+            "This means anybody can read it!");
     }
-    else {
-        td::ok_messagebox(this, "Export failed.", "The app could not write to the specified location.");
-    }
+
+    cmb::display_io_error(this, []() {});
 }
 
 void OptionsMenu::update_lock_timeout()
@@ -224,14 +227,10 @@ void OptionsMenu::download_backup()
     auto gwrapper = GoogleWrapper::instance();
     auto intman = InternalManager::instance();
 
-    if (!cmb::prompt_confirm_overwrite(this))
-        return;
-
-    intman->start_busy_mode(__LINE__, __func__, __FILE__);
-
     auto check_error = [this, intman](td::NR const &reply) {
         if (QNetworkReply::NoError != reply.error) {
-            td::ok_messagebox(this, "Network error.", reply.error_message.toStdString());
+            cmb::ok_messagebox(
+                this, []() {}, std::move(reply.error_message), "");
             return false;
         }
 
@@ -244,13 +243,13 @@ void OptionsMenu::download_backup()
 
         QFile file(QString("%1/diary.dat").arg(intman->data_location()));
         if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-            return cmb::display_io_error(this);
+            return cmb::display_io_error(this, []() {});
 
         // At the moment, the data is written all in one go as o2 does not yet provide any download updates. This is
         // really bad practice so TODO: add own implementation of a download notifier so the data buffer can be
         // piped into the file every time a new chunk arrives.
         file.write(reply.response);
-        cmb::diary_downloaded(this);
+        cmb::diary_downloaded(this, []() {});
     };
 
     auto cb2 = [this, check_error, gwrapper, intman, cb_final](td::NR const &reply) {
@@ -260,7 +259,7 @@ void OptionsMenu::download_backup()
         auto const &[id1, id2] = gwrapper->get_file_ids(reply.response);
 
         if (id1.isEmpty() && id2.isEmpty())
-            return cmb::display_drive_file_error(this);
+            return cmb::display_drive_file_error(this, []() {});
 
         gwrapper->download_file(id1.isEmpty() ? id2 : id1).subscribe(cb_final);
     };
@@ -268,10 +267,10 @@ void OptionsMenu::download_backup()
     auto cb1 = [this, gwrapper, intman, cb2]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this);
+            cmb::display_scope_mismatch(this, []() {});
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this);
+            cmb::display_auth_error(this, []() {});
             break;
         case td::LinkingResponse::OK:
             gwrapper->list_files().subscribe(cb2);
@@ -279,8 +278,16 @@ void OptionsMenu::download_backup()
         }
     };
 
-    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
-    gwrapper->google->link();
+    auto cb = [intman, gwrapper, cb1](int const res) {
+        if (QMessageBox::RejectRole == res)
+            return;
+
+        intman->start_busy_mode(__LINE__, __func__, __FILE__);
+        AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+        gwrapper->google->link();
+    };
+
+    cmb::prompt_confirm_overwrite(this, cb);
 }
 
 void OptionsMenu::upload_diary()
@@ -294,7 +301,8 @@ void OptionsMenu::upload_diary()
 
     auto check_error = [this, intman](td::NR const &reply) {
         if (QNetworkReply::NoError != reply.error) {
-            td::ok_messagebox(this, "Network error.", reply.error_message.toStdString());
+            cmb::ok_messagebox(
+                this, []() {}, std::move(reply.error_message), "");
             return false;
         }
 
@@ -303,14 +311,14 @@ void OptionsMenu::upload_diary()
 
     auto cb_final = [this, check_error, gwrapper, intman](td::NR const &reply) {
         if (check_error(reply))
-            cmb::diary_uploaded(this);
+            cmb::diary_uploaded(this, []() {});
     };
 
     auto upload_subroutine = [this, gwrapper, intman, cb_final]() {
         auto file_ptr = new QFile(QString("%1/diary.dat").arg(intman->data_location()));
 
         if (!file_ptr->open(QIODevice::ReadOnly))
-            return cmb::display_io_error(this);
+            return cmb::display_io_error(this, []() {});
 
         if (primary_id.isEmpty())
             gwrapper->upload_file(file_ptr, "diary.dat").subscribe(cb_final);
@@ -352,10 +360,10 @@ void OptionsMenu::upload_diary()
     auto cb1 = [this, gwrapper, intman, cb2]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this);
+            cmb::display_scope_mismatch(this, []() {});
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this);
+            cmb::display_auth_error(this, []() {});
             break;
         case td::LinkingResponse::OK:
             gwrapper->list_files().subscribe(cb2);
@@ -374,7 +382,8 @@ void OptionsMenu::flush_oauth()
 
     auto cb = [this, gwrapper](td::NR const &) {
         gwrapper->google->unlink();
-        td::ok_messagebox(this, "Credentials deleted.", "The OAuth2 credentials have been deleted.");
+        cmb::ok_messagebox(
+            this, []() {}, "Credentials deleted.", "The OAuth2 credentials have been deleted.");
     };
 
     gwrapper->revoke_access().subscribe(cb);
@@ -397,10 +406,10 @@ void OptionsMenu::dev_list()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this);
+            cmb::display_scope_mismatch(this, []() {});
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this);
+            cmb::display_auth_error(this, []() {});
             break;
         case td::LinkingResponse::OK:
             gwrapper->list_files().subscribe(cb_final);
@@ -434,16 +443,16 @@ void OptionsMenu::dev_upload()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this);
+            cmb::display_scope_mismatch(this, []() {});
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this);
+            cmb::display_auth_error(this, []() {});
             break;
         case td::LinkingResponse::OK:
             auto file_ptr = new QFile(filename);
 
             if (!file_ptr->open(QIODevice::ReadOnly))
-                return cmb::display_io_error(this);
+                return cmb::display_io_error(this, []() {});
 
             QFileInfo fileinfo(file_ptr->fileName());
             gwrapper->upload_file(file_ptr, fileinfo.fileName()).subscribe(cb_final);
@@ -478,7 +487,7 @@ void OptionsMenu::dev_download()
 
         QFile file(filename);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-            return cmb::display_io_error(this);
+            return cmb::display_io_error(this, []() {});
         file.write(reply.response);
 
         misc::clear_message_boxes();
@@ -490,10 +499,10 @@ void OptionsMenu::dev_download()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this);
+            cmb::display_scope_mismatch(this, []() {});
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this);
+            cmb::display_auth_error(this, []() {});
             break;
         case td::LinkingResponse::OK:
             gwrapper->download_file(ui->dev_download_file_id->text()).subscribe(cb_final);
@@ -527,16 +536,16 @@ void OptionsMenu::dev_update()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this);
+            cmb::display_scope_mismatch(this, []() {});
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this);
+            cmb::display_auth_error(this, []() {});
             break;
         case td::LinkingResponse::OK:
             auto file_ptr = new QFile(filename);
 
             if (!file_ptr->open(QIODevice::ReadOnly))
-                return cmb::display_io_error(this);
+                return cmb::display_io_error(this, []() {});
 
             gwrapper->update_file(file_ptr, ui->dev_update_file_id->text()).subscribe(cb_final);
             break;
@@ -564,10 +573,10 @@ void OptionsMenu::dev_copy()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this);
+            cmb::display_scope_mismatch(this, []() {});
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this);
+            cmb::display_auth_error(this, []() {});
             break;
         case td::LinkingResponse::OK:
             gwrapper->copy_file(ui->dev_copy_file_id->text(), ui->dev_copy_file_new_name->text()).subscribe(cb_final);
@@ -597,10 +606,10 @@ void OptionsMenu::dev_delete()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this);
+            cmb::display_scope_mismatch(this, []() {});
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this);
+            cmb::display_auth_error(this, []() {});
             break;
         case td::LinkingResponse::OK:
             gwrapper->delete_file(ui->dev_delete_file_id->text()).subscribe(cb_final);
@@ -626,13 +635,16 @@ void OptionsMenu::show_licenses()
 
 void OptionsMenu::reset_settings()
 {
-    int res =
-        td::yn_messagebox(this, "Are you sure you want to reset all the settings?", "This action cannot be undone!");
+    auto cb = [this](int const res) {
+        if (QMessageBox::RejectRole == res)
+            return;
 
-    if (QMessageBox::AcceptRole == res) {
         InternalManager::instance()->init_settings(true);
-        td::ok_messagebox(this, "Settings reset.", "Please restart the app for the changes to take effect.");
-    }
+        cmb::ok_messagebox(
+            this, []() {}, "Please restart the app for the changes to take effect.", "The settings have been reset.");
+    };
+
+    cmb::yn_messagebox(this, cb, "Are you sure you want to reset all the settings?", "This action cannot be undone!");
 }
 
 void OptionsMenu::test() {}

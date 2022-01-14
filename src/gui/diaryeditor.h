@@ -40,8 +40,6 @@ public:
     explicit DiaryEditor(QDate const &date, QWidget *parent = nullptr);
     ~DiaryEditor();
 
-    bool confirm_switch();
-
     int current_month_offset;
     int last_selected_day;
 

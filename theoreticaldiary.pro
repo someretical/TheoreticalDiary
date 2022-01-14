@@ -47,7 +47,6 @@ SOURCES += \
     src/gui/standaloneoptions.cpp \
     src/main.cpp \
     src/util/alertlabel.cpp \
-    src/util/custommessageboxes.cpp \
     src/util/encryptor.cpp \
     src/util/eventfilters.cpp \
     src/util/misc.cpp \

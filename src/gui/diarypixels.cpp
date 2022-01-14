@@ -200,9 +200,12 @@ void DiaryPixels::export_image()
 
     // Thanks to https://stackoverflow.com/a/24341699
     if (ui->hidden_frame->grab().save(filename))
-        td::ok_messagebox(this, "Image exported.", "");
+        cmb::ok_messagebox(
+            this, []() {}, "Image exported.", "");
     else
-        td::ok_messagebox(this, "Export failed.", "The app could not write to the specified location.");
+        cmb::ok_messagebox(
+            this, []() {}, "The app could not write to the specified location.",
+            "This usually means a permission error.");
 }
 
 void DiaryPixels::resizeEvent(QResizeEvent *)

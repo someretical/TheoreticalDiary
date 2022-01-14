@@ -17,6 +17,7 @@
  */
 
 #include <QtNetwork>
+#include <utility>
 
 #include "../core/diaryholder.h"
 #include "../core/googlewrapper.h"
@@ -24,6 +25,8 @@
 #include "../util/custommessageboxes.h"
 #include "../util/encryptor.h"
 #include "../util/eventfilters.h"
+#include "../util/misc.h"
+#include "asyncfuture.h"
 #include "diarymenu.h"
 #include "mainmenu.h"
 #include "mainwindow.h"
@@ -95,7 +98,8 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             if (QNetworkReply::NoError != reply.error) {
                 intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
-                    td::ok_messagebox(this, "Network error.", reply.error_message.toStdString());
+                    cmb::ok_messagebox(
+                        this, []() {}, std::move(reply.error_message), "");
 
                 return false;
             }
@@ -114,7 +118,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
 
             intman->end_busy_mode(__LINE__, __func__, __FILE__);
             if (!locked)
-                cmb::diary_uploaded(this);
+                cmb::diary_uploaded(this, []() {});
         };
 
         auto upload_subroutine = [this, gwrapper, intman, locked, cb_final]() {
@@ -123,7 +127,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             if (!file_ptr->open(QIODevice::ReadOnly)) {
                 intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
-                    cmb::display_io_error(this);
+                    cmb::display_io_error(this, []() {});
 
                 return;
             }
@@ -170,13 +174,13 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             case td::LinkingResponse::ScopeMismatch:
                 intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
-                    cmb::display_scope_mismatch(this);
+                    cmb::display_scope_mismatch(this, []() {});
 
                 break;
             case td::LinkingResponse::Fail:
                 intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
-                    cmb::display_auth_error(this);
+                    cmb::display_auth_error(this, []() {});
 
                 break;
             case td::LinkingResponse::OK:
@@ -227,12 +231,6 @@ void MainWindow::update_theme()
 
 void MainWindow::clear_grid()
 {
-    // This code is so unbelievably janky, there is a ONE HUNDRED PERCENT chance it will bite me back in the future.
-    // Basically, if there is some modal widget like a dialog or message box that is open and is assigned on the stack
-    // when clear_grid() is called, the application will seg fault because Qt tries to free memory allocated on the
-    // stack. The fix for this is to close all active modal widgets before deleting the parent widget. NOTE THAT CLOSE
-    // != DELETE. IF THE MODAL WAS DYNAMICALLY CREATED, THE WA_DELETE_ON_CLOSE FLAG NEEDS TO BE SET. I don't know if
-    // this will cause another seg fault though.
     misc::clear_message_boxes();
 
     QLayoutItem *child;
@@ -272,23 +270,20 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (InternalManager::instance()->app_busy) {
         event->ignore();
 
-        auto res = td::yn_messagebox(this, "Are you sure you want to force close the application?",
+        auto cb = [](int const res) {
+            if (QMessageBox::AcceptRole == res) {
+                qDebug() << "App forced closed by the user.";
+                QCoreApplication::exit(1);
+            }
+            else {
+                InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+                qDebug() << "User rejected force close dialog.";
+            }
+        };
+
+        cmb::yn_messagebox(this, cb, "Are you sure you want to force close the application?",
             "The application is currently performing an action. If you choose to close it now, all unsaved changes "
             "will be lost!");
-        switch (res) {
-        case QMessageBox::AcceptRole:
-            qDebug() << "App forced closed by the user.";
-            QCoreApplication::exit(1);
-            break;
-        case QMessageBox::RejectRole:
-            // There is a situation where the operation completes before the user can answer the messagebox. In this
-            // case, the app becomes softlocked as the dialog relocks the window after completing.
-            // TODO somehow fix this?
-            // One possible fix is to make all dialogs that can interrupt this one close all other dialogs before they
-            // appear. However, that is not very maintenance friendly so I will not be doing that.
-            InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-            qDebug() << "Ignored close request due to app being busy.";
-        }
     }
     else if (td::Window::Options == current_window) {
         event->ignore(); // Don't close the main window, but exit to the main menu.
@@ -298,26 +293,33 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore(); // Don't close the main window, but exit to the main menu.
 
         if (InternalManager::instance()->internal_diary_changed) {
-            switch (cmb::confirm_exit_to_main_menu(this)) {
-            case QMessageBox::AcceptRole: {
-                // If the diary failed to save, don't exit to the main menu.
-                InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-                auto saved = DiaryHolder::instance()->save();
-                InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
-                if (!saved)
-                    return cmb::save_error(this);
+            auto cb = [this](int const res) {
+                if (QMessageBox::RejectRole == res)
+                    return;
 
-                break;
-            }
+                if (QMessageBox::YesRole == res) {
+                    // If the diary failed to save, don't exit to the main menu.
+                    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+                    auto saved = DiaryHolder::instance()->save();
+                    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
-            // Cancel button was pressed.
-            case QMessageBox::RejectRole:
-                return;
-            }
+                    if (!saved)
+                        cmb::save_error(this, []() {});
+                    else
+                        exit_diary_to_main_menu(false);
+
+                    return;
+                }
+
+                exit_diary_to_main_menu(false);
+            };
+
+            cmb::confirm_exit_to_main_menu(this, cb);
         }
-
-        exit_diary_to_main_menu(false);
+        else {
+            exit_diary_to_main_menu(false);
+        }
     }
     else {
         store_state();

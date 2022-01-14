@@ -117,8 +117,9 @@ void MainMenu::decrypt_diary()
 
     auto const &opt = get_diary_contents();
     if (!opt)
-        return td::ok_messagebox(
-            this, "No diary was found.", "You can create a new diary by clicking the \"New\" button in the main menu.");
+        return cmb::ok_messagebox(
+            this, []() {}, "No local diary was found.",
+            "You can create a new diary by clicking the new button in the main menu.");
 
     auto &str = Encryptor::instance()->encrypted_str;
     // If the password box is empty, try to decompress immediately.
@@ -180,42 +181,46 @@ void MainMenu::decrypt_diary_cb(bool const perform_decrypt)
 
 void MainMenu::new_diary()
 {
-    if (!cmb::prompt_confirm_overwrite(this))
-        return;
+    auto cb = [](int const res) {
+        if (QMessageBox::RejectRole == res)
+            return;
 
-    Encryptor::instance()->reset();
-    DiaryHolder::instance()->init();
-    InternalManager::instance()->internal_diary_changed = true;
+        Encryptor::instance()->reset();
+        DiaryHolder::instance()->init();
+        InternalManager::instance()->internal_diary_changed = true;
 
-    qDebug() << "Showing diary menu from new diary.";
-    MainWindow::instance()->show_diary_menu();
+        qDebug() << "Showing diary menu from new diary.";
+        MainWindow::instance()->show_diary_menu();
+    };
+
+    cmb::prompt_confirm_overwrite(this, cb);
 }
 
 void MainMenu::import_diary()
 {
-    if (!cmb::prompt_confirm_overwrite(this))
-        return;
+    auto cb = [this](int const res) {
+        if (QMessageBox::RejectRole == res)
+            return;
 
-    auto const &filename =
-        QFileDialog::getOpenFileName(this, "Import diary", QDir::homePath(), "JSON (*.json);;All files");
-    if (filename.isEmpty())
-        return;
+        auto const &filename =
+            QFileDialog::getOpenFileName(this, "Import diary", QDir::homePath(), "JSON (*.json);;All files");
+        if (filename.isEmpty())
+            return;
 
-    std::ifstream ifs(filename.toStdString());
-    if (ifs.fail()) {
-        td::ok_messagebox(this, "Read error.", "The app was unable to read the contents of the file.");
-        return;
-    }
+        std::ifstream ifs(filename.toStdString());
+        if (ifs.fail())
+            return cmb::display_io_error(this, []() {});
 
-    std::stringstream stream;
-    stream << ifs.rdbuf();
+        std::stringstream stream;
+        stream << ifs.rdbuf();
 
-    if (!DiaryHolder::instance()->load(stream.str())) {
-        td::ok_messagebox(this, "Read error.", "The app was unable to read the contents of the file.");
-    }
-    else {
+        if (!DiaryHolder::instance()->load(stream.str()))
+            return cmb::display_io_error(this, []() {});
+
         InternalManager::instance()->internal_diary_changed = true;
         qDebug() << "Showing diary menu from import diary.";
         MainWindow::instance()->show_diary_menu();
-    }
+    };
+
+    cmb::prompt_confirm_overwrite(this, cb);
 }
