@@ -17,6 +17,7 @@
  */
 
 #include <fstream>
+#include <sstream>
 
 #include "../core/diaryholder.h"
 #include "../core/googlewrapper.h"
