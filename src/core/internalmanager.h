@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 
+#include "../gui/styles/statecolorpalette.h"
 #include "../util/eventfilters.h"
 #include "asyncfuture.h"
 #include "json.hpp"
@@ -154,10 +155,12 @@ public:
     void start_busy_mode(int const line, std::string const &func, std::string const &file);
     void end_busy_mode(int const line, std::string const &func, std::string const &file);
     void init_settings(bool const force_reset);
+    void start_update_theme();
 
     QSettings *settings;
     InactiveFilter *inactive_filter;
     BusyFilter busy_filter;
+    StateColorPalette state_color_palette;
     bool app_busy;
     bool internal_diary_changed;
     bool diary_file_changed;

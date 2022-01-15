@@ -1,6 +1,5 @@
 include(external-libs/someretical-o2/src/src.pri)
 include(external-libs/asyncfuture/asyncfuture.pri)
-include(external-libs/phantomstyle/src/phantom/phantom.pri)
 
 INCLUDEPATH += external-libs/json/single_include/nlohmann \
     external-libs/cryptopp \
@@ -41,11 +40,15 @@ SOURCES += \
     src/gui/diarymenu.cpp \
     src/gui/diarypixels.cpp \
     src/gui/diarystats.cpp \
-    src/gui/licensesdialog.cpp \
     src/gui/mainmenu.cpp \
     src/gui/mainwindow.cpp \
     src/gui/optionsmenu.cpp \
     src/gui/standaloneoptions.cpp \
+    src/gui/styles/base/basestyle.cpp \
+    src/gui/styles/base/phantomcolor.cpp \
+    src/gui/styles/dark/darkstyle.cpp \
+    src/gui/styles/light/lightstyle.cpp \
+    src/gui/styles/statecolorpalette.cpp \
     src/main.cpp \
     src/util/alertlabel.cpp \
     src/util/encryptor.cpp \
@@ -68,13 +71,19 @@ HEADERS += \
     src/gui/diarymenu.h \
     src/gui/diarypixels.h \
     src/gui/diarystats.h \
-    src/gui/licensesdialog.h \
     src/gui/mainmenu.h \
     src/gui/mainwindow.h \
     src/gui/optionsmenu.h \
     src/gui/standaloneoptions.h \
+    src/gui/styles/base/basestyle.h \
+    src/gui/styles/base/phantomcolor.h \
+    src/gui/styles/dark/darkstyle.h \
+    src/gui/styles/light/lightstyle.h \
+    src/gui/styles/statecolorpalette.h \
     src/util/alertlabel.h \
     src/util/custommessageboxes.h \
+    src/util/diarycomparisonlabel.h \
+    src/util/diarypixellabel.h \
     src/util/encryptor.h \
     src/util/eventfilters.h \
     src/util/hashcontroller.h \
@@ -91,7 +100,6 @@ FORMS += \
     src/gui/diarymenu.ui \
     src/gui/diarypixels.ui \
     src/gui/diarystats.ui \
-    src/gui/licensesdialog.ui \
     src/gui/mainmenu.ui \
     src/gui/mainwindow.ui \
     src/gui/optionsmenu.ui \
@@ -110,7 +118,6 @@ win32:QMAKE_TARGET_DESCRIPTION = "Digital diary."
 win32:QMAKE_TARGET_COPYRIGHT = 2022
 
 RESOURCES += \
-    fonts/fonts.qrc \
     images/images.qrc \
     styles/styles.qrc \
     text/text.qrc

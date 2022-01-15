@@ -1,5 +1,0 @@
-PixelLabel {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-image: url(:/themes/global/small_star_white.svg);
-}

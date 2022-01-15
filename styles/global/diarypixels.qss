@@ -1,4 +1,0 @@
-QFrame#hidden_frame {
-  border: none;
-  border-radius: 0px;
-}

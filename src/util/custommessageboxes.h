@@ -85,8 +85,8 @@ void yn_messagebox(QWidget *p, Lambda const &cb, QString const &&top, QString co
 
 template <typename Lambda>
 void ync_messagebox(QWidget *p, Lambda const &cb, QString const &&top, QString const &&bottom,
-    QString const &&yes_text = "Yes", QString const &&no_text = "No", QString const &&cancel_text = "Cancel",
-    QMessageBox::ButtonRole const default_role = QMessageBox::RejectRole)
+    QString const &&yes_text = "Save", QString const &&no_text = "Do not save", QString const &&cancel_text = "Cancel",
+    QMessageBox::ButtonRole const default_role = QMessageBox::AcceptRole)
 {
     auto msgbox = new CustomMessageBox(p);
     auto yes_button = new QPushButton(yes_text, msgbox);
@@ -94,13 +94,13 @@ void ync_messagebox(QWidget *p, Lambda const &cb, QString const &&top, QString c
     auto cancel_button = new QPushButton(cancel_text, msgbox);
     auto default_button = QMessageBox::RejectRole == default_role
                               ? cancel_button
-                              : QMessageBox::YesRole == default_role ? yes_button : no_button;
+                              : QMessageBox::AcceptRole == default_role ? yes_button : no_button;
 
     msgbox->setText(top);
     msgbox->setInformativeText(bottom);
-    msgbox->addButton(yes_button, QMessageBox::YesRole);
-    msgbox->addButton(no_button, QMessageBox::NoRole);
+    msgbox->addButton(yes_button, QMessageBox::AcceptRole);
     msgbox->addButton(cancel_button, QMessageBox::RejectRole);
+    msgbox->addButton(no_button, QMessageBox::DestructiveRole);
     msgbox->setDefaultButton(default_button);
     msgbox->setEscapeButton(default_button);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -162,8 +162,7 @@ template <typename Lambda> void dev_unknown_file(QWidget *p, Lambda const &cb)
 
 template <typename Lambda> void confirm_exit_to_main_menu(QWidget *p, Lambda const &cb)
 {
-    cmb::ync_messagebox(p, cb, "Are you sure you want to quit without saving?", "There are unsaved changes.", "Save",
-        "Do not save", "Cancel");
+    cmb::ync_messagebox(p, cb, "Are you sure you want to quit without saving?", "");
 }
 
 template <typename Lambda> void diary_downloaded(QWidget *p, Lambda const &cb)
@@ -178,8 +177,7 @@ template <typename Lambda> void diary_uploaded(QWidget *p, Lambda const &cb)
 
 template <typename Lambda> void confirm_switch_date(QWidget *p, Lambda const &cb)
 {
-    cmb::ync_messagebox(p, cb, "Are you sure you want to switch dates without saving?", "There are unsaved changes.",
-        "Save", "Do not save", "Cancel");
+    cmb::ync_messagebox(p, cb, "Are you sure you want to switch dates without saving?", "");
 }
 } // namespace cmb
 

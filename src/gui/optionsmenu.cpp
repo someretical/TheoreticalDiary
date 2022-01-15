@@ -27,7 +27,6 @@
 #include "../util/misc.h"
 #include "aboutdialog.h"
 #include "apiresponse.h"
-#include "licensesdialog.h"
 #include "mainwindow.h"
 #include "optionsmenu.h"
 #include "ui_optionsmenu.h"
@@ -57,13 +56,12 @@ OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidge
     connect(ui->dev_copy_file_button, &QPushButton::clicked, this, &OptionsMenu::dev_copy, Qt::QueuedConnection);
     connect(ui->dev_delete_button, &QPushButton::clicked, this, &OptionsMenu::dev_delete, Qt::QueuedConnection);
     connect(ui->about_button, &QPushButton::clicked, this, &OptionsMenu::show_about, Qt::QueuedConnection);
-    connect(ui->licenses_button, &QPushButton::clicked, this, &OptionsMenu::show_licenses, Qt::QueuedConnection);
     connect(ui->reset_button, &QPushButton::clicked, this, &OptionsMenu::reset_settings, Qt::QueuedConnection);
     connect(ui->test_button, &QPushButton::clicked, this, &OptionsMenu::test, Qt::QueuedConnection);
 
-    connect(InternalManager::instance(), &InternalManager::update_theme, this, &OptionsMenu::update_theme,
-        Qt::QueuedConnection);
-    update_theme();
+    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &OptionsMenu::update_theme,
+    //        Qt::QueuedConnection);
+    //    update_theme();
 
     setup_layout();
 }
@@ -73,14 +71,7 @@ OptionsMenu::~OptionsMenu()
     delete ui;
 }
 
-void OptionsMenu::update_theme()
-{
-    auto const &theme = InternalManager::instance()->get_theme_str();
-
-    QFile file(QString(":/%1/optionsmenu.qss").arg(theme));
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
-}
+void OptionsMenu::update_theme() {}
 
 void OptionsMenu::back()
 {
@@ -97,7 +88,7 @@ void OptionsMenu::save_settings()
     auto new_theme = ui->theme_dropdown->currentIndex() == 0 ? td::Theme::Dark : td::Theme::Light;
     if (original_theme != new_theme) {
         settings->setValue("theme", static_cast<int>(new_theme));
-        InternalManager::instance()->update_theme();
+        InternalManager::instance()->start_update_theme();
     }
 
     qDebug() << "Saved settings.";
@@ -348,12 +339,12 @@ void OptionsMenu::upload_diary()
             return;
 
         auto const &[id1, id2] = gwrapper->get_file_ids(reply.response);
+        primary_id = id1;
+        secondary_id = id2;
 
         if (id1.isEmpty())
             return upload_subroutine();
 
-        primary_id = id1;
-        secondary_id = id2;
         gwrapper->copy_file(id1, "diary.dat.bak").subscribe(cb3);
     };
 
@@ -624,12 +615,6 @@ void OptionsMenu::dev_delete()
 void OptionsMenu::show_about()
 {
     AboutDialog w(this);
-    w.exec();
-}
-
-void OptionsMenu::show_licenses()
-{
-    LicensesDialog w(this);
     w.exec();
 }
 

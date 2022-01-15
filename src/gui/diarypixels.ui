@@ -43,12 +43,6 @@
    </property>
    <item row="0" column="0">
     <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">
        <number>15</number>
@@ -194,16 +188,14 @@
         </property>
         <item row="0" column="2" alignment="Qt::AlignHCenter">
          <widget class="QPushButton" name="render_button">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
           <property name="toolTip">
            <string>Display the pixels.</string>
           </property>
           <property name="text">
            <string>Render</string>
+          </property>
+          <property name="default">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -224,7 +216,7 @@
          <widget class="QDateEdit" name="year_edit">
           <property name="font">
            <font>
-            <pointsize>20</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="toolTip">
@@ -237,11 +229,6 @@
         </item>
         <item row="0" column="3">
          <widget class="QPushButton" name="export_img_button">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
           <property name="text">
            <string>Export image</string>
           </property>
@@ -267,6 +254,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>year_edit</tabstop>
+  <tabstop>render_button</tabstop>
+  <tabstop>export_img_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-#include "../core/internalmanager.h"
+#include "../gui/styles/statecolorpalette.h"
 #include "misc.h"
 
 namespace misc {
@@ -101,5 +101,45 @@ void clear_message_boxes()
             dialog->done(QMessageBox::RejectRole);
         }
     }
+}
+
+QColor rating_to_color(const td::Rating rating)
+{
+    auto const &c = InternalManager::instance()->state_color_palette;
+
+    switch (rating) {
+    case td::Rating::Unknown:
+        return c.color(StateColorPalette::ColorRole::Unknown);
+    case td::Rating::VeryBad:
+        return c.color(StateColorPalette::ColorRole::VeryBad);
+    case td::Rating::Bad:
+        return c.color(StateColorPalette::ColorRole::Bad);
+    case td::Rating::Ok:
+        return c.color(StateColorPalette::ColorRole::Ok);
+    case td::Rating::Good:
+        return c.color(StateColorPalette::ColorRole::Good);
+    case td::Rating::VeryGood:
+        return c.color(StateColorPalette::ColorRole::VeryGood);
+    }
+
+    // This can never happen, it's only here to shut down the compiler warning.
+    return c.color(StateColorPalette::ColorRole::Unknown);
+}
+
+td::Theme rating_to_theme(const td::Rating rating)
+{
+    switch (rating) {
+    case td::Rating::Unknown:
+    case td::Rating::VeryBad:
+    case td::Rating::Bad:
+    case td::Rating::Ok:
+        return td::Theme::Light;
+    case td::Rating::Good:
+    case td::Rating::VeryGood:
+        return td::Theme::Dark;
+    }
+
+    // This can never happen, it's only here to shut down the compiler warning.
+    return td::Theme::Dark;
 }
 } // namespace misc

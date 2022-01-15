@@ -61,12 +61,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">
        <number>15</number>
@@ -105,8 +99,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>1216</width>
-           <height>543</height>
+           <width>1218</width>
+           <height>545</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -179,7 +173,7 @@
          <widget class="QPushButton" name="next_month">
           <property name="maximumSize">
            <size>
-            <width>40</width>
+            <width>50</width>
             <height>16777215</height>
            </size>
           </property>
@@ -192,10 +186,7 @@
            <string>Next month.</string>
           </property>
           <property name="text">
-           <string/>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
+           <string>&gt;</string>
           </property>
          </widget>
         </item>
@@ -218,7 +209,7 @@
          <widget class="QPushButton" name="prev_month">
           <property name="maximumSize">
            <size>
-            <width>40</width>
+            <width>50</width>
             <height>16777215</height>
            </size>
           </property>
@@ -231,10 +222,7 @@
            <string>Previous month.</string>
           </property>
           <property name="text">
-           <string/>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
+           <string>&lt;</string>
           </property>
          </widget>
         </item>
@@ -381,6 +369,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>prev_month</tabstop>
+  <tabstop>month_dropdown</tabstop>
+  <tabstop>year_edit</tabstop>
+  <tabstop>next_month</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -34,7 +34,7 @@ public:
 
 public slots:
     void update_theme();
-    void tab_changed(int const tab);
+    void tab_changed(int const);
 
 private:
     Ui::DiaryMenu *ui;

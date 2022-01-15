@@ -1,3 +1,0 @@
-QFrame#frame1, QFrame#frame2 {
-  border: none;
-}

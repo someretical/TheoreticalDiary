@@ -51,7 +51,6 @@ public slots:
     void dev_copy();
     void dev_delete();
     void show_about();
-    void show_licenses();
     void reset_settings();
     void test();
 

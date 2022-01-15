@@ -51,47 +51,49 @@ CalendarButton::~CalendarButton() {}
 // - Whether it is selected or not
 void CalendarButton::re_render(td::CalendarButtonData const &d)
 {
-    // Set stylesheet (determines colours).
-    QString stylesheet((*data.parent)->base_stylesheet);
+    //    // Set stylesheet (determines colours).
+    //    QString stylesheet((*data.parent)->base_stylesheet);
 
-    // Set background star if necessary.
-    // If the provided 'd' object does not have the 'important' property set, use the 'important' property from 'data'
-    // instead. If the provided 'd' object DOES contain an 'important' property, update the 'important' property of
-    // 'data'.
-    data.important = std::optional(d.important.value_or(*data.important));
-    data.rating = std::optional(d.rating.value_or(*data.rating));
+    //    // Set background star if necessary.
+    //    // If the provided 'd' object does not have the 'important' property set, use the 'important' property from
+    //    'data'
+    //    // instead. If the provided 'd' object DOES contain an 'important' property, update the 'important' property
+    //    of
+    //    // 'data'.
+    //    data.important = std::optional(d.important.value_or(*data.important));
+    //    data.rating = std::optional(d.rating.value_or(*data.rating));
 
-    if (*data.important) {
-        switch (*data.rating) {
-        case td::Rating::Unknown:
-            // Fall through
-        case td::Rating::VeryBad:
-            // Fall through
-        case td::Rating::Bad:
-            // Fall through
-        case td::Rating::Ok:
-            stylesheet.append((*data.parent)->white_star);
-            break;
-        case td::Rating::Good:
-            // Fall through
-        case td::Rating::VeryGood:
-            stylesheet.append((*data.parent)->black_star);
-            break;
-        }
-    }
+    //    if (*data.important) {
+    //        switch (*data.rating) {
+    //        case td::Rating::Unknown:
+    //            // Fall through
+    //        case td::Rating::VeryBad:
+    //            // Fall through
+    //        case td::Rating::Bad:
+    //            // Fall through
+    //        case td::Rating::Ok:
+    //            stylesheet.append((*data.parent)->white_star);
+    //            break;
+    //        case td::Rating::Good:
+    //            // Fall through
+    //        case td::Rating::VeryGood:
+    //            stylesheet.append((*data.parent)->black_star);
+    //            break;
+    //        }
+    //    }
 
-    // Set colour scheme.
-    auto const r = d.rating.value_or(*data.rating);
-    data.rating = std::optional(r);
-    stylesheet.append(*(((*data.parent)->rating_stylesheets)[static_cast<int>(r)]));
+    //    // Set colour scheme.
+    //    auto const r = d.rating.value_or(*data.rating);
+    //    data.rating = std::optional(r);
+    //    stylesheet.append(*(((*data.parent)->rating_stylesheets)[static_cast<int>(r)]));
 
-    // Give border if selected.
-    data.selected = std::optional(d.selected.value_or(*data.selected));
-    if (*data.selected) {
-        stylesheet.append((*data.parent)->selected_stylesheet);
-    }
+    //    // Give border if selected.
+    //    data.selected = std::optional(d.selected.value_or(*data.selected));
+    //    if (*data.selected) {
+    //        stylesheet.append((*data.parent)->selected_stylesheet);
+    //    }
 
-    setStyleSheet(stylesheet);
+    // setStylesheet\(stylesheet);
 }
 
 void CalendarButton::clicked_on()

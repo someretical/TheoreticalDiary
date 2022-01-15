@@ -19,7 +19,9 @@
 #include "diarypixels.h"
 #include "../core/diaryholder.h"
 #include "../util/custommessageboxes.h"
+#include "../util/diarypixellabel.h"
 #include "../util/misc.h"
+#include "styles/statecolorpalette.h"
 #include "ui_diarypixels.h"
 
 char const *MONTH_LETTERS = "JFMAMJJASOND";
@@ -52,35 +54,7 @@ DiaryPixels::~DiaryPixels()
     delete ui;
 }
 
-void DiaryPixels::update_theme()
-{
-    QFile file(":/global/diarypixels.qss");
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
-    file.close();
-
-    file.setFileName(":/global/small_white_star.qss");
-    file.open(QIODevice::ReadOnly);
-    white_star = file.readAll();
-    file.close();
-
-    file.setFileName(":/global/small_black_star.qss");
-    file.open(QIODevice::ReadOnly);
-    black_star = file.readAll();
-    file.close();
-
-    //    for (auto &ss_ptr : rating_stylesheets)
-    //        ss_ptr.reset();
-
-    //    rating_stylesheets.clear();
-
-    for (int i = 0; i < 6; ++i) {
-        file.setFileName(QString(":/global/pixels/%1.qss").arg(QString::number(i)));
-        file.open(QIODevice::ReadOnly);
-        rating_stylesheets.push_back(std::make_unique<QString>(file.readAll()));
-        file.close();
-    }
-}
+void DiaryPixels::update_theme() {}
 
 int DiaryPixels::calculate_size()
 {
@@ -162,8 +136,12 @@ void DiaryPixels::render_grid(QDate const &new_date)
         if (iter == monthmap.end()) {
             for (int day = 0; day < days; ++day) {
                 tmp_date.setDate(year, month + 1, day + 1);
-                ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, false, tmp_date, size, this), month,
-                    day + 1 /* +1 here because of the month label added at the start of each row */);
+
+                auto ptr = new DiaryPixelLabel(td::Rating::Unknown, false, tmp_date, size, this);
+                connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize, Qt::QueuedConnection);
+
+                ui->grid->addWidget(
+                    ptr, month, day + 1 /* +1 here because of the month label added at the start of each row */);
             }
 
             continue;
@@ -176,11 +154,18 @@ void DiaryPixels::render_grid(QDate const &new_date)
 
             tmp_date.setDate(year, month + 1, day + 1);
             if (iter2 == entrymap.end()) {
-                ui->grid->addWidget(new PixelLabel(td::Rating::Unknown, false, tmp_date, size, this), month, day + 1);
+                auto ptr = new DiaryPixelLabel(td::Rating::Unknown, false, tmp_date, size, this);
+                connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize, Qt::QueuedConnection);
+
+                ui->grid->addWidget(ptr, month, day + 1);
             }
             else {
                 auto const &[important, rating, dummy, d2] = iter2->second;
-                ui->grid->addWidget(new PixelLabel(rating, important, tmp_date, size, this), month, day + 1);
+
+                auto ptr = new DiaryPixelLabel(rating, important, tmp_date, size, this);
+                connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize, Qt::QueuedConnection);
+
+                ui->grid->addWidget(ptr, month, day + 1);
             }
         }
     }
@@ -211,53 +196,4 @@ void DiaryPixels::export_image()
 void DiaryPixels::resizeEvent(QResizeEvent *)
 {
     emit sig_changed_size(calculate_size());
-}
-
-/*
- * PixelLabel class
- */
-PixelLabel::PixelLabel(td::Rating const r, bool const special, QDate const &date, int const size, QWidget *parent)
-    : QLabel(parent)
-{
-    auto p = qobject_cast<DiaryPixels *>(parent);
-
-    setFixedHeight(size);
-    setFixedWidth(size);
-
-    auto stylesheet = *p->rating_stylesheets[static_cast<int>(r)];
-
-    connect(p, &DiaryPixels::sig_changed_size, this, &PixelLabel::resize, Qt::QueuedConnection);
-
-    // Set background star if necessary.
-    if (special) {
-        switch (r) {
-        case td::Rating::Unknown:
-            // Fall through
-        case td::Rating::VeryBad:
-            // Fall through
-        case td::Rating::Bad:
-            // Fall through
-        case td::Rating::Ok:
-            stylesheet.append(qobject_cast<DiaryPixels *>(parent)->white_star);
-            break;
-        case td::Rating::Good:
-            // Fall through
-        case td::Rating::VeryGood:
-            stylesheet.append(qobject_cast<DiaryPixels *>(parent)->black_star);
-            break;
-        }
-    }
-
-    setStyleSheet(stylesheet);
-
-    setToolTip(
-        QString("%1 %2%3").arg(date.toString("MMMM"), QString::number(date.day()), misc::get_day_suffix(date.day())));
-}
-
-PixelLabel::~PixelLabel() {}
-
-void PixelLabel::resize(int const new_width)
-{
-    setFixedHeight(new_width);
-    setFixedWidth(new_width);
 }

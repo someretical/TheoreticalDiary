@@ -1,4 +1,0 @@
-QLabel {
-  color: #3c3c3c;
-  background-color: rgba(76, 175, 80, 1);
-}

@@ -24,42 +24,6 @@
 
 TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc, argv)
 {
-    // Load main font.
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Black.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-BlackItalic.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Bold.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-BoldItalic.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Italic.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Light.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-LightItalic.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Medium.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-MediumItalic.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Regular.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Thin.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-ThinItalic.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Condensed-Bold.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Condensed-BoldItalic.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Condensed-Italic.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Condensed-Light.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Condensed-LightItalic.ttf");
-    QFontDatabase::addApplicationFont(":/Roboto/Roboto-Condensed-Regular.ttf");
-
-    // Load monospace font.
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Thin.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-ExtraLight.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Light.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Regular.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Medium.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-SemiBold.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Bold.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-ThinItalic.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-ExtraLightItalic.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-LightItalic.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-Italic.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-MediumItalic.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-SemiBoldItalic.ttf");
-    QFontDatabase::addApplicationFont(":/RobotoMono/RobotoMono-BoldItalic.ttf");
-
     // Set app version.
     QFile file(":/VERSION.txt");
     file.open(QIODevice::ReadOnly);

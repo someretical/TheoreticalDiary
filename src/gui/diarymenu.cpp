@@ -37,11 +37,11 @@ DiaryMenu::DiaryMenu(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)
     ui->editor->layout()->addWidget(new DiaryEditor(date, this));
     ui->settings_tab->layout()->addWidget(new OptionsMenu(true, this));
 
-    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &DiaryMenu::tab_changed, Qt::QueuedConnection);
+    connect(ui->diary_menu_tab, &QTabWidget::currentChanged, this, &DiaryMenu::tab_changed, Qt::QueuedConnection);
 
     //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryMenu::update_theme,
     //        Qt::QueuedConnection);
-    update_theme();
+    //    update_theme();
 }
 
 DiaryMenu::~DiaryMenu()
@@ -49,30 +49,9 @@ DiaryMenu::~DiaryMenu()
     delete ui;
 }
 
-void DiaryMenu::update_theme()
-{
-    QFile file(":/global/diarymenu.qss");
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
-}
+void DiaryMenu::update_theme() {}
 
-void DiaryMenu::tab_changed(int const tab)
+void DiaryMenu::tab_changed(int const)
 {
-    switch (tab) {
-    case 0:
-        qDebug() << "Switched to editor tab.";
-        break;
-    case 1:
-        qDebug() << "Switched to entry list tab.";
-        break;
-    case 2:
-        qDebug() << "Switched to stats tab.";
-        break;
-    case 3:
-        qDebug() << "Switched to pixels tab.";
-        break;
-    case 4:
-        qDebug() << "Switched to options tab.";
-        break;
-    }
+    qDebug() << "Switched to tab:" << ui->diary_menu_tab->tabText(ui->diary_menu_tab->currentIndex());
 }

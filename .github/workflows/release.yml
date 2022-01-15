@@ -33,6 +33,8 @@ jobs:
 
       - name: qmake and nmake
         run: |
+          echo $(git rev-parse --short "$GITHUB_SHA") > text\\REVISION.txt
+          type text\\REVISION.txt
           qmake theoreticaldiary.pro CONFIG+=release
           set CL=/MP
           nmake qmake_all
@@ -85,6 +87,8 @@ jobs:
 
       - name: qmake and make
         run: |
+          echo $(git rev-parse --short "$GITHUB_SHA") > text/REVISION.txt
+          cat text/REVISION.txt
           sudo xcode-select -s /Applications/Xcode_12.1.1.app/Contents/Developer
           qmake QMAKE_CC="/usr/local/opt/llvm/bin/clang" QMAKE_CXX="/usr/local/opt/llvm/bin/clang++" CONFIG+=release QMAKE_LIBS+="-L/usr/local/opt/llvm/lib -L/usr/local/lib" INCLUDEPATH+="-I/usr/local/opt/llvm/include"
           make -j$(sysctl -n hw.logicalcpu)
@@ -129,6 +133,8 @@ jobs:
 
       - name: qmake and make
         run: |
+          echo $(git rev-parse --short "$GITHUB_SHA") > text/REVISION.txt
+          cat text/REVISION.txt
           qmake CONFIG+=release
           make -j$(nproc)
           make install INSTALL_ROOT=TheoreticalDiary.AppDir

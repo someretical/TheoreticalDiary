@@ -23,6 +23,8 @@
 #include <algorithm>
 #include <string>
 
+#include "../core/internalmanager.h"
+
 namespace misc {
 QString get_day_suffix(int const day);
 std::string get_trunc_first_line(std::string input, int const max_line_len);
@@ -49,6 +51,8 @@ inline std::string &trim(std::string &s)
 void extend_top_line(std::string &top, long unsigned int const max_line_len);
 QString get_danger_stylesheet();
 void clear_message_boxes();
+QColor rating_to_color(td::Rating const rating);
+td::Theme rating_to_theme(const td::Rating rating);
 } // namespace misc
 
 #endif // MISC_H

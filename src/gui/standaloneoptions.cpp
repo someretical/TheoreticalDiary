@@ -27,7 +27,7 @@ StandaloneOptions::StandaloneOptions(QWidget *parent) : QWidget(parent), ui(new 
 
     //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &StandaloneOptions::update_theme,
     //        Qt::QueuedConnection);
-    update_theme();
+    //    update_theme();
 }
 
 StandaloneOptions::~StandaloneOptions()
@@ -35,9 +35,4 @@ StandaloneOptions::~StandaloneOptions()
     delete ui;
 }
 
-void StandaloneOptions::update_theme()
-{
-    QFile file(":/global/standaloneoptions.qss");
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
-}
+void StandaloneOptions::update_theme() {}

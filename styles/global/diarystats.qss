@@ -1,6 +1,0 @@
-QLabel#t0, QLabel#t1, QLabel#t2, QLabel#t3, QLabel#t4, QLabel#t5, QLabel#ts,
-QLabel#l0, QLabel#l1, QLabel#l2, QLabel#l3, QLabel#l4, QLabel#l5, QLabel#ls,
-QLabel#d0, QLabel#d1, QLabel#d2, QLabel#d3, QLabel#d4, QLabel#d5, QLabel#ds {
-  font-family: "Roboto Mono";
-  font-size: 11pt;
-}

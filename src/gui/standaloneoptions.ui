@@ -82,10 +82,7 @@
       </sizepolicy>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">

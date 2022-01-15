@@ -36,12 +36,65 @@ auto const light_background = QColor(230, 230, 230, 170);
 auto const dark_white = light_background.darker();
 auto const light_black = dark_background.lighter();
 
-auto const almost_white = QColor(245, 245, 245, 255);
-auto const almost_black = QColor(60, 60, 60, 255);
+auto const almost_white = QColor(202, 203, 206);
+auto const almost_black = QColor(29, 29, 32);
 
 DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats)
 {
     ui->setupUi(this);
+
+    // Give DiaryComparisonLabels proper attributes.
+    ui->very_bad->rating = td::Rating::VeryBad;
+    ui->bad->rating = td::Rating::Bad;
+    ui->ok->rating = td::Rating::Ok;
+    ui->good->rating = td::Rating::Good;
+    ui->very_good->rating = td::Rating::VeryGood;
+    ui->unknown->rating = td::Rating::Unknown;
+    ui->starred->special = true;
+
+    ui->very_bad_2->rating = td::Rating::VeryBad;
+    ui->bad_2->rating = td::Rating::Bad;
+    ui->ok_2->rating = td::Rating::Ok;
+    ui->good_2->rating = td::Rating::Good;
+    ui->very_good_2->rating = td::Rating::VeryGood;
+    ui->unknown_2->rating = td::Rating::Unknown;
+    ui->starred_2->special = true;
+
+    ui->very_bad_3->rating = td::Rating::VeryBad;
+    ui->bad_3->rating = td::Rating::Bad;
+    ui->ok_3->rating = td::Rating::Ok;
+    ui->good_3->rating = td::Rating::Good;
+    ui->very_good_3->rating = td::Rating::VeryGood;
+    ui->unknown_3->rating = td::Rating::Unknown;
+    ui->starred_3->special = true;
+
+    // Make the numbers display in a monospaced font.
+    auto monospaced = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    monospaced.setLetterSpacing(QFont::PercentageSpacing, 110);
+
+    ui->l0->setFont(monospaced);
+    ui->l1->setFont(monospaced);
+    ui->l2->setFont(monospaced);
+    ui->l3->setFont(monospaced);
+    ui->l4->setFont(monospaced);
+    ui->l5->setFont(monospaced);
+    ui->ls->setFont(monospaced);
+
+    ui->t0->setFont(monospaced);
+    ui->t1->setFont(monospaced);
+    ui->t2->setFont(monospaced);
+    ui->t3->setFont(monospaced);
+    ui->t4->setFont(monospaced);
+    ui->t5->setFont(monospaced);
+    ui->ts->setFont(monospaced);
+
+    ui->d0->setFont(monospaced);
+    ui->d1->setFont(monospaced);
+    ui->d2->setFont(monospaced);
+    ui->d3->setFont(monospaced);
+    ui->d4->setFont(monospaced);
+    ui->d5->setFont(monospaced);
+    ui->ds->setFont(monospaced);
 
     // Initilise pie chart.
     auto pie_chart = new QChart();
@@ -94,19 +147,6 @@ DiaryStats::~DiaryStats()
 
 void DiaryStats::update_theme()
 {
-    auto const &theme = InternalManager::instance()->get_theme_str();
-
-    QFile file(QString(":/global/diarystats.qss"));
-    file.open(QIODevice::ReadOnly);
-    QString stylesheet(file.readAll());
-    file.close();
-
-    file.setFileName(QString(":/%1/diarystats.qss").arg(theme));
-    file.open(QIODevice::ReadOnly);
-    stylesheet.append(file.readAll());
-
-    setStyleSheet(stylesheet);
-
     render_stats(QDate::currentDate());
 }
 
@@ -249,9 +289,45 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
 
     auto x_axis = new QValueAxis();
     chart->addAxis(x_axis, Qt::AlignBottom);
-    x_axis->setRange(1, current_date.daysInMonth());
-    x_axis->setTickCount(15);
+
+    switch (current_date.daysInMonth()) {
+    case 28:
+        x_axis->setRange(0, current_date.daysInMonth());
+        x_axis->setTickAnchor(0);
+        x_axis->setTickInterval(2);
+        x_axis->setTickCount(15);
+        break;
+    case 29:
+        x_axis->setRange(1, current_date.daysInMonth());
+        x_axis->setTickAnchor(1);
+        x_axis->setTickInterval(2);
+        x_axis->setTickCount(15);
+        break;
+    case 30:
+        x_axis->setRange(0, current_date.daysInMonth());
+        x_axis->setTickAnchor(0);
+        x_axis->setTickInterval(2);
+        x_axis->setTickCount(16);
+        break;
+    case 31:
+        x_axis->setRange(1, current_date.daysInMonth());
+        x_axis->setTickAnchor(1);
+        x_axis->setTickInterval(2);
+        x_axis->setTickCount(16);
+        break;
+    default:
+        // This will probably happen if somebody puts the year all the way back to 1700s when the calendar was reset or
+        // something really obscure like that.
+        x_axis->setRange(1, current_date.daysInMonth());
+        x_axis->setTickAnchor(1);
+        x_axis->setTickInterval(2);
+        x_axis->setTickCount(15);
+        qDebug() << "This month has an invalid number of days in it:" << current_date;
+        break;
+    }
+
     x_axis->setGridLineColor(td::Theme::Dark == theme ? light_black : dark_white);
+    x_axis->setLabelFormat("%d");
     x_axis->setLabelsColor(td::Theme::Dark == theme ? almost_white : almost_black);
     x_axis->setLabelsVisible();
     x_axis->setTitleText("Day");

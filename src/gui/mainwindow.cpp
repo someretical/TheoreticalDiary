@@ -46,9 +46,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(InternalManager::instance()->inactive_filter, &InactiveFilter::sig_inactive_timeout, this,
         &MainWindow::lock_diary);
-    connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainWindow::update_theme,
-        Qt::QueuedConnection);
-    update_theme();
+    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainWindow::update_theme,
+    //        Qt::QueuedConnection);
+    //    update_theme();
 }
 
 MainWindow::~MainWindow()
@@ -160,12 +160,12 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
                 return;
 
             auto const &[id1, id2] = gwrapper->get_file_ids(reply.response);
+            primary_id = id1;
+            secondary_id = id2;
 
             if (id1.isEmpty())
                 return upload_subroutine();
 
-            primary_id = id1;
-            secondary_id = id2;
             gwrapper->copy_file(id1, "diary.dat.bak").subscribe(cb3);
         };
 
@@ -220,14 +220,7 @@ void MainWindow::lock_diary()
     exit_diary_to_main_menu(true);
 }
 
-void MainWindow::update_theme()
-{
-    auto theme = InternalManager::instance()->get_theme_str();
-
-    QFile file(QString(":/%1/material_cyan.qss").arg(theme));
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
-}
+void MainWindow::update_theme() {}
 
 void MainWindow::clear_grid()
 {
@@ -298,7 +291,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
                 if (QMessageBox::RejectRole == res)
                     return;
 
-                if (QMessageBox::YesRole == res) {
+                if (QMessageBox::AcceptRole == res) {
                     // If the diary failed to save, don't exit to the main menu.
                     InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
                     auto saved = DiaryHolder::instance()->save();

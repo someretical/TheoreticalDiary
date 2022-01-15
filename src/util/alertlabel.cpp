@@ -35,9 +35,9 @@ AlertLabel::AlertLabel(QWidget *parent) : QLabel(parent)
 
 void AlertLabel::update_theme()
 {
-    QFile file(":/global/alertlabel.qss");
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
+    //    QFile file(":/global/alertlabel.qss");
+    //    file.open(QIODevice::ReadOnly);
+    // setStylesheet\(file.readAll());
 
     first_time_stylesheet_set = false;
 }

@@ -85,48 +85,48 @@ DiaryEditor::~DiaryEditor()
 
 void DiaryEditor::update_theme()
 {
-    auto const &theme = InternalManager::instance()->get_theme_str();
+    //    auto const &theme = InternalManager::instance()->get_theme_str();
 
-    QFile file(QString(":/%1/diaryeditor.qss").arg(theme));
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
-    file.close();
+    //    QFile file(QString(":/%1/diaryeditor.qss").arg(theme));
+    //    file.open(QIODevice::ReadOnly);
+    //    // setStylesheet\(file.readAll());
+    //    file.close();
 
-    file.setFileName(QString(":/%1/theoretical_calendar/base.qss").arg(theme));
-    file.open(QIODevice::ReadOnly);
-    base_stylesheet = file.readAll();
-    file.close();
+    //    file.setFileName(QString(":/%1/theoretical_calendar/base.qss").arg(theme));
+    //    file.open(QIODevice::ReadOnly);
+    //    base_stylesheet = file.readAll();
+    //    file.close();
 
-    file.setFileName(QString(":/%1/theoretical_calendar/selected.qss").arg(theme));
-    file.open(QIODevice::ReadOnly);
-    selected_stylesheet = file.readAll();
-    file.close();
+    //    file.setFileName(QString(":/%1/theoretical_calendar/selected.qss").arg(theme));
+    //    file.open(QIODevice::ReadOnly);
+    //    selected_stylesheet = file.readAll();
+    //    file.close();
 
-    file.setFileName(":/global/white_star.qss");
-    file.open(QIODevice::ReadOnly);
-    white_star = file.readAll();
-    file.close();
+    //    file.setFileName(":/global/white_star.qss");
+    //    file.open(QIODevice::ReadOnly);
+    //    white_star = file.readAll();
+    //    file.close();
 
-    file.setFileName(":/global/black_star.qss");
-    file.open(QIODevice::ReadOnly);
-    black_star = file.readAll();
-    file.close();
+    //    file.setFileName(":/global/black_star.qss");
+    //    file.open(QIODevice::ReadOnly);
+    //    black_star = file.readAll();
+    //    file.close();
 
-    for (auto &ss_ptr : rating_stylesheets)
-        ss_ptr.reset();
+    //    for (auto &ss_ptr : rating_stylesheets)
+    //        ss_ptr.reset();
 
-    rating_stylesheets.clear();
+    //    rating_stylesheets.clear();
 
-    for (int i = 0; i < 6; ++i) {
-        file.setFileName(QString(":/%1/theoretical_calendar/%2.qss").arg(theme, QString::number(i)));
-        file.open(QIODevice::ReadOnly);
-        rating_stylesheets.push_back(std::make_unique<QString>(file.readAll()));
-        file.close();
-    }
+    //    for (int i = 0; i < 6; ++i) {
+    //        file.setFileName(QString(":/%1/theoretical_calendar/%2.qss").arg(theme, QString::number(i)));
+    //        file.open(QIODevice::ReadOnly);
+    //        rating_stylesheets.push_back(std::make_unique<QString>(file.readAll()));
+    //        file.close();
+    //    }
 
-    // When this function is run in the constructor, no buttons should exist yet.
-    emit sig_re_render_buttons(
-        td::CalendarButtonData{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt});
+    //    // When this function is run in the constructor, no buttons should exist yet.
+    //    emit sig_re_render_buttons(
+    //        td::CalendarButtonData{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt});
 }
 
 // Note for future me and any other readers:
@@ -217,6 +217,9 @@ void DiaryEditor::change_month(QDate const &date, bool const suppress_confirm)
         if (QMessageBox::RejectRole == res)
             return;
 
+        if (QMessageBox::AcceptRole)
+            update_day(true);
+
         // Remove everything from current grid.
         QLayoutItem *child;
         while ((child = ui->dates->takeAt(0)) != 0) {
@@ -254,7 +257,7 @@ void DiaryEditor::change_month(QDate const &date, bool const suppress_confirm)
     if (InternalManager::instance()->internal_diary_changed && !suppress_confirm)
         return cmb::confirm_switch_date(this, cb);
 
-    cb(QMessageBox::AcceptRole);
+    cb(QMessageBox::DestructiveRole);
 }
 
 void DiaryEditor::render_day(td::CalendarButtonData const &d, bool const set_info_pane)
@@ -315,7 +318,7 @@ void DiaryEditor::date_clicked(int const day)
         if (QMessageBox::RejectRole == res)
             return;
 
-        if (QMessageBox::YesRole == res)
+        if (QMessageBox::AcceptRole == res)
             update_day(true); // Suppress entry saved message so it doesn't appear on new date.
 
         td::CalendarButtonData const old{
@@ -334,7 +337,7 @@ void DiaryEditor::date_clicked(int const day)
     if (InternalManager::instance()->internal_diary_changed)
         cmb::confirm_switch_date(this, cb);
     else
-        cb(QMessageBox::NoRole);
+        cb(QMessageBox::DestructiveRole);
 }
 
 void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)

@@ -17,6 +17,8 @@
  */
 
 #include "internalmanager.h"
+#include "../gui/styles/dark/darkstyle.h"
+#include "../gui/styles/light/lightstyle.h"
 
 InternalManager *i_m_ptr;
 
@@ -32,6 +34,8 @@ InternalManager::InternalManager()
 
     inactive_filter = new InactiveFilter(settings->value("lock_timeout").toLongLong(), this);
     QApplication::instance()->installEventFilter(inactive_filter);
+
+    start_update_theme();
 }
 
 InternalManager::~InternalManager()
@@ -95,4 +99,25 @@ void InternalManager::end_busy_mode(int const line, std::string const &func, std
     QApplication::instance()->removeEventFilter(&busy_filter);
     app_busy = false;
     QGuiApplication::restoreOverrideCursor();
+}
+
+void InternalManager::start_update_theme()
+{
+    QPixmapCache::clear();
+    state_color_palette = StateColorPalette();
+
+    if (get_theme() == td::Theme::Dark) {
+        state_color_palette.initDefaultPaletteDark();
+        auto s = new DarkStyle;
+        QApplication::setPalette(s->standardPalette());
+        QApplication::setStyle(s);
+    }
+    else {
+        state_color_palette.initDefaultPaletteLight();
+        auto s = new LightStyle;
+        QApplication::setPalette(s->standardPalette());
+        QApplication::setStyle(s);
+    }
+
+    emit update_theme();
 }

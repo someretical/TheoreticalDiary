@@ -24,11 +24,15 @@ APIResponse::APIResponse(QByteArray const &res, QWidget *parent) : QDialog(paren
     ui->setupUi(this);
     ui->res->setPlainText(res);
 
+    auto monospaced = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    monospaced.setLetterSpacing(QFont::PercentageSpacing, 110);
+    ui->res->setFont(monospaced);
+
     connect(ui->ok_button, &QPushButton::clicked, this, &APIResponse::accept, Qt::QueuedConnection);
 
     //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &AboutDialog::update_theme,
     //        Qt::QueuedConnection);
-    update_theme();
+    //    update_theme();
 }
 
 APIResponse::~APIResponse()
@@ -36,9 +40,4 @@ APIResponse::~APIResponse()
     delete ui;
 }
 
-void APIResponse::update_theme()
-{
-    QFile file(":/global/apiresponse.qss");
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
-}
+void APIResponse::update_theme() {}

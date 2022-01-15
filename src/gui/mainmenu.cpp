@@ -56,7 +56,7 @@ MainMenu::MainMenu(bool const show_locked_message, QWidget *parent) : QWidget(pa
 
     //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainMenu::update_theme,
     //        Qt::QueuedConnection);
-    update_theme();
+    //    update_theme();
 }
 
 MainMenu::~MainMenu()
@@ -65,12 +65,7 @@ MainMenu::~MainMenu()
     delete enter_shortcut;
 }
 
-void MainMenu::update_theme()
-{
-    QFile file(":/global/mainmenu.qss");
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
-}
+void MainMenu::update_theme() {}
 
 void MainMenu::open_options()
 {

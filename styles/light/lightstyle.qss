@@ -1,0 +1,23 @@
+DatabaseWidget:!active, GroupView:!active,
+EntryPreviewWidget QLineEdit:!active, EntryPreviewWidget QTextEdit:!active {
+    background-color: #FCFCFC;
+}
+
+DatabaseWidget:disabled, GroupView:disabled,
+EntryPreviewWidget QLineEdit:disabled, EntryPreviewWidget QTextEdit:disabled {
+    background-color: #EDEDED;
+}
+
+QPushButton:default:hover, QPushButton:checked:hover {
+    /* Using slightly lighter shade from palette(highlight) */
+    background: #568821;
+}
+
+QToolTip {
+    color: #F9F9F9;
+    background-color: #4D7F1A;
+}
+
+QGroupBox::title {
+    color: #4B7B19;
+}

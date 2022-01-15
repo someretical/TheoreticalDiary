@@ -42,20 +42,18 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="QTabWidget" name="tabWidget">
+    <widget class="QTabWidget" name="diary_menu_tab">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
      <property name="currentIndex">
       <number>0</number>
+     </property>
+     <property name="movable">
+      <bool>true</bool>
      </property>
      <widget class="QWidget" name="editor">
       <property name="sizePolicy">
@@ -202,7 +200,7 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
+  <tabstop>diary_menu_tab</tabstop>
  </tabstops>
  <resources/>
  <connections/>

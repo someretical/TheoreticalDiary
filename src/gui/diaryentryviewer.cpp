@@ -62,41 +62,41 @@ DiaryEntryViewer::~DiaryEntryViewer()
 
 void DiaryEntryViewer::update_theme()
 {
-    auto const &theme = InternalManager::instance()->get_theme_str();
+    //    auto const &theme = InternalManager::instance()->get_theme_str();
 
-    QFile file(QString(":/%1/diary_entry_list/base.qss").arg(theme));
-    file.open(QIODevice::ReadOnly);
-    ui->scrollArea->setStyleSheet(file.readAll());
-    file.close();
+    //    QFile file(QString(":/%1/diary_entry_list/base.qss").arg(theme));
+    //    file.open(QIODevice::ReadOnly);
+    //    // ui->scrollArea->setStyleSheet(file.readAll());
+    //    file.close();
 
-    file.setFileName(QString(":/%1/diaryentryviewer.qss").arg(theme));
-    file.open(QIODevice::ReadOnly);
-    setStyleSheet(file.readAll());
-    file.close();
+    //    file.setFileName(QString(":/%1/diaryentryviewer.qss").arg(theme));
+    //    file.open(QIODevice::ReadOnly);
+    //    // setStylesheet\(file.readAll());
+    //    file.close();
 
-    file.setFileName(":/global/white_star.qss");
-    file.open(QIODevice::ReadOnly);
-    white_star = file.readAll();
-    file.close();
+    //    file.setFileName(":/global/white_star.qss");
+    //    file.open(QIODevice::ReadOnly);
+    //    white_star = file.readAll();
+    //    file.close();
 
-    file.setFileName(":/global/black_star.qss");
-    file.open(QIODevice::ReadOnly);
-    black_star = file.readAll();
-    file.close();
+    //    file.setFileName(":/global/black_star.qss");
+    //    file.open(QIODevice::ReadOnly);
+    //    black_star = file.readAll();
+    //    file.close();
 
-    for (auto &ss_ptr : rating_stylesheets)
-        ss_ptr.reset();
+    //    for (auto &ss_ptr : rating_stylesheets)
+    //        ss_ptr.reset();
 
-    rating_stylesheets.clear();
+    //    rating_stylesheets.clear();
 
-    for (int i = 0; i < 6; ++i) {
-        file.setFileName(QString(":/%1/diary_entry_list/%2.qss").arg(theme, QString::number(i)));
-        file.open(QIODevice::ReadOnly);
-        rating_stylesheets.push_back(std::make_unique<QString>(file.readAll()));
-        file.close();
-    }
+    //    for (int i = 0; i < 6; ++i) {
+    //        file.setFileName(QString(":/%1/diary_entry_list/%2.qss").arg(theme, QString::number(i)));
+    //        file.open(QIODevice::ReadOnly);
+    //        rating_stylesheets.push_back(std::make_unique<QString>(file.readAll()));
+    //        file.close();
+    //    }
 
-    emit sig_update_labels();
+    //    emit sig_update_labels();
 }
 
 void DiaryEntryViewer::change_month(QDate const &date)
@@ -241,30 +241,30 @@ DiaryEntryDayLabel::~DiaryEntryDayLabel() {}
 
 void DiaryEntryDayLabel::update_theme()
 {
-    // Set colour theme.
-    QString stylesheet(*(data.parent->rating_stylesheets)[static_cast<int>(data.rating)]);
+    //    // Set colour theme.
+    //    QString stylesheet(*(data.parent->rating_stylesheets)[static_cast<int>(data.rating)]);
 
-    // Set background star if necessary.
-    if (data.special) {
-        switch (data.rating) {
-        case td::Rating::Unknown:
-            // Fall through
-        case td::Rating::VeryBad:
-            // Fall through
-        case td::Rating::Bad:
-            // Fall through
-        case td::Rating::Ok:
-            stylesheet.append(data.parent->white_star);
-            break;
-        case td::Rating::Good:
-            // Fall through
-        case td::Rating::VeryGood:
-            stylesheet.append(data.parent->black_star);
-            break;
-        }
-    }
+    //    // Set background star if necessary.
+    //    if (data.special) {
+    //        switch (data.rating) {
+    //        case td::Rating::Unknown:
+    //            // Fall through
+    //        case td::Rating::VeryBad:
+    //            // Fall through
+    //        case td::Rating::Bad:
+    //            // Fall through
+    //        case td::Rating::Ok:
+    //            stylesheet.append(data.parent->white_star);
+    //            break;
+    //        case td::Rating::Good:
+    //            // Fall through
+    //        case td::Rating::VeryGood:
+    //            stylesheet.append(data.parent->black_star);
+    //            break;
+    //        }
+    //    }
 
-    setStyleSheet(stylesheet);
+    // setStylesheet\(stylesheet);
 }
 
 /*

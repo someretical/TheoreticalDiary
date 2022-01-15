@@ -56,16 +56,4 @@ private:
     Ui::DiaryPixels *ui;
 };
 
-class PixelLabel : public QLabel {
-    Q_OBJECT
-
-public:
-    explicit PixelLabel(
-        td::Rating const r, bool const special, QDate const &date, int const size, QWidget *parent = nullptr);
-    ~PixelLabel();
-
-public slots:
-    void resize(int const new_width);
-};
-
 #endif // DIARYPIXELS_H

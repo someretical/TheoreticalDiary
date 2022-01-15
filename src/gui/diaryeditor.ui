@@ -55,12 +55,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">
        <number>15</number>
@@ -305,7 +299,7 @@
            <widget class="QPushButton" name="next_month">
             <property name="maximumSize">
              <size>
-              <width>40</width>
+              <width>50</width>
               <height>16777215</height>
              </size>
             </property>
@@ -318,10 +312,7 @@
              <string>Next month.</string>
             </property>
             <property name="text">
-             <string/>
-            </property>
-            <property name="flat">
-             <bool>true</bool>
+             <string>&gt;</string>
             </property>
            </widget>
           </item>
@@ -329,7 +320,7 @@
            <widget class="QPushButton" name="prev_month">
             <property name="maximumSize">
              <size>
-              <width>40</width>
+              <width>50</width>
               <height>16777215</height>
              </size>
             </property>
@@ -342,10 +333,7 @@
              <string>Previous month.</string>
             </property>
             <property name="text">
-             <string/>
-            </property>
-            <property name="flat">
-             <bool>true</bool>
+             <string>&lt;</string>
             </property>
            </widget>
           </item>
@@ -545,11 +533,6 @@
           </property>
           <item row="2" column="1">
            <widget class="QPlainTextEdit" name="entry_edit">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
             <property name="toolTip">
              <string>Entry message</string>
             </property>
@@ -560,11 +543,6 @@
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_9">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
             <property name="text">
              <string>Special?</string>
             </property>
@@ -572,23 +550,13 @@
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_8">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
             <property name="text">
              <string>Rating</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="2" column="0" alignment="Qt::AlignTop">
            <widget class="QLabel" name="label_10">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
             <property name="text">
              <string>Entry</string>
             </property>
@@ -604,11 +572,6 @@
             </property>
             <item row="0" column="0">
              <widget class="QCheckBox" name="special_box">
-              <property name="font">
-               <font>
-                <pointsize>11</pointsize>
-               </font>
-              </property>
               <property name="cursor">
                <cursorShape>CrossCursor</cursorShape>
               </property>
@@ -647,11 +610,6 @@
                 <width>150</width>
                 <height>0</height>
                </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>11</pointsize>
-               </font>
               </property>
               <property name="toolTip">
                <string>Rating dropdown</string>
@@ -732,55 +690,34 @@
             </item>
             <item row="0" column="2">
              <widget class="QPushButton" name="reset_button">
-              <property name="font">
-               <font>
-                <pointsize>11</pointsize>
-               </font>
-              </property>
               <property name="toolTip">
                <string>Jump to today.</string>
               </property>
               <property name="text">
                <string>Jump to today</string>
               </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
              </widget>
             </item>
             <item row="0" column="1">
              <widget class="QPushButton" name="delete_button">
-              <property name="font">
-               <font>
-                <pointsize>11</pointsize>
-               </font>
-              </property>
               <property name="toolTip">
                <string>Delete entry.</string>
               </property>
               <property name="text">
                <string>Delete</string>
               </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
              </widget>
             </item>
             <item row="0" column="0">
              <widget class="QPushButton" name="update_button">
-              <property name="font">
-               <font>
-                <pointsize>11</pointsize>
-               </font>
-              </property>
               <property name="toolTip">
                <string>Update entry.</string>
               </property>
               <property name="text">
                <string>Update</string>
               </property>
-              <property name="flat">
-               <bool>false</bool>
+              <property name="default">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -875,7 +812,12 @@
   <tabstop>month_dropdown</tabstop>
   <tabstop>year_edit</tabstop>
   <tabstop>next_month</tabstop>
+  <tabstop>rating_dropdown</tabstop>
+  <tabstop>special_box</tabstop>
   <tabstop>entry_edit</tabstop>
+  <tabstop>update_button</tabstop>
+  <tabstop>delete_button</tabstop>
+  <tabstop>reset_button</tabstop>
  </tabstops>
  <resources/>
  <connections/>

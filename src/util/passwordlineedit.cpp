@@ -24,6 +24,11 @@
 PasswordLineEdit::PasswordLineEdit(QWidget *parent) : QLineEdit(parent)
 {
     setEchoMode(QLineEdit::Password);
+
+    auto monospaced = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    monospaced.setLetterSpacing(QFont::PercentageSpacing, 110);
+    setFont(monospaced);
+
     QAction *action = addAction(QIcon(get_eye_icon(false)), QLineEdit::TrailingPosition);
     button = qobject_cast<QToolButton *>(action->associatedWidgets().last());
     button->setCursor(QCursor(Qt::PointingHandCursor));
@@ -47,6 +52,5 @@ void PasswordLineEdit::on_released()
 
 QString PasswordLineEdit::get_eye_icon(bool const on)
 {
-    return QString(":/themes/%1/passwordlineedit/%2.svg")
-        .arg(InternalManager::instance()->get_theme_str(), on ? "eye_on" : "eye_off");
+    return QString(":/themes/%1/%2.svg").arg(InternalManager::instance()->get_theme_str(), on ? "eye_on" : "eye_off");
 }

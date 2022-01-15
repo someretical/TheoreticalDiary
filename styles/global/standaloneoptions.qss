@@ -1,4 +1,0 @@
-QFrame#settings_frame {
-  padding: 0px;
-  border: none;
-}

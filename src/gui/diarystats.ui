@@ -49,12 +49,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
      <layout class="QGridLayout" name="gridLayout_4">
       <property name="leftMargin">
        <number>15</number>
@@ -83,7 +77,7 @@
          <widget class="QPushButton" name="prev_month">
           <property name="maximumSize">
            <size>
-            <width>40</width>
+            <width>50</width>
             <height>16777215</height>
            </size>
           </property>
@@ -96,10 +90,7 @@
            <string>Previous month.</string>
           </property>
           <property name="text">
-           <string/>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
+           <string>&lt;</string>
           </property>
          </widget>
         </item>
@@ -242,7 +233,7 @@
          <widget class="QPushButton" name="next_month">
           <property name="maximumSize">
            <size>
-            <width>40</width>
+            <width>50</width>
             <height>16777215</height>
            </size>
           </property>
@@ -255,10 +246,7 @@
            <string>Next month.</string>
           </property>
           <property name="text">
-           <string/>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
+           <string>&gt;</string>
           </property>
          </widget>
         </item>
@@ -331,50 +319,50 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="unknown_3">
+              <item row="5" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="unknown_3">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="0" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="very_bad_3">
+              <item row="0" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="very_bad_3">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="3" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="good_3">
+              <item row="3" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="good_3">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="6" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="starred_3">
+              <item row="6" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="starred_3">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="4" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="very_good_3">
+              <item row="4" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="very_good_3">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="2" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="ok_3">
+              <item row="2" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="ok_3">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="1" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="bad_3">
+              <item row="1" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="bad_3">
                 <property name="text">
                  <string/>
                 </property>
@@ -516,98 +504,98 @@
               <property name="spacing">
                <number>15</number>
               </property>
-              <item row="2" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="ok">
+              <item row="2" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="ok">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="1" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="bad">
+              <item row="1" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="bad">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="4" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="very_good">
+              <item row="4" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="very_good">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="6" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="starred">
+              <item row="6" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="starred">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="3" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="good">
+              <item row="3" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="good">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="0" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="very_bad">
+              <item row="0" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="very_bad">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="5" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="unknown">
+              <item row="5" column="0" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="unknown">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1" alignment="Qt::AlignLeft">
+              <item row="1" column="1">
                <widget class="QLabel" name="t2">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1" alignment="Qt::AlignLeft">
+              <item row="2" column="1">
                <widget class="QLabel" name="t3">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="3" column="1" alignment="Qt::AlignLeft">
+              <item row="3" column="1">
                <widget class="QLabel" name="t4">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="4" column="1" alignment="Qt::AlignLeft">
+              <item row="4" column="1">
                <widget class="QLabel" name="t5">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="5" column="1" alignment="Qt::AlignLeft">
+              <item row="5" column="1">
                <widget class="QLabel" name="t0">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="6" column="1" alignment="Qt::AlignLeft">
+              <item row="6" column="1">
                <widget class="QLabel" name="ts">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1" alignment="Qt::AlignLeft">
+              <item row="0" column="1">
                <widget class="QLabel" name="t1">
                 <property name="text">
                  <string/>
@@ -721,8 +709,8 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="1" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="ok_2">
+              <item row="2" column="1" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="ok_2">
                 <property name="text">
                  <string/>
                 </property>
@@ -735,8 +723,8 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="1" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="starred_2">
+              <item row="6" column="1" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="starred_2">
                 <property name="text">
                  <string/>
                 </property>
@@ -749,36 +737,36 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="1" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="good_2">
+              <item row="3" column="1" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="good_2">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="4" column="1" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="very_good_2">
+              <item row="4" column="1" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="very_good_2">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="very_bad_2">
+              <item row="0" column="1" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="very_bad_2">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="bad_2">
+              <item row="1" column="1" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="bad_2">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="5" column="1" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="unknown_2">
+              <item row="5" column="1" alignment="Qt::AlignHCenter">
+               <widget class="DiaryComparisonLabel" name="unknown_2">
                 <property name="text">
                  <string/>
                 </property>
@@ -914,6 +902,9 @@
             </property>
             <property name="currentIndex">
              <number>0</number>
+            </property>
+            <property name="movable">
+             <bool>true</bool>
             </property>
             <widget class="QWidget" name="spline">
              <property name="sizePolicy">
@@ -1081,7 +1072,22 @@
    <extends>QGraphicsView</extends>
    <header>QtCharts</header>
   </customwidget>
+  <customwidget>
+   <class>DiaryComparisonLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">src/util/diarycomparisonlabel.h</header>
+  </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>prev_month</tabstop>
+  <tabstop>month_dropdown</tabstop>
+  <tabstop>year_edit</tabstop>
+  <tabstop>next_month</tabstop>
+  <tabstop>charts</tabstop>
+  <tabstop>spline_chart_view</tabstop>
+  <tabstop>pie_chart_view</tabstop>
+  <tabstop>polar_chart_view</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

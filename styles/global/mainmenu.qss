@@ -1,7 +1,0 @@
-QLineEdit#password_box {
-  font-family: "Roboto Mono"
-}
-
-QFrame#frame3, QFrame#frame1 {
-  border: none;
-}
