@@ -28,16 +28,6 @@ namespace Ui {
 class DiaryEntryViewer;
 }
 
-class DiaryEntryViewer;
-namespace td {
-struct LabelData {
-    DiaryEntryViewer *parent;
-    int day;
-    td::Rating rating;
-    bool special;
-};
-} // namespace td
-
 class DiaryEntryViewer : public QWidget {
     Q_OBJECT
 
@@ -63,36 +53,11 @@ public slots:
 
 private:
     Ui::DiaryEntryViewer *ui;
-};
 
-class DiaryEntryDayLabel : public QLabel {
-    Q_OBJECT
-
-public:
-    explicit DiaryEntryDayLabel(td::LabelData const &d, QWidget *parent = nullptr);
-    ~DiaryEntryDayLabel();
-
-    td::LabelData data;
-
-public slots:
-    void update_theme();
-};
-
-class DiaryEntryDayMessage : public QLabel {
-    Q_OBJECT
-
-public:
-    explicit DiaryEntryDayMessage(std::string const &m, QWidget *parent = nullptr);
-    ~DiaryEntryDayMessage();
-
-    std::string message;
-    bool expanded;
-
-public slots:
-    void update_theme();
-
-protected:
-    void mouseDoubleClickEvent(QMouseEvent *event);
+    QByteArray generate_base64_icon(int const day, td::Rating const rating, bool const important);
+    QPixmap generate_background(td::Rating const rating);
+    QPixmap generate_star(td::Rating const rating);
+    QPixmap generate_text(int const day_, td::Rating const rating);
 };
 
 #endif // DIARYENTRYVIEWER_H

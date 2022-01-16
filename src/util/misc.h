@@ -49,10 +49,11 @@ inline std::string &trim(std::string &s)
 }
 
 void extend_top_line(std::string &top, long unsigned int const max_line_len);
-QString get_danger_stylesheet();
 void clear_message_boxes();
-QColor rating_to_color(td::Rating const rating);
+QColor rating_to_colour(td::Rating const rating);
 td::Theme rating_to_theme(const td::Rating rating);
+QColor theme_to_text(const td::Theme theme);
+QString sanitise_html(std::string const &str);
 } // namespace misc
 
 #endif // MISC_H

@@ -24,7 +24,6 @@
 #include <map>
 #include <string>
 
-#include "../gui/styles/statecolorpalette.h"
 #include "../util/eventfilters.h"
 #include "asyncfuture.h"
 #include "json.hpp"
@@ -127,6 +126,22 @@ enum class Window { Main, Editor, Options };
 enum class LinkingResponse { Fail, ScopeMismatch, OK };
 
 using NRO = AsyncFuture::Observable<NR>;
+
+struct CalendarButtonData {
+    std::optional<int> day;
+    std::optional<bool> important;
+    std::optional<td::Rating> rating;
+    std::optional<bool> selected;
+    std::optional<bool> current_day;
+};
+
+struct DiaryEntryIconData {
+    std::optional<int> day;
+    std::optional<td::Rating> rating;
+    std::optional<bool> important;
+};
+
+enum class ColourRole { Text, Unknown, VeryBad, Bad, Ok, Good, VeryGood };
 } // namespace td
 
 // The reason why this class exists is to redirect #include statements away from theoreticaldiary.h
@@ -149,18 +164,30 @@ public:
     ~InternalManager();
     static InternalManager *instance();
 
-    QString get_theme_str();
-    td::Theme get_theme();
+    QString get_theme_str(bool const opposite = false);
+    td::Theme get_theme(bool const opposite = false);
     QString data_location();
     void start_busy_mode(int const line, std::string const &func, std::string const &file);
     void end_busy_mode(int const line, std::string const &func, std::string const &file);
     void init_settings(bool const force_reset);
     void start_update_theme();
+    void set_dark_palette();
+    void set_light_palette();
 
+    inline void set_colour(td::ColourRole role, const QColor &colour)
+    {
+        colourmap[static_cast<int>(role)] = colour;
+    }
+
+    inline QColor colour(td::ColourRole role) const
+    {
+        return colourmap.value(static_cast<int>(role));
+    }
+
+    QHash<int, QColor> colourmap;
     QSettings *settings;
     InactiveFilter *inactive_filter;
     BusyFilter busy_filter;
-    StateColorPalette state_color_palette;
     bool app_busy;
     bool internal_diary_changed;
     bool diary_file_changed;

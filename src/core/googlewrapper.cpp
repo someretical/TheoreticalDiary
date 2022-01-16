@@ -25,7 +25,8 @@
 
 char const *CLIENT_ID = "71530390003-2fr89p1c0unpd1n169munqajeepnhdco.apps.googleusercontent.com";
 char const *CLIENT_SECRET = "zuyjH1Cd_8pL4Q-OFNLjNCJ7";
-char const *SCOPE = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.appdata";
+char const *SCOPE = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.appdata "
+                    "https://www.googleapis.com/auth/drive.file";
 char const *REPLY_CONTENT =
     "<HTML><body><h1 style=\"text-align: center\">Authorization flow completed. Feel free to close "
     "this window.</h1></body></HTML>";
@@ -303,7 +304,7 @@ std::pair<QString, QString> GoogleWrapper::get_file_ids(QByteArray const &data)
     }
 
     for (auto const &file : json["files"]) {
-        if ("drive#file" == file["kind"] && "application/octet-stream" == file["mimeType"]) {
+        if ("drive#file" == file["kind"]) {
             if ("diary.dat" == file["name"]) {
                 primary_backup_id = QString::fromStdString(file["id"]);
             }

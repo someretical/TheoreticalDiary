@@ -47,12 +47,13 @@ private:
     QPixmap generate_pixmap()
     {
         if (special) {
-            auto theme_str = InternalManager::instance()->get_theme() == td::Theme::Light ? "light" : "dark";
+            auto theme_str = InternalManager::instance()->get_theme_str(true);
             auto svg = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(size());
 
             QPixmap bkg(SIZE, SIZE);
             bkg.fill(Qt::transparent);
             QPainter p(&bkg);
+            p.setRenderHint(QPainter::Antialiasing);
             p.setOpacity(0.5);
             p.drawPixmap(0, 0, svg);
             return bkg;
@@ -61,8 +62,9 @@ private:
             QPixmap bkg(SIZE, SIZE);
             bkg.fill(Qt::transparent);
 
-            QColor bkg_color = misc::rating_to_color(rating);
+            QColor bkg_color = misc::rating_to_colour(rating);
             QPainter p(&bkg);
+            p.setRenderHint(QPainter::Antialiasing);
 
             if (InternalManager::instance()->get_theme() == td::Theme::Light)
                 p.setOpacity(0.8);
@@ -90,6 +92,7 @@ protected:
         }
 
         QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
         p.drawPixmap(0, 0, pixmap);
     }
 };

@@ -23,7 +23,8 @@
 #include <memory>
 #include <optional>
 
-#include "calendarbutton.h"
+#include "../core/internalmanager.h"
+#include "../util/diarycalendarbutton.h"
 
 namespace Ui {
 class DiaryEditor;
@@ -44,13 +45,6 @@ public:
     int last_selected_day;
 
     QShortcut *save_shortcut;
-
-    // This is an array of 6 stylesheets.
-    std::vector<std::unique_ptr<QString>> rating_stylesheets;
-    QString base_stylesheet;
-    QString selected_stylesheet;
-    QString white_star;
-    QString black_star;
 
 public slots:
     void update_theme();
@@ -73,6 +67,8 @@ public slots:
 
 private:
     Ui::DiaryEditor *ui;
+
+    DiaryCalendarButton *create_button(td::CalendarButtonData const &&d);
 };
 
 #endif // DIARYEDITOR_H

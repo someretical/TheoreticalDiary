@@ -101,7 +101,7 @@
         <item row="5" column="0">
          <layout class="QGridLayout" name="dates">
           <property name="spacing">
-           <number>7</number>
+           <number>0</number>
           </property>
          </layout>
         </item>

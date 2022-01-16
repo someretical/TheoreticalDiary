@@ -61,14 +61,25 @@ void InternalManager::init_settings(const bool force_reset)
         settings->setValue("lock_timeout", static_cast<qint64>(300000 /* 5 minutes */));
 }
 
-td::Theme InternalManager::get_theme()
+td::Theme InternalManager::get_theme(bool const opposite)
 {
-    return static_cast<td::Theme>(settings->value("theme").toInt());
+    if (opposite) {
+        return static_cast<td::Theme>(settings->value("theme").toInt()) == td::Theme::Dark ? td::Theme::Light
+                                                                                           : td::Theme::Dark;
+    }
+    else {
+        return static_cast<td::Theme>(settings->value("theme").toInt());
+    }
 }
 
-QString InternalManager::get_theme_str()
+QString InternalManager::get_theme_str(bool const opposite)
 {
-    return QString(td::Theme::Light == get_theme() ? "light" : "dark");
+    if (opposite) {
+        return td::Theme::Light == get_theme() ? "dark" : "light";
+    }
+    else {
+        return td::Theme::Light == get_theme() ? "light" : "dark";
+    }
 }
 
 QString InternalManager::data_location()
@@ -104,20 +115,41 @@ void InternalManager::end_busy_mode(int const line, std::string const &func, std
 void InternalManager::start_update_theme()
 {
     QPixmapCache::clear();
-    state_color_palette = StateColorPalette();
 
     if (get_theme() == td::Theme::Dark) {
-        state_color_palette.initDefaultPaletteDark();
+        set_dark_palette();
         auto s = new DarkStyle;
         QApplication::setPalette(s->standardPalette());
         QApplication::setStyle(s);
     }
     else {
-        state_color_palette.initDefaultPaletteLight();
+        set_light_palette();
         auto s = new LightStyle;
         QApplication::setPalette(s->standardPalette());
         QApplication::setStyle(s);
     }
 
     emit update_theme();
+}
+
+void InternalManager::set_light_palette()
+{
+    set_colour(td::ColourRole::Unknown, QStringLiteral("#C9C9CF"));
+    set_colour(td::ColourRole::VeryBad, QStringLiteral("#7b1fa2"));
+    set_colour(td::ColourRole::Bad, QStringLiteral("#5e35b1"));
+    set_colour(td::ColourRole::Ok, QStringLiteral("#1976d2"));
+    set_colour(td::ColourRole::Good, QStringLiteral("#0097a7"));
+    set_colour(td::ColourRole::VeryGood, QStringLiteral("#4caf50"));
+    set_colour(td::ColourRole::Text, QStringLiteral("#1D1D20"));
+}
+
+void InternalManager::set_dark_palette()
+{
+    set_colour(td::ColourRole::Unknown, QStringLiteral("#2F2F32"));
+    set_colour(td::ColourRole::VeryBad, QStringLiteral("#7b1fa2"));
+    set_colour(td::ColourRole::Bad, QStringLiteral("#5e35b1"));
+    set_colour(td::ColourRole::Ok, QStringLiteral("#1976d2"));
+    set_colour(td::ColourRole::Good, QStringLiteral("#0097a7"));
+    set_colour(td::ColourRole::VeryGood, QStringLiteral("#4caf50"));
+    set_colour(td::ColourRole::Text, QStringLiteral("#CACBCE"));
 }

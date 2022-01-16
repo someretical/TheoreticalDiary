@@ -21,7 +21,6 @@
 #include "../util/custommessageboxes.h"
 #include "../util/diarypixellabel.h"
 #include "../util/misc.h"
-#include "styles/statecolorpalette.h"
 #include "ui_diarypixels.h"
 
 char const *MONTH_LETTERS = "JFMAMJJASOND";

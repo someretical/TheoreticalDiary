@@ -28,13 +28,6 @@ DiaryEditor::DiaryEditor(QDate const &date, QWidget *parent) : QWidget(parent), 
     ui->alert_text->setText("");
     ui->alert_text->update();
 
-    // These will be filled when update_theme is called.
-    base_stylesheet = QString();
-    selected_stylesheet = QString();
-    white_star = QString();
-    black_star = QString();
-    rating_stylesheets = std::vector<std::unique_ptr<QString>>();
-
     current_month_offset = 0;
     last_selected_day = 0;
 
@@ -85,48 +78,19 @@ DiaryEditor::~DiaryEditor()
 
 void DiaryEditor::update_theme()
 {
-    //    auto const &theme = InternalManager::instance()->get_theme_str();
+    // When this function is run in the constructor, no buttons should exist yet.
+    emit sig_re_render_buttons(
+        td::CalendarButtonData{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt});
+}
 
-    //    QFile file(QString(":/%1/diaryeditor.qss").arg(theme));
-    //    file.open(QIODevice::ReadOnly);
-    //    // setStylesheet\(file.readAll());
-    //    file.close();
+DiaryCalendarButton *DiaryEditor::create_button(const td::CalendarButtonData &&d)
+{
+    auto ptr = new DiaryCalendarButton(d);
 
-    //    file.setFileName(QString(":/%1/theoretical_calendar/base.qss").arg(theme));
-    //    file.open(QIODevice::ReadOnly);
-    //    base_stylesheet = file.readAll();
-    //    file.close();
+    connect(this, &DiaryEditor::sig_re_render_buttons, ptr, &DiaryCalendarButton::re_render, Qt::QueuedConnection);
+    connect(ptr, &DiaryCalendarButton::sig_clicked, this, &DiaryEditor::date_clicked, Qt::QueuedConnection);
 
-    //    file.setFileName(QString(":/%1/theoretical_calendar/selected.qss").arg(theme));
-    //    file.open(QIODevice::ReadOnly);
-    //    selected_stylesheet = file.readAll();
-    //    file.close();
-
-    //    file.setFileName(":/global/white_star.qss");
-    //    file.open(QIODevice::ReadOnly);
-    //    white_star = file.readAll();
-    //    file.close();
-
-    //    file.setFileName(":/global/black_star.qss");
-    //    file.open(QIODevice::ReadOnly);
-    //    black_star = file.readAll();
-    //    file.close();
-
-    //    for (auto &ss_ptr : rating_stylesheets)
-    //        ss_ptr.reset();
-
-    //    rating_stylesheets.clear();
-
-    //    for (int i = 0; i < 6; ++i) {
-    //        file.setFileName(QString(":/%1/theoretical_calendar/%2.qss").arg(theme, QString::number(i)));
-    //        file.open(QIODevice::ReadOnly);
-    //        rating_stylesheets.push_back(std::make_unique<QString>(file.readAll()));
-    //        file.close();
-    //    }
-
-    //    // When this function is run in the constructor, no buttons should exist yet.
-    //    emit sig_re_render_buttons(
-    //        td::CalendarButtonData{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt});
+    return ptr;
 }
 
 // Note for future me and any other readers:
@@ -135,6 +99,7 @@ void DiaryEditor::update_theme()
 void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::iterator> const &opt)
 {
     // Note that the YearMap iterator actually contains a month map which holds all the days of the month.
+    auto irl_current_day = QDate::currentDate();
 
     // Render spacers for first row padding.
     for (int i = 0; i < current_month_offset; ++i)
@@ -150,6 +115,9 @@ void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::ite
         // There are 2 entirely separate flows here simply because there are 2 checks required to see if the entry is
         // present. I could use goto but that's kind of messy and harder to keep track of compared to plain old copy
         // pasting.
+
+        auto current = irl_current_day == QDate(date.year(), date.month(), i - current_month_offset + 1);
+
         if (opt) {
             auto const &monthmap = (*opt)->second;
             auto const &entry_iter = monthmap.find(i - current_month_offset + 1);
@@ -157,18 +125,16 @@ void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::ite
             if (entry_iter != monthmap.end()) {
                 auto const &[important, rating, dummy, d2] = entry_iter->second;
 
-                td::CalendarButtonData const d{std::optional(i - current_month_offset + 1), std::optional(this),
-                    std::optional(important), std::optional(rating), std::optional(false)};
-
-                ui->dates->addWidget(new CalendarButton(d), 0, i, 1, 1, Qt::AlignCenter);
+                auto ptr = create_button(td::CalendarButtonData{std::optional(i - current_month_offset + 1),
+                    std::optional(important), std::optional(rating), std::optional(false), std::optional(current)});
+                ui->dates->addWidget(ptr, 0, i, 1, 1, Qt::AlignCenter);
                 continue;
             }
         }
 
-        td::CalendarButtonData const d{std::optional(i - current_month_offset + 1), std::optional(this),
-            std::optional(false), std::optional(td::Rating::Unknown), std::optional(false)};
-
-        ui->dates->addWidget(new CalendarButton(d), 0, i, 1, 1, Qt::AlignCenter);
+        auto ptr = create_button(td::CalendarButtonData{std::optional(i - current_month_offset + 1),
+            std::optional(false), std::optional(td::Rating::Unknown), std::optional(false), std::optional(current)});
+        ui->dates->addWidget(ptr, 0, i, 1, 1, Qt::AlignCenter);
     }
 
     // Render rest of month.
@@ -179,6 +145,9 @@ void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::ite
         }
 
         // 2 passes required here as well which means 2 kind of same declarations.
+
+        auto current = irl_current_day == QDate(date.year(), date.month(), i + 1);
+
         if (opt) {
             auto const &monthmap = (*opt)->second;
             auto const &entry_iter = monthmap.find(i + 1);
@@ -186,18 +155,16 @@ void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::ite
             if (entry_iter != monthmap.end()) {
                 auto const &[important, rating, dummy, d2] = entry_iter->second;
 
-                td::CalendarButtonData const d{std::optional(i + 1), std::optional(this), std::optional(important),
-                    std::optional(rating), std::optional(false)};
-
-                ui->dates->addWidget(new CalendarButton(d), row, current_row_length, 1, 1, Qt::AlignCenter);
+                auto ptr = create_button(td::CalendarButtonData{std::optional(i + 1), std::optional(important),
+                    std::optional(rating), std::optional(false), std::optional(current)});
+                ui->dates->addWidget(ptr, row, current_row_length, 1, 1, Qt::AlignCenter);
                 continue;
             }
         }
 
-        td::CalendarButtonData const d{std::optional(i + 1), std::optional(this), std::optional(false),
-            std::optional(td::Rating::Unknown), std::optional(false)};
-
-        ui->dates->addWidget(new CalendarButton(d), row, current_row_length, 1, 1, Qt::AlignCenter);
+        auto ptr = create_button(td::CalendarButtonData{std::optional(i + 1), std::optional(false),
+            std::optional(td::Rating::Unknown), std::optional(false), std::optional(current)});
+        ui->dates->addWidget(ptr, row, current_row_length, 1, 1, Qt::AlignCenter);
     }
 
     // Fill in last row with spacers if necessary. There is a vertical spacer beneath the whole grid of buttons to push
@@ -247,7 +214,7 @@ void DiaryEditor::change_month(QDate const &date, bool const suppress_confirm)
 
         // Render current day.
         td::CalendarButtonData const d{
-            std::optional(date.day()), std::nullopt, std::nullopt, std::nullopt, std::optional(true)};
+            std::optional(date.day()), std::nullopt, std::nullopt, std::optional(true), std::nullopt};
         render_day(d, true);
 
         emit InternalManager::instance()->update_data(date);
@@ -266,7 +233,7 @@ void DiaryEditor::render_day(td::CalendarButtonData const &d, bool const set_inf
     int const x = (*d.day + current_month_offset - 1) % 7;
     int const y = static_cast<int>((*d.day + current_month_offset - 1) / 7);
 
-    auto const &button = qobject_cast<CalendarButton *>(ui->dates->itemAtPosition(y, x)->widget());
+    auto const &button = qobject_cast<DiaryCalendarButton *>(ui->dates->itemAtPosition(y, x)->widget());
     button->re_render(d);
 
     if (set_info_pane) {
@@ -322,9 +289,9 @@ void DiaryEditor::date_clicked(int const day)
             update_day(true); // Suppress entry saved message so it doesn't appear on new date.
 
         td::CalendarButtonData const old{
-            std::optional(last_selected_day), std::nullopt, std::nullopt, std::nullopt, std::optional(false)};
+            std::optional(last_selected_day), std::nullopt, std::nullopt, std::optional(false), std::nullopt};
         td::CalendarButtonData const n{
-            std::optional(day), std::nullopt, std::nullopt, std::nullopt, std::optional(true)};
+            std::optional(day), std::nullopt, std::nullopt, std::optional(true), std::nullopt};
         // Remove selected border from old calendar button.
         render_day(old, false);
         // Add selected border to new calendar button.
@@ -391,9 +358,8 @@ void DiaryEditor::update_day(bool const suppress_error)
     if (!DiaryHolder::instance()->save() && suppress_error)
         return cmb::save_error(this, []() {});
 
-    td::CalendarButtonData const d{std::optional(last_selected_day), std::nullopt,
-        std::optional(ui->special_box->isChecked()),
-        std::optional(static_cast<td::Rating>(ui->rating_dropdown->currentIndex())), std::nullopt};
+    td::CalendarButtonData const d{std::optional(last_selected_day), std::optional(ui->special_box->isChecked()),
+        std::optional(static_cast<td::Rating>(ui->rating_dropdown->currentIndex())), std::nullopt, std::nullopt};
     // This updates the day button in the calendar widget.
     render_day(d, false);
 
@@ -403,6 +369,8 @@ void DiaryEditor::update_day(bool const suppress_error)
     // Thanks stackoverflow ;)
     ui->last_edited->setText("Last edited " + last_edited.toString("dd MMM ''yy 'at' h:mm ap"));
     ui->last_edited->update();
+    ui->alert_text->setText("Updated entry.");
+    ui->alert_text->update();
 
     // This updates the information in the other tabs.
     // The pixels tab should call end_busy_mode when it is done re rendering.
@@ -432,8 +400,8 @@ void DiaryEditor::delete_day()
 
         update_info_pane(new_date, td::Entry{false, td::Rating::Unknown, "", 0});
 
-        td::CalendarButtonData const d{std::optional(last_selected_day), std::nullopt, std::optional(false),
-            std::optional(static_cast<td::Rating>(td::Rating::Unknown)), std::nullopt};
+        td::CalendarButtonData const d{std::optional(last_selected_day), std::optional(false),
+            std::optional(static_cast<td::Rating>(td::Rating::Unknown)), std::nullopt, std::nullopt};
         render_day(d, false);
 
         // This updates the information in the other tabs.

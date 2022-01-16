@@ -34,7 +34,6 @@ SOURCES += \
     src/core/theoreticaldiary.cpp \
     src/gui/aboutdialog.cpp \
     src/gui/apiresponse.cpp \
-    src/gui/calendarbutton.cpp \
     src/gui/diaryeditor.cpp \
     src/gui/diaryentryviewer.cpp \
     src/gui/diarymenu.cpp \
@@ -48,13 +47,11 @@ SOURCES += \
     src/gui/styles/base/phantomcolor.cpp \
     src/gui/styles/dark/darkstyle.cpp \
     src/gui/styles/light/lightstyle.cpp \
-    src/gui/styles/statecolorpalette.cpp \
     src/main.cpp \
     src/util/alertlabel.cpp \
     src/util/encryptor.cpp \
     src/util/eventfilters.cpp \
     src/util/misc.cpp \
-    src/util/passwordlineedit.cpp \
     src/util/runguard.cpp \
     src/util/zipper.cpp
 
@@ -65,7 +62,6 @@ HEADERS += \
     src/core/theoreticaldiary.h \
     src/gui/aboutdialog.h \
     src/gui/apiresponse.h \
-    src/gui/calendarbutton.h \
     src/gui/diaryeditor.h \
     src/gui/diaryentryviewer.h \
     src/gui/diarymenu.h \
@@ -79,9 +75,9 @@ HEADERS += \
     src/gui/styles/base/phantomcolor.h \
     src/gui/styles/dark/darkstyle.h \
     src/gui/styles/light/lightstyle.h \
-    src/gui/styles/statecolorpalette.h \
     src/util/alertlabel.h \
     src/util/custommessageboxes.h \
+    src/util/diarycalendarbutton.h \
     src/util/diarycomparisonlabel.h \
     src/util/diarypixellabel.h \
     src/util/encryptor.h \

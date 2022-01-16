@@ -21,7 +21,6 @@
 
 #include "core/internalmanager.h"
 #include "core/theoreticaldiary.h"
-#include "gui/calendarbutton.h"
 #include "gui/mainwindow.h"
 #include "o2requestor.h"
 #include "util/runguard.h"

@@ -33,7 +33,7 @@ jobs:
 
       - name: qmake and nmake
         run: |
-          echo $(git rev-parse --short "$GITHUB_SHA") > text\\REVISION.txt
+          echo $(git rev-parse --short "${{github.sha}}") > text\\REVISION.txt
           type text\\REVISION.txt
           qmake theoreticaldiary.pro CONFIG+=release
           set CL=/MP

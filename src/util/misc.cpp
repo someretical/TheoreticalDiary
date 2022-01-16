@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-#include "../gui/styles/statecolorpalette.h"
+#include "../core/internalmanager.h"
 #include "misc.h"
 
 namespace misc {
@@ -80,13 +80,6 @@ void extend_top_line(std::string &top, long unsigned int const max_line_len)
         top.append(max_line_len - top.size(), ' ');
 }
 
-QString get_danger_stylesheet()
-{
-    QFile file(QString(":/%1/dangerbutton.qss").arg(InternalManager::instance()->get_theme_str()));
-    file.open(QIODevice::ReadOnly);
-    return QString(file.readAll());
-}
-
 void clear_message_boxes()
 {
     QWidget *w;
@@ -103,33 +96,38 @@ void clear_message_boxes()
     }
 }
 
-QColor rating_to_color(const td::Rating rating)
+QColor rating_to_colour(const td::Rating rating)
 {
-    auto const &c = InternalManager::instance()->state_color_palette;
+    auto intman = InternalManager::instance();
 
     switch (rating) {
     case td::Rating::Unknown:
-        return c.color(StateColorPalette::ColorRole::Unknown);
+        return intman->colour(td::ColourRole::Unknown);
     case td::Rating::VeryBad:
-        return c.color(StateColorPalette::ColorRole::VeryBad);
+        return intman->colour(td::ColourRole::VeryBad);
     case td::Rating::Bad:
-        return c.color(StateColorPalette::ColorRole::Bad);
+        return intman->colour(td::ColourRole::Bad);
     case td::Rating::Ok:
-        return c.color(StateColorPalette::ColorRole::Ok);
+        return intman->colour(td::ColourRole::Ok);
     case td::Rating::Good:
-        return c.color(StateColorPalette::ColorRole::Good);
+        return intman->colour(td::ColourRole::Good);
     case td::Rating::VeryGood:
-        return c.color(StateColorPalette::ColorRole::VeryGood);
+        return intman->colour(td::ColourRole::VeryGood);
     }
 
     // This can never happen, it's only here to shut down the compiler warning.
-    return c.color(StateColorPalette::ColorRole::Unknown);
+    return intman->colour(td::ColourRole::Unknown);
 }
 
 td::Theme rating_to_theme(const td::Rating rating)
 {
     switch (rating) {
     case td::Rating::Unknown:
+        if (InternalManager::instance()->get_theme() == td::Theme::Light)
+            return td::Theme::Dark;
+        else
+            return td::Theme::Light;
+
     case td::Rating::VeryBad:
     case td::Rating::Bad:
     case td::Rating::Ok:
@@ -142,4 +140,27 @@ td::Theme rating_to_theme(const td::Rating rating)
     // This can never happen, it's only here to shut down the compiler warning.
     return td::Theme::Dark;
 }
+
+static const auto light_text = QColor("#CACBCE");
+static const auto dark_text = QColor("#1D1D20");
+
+QColor theme_to_text(const td::Theme theme)
+{
+    if (td::Theme::Light == theme) {
+        return light_text;
+    }
+    else {
+        return dark_text;
+    }
+}
+
+QString sanitise_html(std::string const &str)
+{
+    return QString::fromStdString(str)
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\n", "<br>");
+}
+
 } // namespace misc

@@ -18,13 +18,12 @@
 
 #include "diarystats.h"
 #include "../core/diaryholder.h"
+#include "../util/misc.h"
 #include "ui_diarystats.h"
 
 using namespace QtCharts;
 
 char const *ratings[] = {"Unknown", "Very bad", "Bad", "OK", "Good", "Very good"};
-QColor const rating_colours[] = {QColor(84, 110, 122, 51), QColor(123, 31, 162, 255), QColor(94, 53, 177, 255),
-    QColor(25, 118, 210, 255), QColor(0, 151, 167, 255), QColor(76, 175, 80, 255)};
 
 qreal const angular_min = 1;
 // qreal const angular_max = 31;
@@ -35,9 +34,6 @@ auto const dark_background = QColor(49, 54, 59, 170);
 auto const light_background = QColor(230, 230, 230, 170);
 auto const dark_white = light_background.darker();
 auto const light_black = dark_background.lighter();
-
-auto const almost_white = QColor(202, 203, 206);
-auto const almost_black = QColor(29, 29, 32);
 
 DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats)
 {
@@ -188,8 +184,8 @@ void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
         // If there is no data for the current month, display an empty pie chart.
         pie_series->append(ratings[0], current_date.daysInMonth());
         auto slice = pie_series->slices().at(0);
-        slice->setBrush(rating_colours[0]);
-        slice->setLabelColor(td::Theme::Dark == theme ? almost_white : almost_black);
+        slice->setBrush(InternalManager::instance()->colour(td::ColourRole::Unknown));
+        slice->setLabelColor(InternalManager::instance()->colour(td::ColourRole::Text));
         slice->setLabelVisible();
         slice->setBorderWidth(4);
         slice->setBorderColor(td::Theme::Dark == theme ? light_black : dark_white);
@@ -212,9 +208,9 @@ void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
             auto slice = pie_series->slices().at(pie_series->slices().size() - 1);
             slice->setBorderWidth(4);
             slice->setBorderColor(td::Theme::Dark == theme ? light_black : dark_white);
-            slice->setLabelColor(td::Theme::Dark == theme ? almost_white : almost_black);
+            slice->setLabelColor(InternalManager::instance()->colour(td::ColourRole::Text));
             slice->setLabelVisible();
-            slice->setBrush(rating_colours[static_cast<int>(rating)]);
+            slice->setBrush(misc::rating_to_colour(rating));
         }
     }
 
@@ -236,7 +232,7 @@ void DiaryStats::render_polar_chart(std::optional<td::YearMap::iterator> const &
     auto angular_axis = new QValueAxis();
     angular_axis->setTickCount(angular_max + 1);
     angular_axis->setLabelFormat("%d");
-    angular_axis->setLabelsColor(td::Theme::Dark == theme ? almost_white : almost_black);
+    angular_axis->setLabelsColor(InternalManager::instance()->colour(td::ColourRole::Text));
     angular_axis->setRange(angular_min, angular_max + 1);
     angular_axis->setGridLineColor(td::Theme::Dark == theme ? light_black : dark_white);
     chart->addAxis(angular_axis, QPolarChart::PolarOrientationAngular);
@@ -266,7 +262,7 @@ void DiaryStats::render_polar_chart(std::optional<td::YearMap::iterator> const &
                 area->setLowerSeries(lower);
                 area->setUpperSeries(upper);
                 area->setOpacity(0.75);
-                area->setColor(rating_colours[static_cast<int>(rating)]);
+                area->setColor(misc::rating_to_colour(rating));
                 area->setBorderColor(QColor(Qt::transparent));
                 area->attachAxis(angular_axis);
                 area->attachAxis(radial_axis);
@@ -328,10 +324,10 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
 
     x_axis->setGridLineColor(td::Theme::Dark == theme ? light_black : dark_white);
     x_axis->setLabelFormat("%d");
-    x_axis->setLabelsColor(td::Theme::Dark == theme ? almost_white : almost_black);
+    x_axis->setLabelsColor(InternalManager::instance()->colour(td::ColourRole::Text));
     x_axis->setLabelsVisible();
     x_axis->setTitleText("Day");
-    x_axis->setTitleBrush(QBrush(td::Theme::Dark == theme ? almost_white : almost_black));
+    x_axis->setTitleBrush(QBrush(InternalManager::instance()->colour(td::ColourRole::Text)));
 
     auto y_axis = new QValueAxis();
     chart->addAxis(y_axis, Qt::AlignLeft);
@@ -339,17 +335,17 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
     y_axis->setTickCount(5);
     y_axis->setGridLineColor(td::Theme::Dark == theme ? light_black : dark_white);
     y_axis->setLabelFormat("%d");
-    y_axis->setLabelsColor(td::Theme::Dark == theme ? almost_white : almost_black);
+    y_axis->setLabelsColor(InternalManager::instance()->colour(td::ColourRole::Text));
     y_axis->setLabelsVisible();
     y_axis->setTitleText("Rating");
-    y_axis->setTitleBrush(QBrush(td::Theme::Dark == theme ? almost_white : almost_black));
+    y_axis->setTitleBrush(QBrush(InternalManager::instance()->colour(td::ColourRole::Text)));
 
     auto scatter_series = new QScatterSeries();
     chart->addSeries(scatter_series);
     scatter_series->attachAxis(x_axis);
     scatter_series->attachAxis(y_axis);
     scatter_series->setMarkerSize(8);
-    scatter_series->setColor(td::Theme::Dark == theme ? almost_white : almost_black);
+    scatter_series->setColor(InternalManager::instance()->colour(td::ColourRole::Text));
     scatter_series->setBorderColor(QColor(Qt::transparent));
 
     if (opt) {
@@ -358,7 +354,7 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
         chart->addSeries(current_spline_series);
         current_spline_series->attachAxis(x_axis);
         current_spline_series->attachAxis(y_axis);
-        current_spline_series->setColor(rating_colours[3]);
+        current_spline_series->setColor(InternalManager::instance()->colour(td::ColourRole::Text));
 
         for (auto const &[day, data] : (*opt)->second) {
             auto const &[important, rating, dummy, d2] = data;
@@ -376,7 +372,7 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
                     chart->addSeries(current_spline_series);
                     current_spline_series->attachAxis(x_axis);
                     current_spline_series->attachAxis(y_axis);
-                    current_spline_series->setColor(rating_colours[3]);
+                    current_spline_series->setColor(InternalManager::instance()->colour(td::ColourRole::Text));
                 }
                 else {
                     ++prev_day;

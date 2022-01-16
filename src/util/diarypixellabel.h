@@ -70,11 +70,12 @@ protected:
         }
 
         QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
         p.drawPixmap(0, 0, pixmap);
 
         // Since starred days are supposed to be a lot less common, caching isn't done for them.
         if (special) {
-            auto theme_str = misc::rating_to_theme(rating) == td::Theme::Light ? "light" : "dark";
+            auto theme_str = misc::rating_to_theme(rating) == td::Theme::Dark ? "dark" : "light";
             QPixmap svg_overlay = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(size_);
 
             p.setOpacity(0.5);
@@ -87,14 +88,15 @@ private:
     {
         QPixmap bkg(size_.width(), size_.width());
         bkg.fill(Qt::transparent);
-        QColor bkg_color = misc::rating_to_color(rating);
+        QColor bkg_colour = misc::rating_to_colour(rating);
         QPainter p(&bkg);
+        p.setRenderHint(QPainter::Antialiasing);
 
         if (InternalManager::instance()->get_theme() == td::Theme::Light)
             p.setOpacity(0.8);
 
-        p.setPen(bkg_color);
-        p.setBrush(QBrush(bkg_color));
+        p.setPen(bkg_colour);
+        p.setBrush(QBrush(bkg_colour));
         p.drawRoundedRect(0, 0, size_.width(), size_.width(), 5, 5);
 
         return bkg;

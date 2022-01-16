@@ -23,18 +23,59 @@
 
 #include <QtWidgets>
 
+#include "../core/internalmanager.h"
+
+// The code in this file was adapted from https://stackoverflow.com/a/51194796.
+
 class PasswordLineEdit : public QLineEdit {
 public:
-    PasswordLineEdit(QWidget *parent = nullptr);
+    PasswordLineEdit(QWidget *parent = nullptr) : QLineEdit(parent)
+    {
+        setEchoMode(QLineEdit::Password);
+
+        auto monospaced = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+        monospaced.setLetterSpacing(QFont::PercentageSpacing, 110);
+        setFont(monospaced);
+
+        QAction *action = addAction(QIcon(get_eye_icon(false)), QLineEdit::TrailingPosition);
+        button = qobject_cast<QToolButton *>(action->associatedWidgets().last());
+        button->setCursor(QCursor(Qt::PointingHandCursor));
+        connect(button, &QToolButton::pressed, this, &PasswordLineEdit::on_pressed, Qt::QueuedConnection);
+        connect(button, &QToolButton::released, this, &PasswordLineEdit::on_released, Qt::QueuedConnection);
+
+        connect(InternalManager::instance(), &InternalManager::update_theme, this, &PasswordLineEdit::update_theme,
+            Qt::QueuedConnection);
+    }
+
+public slots:
+    void update_theme()
+    {
+        button->setIcon(QIcon(get_eye_icon(true)));
+    }
 
 private slots:
-    void on_pressed();
-    void on_released();
+    void on_pressed()
+    {
+        QToolButton *button = qobject_cast<QToolButton *>(sender());
+        button->setIcon(QIcon(get_eye_icon(true)));
+        setEchoMode(QLineEdit::Normal);
+    }
+
+    void on_released()
+    {
+        QToolButton *button = qobject_cast<QToolButton *>(sender());
+        button->setIcon(QIcon(get_eye_icon(false)));
+        setEchoMode(QLineEdit::Password);
+    }
 
 private:
     QToolButton *button;
 
-    QString get_eye_icon(bool const on);
+    QString get_eye_icon(bool const on)
+    {
+        return QString(":/themes/%1/%2.svg")
+            .arg(InternalManager::instance()->get_theme_str(true), on ? "eye_on" : "eye_off");
+    }
 };
 
 #endif // PASSWORDLINEEDIT_H
