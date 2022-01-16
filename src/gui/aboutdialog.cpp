@@ -37,7 +37,7 @@ QString const ABOUT = R"(
 QString const CONTRIBUTORS = R"(
 <ul>
     <li><a href="https://github.com/someretical">someretical</a> - Creator</li>
-    <li><a href="https://github.com/quezec">quezec</a> - Bug reporter</li>
+    <li><a href="https://github.com/quezec">quezec</a> - Bug reporter and feature suggester</li>
     <li><a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">You</a> - The user</li>
 </ul>
 )";

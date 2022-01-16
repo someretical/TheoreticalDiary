@@ -22,6 +22,7 @@
 #include <QtNetwork>
 #include <QtWidgets>
 #include <map>
+#include <optional>
 #include <string>
 
 #include "../util/eventfilters.h"
