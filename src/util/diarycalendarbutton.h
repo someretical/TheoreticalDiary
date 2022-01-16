@@ -27,7 +27,7 @@ class DiaryEditor;
 #include "../core/internalmanager.h"
 #include "misc.h"
 
-static int const SIZE = 86;        // Should be even.
+static int const SIZE_ = 86;        // Should be even.
 static int const BORDER_WIDTH = 4; // Should be even.
 static int const ROUNDNESS = 8;
 
@@ -41,7 +41,7 @@ public:
     DiaryCalendarButton(td::CalendarButtonData const &d, QWidget *p = nullptr) : QAbstractButton(p)
     {
         setText(QString::number(*d.day));
-        setFixedSize(QSize(SIZE, SIZE));
+        setFixedSize(QSize(SIZE_, SIZE_));
         data = d;
         mouse_down = false;
 
@@ -118,7 +118,7 @@ private:
         QPixmap pixmap;
 
         if (!QPixmapCache::find(key, pixmap)) {
-            pixmap = QPixmap(SIZE, SIZE);
+            pixmap = QPixmap(SIZE_, SIZE_);
             pixmap.fill(Qt::transparent);
 
             QPainter p(&pixmap);
@@ -126,7 +126,7 @@ private:
 
             QPainterPath path;
             auto topleft_offset = BORDER_WIDTH / 2;
-            auto adjusted_size = SIZE - BORDER_WIDTH;
+            auto adjusted_size = SIZE_ - BORDER_WIDTH;
             path.addRoundedRect(
                 QRect(topleft_offset, topleft_offset, adjusted_size, adjusted_size), ROUNDNESS, ROUNDNESS);
 
@@ -172,7 +172,7 @@ private:
 
         if (*data.current_day) {
 
-            pixmap = QPixmap(SIZE, SIZE);
+            pixmap = QPixmap(SIZE_, SIZE_);
             pixmap.fill(Qt::transparent);
 
             QPainter p(&pixmap);
@@ -198,7 +198,7 @@ private:
         QString key = QString("calendarbutton:text:%1:%2").arg(day, theme);
 
         if (!QPixmapCache::find(key, pixmap)) {
-            pixmap = QPixmap(SIZE, SIZE);
+            pixmap = QPixmap(SIZE_, SIZE_);
             pixmap.fill(Qt::transparent);
 
             QPainter p(&pixmap);
@@ -229,7 +229,7 @@ private:
         QPixmap pixmap;
 
         if (!QPixmapCache::find(key, pixmap)) {
-            pixmap = QPixmap(SIZE, SIZE);
+            pixmap = QPixmap(SIZE_, SIZE_);
             pixmap.fill(Qt::transparent);
 
             QPainter p(&pixmap);
@@ -245,7 +245,7 @@ private:
                 p.setOpacity(0.5);
             }
 
-            auto overlay = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(SIZE * 0.8, SIZE * 0.8);
+            auto overlay = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(SIZE_ * 0.8, SIZE_ * 0.8);
 
             // Draw overlay on the centre of the pixmap.
             auto x = ((rect().bottomRight().x() - overlay.rect().bottomRight().x()) / 2);

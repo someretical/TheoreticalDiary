@@ -25,7 +25,7 @@
 #include "misc.h"
 
 // Not available to other files.
-static int const SIZE = 50;
+static int const SIZE_ = 50;
 
 class DiaryComparisonLabel : public QLabel {
     Q_OBJECT
@@ -50,7 +50,7 @@ private:
             auto theme_str = InternalManager::instance()->get_theme_str(true);
             auto svg = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(size());
 
-            QPixmap bkg(SIZE, SIZE);
+            QPixmap bkg(SIZE_, SIZE_);
             bkg.fill(Qt::transparent);
             QPainter p(&bkg);
             p.setRenderHint(QPainter::Antialiasing);
@@ -59,7 +59,7 @@ private:
             return bkg;
         }
         else {
-            QPixmap bkg(SIZE, SIZE);
+            QPixmap bkg(SIZE_, SIZE_);
             bkg.fill(Qt::transparent);
 
             QColor bkg_color = misc::rating_to_colour(rating);
@@ -71,7 +71,7 @@ private:
 
             p.setPen(bkg_color);
             p.setBrush(QBrush(bkg_color));
-            p.drawRoundedRect(0, 0, SIZE, SIZE, 5, 5);
+            p.drawRoundedRect(0, 0, SIZE_, SIZE_, 5, 5);
 
             return bkg;
         }

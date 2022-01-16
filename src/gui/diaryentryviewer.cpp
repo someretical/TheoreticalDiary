@@ -22,8 +22,8 @@
 #include "ui_diaryentryviewer.h"
 
 int const MAX_LINE_LEN = 110;
-int const DAY_LABEL_SIZE = 50;
-int const SIZE = 50;
+int const DAY_LABEL_SIZE_ = 50;
+int const SIZE_ = 50;
 
 const char *PLACEHOLDER_TEXT = R"(
 <center><p>It seems there are no entries yet for this month...</p></center>
@@ -164,7 +164,7 @@ void DiaryEntryViewer::year_changed(QDate const &date)
 
 QByteArray DiaryEntryViewer::generate_base64_icon(int const day, td::Rating const rating, bool const important)
 {
-    QPixmap pixmap(SIZE, SIZE);
+    QPixmap pixmap(SIZE_, SIZE_);
     pixmap.fill(Qt::transparent);
     QPainter p(&pixmap);
     p.setRenderHint(QPainter::Antialiasing);
@@ -191,7 +191,7 @@ QPixmap DiaryEntryViewer::generate_background(td::Rating const rating)
     QPixmap pixmap;
 
     if (!QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(SIZE, SIZE);
+        pixmap = QPixmap(SIZE_, SIZE_);
         pixmap.fill(Qt::transparent);
 
         QColor colour = misc::rating_to_colour(rating);
@@ -203,7 +203,7 @@ QPixmap DiaryEntryViewer::generate_background(td::Rating const rating)
 
         p.setPen(Qt::transparent);
         p.setBrush(QBrush(colour));
-        p.drawEllipse(0, 0, SIZE, SIZE);
+        p.drawEllipse(0, 0, SIZE_, SIZE_);
 
         QPixmapCache::insert(key, pixmap);
     }
@@ -218,14 +218,14 @@ QPixmap DiaryEntryViewer::generate_star(td::Rating const rating)
     QPixmap pixmap;
 
     if (!QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(SIZE, SIZE);
+        pixmap = QPixmap(SIZE_, SIZE_);
         pixmap.fill(Qt::transparent);
 
         QPainter p(&pixmap);
         p.setRenderHint(QPainter::Antialiasing);
         p.setOpacity(0.3);
 
-        auto overlay = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(SIZE * 0.8, SIZE * 0.8);
+        auto overlay = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(SIZE_ * 0.8, SIZE_ * 0.8);
 
         // Draw overlay on the centre of the pixmap.
         auto x = ((rect().bottomRight().x() - overlay.rect().bottomRight().x()) / 2);
@@ -247,7 +247,7 @@ QPixmap DiaryEntryViewer::generate_text(int const day_, td::Rating const rating)
     QPixmap pixmap;
 
     if (!QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(SIZE, SIZE);
+        pixmap = QPixmap(SIZE_, SIZE_);
         pixmap.fill(Qt::transparent);
 
         QPainter p(&pixmap);
