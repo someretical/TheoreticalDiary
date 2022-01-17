@@ -16,15 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// https:// stackoverflow.com/a/41701133
-#ifdef _WIN32
-if (AttachConsole(ATTACH_PARENT_PROCESS)) {
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-    freopen("CONIN$", "r", stdin);
-}
-#endif
-
 #include <QtCore>
 #include <string>
 
@@ -40,6 +31,16 @@ Q_DECLARE_METATYPE(td::CalendarButtonData)
 
 int main(int argc, char **argv)
 {
+// https:// stackoverflow.com/a/41701133
+// Basically allows debugging output on Windows.
+#ifdef _WIN32
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+        freopen("CONIN$", "r", stdin);
+    }
+#endif
+
     // Make sure only 1 instance of the app is running at all times. Courtesy of https://stackoverflow.com/a/28172162
     RunGuard guard("theoreticaldiary");
     if (!guard.try_to_run()) {
