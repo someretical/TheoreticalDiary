@@ -64,6 +64,30 @@ DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats
     ui->unknown_3->rating = td::Rating::Unknown;
     ui->starred_3->special = true;
 
+    ui->very_bad->update_tooltip();
+    ui->bad->update_tooltip();
+    ui->ok->update_tooltip();
+    ui->good->update_tooltip();
+    ui->very_good->update_tooltip();
+    ui->unknown->update_tooltip();
+    ui->starred->update_tooltip();
+
+    ui->very_bad_2->update_tooltip();
+    ui->bad_2->update_tooltip();
+    ui->ok_2->update_tooltip();
+    ui->good_2->update_tooltip();
+    ui->very_good_2->update_tooltip();
+    ui->unknown_2->update_tooltip();
+    ui->starred_2->update_tooltip();
+
+    ui->very_bad_3->update_tooltip();
+    ui->bad_3->update_tooltip();
+    ui->ok_3->update_tooltip();
+    ui->good_3->update_tooltip();
+    ui->very_good_3->update_tooltip();
+    ui->unknown_3->update_tooltip();
+    ui->starred_3->update_tooltip();
+
     // Make the numbers display in a monospaced font.
     auto monospaced = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     monospaced.setLetterSpacing(QFont::PercentageSpacing, 110);
@@ -131,7 +155,6 @@ DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats
 
     connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryStats::update_theme,
         Qt::QueuedConnection);
-    update_theme();
 
     // current_date is initialised by &InternalManager::change_month signal.
 }
@@ -193,11 +216,23 @@ void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
     else {
         // Display pie chart slices from largest to smallest.
         auto sorted = std::vector<std::pair<td::Rating, int>>();
-        for (int i = 1; i < 6; ++i)
-            if (0 != rating_counts[i])
-                sorted.push_back(std::pair(static_cast<td::Rating>(i), rating_counts[i]));
 
-        std::sort(sorted.begin(), sorted.end(), [](auto const &a, auto const &b) { return a.second > b.second; });
+        switch (static_cast<td::settings::PieSliceSort>(
+            InternalManager::instance()->settings->value("pie_slice_sort").toInt())) {
+        case td::settings::PieSliceSort::Category:
+            for (int i = 1; i < 6; ++i)
+                if (0 != rating_counts[i])
+                    sorted.push_back(std::pair(static_cast<td::Rating>(i), rating_counts[i]));
+
+            break;
+        case td::settings::PieSliceSort::Days:
+            for (int i = 1; i < 6; ++i)
+                if (0 != rating_counts[i])
+                    sorted.push_back(std::pair(static_cast<td::Rating>(i), rating_counts[i]));
+
+            std::sort(sorted.begin(), sorted.end(), [](auto const &a, auto const &b) { return a.second > b.second; });
+            break;
+        }
 
         for (auto const &[rating, count] : sorted) {
             pie_series->append(

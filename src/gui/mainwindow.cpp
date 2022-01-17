@@ -46,9 +46,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(InternalManager::instance()->inactive_filter, &InactiveFilter::sig_inactive_timeout, this,
         &MainWindow::lock_diary);
-    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainWindow::update_theme,
-    //        Qt::QueuedConnection);
-    //    update_theme();
 }
 
 MainWindow::~MainWindow()
@@ -286,7 +283,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore(); // Don't close the main window, but exit to the main menu.
 
         if (InternalManager::instance()->internal_diary_changed) {
-
             auto cb = [this](int const res) {
                 if (QMessageBox::RejectRole == res)
                     return;

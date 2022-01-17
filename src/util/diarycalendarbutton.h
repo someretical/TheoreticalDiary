@@ -27,9 +27,14 @@ class DiaryEditor;
 #include "../core/internalmanager.h"
 #include "misc.h"
 
-static int const SIZE_ = 86;        // Should be even.
+// windef.h already defined SIZE >:(
+// Thanks Microsoft for being the outlier in conformance AGAIN.
+namespace override {
+static int const SIZE = 86; // Should be even.
+}
+
 static int const BORDER_WIDTH = 4; // Should be even.
-static int const ROUNDNESS = 8;
+static int const ROUNDNESS = 8;    // Should be even.
 
 class DiaryCalendarButton : public QAbstractButton {
     Q_OBJECT
@@ -41,11 +46,11 @@ public:
     DiaryCalendarButton(td::CalendarButtonData const &d, QWidget *p = nullptr) : QAbstractButton(p)
     {
         setText(QString::number(*d.day));
-        setFixedSize(QSize(SIZE_, SIZE_));
+        setFixedSize(QSize(override::SIZE, override::SIZE));
         data = d;
         mouse_down = false;
 
-        repaint();
+        update();
     }
 
     ~DiaryCalendarButton() {}
@@ -65,24 +70,24 @@ public slots:
         if (d.selected)
             data.selected = d.selected;
 
-        repaint();
+        update();
     }
 
 protected:
     void enterEvent(QEvent *)
     {
-        repaint();
+        update();
     }
 
     void leaveEvent(QEvent *)
     {
-        repaint();
+        update();
     }
 
     void mousePressEvent(QMouseEvent *)
     {
         mouse_down = true;
-        repaint();
+        update();
     }
 
     void mouseReleaseEvent(QMouseEvent *e)
@@ -93,7 +98,7 @@ protected:
         if (rect().contains(e->pos()))
             emit sig_clicked(*data.day);
 
-        repaint();
+        update();
     }
 
     void paintEvent(QPaintEvent *)
@@ -118,7 +123,7 @@ private:
         QPixmap pixmap;
 
         if (!QPixmapCache::find(key, pixmap)) {
-            pixmap = QPixmap(SIZE_, SIZE_);
+            pixmap = QPixmap(override::SIZE, override::SIZE);
             pixmap.fill(Qt::transparent);
 
             QPainter p(&pixmap);
@@ -126,7 +131,7 @@ private:
 
             QPainterPath path;
             auto topleft_offset = BORDER_WIDTH / 2;
-            auto adjusted_size = SIZE_ - BORDER_WIDTH;
+            auto adjusted_size = override::SIZE - BORDER_WIDTH;
             path.addRoundedRect(
                 QRect(topleft_offset, topleft_offset, adjusted_size, adjusted_size), ROUNDNESS, ROUNDNESS);
 
@@ -172,7 +177,7 @@ private:
 
         if (*data.current_day) {
 
-            pixmap = QPixmap(SIZE_, SIZE_);
+            pixmap = QPixmap(override::SIZE, override::SIZE);
             pixmap.fill(Qt::transparent);
 
             QPainter p(&pixmap);
@@ -198,7 +203,7 @@ private:
         QString key = QString("calendarbutton:text:%1:%2").arg(day, theme);
 
         if (!QPixmapCache::find(key, pixmap)) {
-            pixmap = QPixmap(SIZE_, SIZE_);
+            pixmap = QPixmap(override::SIZE, override::SIZE);
             pixmap.fill(Qt::transparent);
 
             QPainter p(&pixmap);
@@ -229,7 +234,7 @@ private:
         QPixmap pixmap;
 
         if (!QPixmapCache::find(key, pixmap)) {
-            pixmap = QPixmap(SIZE_, SIZE_);
+            pixmap = QPixmap(override::SIZE, override::SIZE);
             pixmap.fill(Qt::transparent);
 
             QPainter p(&pixmap);
@@ -245,7 +250,8 @@ private:
                 p.setOpacity(0.5);
             }
 
-            auto overlay = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(SIZE_ * 0.8, SIZE_ * 0.8);
+            auto overlay = QIcon(QString(":/themes/%1/star.svg").arg(theme_str))
+                               .pixmap(override::SIZE * 0.8, override::SIZE * 0.8);
 
             // Draw overlay on the centre of the pixmap.
             auto x = ((rect().bottomRight().x() - overlay.rect().bottomRight().x()) / 2);

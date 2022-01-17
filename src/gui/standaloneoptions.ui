@@ -20,20 +20,8 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="leftMargin">
-    <number>15</number>
-   </property>
-   <property name="topMargin">
-    <number>15</number>
-   </property>
-   <property name="rightMargin">
-    <number>15</number>
-   </property>
-   <property name="bottomMargin">
-    <number>15</number>
-   </property>
-   <property name="horizontalSpacing">
-    <number>15</number>
+   <property name="spacing">
+    <number>0</number>
    </property>
    <item row="1" column="2">
     <spacer name="horizontalSpacer">

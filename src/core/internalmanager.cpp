@@ -59,6 +59,9 @@ void InternalManager::init_settings(const bool force_reset)
 
     if (!settings->contains("lock_timeout") || force_reset)
         settings->setValue("lock_timeout", static_cast<qint64>(300000 /* 5 minutes */));
+
+    if (!settings->contains("pie_slice_sorting") || force_reset)
+        settings->setValue("pie_slice_sorting", static_cast<int>(td::settings::PieSliceSort::Days));
 }
 
 td::Theme InternalManager::get_theme(bool const opposite)

@@ -143,6 +143,10 @@ struct DiaryEntryIconData {
 };
 
 enum class ColourRole { Text, Unknown, VeryBad, Bad, Ok, Good, VeryGood };
+
+namespace settings {
+enum class PieSliceSort { Days, Category };
+}
 } // namespace td
 
 // The reason why this class exists is to redirect #include statements away from theoreticaldiary.h

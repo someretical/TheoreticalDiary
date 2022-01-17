@@ -24,8 +24,11 @@
 #include "../core/internalmanager.h"
 #include "misc.h"
 
-// Not available to other files.
-static int const SIZE_ = 50;
+// windef.h already defined SIZE >:(
+// Thanks Microsoft for being the outlier in conformance AGAIN.
+namespace override {
+static int const SIZE = 50;
+}
 
 class DiaryComparisonLabel : public QLabel {
     Q_OBJECT
@@ -40,6 +43,33 @@ public:
 
     ~DiaryComparisonLabel() {}
 
+    void update_tooltip()
+    {
+        if (special)
+            return setToolTip("Starred days.");
+
+        switch (rating) {
+        case td::Rating::Unknown:
+            setToolTip("Days with unknown rating.");
+            break;
+        case td::Rating::VeryBad:
+            setToolTip("Very bad days.");
+            break;
+        case td::Rating::Bad:
+            setToolTip("Bad days.");
+            break;
+        case td::Rating::Ok:
+            setToolTip("OK days.");
+            break;
+        case td::Rating::Good:
+            setToolTip("Good days.");
+            break;
+        case td::Rating::VeryGood:
+            setToolTip("Very good days.");
+            break;
+        }
+    }
+
     td::Rating rating;
     bool special;
 
@@ -50,7 +80,7 @@ private:
             auto theme_str = InternalManager::instance()->get_theme_str(true);
             auto svg = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(size());
 
-            QPixmap bkg(SIZE_, SIZE_);
+            QPixmap bkg(override::SIZE, override::SIZE);
             bkg.fill(Qt::transparent);
             QPainter p(&bkg);
             p.setRenderHint(QPainter::Antialiasing);
@@ -59,7 +89,7 @@ private:
             return bkg;
         }
         else {
-            QPixmap bkg(SIZE_, SIZE_);
+            QPixmap bkg(override::SIZE, override::SIZE);
             bkg.fill(Qt::transparent);
 
             QColor bkg_color = misc::rating_to_colour(rating);
@@ -71,7 +101,7 @@ private:
 
             p.setPen(bkg_color);
             p.setBrush(QBrush(bkg_color));
-            p.drawRoundedRect(0, 0, SIZE_, SIZE_, 5, 5);
+            p.drawRoundedRect(0, 0, override::SIZE, override::SIZE, 5, 5);
 
             return bkg;
         }

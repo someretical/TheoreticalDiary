@@ -29,11 +29,6 @@ int const LABEL_SIZE = 36;
 DiaryPixels::DiaryPixels(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPixels)
 {
     ui->setupUi(this);
-
-    rating_stylesheets = std::vector<std::unique_ptr<QString>>();
-    black_star = QString("");
-    white_star = QString("");
-
     ui->year_edit->setDate(QDate::currentDate());
 
     connect(InternalManager::instance(), &InternalManager::update_data, this, &DiaryPixels::render_grid,
@@ -64,21 +59,32 @@ int DiaryPixels::calculate_size()
     // 32 labels * 36px per row
     // 31 gaps of 2px
 
+    updateGeometry();
+
     // For every 500px width/height, increase gap by 1px.
     int gap = 0;
-    int top = std::max({ui->hidden_frame->width(), ui->hidden_frame->height(), 1218});
+    int w = ui->hidden_frame->width();
+    int h = ui->hidden_frame->height();
+    int top = std::max({w, h, 1218});
     while ((top -= 500) > -1)
         gap++;
 
     ui->grid->setSpacing(gap);
 
-    int final_width =
-        ((ui->hidden_frame->width() - (gap * 31) /* 31 gaps */ - 36) /* month letter dimensions stay the same */) /
-        31; /* max number of days in a month */
+    // This approach is not entirely ideal but it's the most read friendly since there are no calculations of ratios and
+    // all that stuff.
+    int ideal = LABEL_SIZE;
+    while (
+        // ideal * 31 because max 31 days in a row.
+        // gap * 31 because there are 32 labels max in a row.
+        // 36 is the width of the single letter label marking the month.
+        ((ideal * 31) + (gap * 31) + 36) < w &&
+        // ideal * 12 because there are 12 rows.
+        // gap * 11 since there are 11 gaps in between 12 rows.
+        ((ideal * 12) + (gap * 11)) < h)
+        ++ideal;
 
-    int final_height = (ui->hidden_frame->height() - (gap * 11)) / 36;
-
-    return std::max({LABEL_SIZE, final_width, final_height});
+    return ideal;
 }
 
 void DiaryPixels::render_button_clicked()
@@ -107,7 +113,7 @@ void DiaryPixels::render_grid(QDate const &new_date)
         f.setPointSize(11);
         label->setFont(f);
 
-        ui->grid->addWidget(label, 0, 0, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
+        ui->grid->addWidget(label, 0, 0, 1, 1, Qt::AlignCenter);
 
         return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
     }
@@ -175,15 +181,41 @@ void DiaryPixels::render_grid(QDate const &new_date)
 
 void DiaryPixels::export_image()
 {
-    auto const &filename = QFileDialog::getSaveFileName(this, "Export image",
-        QString("%1/%2.png").arg(QDir::homePath(), QString::number(ui->year_edit->date().year())),
-        "Images (*.png);;All files");
+    auto year = QString::number(ui->year_edit->date().year());
+    auto const &filename = QFileDialog::getSaveFileName(
+        this, "Export image", QString("%1/%2.png").arg(QDir::homePath(), year), "Images (*.png);;All files");
 
     if (filename.isEmpty())
         return;
 
-    // Thanks to https://stackoverflow.com/a/24341699
-    if (ui->hidden_frame->grab().save(filename))
+    QPixmap pixmap;
+
+    if (ui->add_year_checkbox->isChecked()) {
+        auto frame = ui->hidden_frame->grab();
+        pixmap = QPixmap(frame.size().width(), frame.size().height() + 50);
+        pixmap.fill(frame.toImage().pixel(0, 0));
+
+        QPainter p(&pixmap);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.drawPixmap(0, 50, frame);
+
+        auto bold_font = QApplication::font();
+        bold_font.setBold(true);
+        bold_font.setPointSize(20);
+        p.setFont(bold_font);
+
+        QRectF rect;
+        rect = p.boundingRect(pixmap.rect(), Qt::AlignTop | Qt::AlignHCenter, year);
+        rect.translate(0, 10);
+
+        p.setPen(misc::theme_to_text(InternalManager::instance()->get_theme(true)));
+        p.drawText(rect, Qt::AlignTop | Qt::AlignHCenter, year);
+    }
+    else {
+        pixmap = ui->hidden_frame->grab();
+    }
+
+    if (pixmap.save(filename))
         cmb::ok_messagebox(
             this, []() {}, "Image exported.", "");
     else

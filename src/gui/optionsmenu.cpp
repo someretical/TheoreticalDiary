@@ -28,12 +28,16 @@
 #include "aboutdialog.h"
 #include "apiresponse.h"
 #include "mainwindow.h"
+#include "o2google.h"
 #include "optionsmenu.h"
 #include "ui_optionsmenu.h"
 
 OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidget(parent), ui(new Ui::OptionsMenu)
 {
     ui->setupUi(this);
+
+    ui->pie_slice_sorting->setId(ui->pie_slice_sort1, static_cast<int>(td::settings::PieSliceSort::Days));
+    ui->pie_slice_sorting->setId(ui->pie_slice_sort2, static_cast<int>(td::settings::PieSliceSort::Category));
 
     diary_editor_mode = from_diary_editor;
 
@@ -44,6 +48,7 @@ OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidge
         ui->update_lock_timeout, &QPushButton::clicked, this, &OptionsMenu::update_lock_timeout, Qt::QueuedConnection);
     connect(
         ui->change_password_button, &QPushButton::clicked, this, &OptionsMenu::change_password, Qt::QueuedConnection);
+    connect(ui->auth_button, &QPushButton::clicked, this, &OptionsMenu::complete_oauth, Qt::QueuedConnection);
     connect(
         ui->download_backup_button, &QPushButton::clicked, this, &OptionsMenu::download_backup, Qt::QueuedConnection);
     connect(ui->upload_backup_button, &QPushButton::clicked, this, &OptionsMenu::upload_diary, Qt::QueuedConnection);
@@ -58,6 +63,9 @@ OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidge
     connect(ui->about_button, &QPushButton::clicked, this, &OptionsMenu::show_about, Qt::QueuedConnection);
     connect(ui->reset_button, &QPushButton::clicked, this, &OptionsMenu::reset_settings, Qt::QueuedConnection);
     connect(ui->test_button, &QPushButton::clicked, this, &OptionsMenu::test, Qt::QueuedConnection);
+
+    connect(GoogleWrapper::instance()->google, &O2Google::linkedChanged, this, &OptionsMenu::refresh_linked_checkbox,
+        Qt::QueuedConnection);
 
     //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &OptionsMenu::update_theme,
     //        Qt::QueuedConnection);
@@ -83,13 +91,16 @@ void OptionsMenu::save_settings()
     auto settings = InternalManager::instance()->settings;
 
     settings->setValue("sync_enabled", ui->sync_checkbox->isChecked());
+    settings->setValue("pie_slice_sort", ui->pie_slice_sorting->checkedId());
 
-    auto original_theme = InternalManager::instance()->get_theme();
+    //    auto original_theme = InternalManager::instance()->get_theme();
     auto new_theme = ui->theme_dropdown->currentIndex() == 0 ? td::Theme::Dark : td::Theme::Light;
-    if (original_theme != new_theme) {
-        settings->setValue("theme", static_cast<int>(new_theme));
-        InternalManager::instance()->start_update_theme();
-    }
+    //    if (original_theme != new_theme) {
+    //        settings->setValue("theme", static_cast<int>(new_theme));
+    //        InternalManager::instance()->start_update_theme();
+    //    }
+    settings->setValue("theme", static_cast<int>(new_theme));
+    InternalManager::instance()->start_update_theme();
 
     qDebug() << "Saved settings.";
 }
@@ -104,7 +115,11 @@ void OptionsMenu::setup_layout()
     auto theme = static_cast<td::Theme>(settings->value("theme").toInt());
     ui->theme_dropdown->setCurrentIndex(td::Theme::Dark == theme ? 0 : 1);
 
+    ui->oauth_checkbox->setEnabled(false);
     ui->lock_timeout_textedit->setText(QString::number(settings->value("lock_timeout").toLongLong()));
+    ui->sync_checkbox->setChecked(settings->value("sync_enabled").toBool());
+    qobject_cast<QRadioButton *>(ui->pie_slice_sorting->button(settings->value("pie_slice_sort").toInt()))
+        ->setChecked(true);
 
     if (!diary_editor_mode) {
         ui->export_button->setEnabled(false);
@@ -113,25 +128,41 @@ void OptionsMenu::setup_layout()
         ui->change_password_button->setEnabled(false);
         ui->new_password->setEnabled(false);
         ui->new_password_confirm->setEnabled(false);
-        ui->upload_backup_button->setEnabled(false);
         ui->dev_list_files_button->setEnabled(false);
         ui->dev_upload_file_button->setEnabled(false);
         ui->dev_download_file_button->setEnabled(false);
-        ui->dev_download_file_id->setEnabled(false);
         ui->dev_update_file_button->setEnabled(false);
-        ui->dev_update_file_id->setEnabled(false);
         ui->dev_copy_file_button->setEnabled(false);
-        ui->dev_copy_file_id->setEnabled(false);
-        ui->dev_copy_file_new_name->setEnabled(false);
         ui->dev_delete_button->setEnabled(false);
-        ui->dev_delete_file_id->setEnabled(false);
     }
     else {
-        ui->download_backup_button->setEnabled(false);
         ui->ok_button->setVisible(false);
     }
 
-    ui->sync_checkbox->setChecked(InternalManager::instance()->settings->value("sync_enabled").toBool());
+    refresh_linked_checkbox();
+}
+
+void OptionsMenu::refresh_linked_checkbox()
+{
+    if (GoogleWrapper::instance()->google->linked()) {
+        ui->oauth_checkbox->setCheckState(Qt::Checked);
+        ui->flush_oauth_button->setEnabled(true);
+
+        if (diary_editor_mode) {
+            ui->upload_backup_button->setEnabled(true);
+            ui->download_backup_button->setEnabled(false);
+        }
+        else {
+            ui->upload_backup_button->setEnabled(false);
+            ui->download_backup_button->setEnabled(true);
+        }
+    }
+    else {
+        ui->oauth_checkbox->setCheckState(Qt::Unchecked);
+        ui->download_backup_button->setEnabled(false);
+        ui->upload_backup_button->setEnabled(false);
+        ui->flush_oauth_button->setEnabled(false);
+    }
 }
 
 void OptionsMenu::export_diary()
@@ -211,6 +242,35 @@ void OptionsMenu::change_password_cb(bool const)
     InternalManager::instance()->internal_diary_changed = true;
     ui->pwd_alert_text->set_text("Password updated.");
     InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+}
+
+void OptionsMenu::complete_oauth()
+{
+    auto gwrapper = GoogleWrapper::instance();
+    auto intman = InternalManager::instance();
+
+    qDebug() << "User attempted to link Google account...";
+    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+
+    auto cb1 = [this, gwrapper, intman]() {
+        switch (gwrapper->verify_auth()) {
+        case td::LinkingResponse::ScopeMismatch:
+            cmb::display_scope_mismatch(this, []() {});
+            break;
+        case td::LinkingResponse::Fail:
+            cmb::display_auth_error(this, []() {});
+            break;
+        case td::LinkingResponse::OK:
+            cmb::ok_messagebox(
+                this, []() {}, "Successfully linked Google account.", "");
+            break;
+        }
+    };
+
+    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    gwrapper->google->link();
+
+    GoogleWrapper::instance()->google->link();
 }
 
 void OptionsMenu::download_backup()
@@ -374,7 +434,7 @@ void OptionsMenu::flush_oauth()
     auto cb = [this, gwrapper](td::NR const &) {
         gwrapper->google->unlink();
         cmb::ok_messagebox(
-            this, []() {}, "Credentials deleted.", "The OAuth2 credentials have been deleted.");
+            this, []() {}, "The OAuth2 tokens have been deleted.", "");
     };
 
     gwrapper->revoke_access().subscribe(cb);

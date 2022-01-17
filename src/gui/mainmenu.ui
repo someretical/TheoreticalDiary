@@ -70,6 +70,9 @@
    </item>
    <item row="4" column="1">
     <layout class="QGridLayout" name="gridLayout_6">
+     <property name="spacing">
+      <number>0</number>
+     </property>
      <item row="1" column="1">
       <widget class="QGroupBox" name="groupBox">
        <property name="minimumSize">
@@ -152,7 +155,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Decrypt the diary.</string>
+             <string>Open local diary.</string>
             </property>
             <property name="text">
              <string>Open</string>
@@ -171,7 +174,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Import an unencrypted diary.</string>
+             <string>Import an unencrypted JSON diary.</string>
             </property>
             <property name="text">
              <string>Import</string>
@@ -313,16 +316,10 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
         <property name="maximumSize">
          <size>
-          <width>200</width>
-          <height>200</height>
+          <width>150</width>
+          <height>150</height>
          </size>
         </property>
         <property name="sizeIncrement">

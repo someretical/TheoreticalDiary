@@ -43,15 +43,16 @@ public:
 
     int current_month_offset;
     int last_selected_day;
-
     QShortcut *save_shortcut;
+    // Saves the state of the entry when it was first loaded. Used to decide if the save prompt needs showing.
+    td::Entry last_entry_snapshot;
 
 public slots:
     void update_theme();
 
     // Calendar widget.
     void render_month(QDate const &date, std::optional<td::YearMap::iterator> const &iter);
-    void change_month(QDate const &date, bool const suppress_confirm);
+    void change_month(QDate const &date);
     void render_day(td::CalendarButtonData const &d, bool const set_info_pane);
     void next_month();
     void prev_month();
@@ -69,6 +70,7 @@ private:
     Ui::DiaryEditor *ui;
 
     DiaryCalendarButton *create_button(td::CalendarButtonData const &&d);
+    bool compare_snapshots();
 };
 
 #endif // DIARYEDITOR_H

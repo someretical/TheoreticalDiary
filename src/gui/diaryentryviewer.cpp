@@ -21,9 +21,11 @@
 #include "../util/misc.h"
 #include "ui_diaryentryviewer.h"
 
-int const MAX_LINE_LEN = 110;
-int const DAY_LABEL_SIZE_ = 50;
-int const SIZE_ = 50;
+// windef.h already defined SIZE >:(
+// Thanks Microsoft for being the outlier in conformance AGAIN.
+namespace override {
+int const SIZE = 50;
+}
 
 const char *PLACEHOLDER_TEXT = R"(
 <center><p>It seems there are no entries yet for this month...</p></center>
@@ -34,7 +36,7 @@ char const *TABLE_START = "<table border=0 cellspacing=15>";
 char const *SINGLE_ROW = R"(
 <tr>
 <td valign=top><img src="data:image/png;base64, %1" alt="" width="50" height="50"/></td>
-<td valign=middle>%2</td>
+<td valign=middle title="%2"><font size="5">%3</font></td>
 </tr>
 )";
 
@@ -50,10 +52,6 @@ char const *TABLE_END = "</table>";
 DiaryEntryViewer::DiaryEntryViewer(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryEntryViewer)
 {
     ui->setupUi(this);
-
-    rating_stylesheets = std::vector<std::unique_ptr<QString>>();
-    black_star = QString();
-    white_star = QString();
 
     // Navigator slots
     connect(ui->month_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
@@ -107,17 +105,23 @@ void DiaryEntryViewer::change_month(QDate const &date)
 
     auto row_counter = 0;
     for (auto const &i : (*opt)->second) {
-        auto const &[important, rating, message, dummy] = i.second;
+        auto const &[important, rating, message, le] = i.second;
 
         // Don't add any days that don't have text entries.
         if (message.empty())
             continue;
 
         auto copy = message;
+        QDateTime last_edited;
+        last_edited.setTime_t(le);
 
         // This is just about the most janky thing in this entire app.
-        html.append(QString(SINGLE_ROW)
-                        .arg(generate_base64_icon(i.first, rating, important), misc::sanitise_html(misc::trim(copy))));
+        // I am dynamically generating a PNG image file and converting it to base64 to embed in a HTML file LOL.
+        html.append(
+            QString(SINGLE_ROW)
+                .arg(generate_base64_icon(i.first, rating, important),
+                    last_edited.toString("dddd MMMM d%1 yyyy 'at' h:mm:ss ap").arg(misc::get_day_suffix(i.first)),
+                    misc::sanitise_html(misc::trim(copy))));
         html.append(HR_ROW);
 
         ++row_counter;
@@ -164,7 +168,7 @@ void DiaryEntryViewer::year_changed(QDate const &date)
 
 QByteArray DiaryEntryViewer::generate_base64_icon(int const day, td::Rating const rating, bool const important)
 {
-    QPixmap pixmap(SIZE_, SIZE_);
+    QPixmap pixmap(override::SIZE, override::SIZE);
     pixmap.fill(Qt::transparent);
     QPainter p(&pixmap);
     p.setRenderHint(QPainter::Antialiasing);
@@ -191,7 +195,7 @@ QPixmap DiaryEntryViewer::generate_background(td::Rating const rating)
     QPixmap pixmap;
 
     if (!QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(SIZE_, SIZE_);
+        pixmap = QPixmap(override::SIZE, override::SIZE);
         pixmap.fill(Qt::transparent);
 
         QColor colour = misc::rating_to_colour(rating);
@@ -203,7 +207,7 @@ QPixmap DiaryEntryViewer::generate_background(td::Rating const rating)
 
         p.setPen(Qt::transparent);
         p.setBrush(QBrush(colour));
-        p.drawEllipse(0, 0, SIZE_, SIZE_);
+        p.drawEllipse(0, 0, override::SIZE, override::SIZE);
 
         QPixmapCache::insert(key, pixmap);
     }
@@ -218,17 +222,18 @@ QPixmap DiaryEntryViewer::generate_star(td::Rating const rating)
     QPixmap pixmap;
 
     if (!QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(SIZE_, SIZE_);
+        pixmap = QPixmap(override::SIZE, override::SIZE);
         pixmap.fill(Qt::transparent);
 
         QPainter p(&pixmap);
         p.setRenderHint(QPainter::Antialiasing);
         p.setOpacity(0.3);
 
-        auto overlay = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(SIZE_ * 0.8, SIZE_ * 0.8);
+        auto overlay =
+            QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(override::SIZE * 0.8, override::SIZE * 0.8);
 
         // Draw overlay on the centre of the pixmap.
-        auto x = ((rect().bottomRight().x() - overlay.rect().bottomRight().x()) / 2);
+        auto x = ((override::SIZE - overlay.rect().bottomRight().x()) / 2);
         // y is the same as x since it's a square.
 
         p.drawPixmap(x, x, overlay);
@@ -247,7 +252,7 @@ QPixmap DiaryEntryViewer::generate_text(int const day_, td::Rating const rating)
     QPixmap pixmap;
 
     if (!QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(SIZE_, SIZE_);
+        pixmap = QPixmap(override::SIZE, override::SIZE);
         pixmap.fill(Qt::transparent);
 
         QPainter p(&pixmap);

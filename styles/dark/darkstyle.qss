@@ -1,18 +1,8 @@
-GroupView:!active,QLineEdit:!active, QTextEdit:!active {
-    background-color: #404042;
-}
-
-GroupView:disabled, QLineEdit:disabled, QTextEdit:disabled {
-    background-color: #424242;
-}
-
 QPushButton:!default:hover {
-    /* Using slightly darker shade from palette(button) */
     background: #252528;
 }
 
 QPushButton:default:hover, QPushButton:checked:hover {
-    /* Using slightly lighter shade from palette(highlight) */
     background: #2E582E;
 }
 
@@ -26,5 +16,5 @@ QGroupBox {
 }
 
 QTextEdit#entry_edit {
-    background-color: #39393C;
+    background-color: #414145;
 }

@@ -41,6 +41,8 @@ public slots:
     void update_lock_timeout();
     void change_password();
     void change_password_cb(bool const);
+    void refresh_linked_checkbox();
+    void complete_oauth();
     void download_backup();
     void upload_diary();
     void flush_oauth();

@@ -39,9 +39,6 @@ public:
     ~DiaryEntryViewer();
 
     QDate current_date;
-    std::vector<std::unique_ptr<QString>> rating_stylesheets;
-    QString white_star;
-    QString black_star;
 
 public slots:
     void update_theme();

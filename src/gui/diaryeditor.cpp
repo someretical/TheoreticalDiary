@@ -30,6 +30,7 @@ DiaryEditor::DiaryEditor(QDate const &date, QWidget *parent) : QWidget(parent), 
 
     current_month_offset = 0;
     last_selected_day = 0;
+    last_entry_snapshot = td::Entry{false, td::Rating::Unknown, "", 0};
 
     // Ctrl S to save the diary.
     save_shortcut = new QShortcut(QKeySequence::Save, this);
@@ -56,18 +57,10 @@ DiaryEditor::DiaryEditor(QDate const &date, QWidget *parent) : QWidget(parent), 
     update_theme();
 
     // Render current month.
-    // This needs to be done AFTER all the themes have been loaded since the CalendarButtons need to access the
-    // stylesheets.
     auto current_date = date;
-    change_month(current_date, true);
+    change_month(current_date);
 
-    // Trigger unsaved changes.
-    connect(ui->rating_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-        [&]() { InternalManager::instance()->internal_diary_changed = true; });
-    connect(ui->special_box, &QCheckBox::clicked, this,
-        [&]() { InternalManager::instance()->internal_diary_changed = true; });
-    connect(ui->entry_edit, &QPlainTextEdit::textChanged, this,
-        [&]() { InternalManager::instance()->internal_diary_changed = true; });
+    // The diary editor DOES NOT USE internal_diary_changed. It implements its own change detection system!!!
 }
 
 DiaryEditor::~DiaryEditor()
@@ -175,10 +168,16 @@ void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::ite
     qDebug() << "Rendered month editor (first day of month):" << date;
 }
 
-// The suppress_confirm parameter squashes the confirm_switch dialog. This is to ensure that when the menu is first
-// loaded by the New/Import button, the user isn't confronted with the confirm_switch dialog. (As making a new diary
-// sets the internal_diary_changed variable to true.
-void DiaryEditor::change_month(QDate const &date, bool const suppress_confirm)
+// Returns true if equal, false if not equal.
+bool DiaryEditor::compare_snapshots()
+{
+    // Doesn't compare last edited timestamps.
+    return last_entry_snapshot.important == ui->special_box->isChecked() &&
+           last_entry_snapshot.rating == static_cast<td::Rating>(ui->rating_dropdown->currentIndex()) &&
+           last_entry_snapshot.message == ui->entry_edit->toPlainText().toStdString();
+}
+
+void DiaryEditor::change_month(QDate const &date)
 {
     auto cb = [this, date](int const res) {
         if (QMessageBox::RejectRole == res)
@@ -221,7 +220,7 @@ void DiaryEditor::change_month(QDate const &date, bool const suppress_confirm)
         qDebug() << "Changed month in editor and broadcasted update_data:" << date;
     };
 
-    if (InternalManager::instance()->internal_diary_changed && !suppress_confirm)
+    if (!compare_snapshots())
         return cmb::confirm_switch_date(this, cb);
 
     cb(QMessageBox::DestructiveRole);
@@ -240,7 +239,15 @@ void DiaryEditor::render_day(td::CalendarButtonData const &d, bool const set_inf
         auto const &new_date = QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, *d.day);
         auto const &opt = DiaryHolder::instance()->get_entry(new_date);
 
-        update_info_pane(new_date, opt ? (*opt)->second : td::Entry{false, td::Rating::Unknown, "", 0});
+        if (opt) {
+            last_entry_snapshot = (*opt)->second;
+            update_info_pane(new_date, (*opt)->second);
+        }
+        else {
+            auto default_entry = td::Entry{false, td::Rating::Unknown, "", 0};
+            last_entry_snapshot = default_entry;
+            update_info_pane(new_date, default_entry);
+        }
     }
 }
 
@@ -249,7 +256,7 @@ void DiaryEditor::next_month()
     QDate &&next = ui->year_edit->date().addMonths(1);
     next.setDate(next.year(), next.month(), 1);
     if (next.isValid())
-        change_month(next, false);
+        change_month(next);
 }
 
 void DiaryEditor::prev_month()
@@ -257,18 +264,18 @@ void DiaryEditor::prev_month()
     QDate &&prev = ui->year_edit->date().addMonths(-1);
     prev.setDate(prev.year(), prev.month(), 1);
     if (prev.isValid())
-        change_month(prev, false);
+        change_month(prev);
 }
 
 void DiaryEditor::month_changed(int const month)
 {
-    change_month(QDate(ui->year_edit->date().year(), month + 1, 1), false);
+    change_month(QDate(ui->year_edit->date().year(), month + 1, 1));
 }
 
 void DiaryEditor::year_changed(QDate const &date)
 {
     if (date.isValid())
-        change_month(date, false);
+        change_month(date);
 }
 
 // Triggered when a calendar button is clicked.
@@ -298,10 +305,9 @@ void DiaryEditor::date_clicked(int const day)
         render_day(n, true);
 
         last_selected_day = day;
-        InternalManager::instance()->internal_diary_changed = false;
     };
 
-    if (InternalManager::instance()->internal_diary_changed)
+    if (!compare_snapshots())
         cmb::confirm_switch_date(this, cb);
     else
         cb(QMessageBox::DestructiveRole);
@@ -320,12 +326,15 @@ void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
 
     if (0 == entry.last_updated) {
         ui->last_edited->setText("");
+        ui->last_edited->setToolTip("Never edited before.");
     }
     else {
         QDateTime last_edited;
         last_edited.setTime_t(entry.last_updated);
         // Thanks stackoverflow ;)
         ui->last_edited->setText("Last edited " + last_edited.toString("dd MMM ''yy 'at' h:mm ap"));
+        ui->last_edited->setToolTip(
+            last_edited.toString("dddd MMMM d%1 yyyy 'at' h:mm:ss ap").arg(misc::get_day_suffix(date.day())));
     }
     ui->last_edited->update();
 
@@ -421,5 +430,5 @@ void DiaryEditor::delete_day()
 void DiaryEditor::reset_day()
 {
     auto current_date = QDate::currentDate();
-    change_month(current_date, false);
+    change_month(current_date);
 }
