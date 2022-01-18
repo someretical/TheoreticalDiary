@@ -305,6 +305,7 @@ std::pair<QString, QString> GoogleWrapper::get_file_ids(QByteArray const &data)
 
     for (auto const &file : json["files"]) {
         if ("drive#file" == file["kind"]) {
+            // Don't bother comparing mimeType.
             if ("diary.dat" == file["name"]) {
                 primary_backup_id = QString::fromStdString(file["id"]);
             }

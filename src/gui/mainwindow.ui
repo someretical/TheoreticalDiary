@@ -33,6 +33,9 @@
     <property name="spacing">
      <number>0</number>
     </property>
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="central_grid"/>
+    </item>
    </layout>
   </widget>
  </widget>

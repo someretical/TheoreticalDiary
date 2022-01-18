@@ -53,19 +53,17 @@ void DiaryPixels::update_theme() {}
 int DiaryPixels::calculate_size()
 {
     // Minimum dimensions:
-    // Width of button 36px
     // Width of frame 1218px
     // Height of frame 570px
-    // 32 labels * 36px per row
-    // 31 gaps of 2px
 
     updateGeometry();
 
-    // For every 500px width/height, increase gap by 1px.
     int gap = 0;
-    int w = ui->hidden_frame->width();
-    int h = ui->hidden_frame->height();
+    int w = ui->hidden_frame->width() - 18; // - 18 because the hidden_frame has margins of 9px on all sides.
+    int h = ui->hidden_frame->height() - 18;
     int top = std::max({w, h, 1218});
+
+    // For every 500px width/height, increase gap by 1px.
     while ((top -= 500) > -1)
         gap++;
 
@@ -201,7 +199,7 @@ void DiaryPixels::export_image()
 
         auto bold_font = QApplication::font();
         bold_font.setBold(true);
-        bold_font.setPointSize(20);
+        bold_font.setPointSize(24);
         p.setFont(bold_font);
 
         QRectF rect;
@@ -215,13 +213,32 @@ void DiaryPixels::export_image()
         pixmap = ui->hidden_frame->grab();
     }
 
-    if (pixmap.save(filename))
-        cmb::ok_messagebox(
-            this, []() {}, "Image exported.", "");
-    else
-        cmb::ok_messagebox(
-            this, []() {}, "The app could not write to the specified location.",
-            "This usually means a permission error.");
+    if (pixmap.save(filename)) {
+        auto cb = [this, filename](int const res) {
+            if (QMessageBox::Yes != res)
+                return;
+
+            QFileInfo info(filename);
+            if (!QDesktopServices::openUrl(info.dir().path())) {
+                auto msgbox = new QMessageBox(this);
+                msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+                msgbox->setText("Failed to show file in explorer.");
+                msgbox->setStandardButtons(QMessageBox::Ok);
+                return msgbox->show();
+            }
+        };
+
+        auto msgbox = new QMessageBox(this);
+        msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+        msgbox->setText("Would you like to open the folder containing the exported image?");
+        msgbox->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgbox->setDefaultButton(QMessageBox::No);
+        connect(msgbox, &QMessageBox::finished, cb);
+        msgbox->show();
+    }
+    else {
+        return cmb::display_local_io_error(this);
+    }
 }
 
 void DiaryPixels::resizeEvent(QResizeEvent *)

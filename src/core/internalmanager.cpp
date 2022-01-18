@@ -119,6 +119,8 @@ void InternalManager::start_update_theme()
 {
     QPixmapCache::clear();
 
+    // There is no memory leak here as Qt deletes the old style for us.
+    // I made sure to actually check the source code of QApplication.
     if (get_theme() == td::Theme::Dark) {
         set_dark_palette();
         auto s = new DarkStyle;

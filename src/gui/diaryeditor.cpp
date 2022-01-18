@@ -180,10 +180,10 @@ bool DiaryEditor::compare_snapshots()
 void DiaryEditor::change_month(QDate const &date)
 {
     auto cb = [this, date](int const res) {
-        if (QMessageBox::RejectRole == res)
+        if (QMessageBox::Cancel == res)
             return;
 
-        if (QMessageBox::AcceptRole)
+        if (QMessageBox::Save == res)
             update_day(true);
 
         // Remove everything from current grid.
@@ -221,9 +221,9 @@ void DiaryEditor::change_month(QDate const &date)
     };
 
     if (!compare_snapshots())
-        return cmb::confirm_switch_date(this, cb);
+        return cmb::confirm_switch_entries(this, cb);
 
-    cb(QMessageBox::DestructiveRole);
+    cb(QMessageBox::Discard);
 }
 
 void DiaryEditor::render_day(td::CalendarButtonData const &d, bool const set_info_pane)
@@ -289,10 +289,10 @@ void DiaryEditor::date_clicked(int const day)
         return;
 
     auto cb = [this, day](int const res) {
-        if (QMessageBox::RejectRole == res)
+        if (QMessageBox::Cancel == res)
             return;
 
-        if (QMessageBox::AcceptRole == res)
+        if (QMessageBox::Yes == res)
             update_day(true); // Suppress entry saved message so it doesn't appear on new date.
 
         td::CalendarButtonData const old{
@@ -308,9 +308,9 @@ void DiaryEditor::date_clicked(int const day)
     };
 
     if (!compare_snapshots())
-        cmb::confirm_switch_date(this, cb);
+        cmb::confirm_switch_entries(this, cb);
     else
-        cb(QMessageBox::DestructiveRole);
+        cb(QMessageBox::No);
 }
 
 void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
@@ -365,7 +365,7 @@ void DiaryEditor::update_day(bool const suppress_error)
 
     // Actually try and save the diary.
     if (!DiaryHolder::instance()->save() && suppress_error)
-        return cmb::save_error(this, []() {});
+        return cmb::display_local_diary_save_error(this);
 
     td::CalendarButtonData const d{std::optional(last_selected_day), std::optional(ui->special_box->isChecked()),
         std::optional(static_cast<td::Rating>(ui->rating_dropdown->currentIndex())), std::nullopt, std::nullopt};
@@ -390,7 +390,7 @@ void DiaryEditor::update_day(bool const suppress_error)
 void DiaryEditor::delete_day()
 {
     auto cb = [this](int const res) {
-        if (QMessageBox::RejectRole == res)
+        if (QMessageBox::No == res)
             return;
 
         InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
@@ -402,7 +402,7 @@ void DiaryEditor::delete_day()
 
         // Actually try and save the diary.
         if (!DiaryHolder::instance()->save())
-            return cmb::save_error(this, []() {});
+            return cmb::display_local_diary_save_error(this);
 
         ui->alert_text->setText("Deleted entry.");
         ui->alert_text->update();
@@ -420,11 +420,17 @@ void DiaryEditor::delete_day()
     };
 
     // Shift click bypasses confirmation dialog.
-    if (Qt::ShiftModifier != QGuiApplication::keyboardModifiers())
-        return cmb::yn_messagebox(
-            this, cb, "Are you sure you want to delete this entry?", "This action is not reversible!");
+    if (Qt::ShiftModifier == QGuiApplication::keyboardModifiers())
+        return cb(QMessageBox::Yes);
 
-    cb(QMessageBox::AcceptRole);
+    auto msgbox = new QMessageBox(this);
+    msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+    msgbox->setText("Are you sure you want to delete this entry?");
+    msgbox->setInformativeText("This action is not reversible!");
+    msgbox->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgbox->setDefaultButton(QMessageBox::No);
+    QObject::connect(msgbox, &QMessageBox::finished, cb);
+    msgbox->show();
 }
 
 void DiaryEditor::reset_day()

@@ -95,8 +95,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             if (QNetworkReply::NoError != reply.error) {
                 intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
-                    cmb::ok_messagebox(
-                        this, []() {}, std::move(reply.error_message), "");
+                    cmb::display_google_drive_network_error(this, std::move(reply.error_message));
 
                 return false;
             }
@@ -115,7 +114,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
 
             intman->end_busy_mode(__LINE__, __func__, __FILE__);
             if (!locked)
-                cmb::diary_uploaded(this, []() {});
+                cmb::diary_uploaded(this);
         };
 
         auto upload_subroutine = [this, gwrapper, intman, locked, cb_final]() {
@@ -124,7 +123,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             if (!file_ptr->open(QIODevice::ReadOnly)) {
                 intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
-                    cmb::display_io_error(this, []() {});
+                    cmb::display_local_diary_access_error(this);
 
                 return;
             }
@@ -171,13 +170,13 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             case td::LinkingResponse::ScopeMismatch:
                 intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
-                    cmb::display_scope_mismatch(this, []() {});
+                    cmb::display_google_drive_scope_mismatch(this);
 
                 break;
             case td::LinkingResponse::Fail:
                 intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
-                    cmb::display_auth_error(this, []() {});
+                    cmb::display_google_drive_auth_error(this);
 
                 break;
             case td::LinkingResponse::OK:
@@ -224,7 +223,7 @@ void MainWindow::clear_grid()
     misc::clear_message_boxes();
 
     QLayoutItem *child;
-    while ((child = ui->central_widget->layout()->takeAt(0))) {
+    while ((child = ui->central_grid->takeAt(0))) {
         qDebug() << "Clearing grid of:" << child->widget() << child;
         child->widget()->deleteLater();
         delete child;
@@ -236,7 +235,7 @@ void MainWindow::show_main_menu(bool const show_locked_message)
     current_window = td::Window::Main;
 
     clear_grid();
-    ui->central_widget->layout()->addWidget(new MainMenu(show_locked_message, this));
+    ui->central_grid->addWidget(new MainMenu(show_locked_message, this));
 }
 
 void MainWindow::show_options_menu()
@@ -244,7 +243,7 @@ void MainWindow::show_options_menu()
     current_window = td::Window::Options;
 
     clear_grid();
-    ui->central_widget->layout()->addWidget(new StandaloneOptions(this));
+    ui->central_grid->addWidget(new StandaloneOptions(this));
 }
 
 void MainWindow::show_diary_menu()
@@ -252,7 +251,7 @@ void MainWindow::show_diary_menu()
     current_window = td::Window::Editor;
 
     clear_grid();
-    ui->central_widget->layout()->addWidget(new DiaryMenu(this));
+    ui->central_grid->addWidget(new DiaryMenu(this));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -261,7 +260,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore();
 
         auto cb = [](int const res) {
-            if (QMessageBox::AcceptRole == res) {
+            if (QMessageBox::Yes == res) {
                 qDebug() << "App forced closed by the user.";
                 QCoreApplication::exit(1);
             }
@@ -271,9 +270,16 @@ void MainWindow::closeEvent(QCloseEvent *event)
             }
         };
 
-        cmb::yn_messagebox(this, cb, "Are you sure you want to force close the application?",
-            "The application is currently performing an action. If you choose to close it now, all unsaved changes "
-            "will be lost!");
+        auto msgbox = new QMessageBox(this);
+        msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+        msgbox->setText("The application is currently performing an action. If you choose to close it now, all unsaved "
+                        "changes will be lost!");
+        msgbox->setInformativeText("Are you sure you want to force close the application?");
+        msgbox->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgbox->setDefaultButton(QMessageBox::No);
+        QObject::connect(msgbox, &QMessageBox::finished, cb);
+        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        msgbox->show();
     }
     else if (td::Window::Options == current_window) {
         event->ignore(); // Don't close the main window, but exit to the main menu.
@@ -284,17 +290,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
         if (InternalManager::instance()->internal_diary_changed) {
             auto cb = [this](int const res) {
-                if (QMessageBox::RejectRole == res)
+                if (QMessageBox::Cancel == res)
                     return;
 
-                if (QMessageBox::AcceptRole == res) {
+                if (QMessageBox::Save == res) {
                     // If the diary failed to save, don't exit to the main menu.
                     InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
                     auto saved = DiaryHolder::instance()->save();
                     InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
                     if (!saved)
-                        cmb::save_error(this, []() {});
+                        cmb::display_local_diary_save_error(this);
                     else
                         exit_diary_to_main_menu(false);
 
@@ -304,7 +310,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
                 exit_diary_to_main_menu(false);
             };
 
-            cmb::confirm_exit_to_main_menu(this, cb);
+            auto msgbox = new QMessageBox(this);
+            msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+            msgbox->setText("There are unsaved changes!");
+            msgbox->setInformativeText("Would you like to save them?");
+            msgbox->setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            msgbox->setDefaultButton(QMessageBox::Save);
+            QObject::connect(msgbox, &QMessageBox::finished, cb);
+            msgbox->show();
         }
         else {
             exit_diary_to_main_menu(false);

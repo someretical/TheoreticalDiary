@@ -111,10 +111,22 @@ void MainMenu::decrypt_diary()
     ui->pwd_alert_text->set_text("");
 
     auto const &opt = get_diary_contents();
-    if (!opt)
-        return cmb::ok_messagebox(
-            this, []() {}, "No local diary was found.",
-            "You can create a new diary by clicking the new button in the main menu.");
+    if (!opt) {
+        auto cb = [this](int const res) {
+            if (QMessageBox::Yes == res)
+                new_diary(true);
+        };
+
+        auto msgbox = new QMessageBox(this);
+        msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+        msgbox->setText("No local diary was found.");
+        msgbox->setInformativeText("Would you like to create a new one?");
+        msgbox->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgbox->setDefaultButton(QMessageBox::Yes);
+        connect(msgbox, &QMessageBox::finished, cb);
+        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        return msgbox->show();
+    }
 
     auto &str = Encryptor::instance()->encrypted_str;
     // If the password box is empty, try to decompress immediately.
@@ -174,10 +186,10 @@ void MainMenu::decrypt_diary_cb(bool const perform_decrypt)
     });
 }
 
-void MainMenu::new_diary()
+void MainMenu::new_diary(bool const skip_overwrite_check)
 {
     auto cb = [](int const res) {
-        if (QMessageBox::RejectRole == res)
+        if (QMessageBox::No == res)
             return;
 
         Encryptor::instance()->reset();
@@ -188,13 +200,16 @@ void MainMenu::new_diary()
         MainWindow::instance()->show_diary_menu();
     };
 
-    cmb::prompt_confirm_overwrite(this, cb);
+    if (skip_overwrite_check)
+        cb(QMessageBox::Yes);
+    else
+        cmb::prompt_diary_overwrite(this, cb);
 }
 
 void MainMenu::import_diary()
 {
     auto cb = [this](int const res) {
-        if (QMessageBox::RejectRole == res)
+        if (QMessageBox::No == res)
             return;
 
         auto const &filename =
@@ -204,18 +219,23 @@ void MainMenu::import_diary()
 
         std::ifstream ifs(filename.toStdString());
         if (ifs.fail())
-            return cmb::display_io_error(this, []() {});
+            return cmb::display_local_io_error(this);
 
         std::stringstream stream;
         stream << ifs.rdbuf();
 
-        if (!DiaryHolder::instance()->load(stream.str()))
-            return cmb::display_io_error(this, []() {});
+        if (!DiaryHolder::instance()->load(stream.str())) {
+            auto msgbox = new QMessageBox(this);
+            msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+            msgbox->setText("The app could not parse the unencrypted JSON diary.");
+            msgbox->setStandardButtons(QMessageBox::Ok);
+            return msgbox->show();
+        }
 
         InternalManager::instance()->internal_diary_changed = true;
         qDebug() << "Showing diary menu from import diary.";
         MainWindow::instance()->show_diary_menu();
     };
 
-    cmb::prompt_confirm_overwrite(this, cb);
+    cmb::prompt_diary_overwrite(this, cb);
 }

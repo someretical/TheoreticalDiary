@@ -198,4 +198,21 @@ public:
     bool diary_file_changed;
 };
 
+class AppBusyLock {
+    AppBusyLock()
+    {
+        InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+    }
+
+    ~AppBusyLock()
+    {
+        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+    }
+
+    void release()
+    {
+        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+    }
+};
+
 #endif // INTERNAL_MANAGER_H

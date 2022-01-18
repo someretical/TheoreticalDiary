@@ -175,17 +175,19 @@ void OptionsMenu::export_diary()
 
     std::ofstream dst(filename.toStdString());
 
-    if (!dst.fail()) {
-        InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-        nlohmann::json const &j = DiaryHolder::instance()->diary;
-        dst << j.dump(4);
+    if (dst.fail())
+        return cmb::display_local_io_error(this);
 
-        return cmb::ok_messagebox(
-            this, []() {}, "The diary has been exported in an unencrypted JSON format.",
-            "This means anybody can read it!");
-    }
+    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+    nlohmann::json const &j = DiaryHolder::instance()->diary;
+    dst << j.dump(4);
 
-    cmb::display_io_error(this, []() {});
+    auto msgbox = new QMessageBox(this);
+    msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+    msgbox->setText("The diary has been exported in an unencrypted JSON format.");
+    msgbox->setInformativeText("This means anybody can read it!");
+    msgbox->setStandardButtons(QMessageBox::Ok);
+    msgbox->show();
 }
 
 void OptionsMenu::update_lock_timeout()
@@ -255,14 +257,18 @@ void OptionsMenu::complete_oauth()
     auto cb1 = [this, gwrapper, intman]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this, []() {});
+            cmb::display_google_drive_scope_mismatch(this);
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this, []() {});
+            cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
-            cmb::ok_messagebox(
-                this, []() {}, "Successfully linked Google account.", "");
+            auto msgbox = new QMessageBox(this);
+            msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+            msgbox->setText("Successfully linked Google account.");
+            msgbox->setStandardButtons(QMessageBox::Ok);
+            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+            msgbox->show();
             break;
         }
     };
@@ -280,8 +286,7 @@ void OptionsMenu::download_backup()
 
     auto check_error = [this, intman](td::NR const &reply) {
         if (QNetworkReply::NoError != reply.error) {
-            cmb::ok_messagebox(
-                this, []() {}, std::move(reply.error_message), "");
+            cmb::display_google_drive_network_error(this, std::move(reply.error_message));
             return false;
         }
 
@@ -294,13 +299,13 @@ void OptionsMenu::download_backup()
 
         QFile file(QString("%1/diary.dat").arg(intman->data_location()));
         if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-            return cmb::display_io_error(this, []() {});
+            return cmb::display_local_diary_access_error(this);
 
         // At the moment, the data is written all in one go as o2 does not yet provide any download updates. This is
         // really bad practice so TODO: add own implementation of a download notifier so the data buffer can be
         // piped into the file every time a new chunk arrives.
         file.write(reply.response);
-        cmb::diary_downloaded(this, []() {});
+        cmb::diary_downloaded(this);
     };
 
     auto cb2 = [this, check_error, gwrapper, intman, cb_final](td::NR const &reply) {
@@ -310,7 +315,7 @@ void OptionsMenu::download_backup()
         auto const &[id1, id2] = gwrapper->get_file_ids(reply.response);
 
         if (id1.isEmpty() && id2.isEmpty())
-            return cmb::display_drive_file_error(this, []() {});
+            return cmb::display_google_drive_missing_file(this);
 
         gwrapper->download_file(id1.isEmpty() ? id2 : id1).subscribe(cb_final);
     };
@@ -318,10 +323,10 @@ void OptionsMenu::download_backup()
     auto cb1 = [this, gwrapper, intman, cb2]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this, []() {});
+            cmb::display_google_drive_scope_mismatch(this);
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this, []() {});
+            cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
             gwrapper->list_files().subscribe(cb2);
@@ -330,7 +335,7 @@ void OptionsMenu::download_backup()
     };
 
     auto cb = [intman, gwrapper, cb1](int const res) {
-        if (QMessageBox::RejectRole == res)
+        if (QMessageBox::No == res)
             return;
 
         intman->start_busy_mode(__LINE__, __func__, __FILE__);
@@ -338,7 +343,7 @@ void OptionsMenu::download_backup()
         gwrapper->google->link();
     };
 
-    cmb::prompt_confirm_overwrite(this, cb);
+    cmb::prompt_diary_overwrite(this, cb);
 }
 
 void OptionsMenu::upload_diary()
@@ -352,8 +357,7 @@ void OptionsMenu::upload_diary()
 
     auto check_error = [this, intman](td::NR const &reply) {
         if (QNetworkReply::NoError != reply.error) {
-            cmb::ok_messagebox(
-                this, []() {}, std::move(reply.error_message), "");
+            cmb::display_google_drive_network_error(this, std::move(reply.error_message));
             return false;
         }
 
@@ -362,14 +366,14 @@ void OptionsMenu::upload_diary()
 
     auto cb_final = [this, check_error, gwrapper, intman](td::NR const &reply) {
         if (check_error(reply))
-            cmb::diary_uploaded(this, []() {});
+            cmb::diary_uploaded(this);
     };
 
     auto upload_subroutine = [this, gwrapper, intman, cb_final]() {
         auto file_ptr = new QFile(QString("%1/diary.dat").arg(intman->data_location()));
 
         if (!file_ptr->open(QIODevice::ReadOnly))
-            return cmb::display_io_error(this, []() {});
+            return cmb::display_local_diary_access_error(this);
 
         if (primary_id.isEmpty())
             gwrapper->upload_file(file_ptr, "diary.dat").subscribe(cb_final);
@@ -411,10 +415,10 @@ void OptionsMenu::upload_diary()
     auto cb1 = [this, gwrapper, intman, cb2]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this, []() {});
+            cmb::display_google_drive_scope_mismatch(this);
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this, []() {});
+            cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
             gwrapper->list_files().subscribe(cb2);
@@ -433,8 +437,13 @@ void OptionsMenu::flush_oauth()
 
     auto cb = [this, gwrapper](td::NR const &) {
         gwrapper->google->unlink();
-        cmb::ok_messagebox(
-            this, []() {}, "The OAuth2 tokens have been deleted.", "");
+
+        auto msgbox = new QMessageBox(this);
+        msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+        msgbox->setText("The OAuth2 tokens have been deleted.");
+        msgbox->setStandardButtons(QMessageBox::Ok);
+        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        msgbox->show();
     };
 
     gwrapper->revoke_access().subscribe(cb);
@@ -457,10 +466,10 @@ void OptionsMenu::dev_list()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this, []() {});
+            cmb::display_google_drive_scope_mismatch(this);
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this, []() {});
+            cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
             gwrapper->list_files().subscribe(cb_final);
@@ -494,16 +503,16 @@ void OptionsMenu::dev_upload()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this, []() {});
+            cmb::display_google_drive_scope_mismatch(this);
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this, []() {});
+            cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
             auto file_ptr = new QFile(filename);
 
             if (!file_ptr->open(QIODevice::ReadOnly))
-                return cmb::display_io_error(this, []() {});
+                return cmb::display_local_io_error(this);
 
             QFileInfo fileinfo(file_ptr->fileName());
             gwrapper->upload_file(file_ptr, fileinfo.fileName()).subscribe(cb_final);
@@ -538,7 +547,7 @@ void OptionsMenu::dev_download()
 
         QFile file(filename);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-            return cmb::display_io_error(this, []() {});
+            return cmb::display_local_io_error(this);
         file.write(reply.response);
 
         misc::clear_message_boxes();
@@ -550,10 +559,10 @@ void OptionsMenu::dev_download()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this, []() {});
+            cmb::display_google_drive_scope_mismatch(this);
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this, []() {});
+            cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
             gwrapper->download_file(ui->dev_download_file_id->text()).subscribe(cb_final);
@@ -587,16 +596,16 @@ void OptionsMenu::dev_update()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this, []() {});
+            cmb::display_google_drive_scope_mismatch(this);
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this, []() {});
+            cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
             auto file_ptr = new QFile(filename);
 
             if (!file_ptr->open(QIODevice::ReadOnly))
-                return cmb::display_io_error(this, []() {});
+                return cmb::display_local_io_error(this);
 
             gwrapper->update_file(file_ptr, ui->dev_update_file_id->text()).subscribe(cb_final);
             break;
@@ -624,10 +633,10 @@ void OptionsMenu::dev_copy()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this, []() {});
+            cmb::display_google_drive_scope_mismatch(this);
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this, []() {});
+            cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
             gwrapper->copy_file(ui->dev_copy_file_id->text(), ui->dev_copy_file_new_name->text()).subscribe(cb_final);
@@ -657,10 +666,10 @@ void OptionsMenu::dev_delete()
     auto cb1 = [this, gwrapper, intman, cb_final]() {
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
-            cmb::display_scope_mismatch(this, []() {});
+            cmb::display_google_drive_scope_mismatch(this);
             break;
         case td::LinkingResponse::Fail:
-            cmb::display_auth_error(this, []() {});
+            cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
             gwrapper->delete_file(ui->dev_delete_file_id->text()).subscribe(cb_final);
@@ -681,15 +690,26 @@ void OptionsMenu::show_about()
 void OptionsMenu::reset_settings()
 {
     auto cb = [this](int const res) {
-        if (QMessageBox::RejectRole == res)
+        if (QMessageBox::No == res)
             return;
 
         InternalManager::instance()->init_settings(true);
-        cmb::ok_messagebox(
-            this, []() {}, "Please restart the app for the changes to take effect.", "The settings have been reset.");
+
+        auto msgbox = new QMessageBox(this);
+        msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+        msgbox->setText("Please restart the app for the changes to take effect.");
+        msgbox->setStandardButtons(QMessageBox::Ok);
+        msgbox->show();
     };
 
-    cmb::yn_messagebox(this, cb, "Are you sure you want to reset all the settings?", "This action cannot be undone!");
+    auto msgbox = new QMessageBox(this);
+    msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+    msgbox->setText("Are you sure you want to reset all the settings?");
+    msgbox->setInformativeText("This action cannot be undone!");
+    msgbox->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgbox->setDefaultButton(QMessageBox::No);
+    QObject::connect(msgbox, &QMessageBox::finished, cb);
+    msgbox->show();
 }
 
 void OptionsMenu::test() {}
