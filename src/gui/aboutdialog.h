@@ -32,9 +32,6 @@ public:
     explicit AboutDialog(QWidget *parent = nullptr);
     ~AboutDialog();
 
-public slots:
-    void update_theme();
-
 private:
     Ui::AboutDialog *ui;
 };

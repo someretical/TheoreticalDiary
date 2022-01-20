@@ -36,10 +36,6 @@ DiaryPixels::DiaryPixels(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPix
     connect(ui->render_button, &QPushButton::clicked, this, &DiaryPixels::render_button_clicked, Qt::QueuedConnection);
     connect(ui->export_img_button, &QPushButton::clicked, this, &DiaryPixels::export_image, Qt::QueuedConnection);
 
-    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryPixels::update_theme,
-    //        Qt::QueuedConnection);
-    update_theme();
-
     // current_date is initialised by &InternalManager::change_month signal.
 }
 
@@ -47,8 +43,6 @@ DiaryPixels::~DiaryPixels()
 {
     delete ui;
 }
-
-void DiaryPixels::update_theme() {}
 
 int DiaryPixels::calculate_size()
 {
@@ -92,8 +86,6 @@ void DiaryPixels::render_button_clicked()
 
 void DiaryPixels::render_grid(QDate const &new_date)
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-
     // Remove everything from current grid.
     QLayoutItem *child;
     while ((child = ui->grid->takeAt(0)) != 0) {
@@ -111,9 +103,7 @@ void DiaryPixels::render_grid(QDate const &new_date)
         f.setPointSize(11);
         label->setFont(f);
 
-        ui->grid->addWidget(label, 0, 0, 1, 1, Qt::AlignCenter);
-
-        return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        return ui->grid->addWidget(label, 0, 0, 1, 1, Qt::AlignCenter);
     }
 
     auto &&tmp_date = QDate::currentDate();
@@ -173,7 +163,6 @@ void DiaryPixels::render_grid(QDate const &new_date)
         }
     }
 
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
     qDebug() << "Rendered pixels grid" << current_date;
 }
 
@@ -186,6 +175,7 @@ void DiaryPixels::export_image()
     if (filename.isEmpty())
         return;
 
+    AppBusyLock lock;
     QPixmap pixmap;
 
     if (ui->add_year_checkbox->isChecked()) {

@@ -89,13 +89,12 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
 
     // Backup on Google Drive.
     if (intman->settings->value("sync_enabled").toBool() && intman->diary_file_changed) {
-        intman->start_busy_mode(__LINE__, __func__, __FILE__);
-
-        auto check_error = [this, intman, locked](td::NR const &reply) {
+        auto check_error = [this, locked](td::NR const &reply) {
             if (QNetworkReply::NoError != reply.error) {
-                intman->end_busy_mode(__LINE__, __func__, __FILE__);
-                if (!locked)
+                if (!locked) {
+                    AppBusyLock lock;
                     cmb::display_google_drive_network_error(this, std::move(reply.error_message));
+                }
 
                 return false;
             }
@@ -104,6 +103,8 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
         };
 
         auto cb_final = [this, check_error, gwrapper, intman, encryptor, locked](td::NR const &reply) {
+            AppBusyLock lock;
+
             if (!check_error(reply))
                 return;
 
@@ -112,7 +113,6 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             gwrapper->google->unlink();
             encryptor->reset();
 
-            intman->end_busy_mode(__LINE__, __func__, __FILE__);
             if (!locked)
                 cmb::diary_uploaded(this);
         };
@@ -121,7 +121,8 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             auto file_ptr = new QFile(QString("%1/diary.dat").arg(intman->data_location()));
 
             if (!file_ptr->open(QIODevice::ReadOnly)) {
-                intman->end_busy_mode(__LINE__, __func__, __FILE__);
+                AppBusyLock lock;
+
                 if (!locked)
                     cmb::display_local_diary_access_error(this);
 
@@ -134,14 +135,14 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
                 gwrapper->update_file(file_ptr, primary_id).subscribe(cb_final);
         };
 
-        auto cb4 = [this, check_error, upload_subroutine, gwrapper, intman, cb_final](td::NR const &reply) {
+        auto cb4 = [this, check_error, upload_subroutine, gwrapper, cb_final](td::NR const &reply) {
             if (!check_error(reply))
                 return;
 
             upload_subroutine();
         };
 
-        auto cb3 = [this, check_error, upload_subroutine, gwrapper, intman, cb4, cb_final](td::NR const &reply) {
+        auto cb3 = [this, check_error, upload_subroutine, gwrapper, cb4, cb_final](td::NR const &reply) {
             if (!check_error(reply))
                 return;
 
@@ -151,7 +152,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             gwrapper->delete_file(secondary_id).subscribe(cb4);
         };
 
-        auto cb2 = [this, check_error, upload_subroutine, gwrapper, intman, cb3, cb_final](td::NR const &reply) {
+        auto cb2 = [this, check_error, upload_subroutine, gwrapper, cb3, cb_final](td::NR const &reply) {
             if (!check_error(reply))
                 return;
 
@@ -165,26 +166,26 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             gwrapper->copy_file(id1, "diary.dat.bak").subscribe(cb3);
         };
 
-        auto cb1 = [this, gwrapper, intman, locked, cb2]() {
+        auto cb1 = [this, gwrapper, locked, cb2]() {
+            AppBusyLock lock;
+
             switch (gwrapper->verify_auth()) {
             case td::LinkingResponse::ScopeMismatch:
-                intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
                     cmb::display_google_drive_scope_mismatch(this);
-
                 break;
             case td::LinkingResponse::Fail:
-                intman->end_busy_mode(__LINE__, __func__, __FILE__);
                 if (!locked)
                     cmb::display_google_drive_auth_error(this);
-
                 break;
             case td::LinkingResponse::OK:
+                lock.persist = true;
                 gwrapper->list_files().subscribe(cb2);
             }
         };
 
         AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+        AppBusyLock lock(true);
         gwrapper->google->link();
     }
     else {
@@ -215,8 +216,6 @@ void MainWindow::lock_diary()
     qDebug() << "Locking diary.";
     exit_diary_to_main_menu(true);
 }
-
-void MainWindow::update_theme() {}
 
 void MainWindow::clear_grid()
 {
@@ -259,13 +258,15 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (InternalManager::instance()->app_busy) {
         event->ignore();
 
+        AppBusyLock lock;
+
         auto cb = [](int const res) {
             if (QMessageBox::Yes == res) {
                 qDebug() << "App forced closed by the user.";
                 QCoreApplication::exit(1);
             }
             else {
-                InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+                AppBusyLock lock(true);
                 qDebug() << "User rejected force close dialog.";
             }
         };
@@ -278,7 +279,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
         msgbox->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgbox->setDefaultButton(QMessageBox::No);
         QObject::connect(msgbox, &QMessageBox::finished, cb);
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
         msgbox->show();
     }
     else if (td::Window::Options == current_window) {
@@ -294,12 +294,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
                     return;
 
                 if (QMessageBox::Save == res) {
-                    // If the diary failed to save, don't exit to the main menu.
-                    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-                    auto saved = DiaryHolder::instance()->save();
-                    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+                    AppBusyLock lock;
 
-                    if (!saved)
+                    // If the diary failed to save, don't exit to the main menu.
+                    if (!DiaryHolder::instance()->save())
                         cmb::display_local_diary_save_error(this);
                     else
                         exit_diary_to_main_menu(false);

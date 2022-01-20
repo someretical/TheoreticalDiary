@@ -39,7 +39,6 @@ void display_google_drive_missing_file(QWidget *p);
 template <typename Lambda> void prompt_diary_overwrite(QWidget *p, Lambda const &cb)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     struct stat buf;
     auto const &path = InternalManager::instance()->data_location().toStdString() + "/diary.dat";
@@ -63,7 +62,6 @@ template <typename Lambda> void prompt_diary_overwrite(QWidget *p, Lambda const 
 template <typename Lambda> void confirm_switch_entries(QWidget *p, Lambda const &cb)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);

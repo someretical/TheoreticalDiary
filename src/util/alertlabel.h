@@ -29,12 +29,7 @@ public:
 
     void set_text(const QString &&t, bool const auto_hide = true);
 
-public slots:
-    void update_theme();
-
 private:
-    bool first_time_stylesheet_set;
-
     // The timer is used to auto hide the alert text after it has been shown for a while.
     QTimer *timer;
 

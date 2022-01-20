@@ -172,8 +172,8 @@ public:
     QString get_theme_str(bool const opposite = false);
     td::Theme get_theme(bool const opposite = false);
     QString data_location();
-    void start_busy_mode(int const line, std::string const &func, std::string const &file);
-    void end_busy_mode(int const line, std::string const &func, std::string const &file);
+    void start_busy_mode();
+    void end_busy_mode();
     void init_settings(bool const force_reset);
     void start_update_theme();
     void set_dark_palette();
@@ -199,20 +199,25 @@ public:
 };
 
 class AppBusyLock {
-    AppBusyLock()
+public:
+    AppBusyLock(bool const p = false)
     {
-        InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+        InternalManager::instance()->start_busy_mode();
+        persist = p;
     }
 
     ~AppBusyLock()
     {
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        if (!persist)
+            InternalManager::instance()->end_busy_mode();
     }
 
     void release()
     {
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        InternalManager::instance()->end_busy_mode();
     }
+
+    bool persist;
 };
 
 #endif // INTERNAL_MANAGER_H

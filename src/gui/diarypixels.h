@@ -44,7 +44,6 @@ public:
     QDate current_date;
 
 public slots:
-    void update_theme();
     void render_button_clicked();
     void render_grid(QDate const &new_date);
     void export_image();

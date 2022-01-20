@@ -22,7 +22,6 @@ namespace cmb {
 void display_local_io_error(QWidget *p)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -35,7 +34,6 @@ void display_local_io_error(QWidget *p)
 void display_local_diary_save_error(QWidget *p)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -48,7 +46,6 @@ void display_local_diary_save_error(QWidget *p)
 void display_google_drive_network_error(QWidget *p, QString const &&err)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -61,7 +58,6 @@ void display_google_drive_network_error(QWidget *p, QString const &&err)
 void diary_uploaded(QWidget *p)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -73,7 +69,6 @@ void diary_uploaded(QWidget *p)
 void diary_downloaded(QWidget *p)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -85,7 +80,6 @@ void diary_downloaded(QWidget *p)
 void display_local_diary_access_error(QWidget *p)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -98,7 +92,6 @@ void display_local_diary_access_error(QWidget *p)
 void display_google_drive_scope_mismatch(QWidget *p)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -111,7 +104,6 @@ void display_google_drive_scope_mismatch(QWidget *p)
 void display_google_drive_auth_error(QWidget *p)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -123,7 +115,6 @@ void display_google_drive_auth_error(QWidget *p)
 void display_google_drive_missing_file(QWidget *p)
 {
     misc::clear_message_boxes();
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);

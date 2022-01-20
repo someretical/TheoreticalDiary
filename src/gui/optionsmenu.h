@@ -33,14 +33,12 @@ public:
     ~OptionsMenu();
 
 public slots:
-    void update_theme();
     void back();
     void save_settings();
     void setup_layout();
     void export_diary();
     void update_lock_timeout();
     void change_password();
-    void change_password_cb(bool const);
     void refresh_linked_checkbox();
     void complete_oauth();
     void download_backup();

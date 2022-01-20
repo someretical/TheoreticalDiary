@@ -76,15 +76,9 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
     connect(ui->ok_button, &QPushButton::clicked, this, &AboutDialog::accept, Qt::QueuedConnection);
     connect(ui->clipboard, &QPushButton::clicked,
         [this]() { QGuiApplication::clipboard()->setText(ui->about->toPlainText()); });
-
-    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &AboutDialog::update_theme,
-    //        Qt::QueuedConnection);
-    //    update_theme();
 }
 
 AboutDialog::~AboutDialog()
 {
     delete ui;
 }
-
-void AboutDialog::update_theme() {}

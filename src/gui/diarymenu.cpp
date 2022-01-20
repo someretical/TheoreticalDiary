@@ -30,6 +30,8 @@ DiaryMenu::DiaryMenu(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)
 
     auto date = QDate::currentDate();
 
+    AppBusyLock lock;
+
     ui->entries->layout()->addWidget(new DiaryEntryViewer(this));
     ui->statistics->layout()->addWidget(new DiaryStats(this));
     ui->pixels->layout()->addWidget(new DiaryPixels(this));
@@ -38,18 +40,12 @@ DiaryMenu::DiaryMenu(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)
     ui->settings_tab->layout()->addWidget(new OptionsMenu(true, this));
 
     connect(ui->diary_menu_tab, &QTabWidget::currentChanged, this, &DiaryMenu::tab_changed, Qt::QueuedConnection);
-
-    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryMenu::update_theme,
-    //        Qt::QueuedConnection);
-    //    update_theme();
 }
 
 DiaryMenu::~DiaryMenu()
 {
     delete ui;
 }
-
-void DiaryMenu::update_theme() {}
 
 void DiaryMenu::tab_changed(int const)
 {

@@ -48,7 +48,6 @@ public:
 
 public slots:
     void lock_diary();
-    void update_theme();
     void show_main_menu(bool const show_locked_message);
     void show_diary_menu();
     void show_options_menu();

@@ -91,10 +91,8 @@ QString InternalManager::data_location()
         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QApplication::applicationName());
 }
 
-void InternalManager::start_busy_mode(int const line, std::string const &func, std::string const &file)
+void InternalManager::start_busy_mode()
 {
-    qDebug() << "!!! Attempted start busy:" << line << func.data() << file.data();
-
     if (app_busy)
         return;
 
@@ -103,10 +101,8 @@ void InternalManager::start_busy_mode(int const line, std::string const &func, s
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
-void InternalManager::end_busy_mode(int const line, std::string const &func, std::string const &file)
+void InternalManager::end_busy_mode()
 {
-    qDebug() << "!!! Attempted end busy:" << line << func.data() << file.data();
-
     if (!app_busy)
         return;
 

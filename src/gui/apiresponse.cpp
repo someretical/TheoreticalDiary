@@ -29,15 +29,9 @@ APIResponse::APIResponse(QByteArray const &res, QWidget *parent) : QDialog(paren
     ui->res->setFont(monospaced);
 
     connect(ui->ok_button, &QPushButton::clicked, this, &APIResponse::accept, Qt::QueuedConnection);
-
-    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &AboutDialog::update_theme,
-    //        Qt::QueuedConnection);
-    //    update_theme();
 }
 
 APIResponse::~APIResponse()
 {
     delete ui;
 }
-
-void APIResponse::update_theme() {}

@@ -354,7 +354,8 @@ void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
 // The app shouldn't get stuck on the save error dialog as then it wouldn't be able to lock itself properly.
 void DiaryEditor::update_day(bool const suppress_error)
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+    AppBusyLock lock;
+
     // Add the entry to the in memory map.
     auto const &new_date =
         QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, last_selected_day);
@@ -377,12 +378,12 @@ void DiaryEditor::update_day(bool const suppress_error)
     last_edited.setTime_t(e.last_updated);
     // Thanks stackoverflow ;)
     ui->last_edited->setText("Last edited " + last_edited.toString("dd MMM ''yy 'at' h:mm ap"));
+    ui->last_edited->setToolTip(
+        last_edited.toString("dddd MMMM d%1 yyyy 'at' h:mm:ss ap").arg(misc::get_day_suffix(new_date.day())));
     ui->last_edited->update();
     ui->alert_text->setText("Updated entry.");
     ui->alert_text->update();
 
-    // This updates the information in the other tabs.
-    // The pixels tab should call end_busy_mode when it is done re rendering.
     InternalManager::instance()->update_data(new_date);
     qDebug() << "Updated entry and broadcasted update_data:" << new_date;
 }
@@ -393,7 +394,7 @@ void DiaryEditor::delete_day()
         if (QMessageBox::No == res)
             return;
 
-        InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+        AppBusyLock lock;
 
         // Remove the entry from the in memory map.
         auto const &new_date =
@@ -413,8 +414,6 @@ void DiaryEditor::delete_day()
             std::optional(static_cast<td::Rating>(td::Rating::Unknown)), std::nullopt, std::nullopt};
         render_day(d, false);
 
-        // This updates the information in the other tabs.
-        // The pixels tab should call end_busy_mode when it is done re rendering.
         InternalManager::instance()->update_data(new_date);
         qDebug() << "Deleted entry and broadcasted update_data:" << new_date;
     };

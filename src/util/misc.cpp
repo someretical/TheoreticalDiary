@@ -162,5 +162,4 @@ QString sanitise_html(std::string const &str)
         .replace(">", "&gt;")
         .replace("\n", "<br>");
 }
-
 } // namespace misc

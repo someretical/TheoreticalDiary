@@ -17,6 +17,7 @@
  */
 
 #include <fstream>
+#include <memory>
 #include <sstream>
 
 #include "../core/diaryholder.h"
@@ -53,10 +54,6 @@ MainMenu::MainMenu(bool const show_locked_message, QWidget *parent) : QWidget(pa
     connect(ui->options_button, &QPushButton::clicked, this, &MainMenu::open_options, Qt::QueuedConnection);
     connect(ui->quit_button, &QPushButton::clicked, qobject_cast<MainWindow *>(parent), &MainWindow::close,
         Qt::QueuedConnection);
-
-    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &MainMenu::update_theme,
-    //        Qt::QueuedConnection);
-    //    update_theme();
 }
 
 MainMenu::~MainMenu()
@@ -64,8 +61,6 @@ MainMenu::~MainMenu()
     delete ui;
     delete enter_shortcut;
 }
-
-void MainMenu::update_theme() {}
 
 void MainMenu::open_options()
 {
@@ -103,7 +98,7 @@ bool MainMenu::get_diary_contents()
 void MainMenu::decrypt_diary()
 {
     qDebug() << "Attempting to decrypt diary...";
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
+    AppBusyLock lock(true);
 
     auto const &password = ui->password_box->text().toStdString();
     ui->password_box->setText("");
@@ -124,9 +119,39 @@ void MainMenu::decrypt_diary()
         msgbox->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgbox->setDefaultButton(QMessageBox::Yes);
         connect(msgbox, &QMessageBox::finished, cb);
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        lock.release();
         return msgbox->show();
     }
+
+    auto decrypt_diary_cb = [this](bool const perform_decrypt) {
+        std::string decrypted;
+        if (perform_decrypt) {
+            auto const &res = Encryptor::instance()->decrypt(Encryptor::instance()->encrypted_str);
+            if (!res)
+                return QTimer::singleShot(2000, [this]() {
+                    AppBusyLock lock;
+                    ui->pwd_alert_text->set_text("Wrong password.");
+                });
+
+            decrypted.assign(*res);
+        }
+
+        std::string decompressed;
+        if (Zipper::unzip((perform_decrypt ? decrypted : Encryptor::instance()->encrypted_str), decompressed) &&
+            DiaryHolder::instance()->load(decompressed)) {
+
+            GoogleWrapper::instance()->decrypt_credentials(perform_decrypt);
+            qDebug() << "Decryption and decompression of diary successful. Loading diary menu...";
+            return MainWindow::instance()->show_diary_menu();
+            // show_diary_menu will end the lock.
+        }
+
+        // 2000ms delay here to stop the app from getting spammed.
+        QTimer::singleShot(2000, [this]() {
+            AppBusyLock lock;
+            ui->pwd_alert_text->set_text("Unable to parse diary.");
+        });
+    };
 
     auto &str = Encryptor::instance()->encrypted_str;
     // If the password box is empty, try to decompress immediately.
@@ -148,42 +173,10 @@ void MainMenu::decrypt_diary()
     ui->pwd_alert_text->set_text("Decrypting...", false);
 
     auto hash_controller = new HashController();
-    connect(hash_controller, &HashController::sig_done, this, &MainMenu::decrypt_diary_cb, Qt::QueuedConnection);
+    connect(hash_controller, &HashController::sig_done, decrypt_diary_cb);
     connect(hash_controller, &HashController::sig_delete, hash_controller, &HashController::deleteLater,
         Qt::QueuedConnection);
     emit hash_controller->operate(password);
-}
-
-void MainMenu::decrypt_diary_cb(bool const perform_decrypt)
-{
-    std::string decrypted;
-    if (perform_decrypt) {
-        auto const &res = Encryptor::instance()->decrypt(Encryptor::instance()->encrypted_str);
-        if (!res)
-            return QTimer::singleShot(2000, [&]() {
-                ui->pwd_alert_text->set_text("Wrong password.");
-                InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-            });
-
-        decrypted.assign(*res);
-    }
-
-    std::string decompressed;
-    if (Zipper::unzip((perform_decrypt ? decrypted : Encryptor::instance()->encrypted_str), decompressed) &&
-        DiaryHolder::instance()->load(decompressed)) {
-
-        GoogleWrapper::instance()->decrypt_credentials(perform_decrypt);
-        qDebug() << "Decryption and decompression of diary successful. Loading diary menu...";
-        return MainWindow::instance()->show_diary_menu();
-        // show_diary_menu instantiates the diary pixels tab which in turn will call end_busy_mode once it's done
-        // rendering.
-    }
-
-    // 2000ms delay here to stop the app from getting spammed.
-    QTimer::singleShot(2000, [&]() {
-        ui->pwd_alert_text->set_text("Unable to parse diary.");
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
-    });
 }
 
 void MainMenu::new_diary(bool const skip_overwrite_check)

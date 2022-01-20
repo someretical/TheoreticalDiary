@@ -67,10 +67,6 @@ OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidge
     connect(GoogleWrapper::instance()->google, &O2Google::linkedChanged, this, &OptionsMenu::refresh_linked_checkbox,
         Qt::QueuedConnection);
 
-    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &OptionsMenu::update_theme,
-    //        Qt::QueuedConnection);
-    //    update_theme();
-
     setup_layout();
 }
 
@@ -78,8 +74,6 @@ OptionsMenu::~OptionsMenu()
 {
     delete ui;
 }
-
-void OptionsMenu::update_theme() {}
 
 void OptionsMenu::back()
 {
@@ -173,12 +167,12 @@ void OptionsMenu::export_diary()
     if (filename.isEmpty())
         return;
 
+    AppBusyLock lock;
     std::ofstream dst(filename.toStdString());
 
     if (dst.fail())
         return cmb::display_local_io_error(this);
 
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
     nlohmann::json const &j = DiaryHolder::instance()->diary;
     dst << j.dump(4);
 
@@ -192,6 +186,7 @@ void OptionsMenu::export_diary()
 
 void OptionsMenu::update_lock_timeout()
 {
+    AppBusyLock lock;
     bool ok = true;
     qint64 const &ms = ui->lock_timeout_textedit->text().toLongLong(&ok, 10);
 
@@ -207,16 +202,21 @@ void OptionsMenu::update_lock_timeout()
 
 void OptionsMenu::change_password()
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
-
+    AppBusyLock lock(true);
     ui->pwd_alert_text->set_text("");
 
     auto const &password = ui->new_password->text();
     if (password != ui->new_password_confirm->text()) {
         ui->pwd_alert_text->set_text("The passwords do not match.");
 
-        return InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
+        return lock.release();
     }
+
+    auto cb = [this](bool const) {
+        AppBusyLock lock;
+        InternalManager::instance()->internal_diary_changed = true;
+        ui->pwd_alert_text->set_text("Password updated.");
+    };
 
     if (0 != password.length()) {
         ui->pwd_alert_text->set_text("Changing password...", false);
@@ -226,8 +226,7 @@ void OptionsMenu::change_password()
         ui->new_password_confirm->update();
 
         auto hash_controller = new HashController();
-        connect(
-            hash_controller, &HashController::sig_done, this, &OptionsMenu::change_password_cb, Qt::QueuedConnection);
+        connect(hash_controller, &HashController::sig_done, cb);
         connect(hash_controller, &HashController::sig_delete, hash_controller, &HashController::deleteLater,
             Qt::QueuedConnection);
         emit hash_controller->operate(password.toStdString());
@@ -235,26 +234,19 @@ void OptionsMenu::change_password()
     else {
         qDebug() << "Resetting password to nothing.";
         Encryptor::instance()->reset();
-        change_password_cb(false);
+        cb(false);
     }
-}
-
-void OptionsMenu::change_password_cb(bool const)
-{
-    InternalManager::instance()->internal_diary_changed = true;
-    ui->pwd_alert_text->set_text("Password updated.");
-    InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
 }
 
 void OptionsMenu::complete_oauth()
 {
     auto gwrapper = GoogleWrapper::instance();
-    auto intman = InternalManager::instance();
 
     qDebug() << "User attempted to link Google account...";
-    intman->start_busy_mode(__LINE__, __func__, __FILE__);
 
-    auto cb1 = [this, gwrapper, intman]() {
+    auto cb1 = [this, gwrapper]() {
+        AppBusyLock lock;
+
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
             cmb::display_google_drive_scope_mismatch(this);
@@ -267,16 +259,14 @@ void OptionsMenu::complete_oauth()
             msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
             msgbox->setText("Successfully linked Google account.");
             msgbox->setStandardButtons(QMessageBox::Ok);
-            InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
             msgbox->show();
             break;
         }
     };
 
     AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AppBusyLock lock(true);
     gwrapper->google->link();
-
-    GoogleWrapper::instance()->google->link();
 }
 
 void OptionsMenu::download_backup()
@@ -284,7 +274,7 @@ void OptionsMenu::download_backup()
     auto gwrapper = GoogleWrapper::instance();
     auto intman = InternalManager::instance();
 
-    auto check_error = [this, intman](td::NR const &reply) {
+    auto check_error = [this](td::NR const &reply) {
         if (QNetworkReply::NoError != reply.error) {
             cmb::display_google_drive_network_error(this, std::move(reply.error_message));
             return false;
@@ -294,6 +284,8 @@ void OptionsMenu::download_backup()
     };
 
     auto cb_final = [this, check_error, intman](td::NR const &reply) {
+        AppBusyLock lock;
+
         if (!check_error(reply))
             return;
 
@@ -308,7 +300,7 @@ void OptionsMenu::download_backup()
         cmb::diary_downloaded(this);
     };
 
-    auto cb2 = [this, check_error, gwrapper, intman, cb_final](td::NR const &reply) {
+    auto cb2 = [this, check_error, gwrapper, cb_final](td::NR const &reply) {
         if (!check_error(reply))
             return;
 
@@ -320,7 +312,9 @@ void OptionsMenu::download_backup()
         gwrapper->download_file(id1.isEmpty() ? id2 : id1).subscribe(cb_final);
     };
 
-    auto cb1 = [this, gwrapper, intman, cb2]() {
+    auto cb1 = [this, gwrapper, cb2]() {
+        AppBusyLock lock;
+
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
             cmb::display_google_drive_scope_mismatch(this);
@@ -329,17 +323,18 @@ void OptionsMenu::download_backup()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
+            lock.persist = true;
             gwrapper->list_files().subscribe(cb2);
             break;
         }
     };
 
-    auto cb = [intman, gwrapper, cb1](int const res) {
+    auto cb = [gwrapper, cb1](int const res) {
         if (QMessageBox::No == res)
             return;
 
-        intman->start_busy_mode(__LINE__, __func__, __FILE__);
         AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+        AppBusyLock lock(true);
         gwrapper->google->link();
     };
 
@@ -353,10 +348,9 @@ void OptionsMenu::upload_diary()
     auto gwrapper = GoogleWrapper::instance();
     auto intman = InternalManager::instance();
 
-    intman->start_busy_mode(__LINE__, __func__, __FILE__);
-
-    auto check_error = [this, intman](td::NR const &reply) {
+    auto check_error = [this](td::NR const &reply) {
         if (QNetworkReply::NoError != reply.error) {
+            AppBusyLock lock;
             cmb::display_google_drive_network_error(this, std::move(reply.error_message));
             return false;
         }
@@ -364,7 +358,9 @@ void OptionsMenu::upload_diary()
         return true;
     };
 
-    auto cb_final = [this, check_error, gwrapper, intman](td::NR const &reply) {
+    auto cb_final = [this, check_error, gwrapper](td::NR const &reply) {
+        AppBusyLock lock;
+
         if (check_error(reply))
             cmb::diary_uploaded(this);
     };
@@ -372,8 +368,10 @@ void OptionsMenu::upload_diary()
     auto upload_subroutine = [this, gwrapper, intman, cb_final]() {
         auto file_ptr = new QFile(QString("%1/diary.dat").arg(intman->data_location()));
 
-        if (!file_ptr->open(QIODevice::ReadOnly))
+        if (!file_ptr->open(QIODevice::ReadOnly)) {
+            AppBusyLock lock;
             return cmb::display_local_diary_access_error(this);
+        }
 
         if (primary_id.isEmpty())
             gwrapper->upload_file(file_ptr, "diary.dat").subscribe(cb_final);
@@ -381,14 +379,14 @@ void OptionsMenu::upload_diary()
             gwrapper->update_file(file_ptr, primary_id).subscribe(cb_final);
     };
 
-    auto cb4 = [this, check_error, upload_subroutine, gwrapper, intman, cb_final](td::NR const &reply) {
+    auto cb4 = [this, check_error, upload_subroutine, gwrapper, cb_final](td::NR const &reply) {
         if (!check_error(reply))
             return;
 
         upload_subroutine();
     };
 
-    auto cb3 = [this, check_error, upload_subroutine, gwrapper, intman, cb4, cb_final](td::NR const &reply) {
+    auto cb3 = [this, check_error, upload_subroutine, gwrapper, cb4, cb_final](td::NR const &reply) {
         if (!check_error(reply))
             return;
 
@@ -398,7 +396,7 @@ void OptionsMenu::upload_diary()
         gwrapper->delete_file(secondary_id).subscribe(cb4);
     };
 
-    auto cb2 = [this, check_error, upload_subroutine, gwrapper, intman, cb3, cb_final](td::NR const &reply) {
+    auto cb2 = [this, check_error, upload_subroutine, gwrapper, cb3, cb_final](td::NR const &reply) {
         if (!check_error(reply))
             return;
 
@@ -412,7 +410,9 @@ void OptionsMenu::upload_diary()
         gwrapper->copy_file(id1, "diary.dat.bak").subscribe(cb3);
     };
 
-    auto cb1 = [this, gwrapper, intman, cb2]() {
+    auto cb1 = [this, gwrapper, cb2]() {
+        AppBusyLock lock;
+
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
             cmb::display_google_drive_scope_mismatch(this);
@@ -421,49 +421,53 @@ void OptionsMenu::upload_diary()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
+            lock.persist = true;
             gwrapper->list_files().subscribe(cb2);
             break;
         }
     };
 
     AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AppBusyLock lock(true);
     gwrapper->google->link();
 }
 
 void OptionsMenu::flush_oauth()
 {
-    InternalManager::instance()->start_busy_mode(__LINE__, __func__, __FILE__);
     auto gwrapper = GoogleWrapper::instance();
 
     auto cb = [this, gwrapper](td::NR const &) {
+        AppBusyLock lock;
+
         gwrapper->google->unlink();
 
         auto msgbox = new QMessageBox(this);
         msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
         msgbox->setText("The OAuth2 tokens have been deleted.");
         msgbox->setStandardButtons(QMessageBox::Ok);
-        InternalManager::instance()->end_busy_mode(__LINE__, __func__, __FILE__);
         msgbox->show();
     };
 
+    AppBusyLock lock(true);
     gwrapper->revoke_access().subscribe(cb);
 }
 
 void OptionsMenu::dev_list()
 {
     auto gwrapper = GoogleWrapper::instance();
-    auto intman = InternalManager::instance();
 
-    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+    auto cb_final = [this](td::NR const &reply) {
+        AppBusyLock lock;
 
-    auto cb_final = [this, intman](td::NR const &reply) {
         misc::clear_message_boxes();
-        intman->end_busy_mode(__LINE__, __func__, __FILE__);
-        APIResponse r(reply.response, this);
-        r.exec();
+        auto r = new APIResponse(reply.response, this);
+        r->setAttribute(Qt::WA_DeleteOnClose, true);
+        r->show();
     };
 
-    auto cb1 = [this, gwrapper, intman, cb_final]() {
+    auto cb1 = [this, gwrapper, cb_final]() {
+        AppBusyLock lock;
+
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
             cmb::display_google_drive_scope_mismatch(this);
@@ -472,12 +476,14 @@ void OptionsMenu::dev_list()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
+            lock.persist = true;
             gwrapper->list_files().subscribe(cb_final);
             break;
         }
     };
 
     AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AppBusyLock lock(true);
     gwrapper->google->link();
 }
 
@@ -485,22 +491,23 @@ void OptionsMenu::dev_upload()
 {
     static QString filename;
     auto gwrapper = GoogleWrapper::instance();
-    auto intman = InternalManager::instance();
 
     filename = QFileDialog::getOpenFileName(this, "Upload file", QDir::homePath());
     if (filename.isEmpty())
         return;
 
-    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+    auto cb_final = [this](td::NR const &reply) {
+        AppBusyLock lock;
 
-    auto cb_final = [this, intman](td::NR const &reply) {
         misc::clear_message_boxes();
-        intman->end_busy_mode(__LINE__, __func__, __FILE__);
-        APIResponse r(reply.response, this);
-        r.exec();
+        auto r = new APIResponse(reply.response, this);
+        r->setAttribute(Qt::WA_DeleteOnClose, true);
+        r->show();
     };
 
-    auto cb1 = [this, gwrapper, intman, cb_final]() {
+    auto cb1 = [this, gwrapper, cb_final]() {
+        AppBusyLock lock;
+
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
             cmb::display_google_drive_scope_mismatch(this);
@@ -514,6 +521,7 @@ void OptionsMenu::dev_upload()
             if (!file_ptr->open(QIODevice::ReadOnly))
                 return cmb::display_local_io_error(this);
 
+            lock.persist = true;
             QFileInfo fileinfo(file_ptr->fileName());
             gwrapper->upload_file(file_ptr, fileinfo.fileName()).subscribe(cb_final);
             break;
@@ -521,6 +529,7 @@ void OptionsMenu::dev_upload()
     };
 
     AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AppBusyLock lock(true);
     gwrapper->google->link();
 }
 
@@ -528,21 +537,19 @@ void OptionsMenu::dev_download()
 {
     static QString filename;
     auto gwrapper = GoogleWrapper::instance();
-    auto intman = InternalManager::instance();
 
     filename = QFileDialog::getSaveFileName(this, "Download file", QString("%1/download").arg(QDir::homePath()));
     if (filename.isEmpty())
         return;
 
-    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+    auto cb_final = [this](td::NR const &reply) {
+        AppBusyLock lock;
 
-    auto cb_final = [this, intman](td::NR const &reply) {
         if (QNetworkReply::NoError != reply.error) {
             misc::clear_message_boxes();
-            intman->end_busy_mode(__LINE__, __func__, __FILE__);
-            APIResponse r(reply.response, this);
-            r.exec();
-            return;
+            auto r = new APIResponse(reply.response, this);
+            r->setAttribute(Qt::WA_DeleteOnClose, true);
+            return r->show();
         }
 
         QFile file(filename);
@@ -551,12 +558,14 @@ void OptionsMenu::dev_download()
         file.write(reply.response);
 
         misc::clear_message_boxes();
-        intman->end_busy_mode(__LINE__, __func__, __FILE__);
-        APIResponse r("File downloaded.", this);
-        r.exec();
+        auto r = new APIResponse("File downloaded.", this);
+        r->setAttribute(Qt::WA_DeleteOnClose, true);
+        return r->show();
     };
 
-    auto cb1 = [this, gwrapper, intman, cb_final]() {
+    auto cb1 = [this, gwrapper, cb_final]() {
+        AppBusyLock lock;
+
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
             cmb::display_google_drive_scope_mismatch(this);
@@ -565,12 +574,14 @@ void OptionsMenu::dev_download()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
+            lock.persist = true;
             gwrapper->download_file(ui->dev_download_file_id->text()).subscribe(cb_final);
             break;
         }
     };
 
     AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AppBusyLock lock(true);
     gwrapper->google->link();
 }
 
@@ -578,22 +589,23 @@ void OptionsMenu::dev_update()
 {
     static QString filename;
     auto gwrapper = GoogleWrapper::instance();
-    auto intman = InternalManager::instance();
 
     filename = QFileDialog::getOpenFileName(this, "Upload file", QDir::homePath());
     if (filename.isEmpty())
         return;
 
-    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+    auto cb_final = [this](td::NR const &reply) {
+        AppBusyLock lock;
 
-    auto cb_final = [this, intman](td::NR const &reply) {
         misc::clear_message_boxes();
-        intman->end_busy_mode(__LINE__, __func__, __FILE__);
-        APIResponse r(reply.response, this);
-        r.exec();
+        auto r = new APIResponse(reply.response, this);
+        r->setAttribute(Qt::WA_DeleteOnClose, true);
+        r->show();
     };
 
-    auto cb1 = [this, gwrapper, intman, cb_final]() {
+    auto cb1 = [this, gwrapper, cb_final]() {
+        AppBusyLock lock;
+
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
             cmb::display_google_drive_scope_mismatch(this);
@@ -607,30 +619,33 @@ void OptionsMenu::dev_update()
             if (!file_ptr->open(QIODevice::ReadOnly))
                 return cmb::display_local_io_error(this);
 
+            lock.persist = true;
             gwrapper->update_file(file_ptr, ui->dev_update_file_id->text()).subscribe(cb_final);
             break;
         }
     };
 
     AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AppBusyLock lock(true);
     gwrapper->google->link();
 }
 
 void OptionsMenu::dev_copy()
 {
     auto gwrapper = GoogleWrapper::instance();
-    auto intman = InternalManager::instance();
 
-    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+    auto cb_final = [this](td::NR const &reply) {
+        AppBusyLock lock;
 
-    auto cb_final = [this, intman](td::NR const &reply) {
         misc::clear_message_boxes();
-        intman->end_busy_mode(__LINE__, __func__, __FILE__);
-        APIResponse r(reply.response, this);
-        r.exec();
+        auto r = new APIResponse(reply.response, this);
+        r->setAttribute(Qt::WA_DeleteOnClose, true);
+        r->show();
     };
 
-    auto cb1 = [this, gwrapper, intman, cb_final]() {
+    auto cb1 = [this, gwrapper, cb_final]() {
+        AppBusyLock lock;
+
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
             cmb::display_google_drive_scope_mismatch(this);
@@ -639,31 +654,34 @@ void OptionsMenu::dev_copy()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
+            lock.persist = true;
             gwrapper->copy_file(ui->dev_copy_file_id->text(), ui->dev_copy_file_new_name->text()).subscribe(cb_final);
             break;
         }
     };
 
     AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AppBusyLock lock(true);
     gwrapper->google->link();
 }
 
 void OptionsMenu::dev_delete()
 {
     auto gwrapper = GoogleWrapper::instance();
-    auto intman = InternalManager::instance();
 
-    intman->start_busy_mode(__LINE__, __func__, __FILE__);
+    auto cb_final = [this](td::NR const &reply) {
+        AppBusyLock lock;
 
-    auto cb_final = [this, intman](td::NR const &reply) {
         misc::clear_message_boxes();
-        intman->end_busy_mode(__LINE__, __func__, __FILE__);
-        APIResponse r(
+        auto r = new APIResponse(
             QNetworkReply::NoError != reply.error ? reply.error_message.toLocal8Bit() : "File deleted.", this);
-        r.exec();
+        r->setAttribute(Qt::WA_DeleteOnClose, true);
+        r->show();
     };
 
-    auto cb1 = [this, gwrapper, intman, cb_final]() {
+    auto cb1 = [this, gwrapper, cb_final]() {
+        AppBusyLock lock;
+
         switch (gwrapper->verify_auth()) {
         case td::LinkingResponse::ScopeMismatch:
             cmb::display_google_drive_scope_mismatch(this);
@@ -672,12 +690,14 @@ void OptionsMenu::dev_delete()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
+            lock.persist = true;
             gwrapper->delete_file(ui->dev_delete_file_id->text()).subscribe(cb_final);
             break;
         }
     };
 
     AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AppBusyLock lock(true);
     gwrapper->google->link();
 }
 

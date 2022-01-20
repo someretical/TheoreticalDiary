@@ -33,7 +33,6 @@ public:
     ~DiaryMenu();
 
 public slots:
-    void update_theme();
     void tab_changed(int const);
 
 private:

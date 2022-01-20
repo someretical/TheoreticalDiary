@@ -33,13 +33,11 @@ public:
     ~MainMenu();
 
 public slots:
-    void update_theme();
     void decrypt_diary();
     void new_diary(bool const skip_overwrite_check = false);
     void import_diary();
     void open_options();
     bool get_diary_contents();
-    void decrypt_diary_cb(bool const perform_decrypt);
 
 private:
     Ui::MainMenu *ui;
