@@ -96,8 +96,8 @@ private:
             QPainter p(&bkg);
             p.setRenderHint(QPainter::Antialiasing);
 
-            if (InternalManager::instance()->get_theme() == td::Theme::Light)
-                p.setOpacity(0.8);
+            //            if (InternalManager::instance()->get_theme() == td::Theme::Light)
+            //                p.setOpacity(0.8);
 
             p.setPen(bkg_color);
             p.setBrush(QBrush(bkg_color));

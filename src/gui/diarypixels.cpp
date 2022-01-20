@@ -29,13 +29,13 @@ int const LABEL_SIZE = 36;
 DiaryPixels::DiaryPixels(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPixels)
 {
     ui->setupUi(this);
+    setup_grid();
     ui->year_edit->setDate(QDate::currentDate());
 
     connect(InternalManager::instance(), &InternalManager::update_data, this, &DiaryPixels::render_grid,
         Qt::QueuedConnection);
-    connect(ui->render_button, &QPushButton::clicked, this, &DiaryPixels::render_button_clicked, Qt::QueuedConnection);
+    connect(ui->year_edit, &QDateEdit::dateChanged, this, &DiaryPixels::render_grid, Qt::QueuedConnection);
     connect(ui->export_img_button, &QPushButton::clicked, this, &DiaryPixels::export_image, Qt::QueuedConnection);
-
     // current_date is initialised by &InternalManager::change_month signal.
 }
 
@@ -84,34 +84,12 @@ void DiaryPixels::render_button_clicked()
     render_grid(ui->year_edit->date());
 }
 
-void DiaryPixels::render_grid(QDate const &new_date)
+void DiaryPixels::setup_grid()
 {
-    // Remove everything from current grid.
-    QLayoutItem *child;
-    while ((child = ui->grid->takeAt(0)) != 0) {
-        delete child->widget();
-        delete child;
-    }
-
-    current_date = new_date;
-    auto const &opt = DiaryHolder::instance()->get_yearmap(current_date);
-
-    // Set new grid.
-    if (!opt) {
-        auto label = new QLabel("It seems there are no entries yet for this year...", this);
-        auto f = label->font();
-        f.setPointSize(11);
-        label->setFont(f);
-
-        return ui->grid->addWidget(label, 0, 0, 1, 1, Qt::AlignCenter);
-    }
-
-    auto &&tmp_date = QDate::currentDate();
-    auto const year = current_date.year();
     auto const size = calculate_size();
 
-    for (int month = 0; month < 12; ++month) {
-        auto label = new QLabel(QString(MONTH_LETTERS[month]), this);
+    for (int month = 1; month < 13; ++month) {
+        auto label = new QLabel(QString(MONTH_LETTERS[month - 1]), this);
         QFont f = label->font();
         f.setPointSize(14);
         f.setBold(true);
@@ -119,51 +97,84 @@ void DiaryPixels::render_grid(QDate const &new_date)
         label->setFixedHeight(LABEL_SIZE);
         label->setFixedWidth(LABEL_SIZE);
         label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        ui->grid->addWidget(label, month, 0);
+        ui->grid->addWidget(label, month - 1, 0);
 
-        int days = QDate(current_date.year(), month + 1, 1).daysInMonth();
+        for (int day = 1; day < 32; ++day) {
+            auto ptr = new DiaryPixelLabel(td::Rating::Unknown, false, month, day, size, this);
+            connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize, Qt::QueuedConnection);
 
-        // This block runs if the month doesn't exist at all.
-        auto const &monthmap = (*opt)->second;
-        auto const &iter = monthmap.find(month + 1 /* Month is index 1 based */);
-        if (iter == monthmap.end()) {
-            for (int day = 0; day < days; ++day) {
-                tmp_date.setDate(year, month + 1, day + 1);
-
-                auto ptr = new DiaryPixelLabel(td::Rating::Unknown, false, tmp_date, size, this);
-                connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize, Qt::QueuedConnection);
-
-                ui->grid->addWidget(
-                    ptr, month, day + 1 /* +1 here because of the month label added at the start of each row */);
-            }
-
-            continue;
-        }
-
-        // This code runs if some/all dates in a month exist.
-        for (int day = 0; day < days; ++day) {
-            auto const &entrymap = iter->second;
-            auto const &iter2 = entrymap.find(day + 1 /* day is index 1 based */);
-
-            tmp_date.setDate(year, month + 1, day + 1);
-            if (iter2 == entrymap.end()) {
-                auto ptr = new DiaryPixelLabel(td::Rating::Unknown, false, tmp_date, size, this);
-                connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize, Qt::QueuedConnection);
-
-                ui->grid->addWidget(ptr, month, day + 1);
-            }
-            else {
-                auto const &[important, rating, dummy, d2] = iter2->second;
-
-                auto ptr = new DiaryPixelLabel(rating, important, tmp_date, size, this);
-                connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize, Qt::QueuedConnection);
-
-                ui->grid->addWidget(ptr, month, day + 1);
-            }
+            ui->grid->addWidget(ptr, month - 1, day);
         }
     }
 
-    qDebug() << "Rendered pixels grid" << current_date;
+    qDebug() << "Rendered pixel grid.";
+}
+
+void DiaryPixels::render_grid(QDate const &new_date)
+{
+    current_date = new_date;
+    ui->year_edit->blockSignals(true);
+    ui->year_edit->setDate(new_date);
+    ui->year_edit->blockSignals(false);
+    auto const &opt = DiaryHolder::instance()->get_yearmap(current_date);
+
+    for (int month = 1; month < 13; ++month) {
+        int days = QDate(current_date.year(), month, 1).daysInMonth();
+
+        auto placeholder = [this, month, days]() {
+            for (int day = 1; day < 32; ++day) {
+                auto pixel = qobject_cast<DiaryPixelLabel *>(ui->grid->itemAtPosition(month - 1, day)->widget());
+
+                if (day > days)
+                    pixel->setVisible(false);
+                else
+                    pixel->setVisible(true);
+
+                pixel->rating = td::Rating::Unknown;
+                pixel->special = false;
+                pixel->update();
+            }
+        };
+
+        if (opt) {
+            auto const &monthmap = (*opt)->second;
+            auto const &iter = monthmap.find(month);
+
+            if (iter == monthmap.end()) {
+                placeholder();
+            }
+            else {
+                auto const &entrymap = iter->second;
+
+                for (int day = 1; day < 32; ++day) {
+                    auto pixel = qobject_cast<DiaryPixelLabel *>(ui->grid->itemAtPosition(month - 1, day)->widget());
+                    auto const &iter2 = entrymap.find(day);
+
+                    if (day > days)
+                        pixel->setVisible(false);
+                    else
+                        pixel->setVisible(true);
+
+                    if (iter2 == entrymap.end()) {
+                        pixel->rating = td::Rating::Unknown;
+                        pixel->special = false;
+                    }
+                    else {
+                        auto const &[important, rating, dummy, d2] = iter2->second;
+                        pixel->rating = rating;
+                        pixel->special = important;
+                    }
+
+                    pixel->update();
+                }
+            }
+        }
+        else {
+            placeholder();
+        }
+    }
+
+    qDebug() << "Updated pixels grid" << current_date;
 }
 
 void DiaryPixels::export_image()

@@ -49,8 +49,6 @@ public:
         setFixedSize(QSize(override::SIZE, override::SIZE));
         data = d;
         mouse_down = false;
-
-        update();
     }
 
     ~DiaryCalendarButton() {}
@@ -59,8 +57,11 @@ public:
     bool mouse_down;
 
 public slots:
-    void re_render(td::CalendarButtonData const &d)
+    void render(td::CalendarButtonData const &d)
     {
+        if (d.day)
+            data.day = d.day;
+
         if (d.important)
             data.important = d.important;
 
@@ -69,6 +70,9 @@ public slots:
 
         if (d.selected)
             data.selected = d.selected;
+
+        if (d.current_day)
+            data.current_day = d.current_day;
 
         update();
     }
@@ -135,8 +139,8 @@ private:
             path.addRoundedRect(
                 QRect(topleft_offset, topleft_offset, adjusted_size, adjusted_size), ROUNDNESS, ROUNDNESS);
 
-            if (InternalManager::instance()->get_theme() == td::Theme::Light)
-                p.setOpacity(0.8);
+            //            if (InternalManager::instance()->get_theme() == td::Theme::Light)
+            //                p.setOpacity(0.8);
 
             // Set background color.
             QColor color = misc::rating_to_colour(*data.rating);

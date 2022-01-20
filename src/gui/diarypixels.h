@@ -39,6 +39,7 @@ public:
     ~DiaryPixels();
 
     void resizeEvent(QResizeEvent *);
+    void setup_grid();
     int calculate_size();
 
     QDate current_date;

@@ -24,12 +24,17 @@
 #include "../core/internalmanager.h"
 #include "misc.h"
 
+namespace override {
+static char const *MONTHS[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September",
+    "October", "November", "December"};
+}
+
 class DiaryPixelLabel : public QLabel {
     Q_OBJECT
 
 public:
     explicit DiaryPixelLabel(
-        td::Rating const r, bool const s, QDate const &date, int const size, QWidget *parent = nullptr)
+        td::Rating const r, bool const s, int const month, int const day, int const size, QWidget *parent = nullptr)
         : QLabel(parent)
     {
         special = s;
@@ -38,8 +43,8 @@ public:
         setFixedHeight(size);
         setFixedWidth(size);
 
-        setToolTip(QString("%1 %2%3").arg(
-            date.toString("MMMM"), QString::number(date.day()), misc::get_day_suffix(date.day())));
+        setToolTip(
+            QString("%1 %2%3").arg(override::MONTHS[month - 1], QString::number(day), misc::get_day_suffix(day)));
     }
 
     ~DiaryPixelLabel() {}
@@ -92,8 +97,8 @@ private:
         QPainter p(&bkg);
         p.setRenderHint(QPainter::Antialiasing);
 
-        if (InternalManager::instance()->get_theme() == td::Theme::Light)
-            p.setOpacity(0.8);
+        //        if (InternalManager::instance()->get_theme() == td::Theme::Light)
+        //            p.setOpacity(0.8);
 
         p.setPen(bkg_colour);
         p.setBrush(QBrush(bkg_colour));

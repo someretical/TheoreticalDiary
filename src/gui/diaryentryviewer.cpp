@@ -64,7 +64,6 @@ DiaryEntryViewer::DiaryEntryViewer(QWidget *parent) : QWidget(parent), ui(new Ui
         Qt::QueuedConnection);
     connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryEntryViewer::update_theme,
         Qt::QueuedConnection);
-    update_theme();
 
     // current_date is initialised by &InternalManager::change_month signal.
 }
@@ -122,6 +121,11 @@ void DiaryEntryViewer::change_month(QDate const &date)
                 .arg(generate_base64_icon(i.first, rating, important),
                     last_edited.toString("dddd MMMM d%1 yyyy 'at' h:mm:ss ap").arg(misc::get_day_suffix(i.first)),
                     misc::sanitise_html(misc::trim(copy))));
+        //        html.append(
+        //            QString(SINGLE_ROW)
+        //                .arg(generate_base64_icon(i.first, rating, important),
+        //                    last_edited.toString("dddd MMMM d%1 yyyy 'at' h:mm:ss
+        //                    ap").arg(misc::get_day_suffix(i.first)), "PLACEHOLDER"));
         html.append(HR_ROW);
 
         ++row_counter;
@@ -202,8 +206,8 @@ QPixmap DiaryEntryViewer::generate_background(td::Rating const rating)
         QPainter p(&pixmap);
         p.setRenderHint(QPainter::Antialiasing);
 
-        if (InternalManager::instance()->get_theme() == td::Theme::Light)
-            p.setOpacity(0.8);
+        //        if (InternalManager::instance()->get_theme() == td::Theme::Light)
+        //            p.setOpacity(0.8);
 
         p.setPen(Qt::transparent);
         p.setBrush(QBrush(colour));

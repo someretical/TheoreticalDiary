@@ -131,10 +131,10 @@ td::Theme rating_to_theme(const td::Rating rating)
     case td::Rating::VeryBad:
     case td::Rating::Bad:
     case td::Rating::Ok:
-        return td::Theme::Light;
     case td::Rating::Good:
-    case td::Rating::VeryGood:
         return td::Theme::Dark;
+    case td::Rating::VeryGood:
+        return td::Theme::Light;
     }
 
     // This can never happen, it's only here to shut down the compiler warning.

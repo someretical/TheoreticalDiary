@@ -20,6 +20,7 @@
 #include "../core/diaryholder.h"
 #include "../util/custommessageboxes.h"
 #include "../util/misc.h"
+#include "mainwindow.h"
 #include "ui_diaryeditor.h"
 
 DiaryEditor::DiaryEditor(QDate const &date, QWidget *parent) : QWidget(parent), ui(new Ui::DiaryEditor)
@@ -27,9 +28,10 @@ DiaryEditor::DiaryEditor(QDate const &date, QWidget *parent) : QWidget(parent), 
     ui->setupUi(this);
     ui->alert_text->setText("");
     ui->alert_text->update();
+    setup_buttons();
 
     current_month_offset = 0;
-    last_selected_day = 0;
+    current_date = date;
     last_entry_snapshot = td::Entry{false, td::Rating::Unknown, "", 0};
 
     // Ctrl S to save the diary.
@@ -47,17 +49,12 @@ DiaryEditor::DiaryEditor(QDate const &date, QWidget *parent) : QWidget(parent), 
     connect(ui->prev_month, &QPushButton::clicked, this, &DiaryEditor::prev_month, Qt::QueuedConnection);
 
     // Info pane actions.
-    connect(
-        ui->update_button, &QPushButton::clicked, this, [&]() { update_day(false); }, Qt::QueuedConnection);
+    connect(MainWindow::instance(), &MainWindow::sig_update_diary, this, &DiaryEditor::update_day);
+    connect(ui->update_button, &QPushButton::clicked, this, &DiaryEditor::update_day, Qt::QueuedConnection);
     connect(ui->delete_button, &QPushButton::clicked, this, &DiaryEditor::delete_day, Qt::QueuedConnection);
     connect(ui->reset_button, &QPushButton::clicked, this, &DiaryEditor::reset_day, Qt::QueuedConnection);
 
-    connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryEditor::update_theme,
-        Qt::QueuedConnection);
-    update_theme();
-
     // Render current month.
-    auto current_date = date;
     change_month(current_date);
 
     // The diary editor DOES NOT USE internal_diary_changed. It implements its own change detection system!!!
@@ -69,103 +66,116 @@ DiaryEditor::~DiaryEditor()
     delete save_shortcut;
 }
 
-void DiaryEditor::update_theme()
+void DiaryEditor::setup_buttons()
 {
-    // When this function is run in the constructor, no buttons should exist yet.
-    emit sig_re_render_buttons(
-        td::CalendarButtonData{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt});
+    for (int row = 0; row < 6; ++row) {
+        for (int col = 0; col < 7; ++col) {
+            auto ptr = new DiaryCalendarButton(td::CalendarButtonData{std::optional(-1), std::optional(false),
+                std::optional(td::Rating::Unknown), std::optional(false), std::optional(false)});
+            connect(ptr, &DiaryCalendarButton::sig_clicked, this, &DiaryEditor::date_clicked, Qt::QueuedConnection);
+            ui->dates->addWidget(ptr, row, col, 1, 1, Qt::AlignCenter);
+        }
+    }
 }
 
-DiaryCalendarButton *DiaryEditor::create_button(const td::CalendarButtonData &&d)
+void DiaryEditor::render_month(std::optional<td::YearMap::iterator> const &opt)
 {
-    auto ptr = new DiaryCalendarButton(d);
-
-    connect(this, &DiaryEditor::sig_re_render_buttons, ptr, &DiaryCalendarButton::re_render, Qt::QueuedConnection);
-    connect(ptr, &DiaryCalendarButton::sig_clicked, this, &DiaryEditor::date_clicked, Qt::QueuedConnection);
-
-    return ptr;
-}
-
-// Note for future me and any other readers:
-// There is probably some way to make this function more readable but really this was a write once and never touch again
-// thing because of how hard it is to keep track of all the changing variables.
-void DiaryEditor::render_month(QDate const &date, std::optional<td::YearMap::iterator> const &opt)
-{
-    // Note that the YearMap iterator actually contains a month map which holds all the days of the month.
     auto irl_current_day = QDate::currentDate();
+    int counter = 1;
 
-    // Render spacers for first row padding.
-    for (int i = 0; i < current_month_offset; ++i)
-        ui->dates->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum), 0, i, 1, 1);
+    if (!opt) {
+        // Render the first row.
+        for (int day = 0; day < 7; ++day) {
+            auto button = qobject_cast<DiaryCalendarButton *>(ui->dates->itemAtPosition(0, day)->widget());
 
-    int days_added = 0;
-    int row = 1;
-    int current_row_length = 0;
-
-    // Render rest of first row.
-    for (int i = current_month_offset; i < 7; ++i, ++days_added) {
-        // Render the day if it has a corresponding entry.
-        // There are 2 entirely separate flows here simply because there are 2 checks required to see if the entry is
-        // present. I could use goto but that's kind of messy and harder to keep track of compared to plain old copy
-        // pasting.
-
-        auto current = irl_current_day == QDate(date.year(), date.month(), i - current_month_offset + 1);
-
-        if (opt) {
-            auto const &monthmap = (*opt)->second;
-            auto const &entry_iter = monthmap.find(i - current_month_offset + 1);
-
-            if (entry_iter != monthmap.end()) {
-                auto const &[important, rating, dummy, d2] = entry_iter->second;
-
-                auto ptr = create_button(td::CalendarButtonData{std::optional(i - current_month_offset + 1),
-                    std::optional(important), std::optional(rating), std::optional(false), std::optional(current)});
-                ui->dates->addWidget(ptr, 0, i, 1, 1, Qt::AlignCenter);
-                continue;
+            if (day < current_month_offset) {
+                button->setVisible(false);
+            }
+            else {
+                auto current_cond = irl_current_day == QDate(current_date.year(), current_date.month(), counter);
+                button->render(td::CalendarButtonData{std::optional(counter++), std::optional(false),
+                    std::optional(td::Rating::Unknown), std::optional(false), std::optional(current_cond)});
+                button->setVisible(true);
             }
         }
 
-        auto ptr = create_button(td::CalendarButtonData{std::optional(i - current_month_offset + 1),
-            std::optional(false), std::optional(td::Rating::Unknown), std::optional(false), std::optional(current)});
-        ui->dates->addWidget(ptr, 0, i, 1, 1, Qt::AlignCenter);
-    }
+        // Render the rest of the rows.
+        for (int row = 1; row < 6; ++row) {
+            for (int col = 0; col < 7; ++col) {
+                auto button = qobject_cast<DiaryCalendarButton *>(ui->dates->itemAtPosition(row, col)->widget());
 
-    // Render rest of month.
-    for (int i = days_added; i < date.daysInMonth(); ++i, ++current_row_length) {
-        if (7 == current_row_length) {
-            ++row;
-            current_row_length = 0;
-        }
-
-        // 2 passes required here as well which means 2 kind of same declarations.
-
-        auto current = irl_current_day == QDate(date.year(), date.month(), i + 1);
-
-        if (opt) {
-            auto const &monthmap = (*opt)->second;
-            auto const &entry_iter = monthmap.find(i + 1);
-
-            if (entry_iter != monthmap.end()) {
-                auto const &[important, rating, dummy, d2] = entry_iter->second;
-
-                auto ptr = create_button(td::CalendarButtonData{std::optional(i + 1), std::optional(important),
-                    std::optional(rating), std::optional(false), std::optional(current)});
-                ui->dates->addWidget(ptr, row, current_row_length, 1, 1, Qt::AlignCenter);
-                continue;
+                if (counter > current_date.daysInMonth()) {
+                    button->setVisible(false);
+                }
+                else {
+                    auto current_cond = irl_current_day == QDate(current_date.year(), current_date.month(), counter);
+                    button->render(td::CalendarButtonData{std::optional(counter++), std::optional(false),
+                        std::optional(td::Rating::Unknown), std::optional(false), std::optional(current_cond)});
+                    button->setVisible(true);
+                }
             }
         }
 
-        auto ptr = create_button(td::CalendarButtonData{std::optional(i + 1), std::optional(false),
-            std::optional(td::Rating::Unknown), std::optional(false), std::optional(current)});
-        ui->dates->addWidget(ptr, row, current_row_length, 1, 1, Qt::AlignCenter);
+        return;
     }
 
-    // Fill in last row with spacers if necessary. There is a vertical spacer beneath the whole grid of buttons to push
-    // them up so they don't expand downwards.
-    while (current_row_length < 7)
-        ui->dates->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum), row, current_row_length++, 1, 1);
+    auto const &monthmap = (*opt)->second;
 
-    qDebug() << "Rendered month editor (first day of month):" << date;
+    // Render the first row.
+    for (int day = 0; day < 7; ++day) {
+        auto button = qobject_cast<DiaryCalendarButton *>(ui->dates->itemAtPosition(0, day)->widget());
+
+        if (day < current_month_offset) {
+            button->setVisible(false);
+        }
+        else {
+            auto const &entry_iter = monthmap.find(counter);
+            auto current_cond = irl_current_day == QDate(current_date.year(), current_date.month(), counter);
+
+            if (entry_iter == monthmap.end()) {
+                button->render(td::CalendarButtonData{std::optional(counter++), std::optional(false),
+                    std::optional(td::Rating::Unknown), std::optional(false), std::optional(current_cond)});
+            }
+            else {
+                auto const &[important, rating, dummy, d2] = entry_iter->second;
+
+                button->render(td::CalendarButtonData{std::optional(counter++), std::optional(important),
+                    std::optional(rating), std::optional(false), std::optional(current_cond)});
+            }
+
+            button->setVisible(true);
+        }
+    }
+
+    // Render the rest of the rows.
+    for (int row = 1; row < 6; ++row) {
+        for (int col = 0; col < 7; ++col) {
+            auto button = qobject_cast<DiaryCalendarButton *>(ui->dates->itemAtPosition(row, col)->widget());
+
+            if (counter > current_date.daysInMonth()) {
+                button->setVisible(false);
+            }
+            else {
+                auto const &entry_iter = monthmap.find(counter);
+                auto current_cond = irl_current_day == QDate(current_date.year(), current_date.month(), counter);
+
+                if (entry_iter == monthmap.end()) {
+                    button->render(td::CalendarButtonData{std::optional(counter++), std::optional(false),
+                        std::optional(td::Rating::Unknown), std::optional(false), std::optional(current_cond)});
+                }
+                else {
+                    auto const &[important, rating, dummy, d2] = entry_iter->second;
+
+                    button->render(td::CalendarButtonData{std::optional(counter++), std::optional(important),
+                        std::optional(rating), std::optional(false), std::optional(current_cond)});
+                }
+
+                button->setVisible(true);
+            }
+        }
+    }
+
+    qDebug() << "Rendered month for current date:" << current_date;
 }
 
 // Returns true if equal, false if not equal.
@@ -183,20 +193,13 @@ void DiaryEditor::change_month(QDate const &date)
         if (QMessageBox::Cancel == res)
             return;
 
-        if (QMessageBox::Save == res)
-            update_day(true);
+        if (QMessageBox::Save == res && !update_day())
+            return;
 
-        // Remove everything from current grid.
-        QLayoutItem *child;
-        while ((child = ui->dates->takeAt(0)) != 0) {
-            delete child->widget();
-            delete child;
-        }
-
+        current_date = date;
         QDate const first_day(date.year(), date.month(), 1);
         // dayOfWeek() returns a number from 1 to 7.
         current_month_offset = first_day.dayOfWeek() - 1;
-        last_selected_day = date.day();
 
         // Set the calendar widget UI (not the info pane).
         ui->month_dropdown->blockSignals(true);
@@ -209,15 +212,16 @@ void DiaryEditor::change_month(QDate const &date)
         ui->year_edit->blockSignals(false);
 
         // Render current month.
-        render_month(first_day, DiaryHolder::instance()->get_monthmap(date));
+        render_month(DiaryHolder::instance()->get_monthmap(date));
 
-        // Render current day.
+        // Render current day with selection outline.
+        // This is not done within the render_month function since not just the rendering has to be done.
         td::CalendarButtonData const d{
             std::optional(date.day()), std::nullopt, std::nullopt, std::optional(true), std::nullopt};
         render_day(d, true);
 
+        qDebug() << "Changed month in editor and broadcasting update_data:" << date;
         emit InternalManager::instance()->update_data(date);
-        qDebug() << "Changed month in editor and broadcasted update_data:" << date;
     };
 
     if (!compare_snapshots())
@@ -232,28 +236,28 @@ void DiaryEditor::render_day(td::CalendarButtonData const &d, bool const set_inf
     int const x = (*d.day + current_month_offset - 1) % 7;
     int const y = static_cast<int>((*d.day + current_month_offset - 1) / 7);
 
-    auto const &button = qobject_cast<DiaryCalendarButton *>(ui->dates->itemAtPosition(y, x)->widget());
-    button->re_render(d);
+    qobject_cast<DiaryCalendarButton *>(ui->dates->itemAtPosition(y, x)->widget())->render(d);
 
-    if (set_info_pane) {
-        auto const &new_date = QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, *d.day);
-        auto const &opt = DiaryHolder::instance()->get_entry(new_date);
+    if (!set_info_pane)
+        return;
 
-        if (opt) {
-            last_entry_snapshot = (*opt)->second;
-            update_info_pane(new_date, (*opt)->second);
-        }
-        else {
-            auto default_entry = td::Entry{false, td::Rating::Unknown, "", 0};
-            last_entry_snapshot = default_entry;
-            update_info_pane(new_date, default_entry);
-        }
+    auto const &new_date = QDate(current_date.year(), current_date.month(), *d.day);
+    auto const &opt = DiaryHolder::instance()->get_entry(new_date);
+
+    if (opt) {
+        last_entry_snapshot = (*opt)->second;
+        update_info_pane(new_date, (*opt)->second);
+    }
+    else {
+        auto default_entry = td::Entry{false, td::Rating::Unknown, "", 0};
+        last_entry_snapshot = default_entry;
+        update_info_pane(new_date, default_entry);
     }
 }
 
 void DiaryEditor::next_month()
 {
-    QDate &&next = ui->year_edit->date().addMonths(1);
+    QDate &&next = current_date.addMonths(1);
     next.setDate(next.year(), next.month(), 1);
     if (next.isValid())
         change_month(next);
@@ -261,7 +265,7 @@ void DiaryEditor::next_month()
 
 void DiaryEditor::prev_month()
 {
-    QDate &&prev = ui->year_edit->date().addMonths(-1);
+    QDate &&prev = current_date.addMonths(-1);
     prev.setDate(prev.year(), prev.month(), 1);
     if (prev.isValid())
         change_month(prev);
@@ -285,18 +289,18 @@ void DiaryEditor::date_clicked(int const day)
     ui->alert_text->update();
 
     // Don't respond to spam clicks on same button.
-    if (day == last_selected_day)
+    if (day == current_date.day())
         return;
 
     auto cb = [this, day](int const res) {
         if (QMessageBox::Cancel == res)
             return;
 
-        if (QMessageBox::Yes == res)
-            update_day(true); // Suppress entry saved message so it doesn't appear on new date.
+        if (QMessageBox::Yes == res && !update_day(false))
+            return;
 
         td::CalendarButtonData const old{
-            std::optional(last_selected_day), std::nullopt, std::nullopt, std::optional(false), std::nullopt};
+            std::optional(current_date.day()), std::nullopt, std::nullopt, std::optional(false), std::nullopt};
         td::CalendarButtonData const n{
             std::optional(day), std::nullopt, std::nullopt, std::optional(true), std::nullopt};
         // Remove selected border from old calendar button.
@@ -304,7 +308,7 @@ void DiaryEditor::date_clicked(int const day)
         // Add selected border to new calendar button.
         render_day(n, true);
 
-        last_selected_day = day;
+        current_date = QDate(current_date.year(), current_date.month(), day);
     };
 
     if (!compare_snapshots())
@@ -341,6 +345,7 @@ void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
     ui->rating_dropdown->setCurrentIndex(static_cast<int>(entry.rating));
     ui->special_box->setChecked(entry.important);
     ui->entry_edit->setPlainText(entry.message.data());
+    //    ui->entry_edit->setPlainText("PLACEHOLDER");
 
     ui->rating_dropdown->blockSignals(false);
     ui->special_box->blockSignals(false);
@@ -352,26 +357,27 @@ void DiaryEditor::update_info_pane(QDate const &date, td::Entry const &entry)
 // The suppress_error parameter stops the save error box from popping up.
 // This is useful when locking the diary as typically the user is AFK.
 // The app shouldn't get stuck on the save error dialog as then it wouldn't be able to lock itself properly.
-void DiaryEditor::update_day(bool const suppress_error)
+bool DiaryEditor::update_day(bool const suppress_error)
 {
     AppBusyLock lock;
 
     // Add the entry to the in memory map.
-    auto const &new_date =
-        QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, last_selected_day);
     td::Entry const e{ui->special_box->isChecked(), static_cast<td::Rating>(ui->rating_dropdown->currentIndex()),
         ui->entry_edit->toPlainText().toStdString(), QDateTime::currentSecsSinceEpoch()};
 
-    DiaryHolder::instance()->create_entry(new_date, e);
+    DiaryHolder::instance()->create_entry(current_date, e);
 
     // Actually try and save the diary.
-    if (!DiaryHolder::instance()->save() && suppress_error)
-        return cmb::display_local_diary_save_error(this);
+    if (!DiaryHolder::instance()->save() && suppress_error) {
+        cmb::display_local_diary_save_error(this);
+        return false;
+    }
 
-    td::CalendarButtonData const d{std::optional(last_selected_day), std::optional(ui->special_box->isChecked()),
-        std::optional(static_cast<td::Rating>(ui->rating_dropdown->currentIndex())), std::nullopt, std::nullopt};
+    td::CalendarButtonData const d{std::optional(current_date.day()), std::optional(ui->special_box->isChecked()),
+        std::optional(static_cast<td::Rating>(ui->rating_dropdown->currentIndex())), std::optional(true), std::nullopt};
     // This updates the day button in the calendar widget.
     render_day(d, false);
+    last_entry_snapshot = e;
 
     // The last edited field is the only one that needs updating in this instance.
     QDateTime last_edited;
@@ -379,13 +385,14 @@ void DiaryEditor::update_day(bool const suppress_error)
     // Thanks stackoverflow ;)
     ui->last_edited->setText("Last edited " + last_edited.toString("dd MMM ''yy 'at' h:mm ap"));
     ui->last_edited->setToolTip(
-        last_edited.toString("dddd MMMM d%1 yyyy 'at' h:mm:ss ap").arg(misc::get_day_suffix(new_date.day())));
+        last_edited.toString("dddd MMMM d%1 yyyy 'at' h:mm:ss ap").arg(misc::get_day_suffix(current_date.day())));
     ui->last_edited->update();
     ui->alert_text->setText("Updated entry.");
     ui->alert_text->update();
 
-    InternalManager::instance()->update_data(new_date);
-    qDebug() << "Updated entry and broadcasted update_data:" << new_date;
+    InternalManager::instance()->update_data(current_date);
+    qDebug() << "Updated entry and broadcasted update_data:" << current_date;
+    return true;
 }
 
 void DiaryEditor::delete_day()
@@ -397,9 +404,7 @@ void DiaryEditor::delete_day()
         AppBusyLock lock;
 
         // Remove the entry from the in memory map.
-        auto const &new_date =
-            QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, last_selected_day);
-        DiaryHolder::instance()->delete_entry(new_date);
+        DiaryHolder::instance()->delete_entry(current_date);
 
         // Actually try and save the diary.
         if (!DiaryHolder::instance()->save())
@@ -408,14 +413,15 @@ void DiaryEditor::delete_day()
         ui->alert_text->setText("Deleted entry.");
         ui->alert_text->update();
 
-        update_info_pane(new_date, td::Entry{false, td::Rating::Unknown, "", 0});
+        render_day(td::CalendarButtonData{std::optional(current_date.day()), std::optional(false),
+                       std::optional(td::Rating::Unknown), std::optional(true), std::nullopt},
+            false);
+        auto empty = td::Entry{false, td::Rating::Unknown, "", 0};
+        update_info_pane(current_date, empty);
+        last_entry_snapshot = empty;
 
-        td::CalendarButtonData const d{std::optional(last_selected_day), std::optional(false),
-            std::optional(static_cast<td::Rating>(td::Rating::Unknown)), std::nullopt, std::nullopt};
-        render_day(d, false);
-
-        InternalManager::instance()->update_data(new_date);
-        qDebug() << "Deleted entry and broadcasted update_data:" << new_date;
+        InternalManager::instance()->update_data(current_date);
+        qDebug() << "Deleted entry and broadcasted update_data:" << current_date;
     };
 
     // Shift click bypasses confirmation dialog.

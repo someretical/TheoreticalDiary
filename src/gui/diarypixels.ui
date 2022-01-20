@@ -64,6 +64,19 @@
      <property name="verticalSpacing">
       <number>0</number>
      </property>
+     <item row="0" column="4">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item row="0" column="1">
       <widget class="QDateEdit" name="year_edit">
        <property name="font">
@@ -79,39 +92,13 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="5">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="3">
+     <item row="0" column="2">
       <widget class="QPushButton" name="export_img_button">
        <property name="toolTip">
         <string>Export the diary pixel grid.</string>
        </property>
        <property name="text">
         <string>Export image</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2" alignment="Qt::AlignHCenter">
-      <widget class="QPushButton" name="render_button">
-       <property name="toolTip">
-        <string>Re-render the pixel grid.</string>
-       </property>
-       <property name="text">
-        <string>Render</string>
-       </property>
-       <property name="default">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -128,7 +115,7 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="4">
+     <item row="0" column="3">
       <widget class="QCheckBox" name="add_year_checkbox">
        <property name="toolTip">
         <string>Whether or not to add the current year as text above the exported image.</string>
@@ -144,7 +131,6 @@
  </widget>
  <tabstops>
   <tabstop>year_edit</tabstop>
-  <tabstop>render_button</tabstop>
   <tabstop>export_img_button</tabstop>
  </tabstops>
  <resources/>

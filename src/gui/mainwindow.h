@@ -31,7 +31,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 signals:
-    void sig_update_diary();
+    void sig_update_diary(bool const);
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);

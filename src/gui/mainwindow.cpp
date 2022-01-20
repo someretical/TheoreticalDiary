@@ -209,9 +209,7 @@ void MainWindow::lock_diary()
         return;
     }
 
-    emit sig_update_diary();
-    if (InternalManager::instance()->internal_diary_changed)
-        DiaryHolder::instance()->save(); // Ignore any errors.
+    emit sig_update_diary(true);
 
     qDebug() << "Locking diary.";
     exit_diary_to_main_menu(true);
