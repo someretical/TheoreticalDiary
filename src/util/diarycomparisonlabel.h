@@ -19,6 +19,7 @@
 #ifndef DIARYCOMPARISONLABEL_H
 #define DIARYCOMPARISONLABEL_H
 
+#include <QtSvg>
 #include <QtWidgets>
 
 #include "../core/internalmanager.h"
@@ -78,14 +79,20 @@ private:
     {
         if (special) {
             auto theme_str = InternalManager::instance()->get_theme_str(true);
-            auto svg = QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(size());
 
             QPixmap bkg(override::SIZE, override::SIZE);
             bkg.fill(Qt::transparent);
             QPainter p(&bkg);
             p.setRenderHint(QPainter::Antialiasing);
             p.setOpacity(0.5);
-            p.drawPixmap(0, 0, svg);
+
+            QSvgRenderer renderer(QString(":/themes/%1/star.svg").arg(theme_str));
+            QPixmap star(size());
+            star.fill(Qt::transparent);
+            QPainter star_painter(&star);
+            renderer.render(&star_painter);
+
+            p.drawPixmap(0, 0, star);
             return bkg;
         }
         else {

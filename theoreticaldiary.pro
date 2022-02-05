@@ -17,7 +17,7 @@ ICON = images/osx_icons/icons.icns
 win32:LIBS += \
     -l"external-libs/cryptopp/cryptlib"
 
-QT += core gui charts
+QT += core gui charts svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

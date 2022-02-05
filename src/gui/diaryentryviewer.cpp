@@ -80,6 +80,8 @@ void DiaryEntryViewer::update_theme()
 
 void DiaryEntryViewer::change_month(QDate const &date)
 {
+    qDebug() << "Changed diary entry viewer month:" << date;
+
     // Update the selector UI.
     ui->month_dropdown->blockSignals(true);
     ui->year_edit->blockSignals(true);
@@ -141,8 +143,6 @@ void DiaryEntryViewer::change_month(QDate const &date)
     }
 
     current_date = date;
-
-    qDebug() << "Changed diary entry viewer month:" << date;
 }
 
 void DiaryEntryViewer::next_month()
@@ -223,24 +223,26 @@ QPixmap DiaryEntryViewer::generate_star(td::Rating const rating)
 {
     auto theme_str = misc::rating_to_theme(rating) == td::Theme::Dark ? "dark" : "light";
     QString key = QString("diaryentryicon:star:%1").arg(theme_str);
-    QPixmap pixmap;
+    QPixmap pixmap(override::SIZE, override::SIZE);
 
     if (!QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(override::SIZE, override::SIZE);
         pixmap.fill(Qt::transparent);
 
         QPainter p(&pixmap);
         p.setRenderHint(QPainter::Antialiasing);
-        p.setOpacity(0.3);
+        p.setOpacity(0.2);
 
-        auto overlay =
-            QIcon(QString(":/themes/%1/star.svg").arg(theme_str)).pixmap(override::SIZE * 0.8, override::SIZE * 0.8);
+        QSvgRenderer renderer(QString(":/themes/%1/star.svg").arg(theme_str));
+        QPixmap star(override::SIZE * 0.8, override::SIZE * 0.8);
+        star.fill(Qt::transparent);
+        QPainter star_painter(&star);
+        renderer.render(&star_painter);
 
         // Draw overlay on the centre of the pixmap.
-        auto x = ((override::SIZE - overlay.rect().bottomRight().x()) / 2);
+        auto x = ((override::SIZE - star.rect().bottomRight().x()) / 2);
         // y is the same as x since it's a square.
 
-        p.drawPixmap(x, x, overlay);
+        p.drawPixmap(x, x, star);
 
         QPixmapCache::insert(key, pixmap);
     }

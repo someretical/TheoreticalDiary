@@ -179,7 +179,7 @@
             <number>15</number>
            </property>
            <property name="spacing">
-            <number>15</number>
+            <number>12</number>
            </property>
            <item row="0" column="1">
             <widget class="QLabel" name="d1">
@@ -304,7 +304,7 @@
             <number>15</number>
            </property>
            <property name="spacing">
-            <number>15</number>
+            <number>12</number>
            </property>
            <item row="2" column="1">
             <widget class="QLabel" name="t3">
@@ -442,7 +442,7 @@
             <number>15</number>
            </property>
            <property name="spacing">
-            <number>15</number>
+            <number>12</number>
            </property>
            <item row="0" column="0">
             <widget class="DiaryComparisonLabel" name="very_bad_2">

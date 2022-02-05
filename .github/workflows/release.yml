@@ -23,7 +23,7 @@ jobs:
         uses: jurplel/install-qt-action@v2.6.2
         with:
           host: windows
-          modules: 'qtcharts'
+          modules: 'qtcharts qtsvg'
           extra: --external 7z
       
       - name: Build cryptopp
@@ -71,7 +71,7 @@ jobs:
         uses: jurplel/install-qt-action@v2.6.2
         with:
           host: mac
-          modules: 'qtcharts'
+          modules: 'qtcharts qtsvg'
           extra: --external 7z
       
       - name: Build cryptopp
@@ -120,9 +120,9 @@ jobs:
       - name: Install packages
         run: |
           sudo apt-get update
-          sudo apt install qt5-default
+          sudo apt install qt5-default patchelf
           sudo apt install libqt5charts5 libqt5charts5-dev
-          sudo apt install patchelf
+          sudo apt install libqt5svg5 libqt5svg5-dev
 
       - name: Build cryptopp
         run: |

@@ -19,6 +19,7 @@
 #ifndef DIARYENTRYVIEWER_H
 #define DIARYENTRYVIEWER_H
 
+#include <QtSvg>
 #include <QtWidgets>
 #include <memory>
 

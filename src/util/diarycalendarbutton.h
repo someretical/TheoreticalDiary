@@ -21,6 +21,7 @@
 
 class DiaryEditor;
 
+#include <QtSvg>
 #include <QtWidgets>
 #include <optional>
 
@@ -235,10 +236,9 @@ private:
     {
         auto theme_str = misc::rating_to_theme(*data.rating) == td::Theme::Dark ? "dark" : "light";
         QString key = QString("calendarbutton:star:%1:%2").arg(theme_str, QString::number(get_state()));
-        QPixmap pixmap;
+        QPixmap pixmap(override::SIZE, override::SIZE);
 
         if (!QPixmapCache::find(key, pixmap)) {
-            pixmap = QPixmap(override::SIZE, override::SIZE);
             pixmap.fill(Qt::transparent);
 
             QPainter p(&pixmap);
@@ -254,14 +254,17 @@ private:
                 p.setOpacity(0.5);
             }
 
-            auto overlay = QIcon(QString(":/themes/%1/star.svg").arg(theme_str))
-                               .pixmap(override::SIZE * 0.8, override::SIZE * 0.8);
+            QSvgRenderer renderer(QString(":/themes/%1/star.svg").arg(theme_str));
+            QPixmap star(override::SIZE * 0.8, override::SIZE * 0.8);
+            star.fill(Qt::transparent);
+            QPainter star_painter(&star);
+            renderer.render(&star_painter);
 
             // Draw overlay on the centre of the pixmap.
-            auto x = ((rect().bottomRight().x() - overlay.rect().bottomRight().x()) / 2);
+            auto x = ((override::SIZE - star.rect().bottomRight().x()) / 2);
             // y is the same as x since it's a square.
 
-            p.drawPixmap(x, x, overlay);
+            p.drawPixmap(x, x, star);
 
             QPixmapCache::insert(key, pixmap);
         }

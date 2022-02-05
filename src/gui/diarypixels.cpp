@@ -101,7 +101,7 @@ void DiaryPixels::setup_grid()
 
         for (int day = 1; day < 32; ++day) {
             auto ptr = new DiaryPixelLabel(td::Rating::Unknown, false, month, day, size, this);
-            connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize, Qt::QueuedConnection);
+            connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize_slot, Qt::QueuedConnection);
 
             ui->grid->addWidget(ptr, month - 1, day);
         }
