@@ -1,5 +1,5 @@
 on:
-  push:
+  [push, workflow_dispatch]
 
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
@@ -7,7 +7,7 @@ env:
 jobs:
   windows_build:
     name: Windows build
-    runs-on: windows-latest
+    runs-on: windows-2019
     outputs:
       upload_name: ${{steps.windeploy.outputs.file_name}}
     steps:
@@ -20,10 +20,11 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1.10.0
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2.6.2
+        uses: jurplel/install-qt-action@v2
         with:
           host: windows
-          modules: 'qtcharts qtsvg'
+          modules: 'qtcharts'
+          archives: 'qtsvg'
           extra: --external 7z
       
       - name: Build cryptopp
@@ -68,10 +69,11 @@ jobs:
           submodules: 'recursive'
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2.6.2
+        uses: jurplel/install-qt-action@v2
         with:
           host: mac
-          modules: 'qtcharts qtsvg'
+          modules: 'qtcharts'
+          archives: 'qtsvg'
           extra: --external 7z
       
       - name: Build cryptopp
