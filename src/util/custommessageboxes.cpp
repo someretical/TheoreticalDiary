@@ -25,8 +25,7 @@ void display_local_io_error(QWidget *p)
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
-    msgbox->setText("The app could not access the specified location.");
-    msgbox->setInformativeText("Please make sure it has sufficient permissions.");
+    msgbox->setText("The app does not have permission access the specified location.");
     msgbox->setStandardButtons(QMessageBox::Ok);
     msgbox->show();
 }
@@ -37,8 +36,7 @@ void display_local_diary_save_error(QWidget *p)
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
-    msgbox->setText("The app could not save the diary.");
-    msgbox->setInformativeText("Please make sure it has sufficient permissions.");
+    msgbox->setText("The app does not have permission to save the diary.");
     msgbox->setStandardButtons(QMessageBox::Ok);
     msgbox->show();
 }
@@ -83,8 +81,7 @@ void display_local_diary_access_error(QWidget *p)
 
     auto msgbox = new QMessageBox(p);
     msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
-    msgbox->setText("The app could not access the local diary.");
-    msgbox->setInformativeText("Please make sure it has sufficient permissions.");
+    msgbox->setText("The app does not have permission to access the local diary.");
     msgbox->setStandardButtons(QMessageBox::Ok);
     msgbox->show();
 }

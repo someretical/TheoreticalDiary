@@ -308,7 +308,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
             auto msgbox = new QMessageBox(this);
             msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
-            msgbox->setText("There are unsaved changes!");
+            msgbox->setText("There are unsaved changes that have been made to the diary!");
             msgbox->setInformativeText("Would you like to save them?");
             msgbox->setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
             msgbox->setDefaultButton(QMessageBox::Save);

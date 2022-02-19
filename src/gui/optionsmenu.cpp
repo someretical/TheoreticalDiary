@@ -94,6 +94,12 @@ void OptionsMenu::save_settings()
     //        InternalManager::instance()->start_update_theme();
     //    }
     settings->setValue("theme", static_cast<int>(new_theme));
+
+    // This workaround has to be put in place to make sure that the diary is uploaded if the user decrypts it, ticks the
+    // backup option, and closes the diary without making any other changes.
+    if (ui->sync_checkbox->isChecked())
+        InternalManager::instance()->diary_file_changed = true;
+
     InternalManager::instance()->start_update_theme();
 
     qDebug() << "Saved settings.";
