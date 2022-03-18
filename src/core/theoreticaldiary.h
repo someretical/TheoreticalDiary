@@ -39,11 +39,11 @@ public:
     ~TheoreticalDiary();
     static TheoreticalDiary *instance();
 
-    // These two have to be pointers because the Q_OBJECT macro removes the assignment operator.
+    // These have to be pointers in order to break cyclic dependencies.
     GoogleWrapper *gwrapper;
     QSettings *settings;
-    DiaryHolder *diary_holder; // Has to be a pointer due to cyclic dependency.
-    Encryptor *encryptor;      // This is a pointer just for consistency's sake.
+    DiaryHolder *diary_holder;
+    Encryptor *encryptor;
     InternalManager *internal_manager;
 };
 

@@ -296,7 +296,7 @@ void DiaryEditor::date_clicked(int const day)
         if (QMessageBox::Cancel == res)
             return;
 
-        if (QMessageBox::Yes == res && !update_day(false))
+        if (QMessageBox::Save == res && !update_day(false))
             return;
 
         td::CalendarButtonData const old{

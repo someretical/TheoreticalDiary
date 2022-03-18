@@ -24,10 +24,6 @@ StandaloneOptions::StandaloneOptions(QWidget *parent) : QWidget(parent), ui(new 
 {
     ui->setupUi(this);
     ui->settings_frame->layout()->addWidget(new OptionsMenu(false, this));
-
-    //    connect(InternalManager::instance(), &InternalManager::update_theme, this, &StandaloneOptions::update_theme,
-    //        Qt::QueuedConnection);
-    //    update_theme();
 }
 
 StandaloneOptions::~StandaloneOptions()
