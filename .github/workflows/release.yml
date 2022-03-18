@@ -30,7 +30,7 @@ jobs:
       - name: Build cryptopp
         run: |
           cd external-libs/cryptopp 
-          nmake /f cryptest.nmake CXXFLAGS="/DNDEBUG /D_NDEBUG /Oi /Oy /O3 /MD /openmp"
+          nmake /f cryptest.nmake CXXFLAGS="/DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MD /openmp"
 
       - name: qmake and nmake
         run: |

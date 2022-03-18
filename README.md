@@ -23,7 +23,7 @@ To fix scaling issues on Windows, follow these instructions:
 ![](images/readme/windows_compat_2.png)
 ## Building
 
-Check the steps followed in all the workflow files.
+Check the steps followed in [release.yml](.github/workflows/release.yml)
 ## Images
 
 ![](images/readme/main_menu.png)
