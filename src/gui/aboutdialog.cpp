@@ -44,14 +44,15 @@ QString const CONTRIBUTORS = R"(
 
 QString const LIBRARIES = R"(
 <ul>
-    <li><a href="https://github.com/someretical/TheoreticalDiary">Theoretical Diary</a> (<a href="https://github.com/someretical/TheoreticalDiary/blob/master/LICENSE">license</a>)</li>
-    <li><a href="https://github.com/benlau/asyncfuture">AsyncFuture</a> (<a href="https://github.com/benlau/asyncfuture/blob/master/LICENSE">license</a>)</li>
-    <li><a href="https://www.hsluv.org/">HSLuv-C: Human-friendly HSL</a> (<a href="https://github.com/hsluv/hsluv/blob/master/LICENSE">license</a>)</li>
-    <li><a href="https://json.nlohmann.me/">JSON for Modern C++</a> (<a href="https://github.com/nlohmann/json/blob/develop/LICENSE.MIT">license</a>)</li>
-    <li><a href="https://keepassxc.org/">KeepassXC</a> (<a href="https://github.com/keepassxreboot/keepassxc/blob/develop/LICENSE.GPL-3">license</a>)</li>
-    <li><a href="https://google.github.io/material-design-icons/">Material Design icons</a> (<a href="https://github.com/google/material-design-icons/blob/master/LICENSE">license</a>)</li>
-    <li><a href="https://www.qt.io/">Qt</a> (<a href="https://www.gnu.org/licenses/gpl-3.0.en.html">license</a>)</li>
-    <li><a href="https://www.cryptopp.com/">cryptopp</a> (<a href="https://github.com/weidai11/cryptopp/blob/master/License.txt">license</a>)</li>
+    <li><a href="https://github.com/benlau/asyncfuture">AsyncFuture</a> (<a href="https://github.com/benlau/asyncfuture/blob/master/LICENSE">Apache License 2.0</a>)</li>
+    <li><a href="https://www.cryptopp.com/">cryptopp</a> (<a href="https://github.com/weidai11/cryptopp/blob/master/License.txt">Boost Software License 1.0</a>)</li>
+    <li><a href="https://www.hsluv.org/">HSLuv-C: Human-friendly HSL</a> (<a href="https://github.com/hsluv/hsluv/blob/master/LICENSE">MIT License</a>)</li>
+    <li><a href="https://json.nlohmann.me/">JSON for Modern C++</a> (<a href="https://github.com/nlohmann/json/blob/develop/LICENSE.MIT">MIT License</a>)</li>
+    <li><a href="https://keepassxc.org/">KeepassXC</a> (<a href="https://github.com/keepassxreboot/keepassxc/blob/develop/LICENSE.GPL-3">GNU General Public License v3.0</a>)</li>
+    <li><a href="https://google.github.io/material-design-icons/">Material Design icons</a> (<a href="https://github.com/google/material-design-icons/blob/master/LICENSE">Apache License 2.0</a>)</li>
+    <li><a href="https://github.com/pipacs/o2">o2</a> (<a href="https://github.com/pipacs/o2/blob/master/LICENSE">BSD 2-Clause "Simplified" License</a>)</li>
+    <li><a href="https://www.qt.io/">Qt</a> (<a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3.0</a>)</li>
+    <li><a href="https://github.com/someretical/TheoreticalDiary">Theoretical Diary</a> (<a href="https://github.com/someretical/TheoreticalDiary/blob/master/LICENSE">GNU General Public License v3.0</a>)</li>
 </ul>
 )";
 // clang-format on

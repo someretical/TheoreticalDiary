@@ -214,6 +214,9 @@
              <property name="toolTip">
               <string>Message for this entry.</string>
              </property>
+             <property name="tabStopWidth">
+              <number>20</number>
+             </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
              </property>
@@ -231,11 +234,14 @@
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
             <widget class="QPlainTextEdit" name="emotions_message">
+             <property name="tabStopWidth">
+              <number>20</number>
+             </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
              </property>
              <property name="placeholderText">
-              <string>Write down all the emotions you felt today...</string>
+              <string>Write down all the emotions you are feeling...</string>
              </property>
             </widget>
            </item>
@@ -291,6 +297,9 @@
           <layout class="QGridLayout" name="gridLayout_8">
            <item row="0" column="0">
             <widget class="QPlainTextEdit" name="gratitude_message">
+             <property name="tabStopWidth">
+              <number>20</number>
+             </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
              </property>
