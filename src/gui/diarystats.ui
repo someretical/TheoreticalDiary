@@ -583,6 +583,9 @@
        <property name="text">
         <string>&lt;</string>
        </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="0" column="0">
@@ -738,6 +741,9 @@
        </property>
        <property name="text">
         <string>&gt;</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

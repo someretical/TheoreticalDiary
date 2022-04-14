@@ -62,16 +62,16 @@ bool BusyFilter::eventFilter(QObject *, QEvent *event)
  */
 InactiveFilter::InactiveFilter(qint64 const i, QObject *parent) : QObject(parent)
 {
-    interval = i;
-    timer = new QTimer(this);
-    timer->setSingleShot(false);
-    timer->start(interval);
-    connect(timer, &QTimer::timeout, this, &InactiveFilter::slot_inactive_timeout);
+    m_interval = i;
+    m_timer = new QTimer(this);
+    m_timer->setSingleShot(false);
+    m_timer->start(m_interval);
+    connect(m_timer, &QTimer::timeout, this, &InactiveFilter::slot_inactive_timeout);
 }
 
 InactiveFilter::~InactiveFilter()
 {
-    delete timer;
+    delete m_timer;
 }
 
 bool InactiveFilter::eventFilter(QObject *obj, QEvent *event)
@@ -101,7 +101,7 @@ bool InactiveFilter::eventFilter(QObject *obj, QEvent *event)
     case QEvent::TouchCancel:
     case QEvent::TouchEnd:
     case QEvent::TouchUpdate:
-        timer->start(interval);
+        m_timer->start(m_interval);
         break;
     default:
         break;
@@ -112,6 +112,6 @@ bool InactiveFilter::eventFilter(QObject *obj, QEvent *event)
 
 void InactiveFilter::slot_inactive_timeout()
 {
-    if (0 != interval)
+    if (0 != m_interval)
         emit sig_inactive_timeout();
 }

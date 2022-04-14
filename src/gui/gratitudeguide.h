@@ -16,19 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "standaloneoptions.h"
-#include "optionsmenu.h"
-#include "ui_standaloneoptions.h"
+#ifndef GRATITUDEGUIDE_H
+#define GRATITUDEGUIDE_H
 
-StandaloneOptions::StandaloneOptions(QWidget *parent) : QWidget(parent), m_ui(new Ui::StandaloneOptions)
-{
-    m_ui->setupUi(this);
-    m_ui->settings_frame->layout()->addWidget(new OptionsMenu(false, this));
+#include <QWidget>
+
+namespace Ui {
+class GratitudeGuide;
 }
 
-StandaloneOptions::~StandaloneOptions()
-{
-    delete m_ui;
-}
+class GratitudeGuide : public QWidget {
+    Q_OBJECT
 
-void StandaloneOptions::update_theme() {}
+public:
+    explicit GratitudeGuide(QWidget *parent = nullptr);
+    ~GratitudeGuide();
+
+private:
+    Ui::GratitudeGuide *m_ui;
+};
+
+#endif // GRATITUDEGUIDE_H

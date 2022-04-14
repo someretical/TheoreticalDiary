@@ -39,7 +39,7 @@ public:
     explicit DiaryEntryViewer(QWidget *parent = nullptr);
     ~DiaryEntryViewer();
 
-    QDate current_date;
+    QDate m_current_date;
 
 public slots:
     void update_theme();
@@ -50,7 +50,10 @@ public slots:
     void year_changed(QDate const &date);
 
 private:
-    Ui::DiaryEntryViewer *ui;
+    Ui::DiaryEntryViewer *m_ui;
+
+    QShortcut *m_next_month_bind;
+    QShortcut *m_prev_month_bind;
 
     QByteArray generate_base64_icon(int const day, td::Rating const rating, bool const important);
     QPixmap generate_background(td::Rating const rating);

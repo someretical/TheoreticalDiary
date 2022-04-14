@@ -36,21 +36,26 @@ enum class Rating { Unknown, VeryBad, Bad, Ok, Good, VeryGood };
 struct Entry {
     bool important;
     Rating rating;
-    std::string message;
+    std::string general_message;
+    std::string emotions_message;
+    std::string gratitude_message;
     time_t last_updated;
 };
 
 inline void to_json(nlohmann::json &j, Entry const &e)
 {
-    j = nlohmann::json{
-        {"important", e.important}, {"rating", e.rating}, {"message", e.message}, {"last_updated", e.last_updated}};
+    j = nlohmann::json{{"important", e.important}, {"rating", e.rating}, {"general_message", e.general_message},
+        {"emotions_message", e.emotions_message}, {"gratitude_message", e.gratitude_message},
+        {"last_updated", e.last_updated}};
 }
 
 inline void from_json(nlohmann::json const &j, Entry &e)
 {
     j.at("important").get_to<bool>(e.important);
     j.at("rating").get_to<Rating>(e.rating);
-    j.at("message").get_to<std::string>(e.message);
+    j.at("general_message").get_to<std::string>(e.general_message);
+    j.at("emotions_message").get_to<std::string>(e.emotions_message);
+    j.at("gratitude_message").get_to<std::string>(e.gratitude_message);
     j.at("last_updated").get_to<time_t>(e.last_updated);
 }
 
@@ -74,29 +79,20 @@ inline void from_json(nlohmann::json const &j, Metadata &m)
     j.at("last_updated").get_to<time_t>(m.last_updated);
 }
 
-struct Settings {
-};
-
-inline void to_json(nlohmann::json & /* j */, Settings const & /* s */) {}
-
-inline void from_json(nlohmann::json const & /* j */, Settings & /* s */) {}
-
 struct Diary {
     DiaryLog log;
     Metadata metadata;
-    Settings settings;
 };
 
 inline void to_json(nlohmann::json &j, Diary const &d)
 {
-    j = nlohmann::json{{"log", d.log}, {"metadata", d.metadata}, {"settings", d.settings}};
+    j = nlohmann::json{{"log", d.log}, {"metadata", d.metadata}};
 }
 
 inline void from_json(nlohmann::json const &j, Diary &d)
 {
     j.at("log").get_to<DiaryLog>(d.log);
     j.at("metadata").get_to<Metadata>(d.metadata);
-    j.at("settings").get_to<Settings>(d.settings);
 }
 
 namespace OldVersions {
@@ -181,21 +177,21 @@ public:
 
     inline void set_colour(td::ColourRole role, const QColor &colour)
     {
-        colourmap[static_cast<int>(role)] = colour;
+        m_colourmap[static_cast<int>(role)] = colour;
     }
 
     inline QColor colour(td::ColourRole role) const
     {
-        return colourmap.value(static_cast<int>(role));
+        return m_colourmap.value(static_cast<int>(role));
     }
 
-    QHash<int, QColor> colourmap;
-    QSettings *settings;
-    InactiveFilter *inactive_filter;
-    BusyFilter busy_filter;
-    bool app_busy;
-    bool internal_diary_changed;
-    bool diary_file_changed;
+    QHash<int, QColor> m_colourmap;
+    QSettings *m_settings;
+    InactiveFilter *m_inactive_filter;
+    BusyFilter m_busy_filter;
+    bool m_app_busy;
+    bool m_internal_diary_changed;
+    bool m_diary_file_changed;
 };
 
 class AppBusyLock {
@@ -203,12 +199,12 @@ public:
     AppBusyLock(bool const p = false)
     {
         InternalManager::instance()->start_busy_mode();
-        persist = p;
+        m_persist = p;
     }
 
     ~AppBusyLock()
     {
-        if (!persist)
+        if (!m_persist)
             InternalManager::instance()->end_busy_mode();
     }
 
@@ -217,7 +213,7 @@ public:
         InternalManager::instance()->end_busy_mode();
     }
 
-    bool persist;
+    bool m_persist;
 };
 
 #endif // INTERNAL_MANAGER_H

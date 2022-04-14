@@ -39,22 +39,22 @@ TheoreticalDiary::TheoreticalDiary(int &argc, char *argv[]) : QApplication(argc,
     setWindowIcon(QIcon(":/linux_icons/256x256/theoreticaldiary.png"));
 
     // Create app directory.
-    QDir dir(internal_manager->data_location());
+    QDir dir(m_internal_manager->data_location());
     if (!dir.exists())
         dir.mkpath(".");
 
-    gwrapper = new GoogleWrapper(this);
-    diary_holder = new DiaryHolder();
-    encryptor = new Encryptor();
-    internal_manager = new InternalManager();
+    m_gwrapper = new GoogleWrapper(this);
+    m_diary_holder = new DiaryHolder();
+    m_encryptor = new Encryptor();
+    m_internal_manager = new InternalManager();
 }
 
 TheoreticalDiary::~TheoreticalDiary()
 {
-    delete gwrapper;
-    delete diary_holder;
-    delete encryptor;
-    delete internal_manager;
+    delete m_gwrapper;
+    delete m_diary_holder;
+    delete m_encryptor;
+    delete m_internal_manager;
 }
 
 TheoreticalDiary *TheoreticalDiary::instance()

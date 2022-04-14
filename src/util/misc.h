@@ -27,7 +27,6 @@
 
 namespace misc {
 QString get_day_suffix(int const day);
-std::string get_trunc_first_line(std::string input, int const max_line_len);
 bool is_not_space(int ch);
 
 // Inline functions MUST be defined in header files if they are to be used in other files!

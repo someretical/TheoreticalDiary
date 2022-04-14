@@ -48,32 +48,32 @@ public:
     {
         setText(QString::number(*d.day));
         setFixedSize(QSize(override::SIZE, override::SIZE));
-        data = d;
-        mouse_down = false;
+        m_data = d;
+        m_m_down = false;
     }
 
     ~DiaryCalendarButton() {}
 
-    td::CalendarButtonData data;
-    bool mouse_down;
+    td::CalendarButtonData m_data;
+    bool m_m_down;
 
 public slots:
     void render(td::CalendarButtonData const &d)
     {
         if (d.day)
-            data.day = d.day;
+            m_data.day = d.day;
 
         if (d.important)
-            data.important = d.important;
+            m_data.important = d.important;
 
         if (d.rating)
-            data.rating = d.rating;
+            m_data.rating = d.rating;
 
         if (d.selected)
-            data.selected = d.selected;
+            m_data.selected = d.selected;
 
         if (d.current_day)
-            data.current_day = d.current_day;
+            m_data.current_day = d.current_day;
 
         update();
     }
@@ -91,17 +91,17 @@ protected:
 
     void mousePressEvent(QMouseEvent *)
     {
-        mouse_down = true;
+        m_m_down = true;
         update();
     }
 
     void mouseReleaseEvent(QMouseEvent *e)
     {
-        mouse_down = false;
+        m_m_down = false;
 
         // Mouse move events are not broadcast when the mouse is held down.
         if (rect().contains(e->pos()))
-            emit sig_clicked(*data.day);
+            emit sig_clicked(*m_data.day);
 
         update();
     }
@@ -112,7 +112,7 @@ protected:
         p.setRenderHint(QPainter::Antialiasing);
         p.drawPixmap(0, 0, generate_background());
 
-        if (*data.important)
+        if (*m_data.important)
             p.drawPixmap(0, 0, generate_star());
 
         p.drawPixmap(0, 0, generate_text());
@@ -122,7 +122,7 @@ private:
     QPixmap generate_background()
     {
         QString key = QString("calendarbutton:bkg:%1:%2:%3")
-                          .arg(QString::number(static_cast<int>(*data.rating)),
+                          .arg(QString::number(static_cast<int>(*m_data.rating)),
                               QString::number(static_cast<int>(InternalManager::instance()->get_theme())),
                               QString::number(get_state()));
         QPixmap pixmap;
@@ -144,8 +144,8 @@ private:
             //                p.setOpacity(0.8);
 
             // Set background color.
-            QColor color = misc::rating_to_colour(*data.rating);
-            if (mouse_down) {
+            QColor color = misc::rating_to_colour(*m_data.rating);
+            if (m_m_down) {
                 p.fillPath(path, QBrush(color.darker(120)));
             }
             //            else if (underMouse()) {
@@ -156,7 +156,7 @@ private:
             }
 
             // Set border color.
-            if (mouse_down || underMouse() || *data.selected) {
+            if (m_m_down || underMouse() || *m_data.selected) {
                 if (InternalManager::instance()->get_theme() == td::Theme::Light) {
                     p.strokePath(path, QPen(QBrush(color.lighter(110)), BORDER_WIDTH));
                 }
@@ -177,10 +177,10 @@ private:
 
     QPixmap generate_text()
     {
-        QString day = QString::number(*data.day);
+        QString day = QString::number(*m_data.day);
         QPixmap pixmap;
 
-        if (*data.current_day) {
+        if (*m_data.current_day) {
 
             pixmap = QPixmap(override::SIZE, override::SIZE);
             pixmap.fill(Qt::transparent);
@@ -198,13 +198,13 @@ private:
             rect = p.boundingRect(pixmap.rect(), Qt::AlignTop | Qt::AlignRight, day);
             rect.translate(-12, 8);
 
-            p.setPen(misc::theme_to_text(misc::rating_to_theme(*data.rating)));
+            p.setPen(misc::theme_to_text(misc::rating_to_theme(*m_data.rating)));
             p.drawText(rect, Qt::AlignTop | Qt::AlignRight, day);
 
             return pixmap;
         }
 
-        auto theme = QString::number(static_cast<int>(misc::rating_to_theme(*data.rating)));
+        auto theme = QString::number(static_cast<int>(misc::rating_to_theme(*m_data.rating)));
         QString key = QString("calendarbutton:text:%1:%2").arg(day, theme);
 
         if (!QPixmapCache::find(key, pixmap)) {
@@ -223,7 +223,7 @@ private:
             rect = p.boundingRect(pixmap.rect(), Qt::AlignTop | Qt::AlignRight, day);
             rect.translate(-10, 8);
 
-            p.setPen(misc::theme_to_text(misc::rating_to_theme(*data.rating)));
+            p.setPen(misc::theme_to_text(misc::rating_to_theme(*m_data.rating)));
             p.drawText(rect, Qt::AlignTop | Qt::AlignRight, day);
 
             QPixmapCache::insert(key, pixmap);
@@ -234,7 +234,7 @@ private:
 
     QPixmap generate_star()
     {
-        auto theme_str = misc::rating_to_theme(*data.rating) == td::Theme::Dark ? "dark" : "light";
+        auto theme_str = misc::rating_to_theme(*m_data.rating) == td::Theme::Dark ? "dark" : "light";
         QString key = QString("calendarbutton:star:%1:%2").arg(theme_str, QString::number(get_state()));
         QPixmap pixmap(override::SIZE, override::SIZE);
 
@@ -244,7 +244,7 @@ private:
             QPainter p(&pixmap);
             p.setRenderHint(QPainter::Antialiasing);
 
-            if (mouse_down) {
+            if (m_m_down) {
                 p.setOpacity(0.4);
             }
             else if (underMouse()) {
@@ -278,10 +278,10 @@ private:
         // If the mouse IS hovering over but not clicking, state is 1.
         // If the mouse IS hovering over AND clicking, state is 2.
 
-        if (mouse_down)
+        if (m_m_down)
             return 2;
 
-        if (underMouse() || *data.selected)
+        if (underMouse() || *m_data.selected)
             return 1;
 
         return 0;

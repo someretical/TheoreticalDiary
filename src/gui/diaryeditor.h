@@ -37,11 +37,15 @@ public:
     explicit DiaryEditor(QDate const &date, QWidget *parent = nullptr);
     ~DiaryEditor();
 
-    QDate current_date;
-    int current_month_offset;
-    QShortcut *save_shortcut;
+    QDate m_current_date;
+    int m_current_month_offset;
+    QShortcut *m_save_bind;
+    QShortcut *m_next_day_bind;
+    QShortcut *m_prev_day_bind;
+    QShortcut *m_next_month_bind;
+    QShortcut *m_prev_month_bind;
     // Saves the state of the entry when it was first loaded. Used to decide if the save prompt needs showing.
-    td::Entry last_entry_snapshot;
+    td::Entry m_last_entry_snapshot;
 
 public slots:
     // Calendar widget.
@@ -54,6 +58,13 @@ public slots:
     void month_changed(int const month);
     void year_changed(QDate const &date);
     void date_clicked(int const day);
+    void next_day();
+    void prev_day();
+
+    // Reference info.
+    void emotions_list_button_clicked();
+    void rain_guide_button_clicked();
+    void gratitude_guide_button_clicked();
 
     // Info pane.
     void update_info_pane(QDate const &date, td::Entry const &entry);
@@ -62,7 +73,7 @@ public slots:
     void reset_day();
 
 private:
-    Ui::DiaryEditor *ui;
+    Ui::DiaryEditor *m_ui;
 
     bool compare_snapshots();
 };

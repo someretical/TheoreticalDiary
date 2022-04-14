@@ -47,9 +47,9 @@ public:
     ~GoogleWrapper();
     static GoogleWrapper *instance();
 
-    O2Google *google;
-    QNetworkAccessManager *manager;
-    O2Requestor *requestor;
+    O2Google *m_o2g;
+    QNetworkAccessManager *m_man;
+    O2Requestor *m_req;
 
     bool encrypt_credentials();
     bool decrypt_credentials(bool const perform_decrypt);

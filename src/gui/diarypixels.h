@@ -42,7 +42,7 @@ public:
     void setup_grid();
     int calculate_size();
 
-    QDate current_date;
+    QDate m_current_date;
 
 public slots:
     void render_button_clicked();
@@ -50,7 +50,7 @@ public slots:
     void export_image();
 
 private:
-    Ui::DiaryPixels *ui;
+    Ui::DiaryPixels *m_ui;
 };
 
 #endif // DIARYPIXELS_H

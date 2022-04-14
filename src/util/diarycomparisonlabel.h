@@ -38,18 +38,18 @@ public:
     DiaryComparisonLabel(QWidget *parent = nullptr) : QLabel(parent)
     {
         setFixedSize(QSize(50, 50));
-        rating = td::Rating::Unknown;
-        special = false;
+        m_rating = td::Rating::Unknown;
+        m_special = false;
     }
 
     ~DiaryComparisonLabel() {}
 
     void update_tooltip()
     {
-        if (special)
+        if (m_special)
             return setToolTip("Starred days.");
 
-        switch (rating) {
+        switch (m_rating) {
         case td::Rating::Unknown:
             setToolTip("Days with unknown rating.");
             break;
@@ -71,13 +71,13 @@ public:
         }
     }
 
-    td::Rating rating;
-    bool special;
+    td::Rating m_rating;
+    bool m_special;
 
 private:
     QPixmap generate_pixmap()
     {
-        if (special) {
+        if (m_special) {
             auto theme_str = InternalManager::instance()->get_theme_str(true);
 
             QPixmap bkg(override::SIZE, override::SIZE);
@@ -99,7 +99,7 @@ private:
             QPixmap bkg(override::SIZE, override::SIZE);
             bkg.fill(Qt::transparent);
 
-            QColor bkg_color = misc::rating_to_colour(rating);
+            QColor bkg_color = misc::rating_to_colour(m_rating);
             QPainter p(&bkg);
             p.setRenderHint(QPainter::Antialiasing);
 
@@ -119,8 +119,8 @@ protected:
     {
         QString key =
             QString("comparisonlabel:%1:%2")
-                .arg(QString::number(static_cast<int>(rating)),
-                    special ? "s" : QString::number(static_cast<int>(InternalManager::instance()->get_theme())));
+                .arg(QString::number(static_cast<int>(m_rating)),
+                    m_special ? "s" : QString::number(static_cast<int>(InternalManager::instance()->get_theme())));
         QPixmap pixmap;
 
         if (!QPixmapCache::find(key, pixmap)) {

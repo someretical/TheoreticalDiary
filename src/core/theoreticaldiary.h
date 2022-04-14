@@ -40,11 +40,11 @@ public:
     static TheoreticalDiary *instance();
 
     // These have to be pointers in order to break cyclic dependencies.
-    GoogleWrapper *gwrapper;
-    QSettings *settings;
-    DiaryHolder *diary_holder;
-    Encryptor *encryptor;
-    InternalManager *internal_manager;
+    GoogleWrapper *m_gwrapper;
+    QSettings *m_settings;
+    DiaryHolder *m_diary_holder;
+    Encryptor *m_encryptor;
+    InternalManager *m_internal_manager;
 };
 
 #endif // THOERETICALDIARY_H

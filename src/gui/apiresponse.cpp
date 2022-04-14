@@ -19,19 +19,19 @@
 #include "apiresponse.h"
 #include "ui_apiresponse.h"
 
-APIResponse::APIResponse(QByteArray const &res, QWidget *parent) : QDialog(parent), ui(new Ui::APIResponse)
+APIResponse::APIResponse(QByteArray const &res, QWidget *parent) : QDialog(parent), m_ui(new Ui::APIResponse)
 {
-    ui->setupUi(this);
-    ui->res->setPlainText(res);
+    m_ui->setupUi(this);
+    m_ui->res->setPlainText(res);
 
     auto monospaced = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     monospaced.setLetterSpacing(QFont::PercentageSpacing, 110);
-    ui->res->setFont(monospaced);
+    m_ui->res->setFont(monospaced);
 
-    connect(ui->ok_button, &QPushButton::clicked, this, &APIResponse::accept, Qt::QueuedConnection);
+    connect(m_ui->ok_button, &QPushButton::clicked, this, &APIResponse::accept, Qt::QueuedConnection);
 }
 
 APIResponse::~APIResponse()
 {
-    delete ui;
+    delete m_ui;
 }

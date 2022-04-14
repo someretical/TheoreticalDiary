@@ -39,9 +39,12 @@ SOURCES += \
     src/gui/diarymenu.cpp \
     src/gui/diarypixels.cpp \
     src/gui/diarystats.cpp \
+    src/gui/emotionsreference.cpp \
+    src/gui/gratitudeguide.cpp \
     src/gui/mainmenu.cpp \
     src/gui/mainwindow.cpp \
     src/gui/optionsmenu.cpp \
+    src/gui/rainguide.cpp \
     src/gui/standaloneoptions.cpp \
     src/gui/styles/base/basestyle.cpp \
     src/gui/styles/base/phantomcolor.cpp \
@@ -68,9 +71,12 @@ HEADERS += \
     src/gui/diarymenu.h \
     src/gui/diarypixels.h \
     src/gui/diarystats.h \
+    src/gui/emotionsreference.h \
+    src/gui/gratitudeguide.h \
     src/gui/mainmenu.h \
     src/gui/mainwindow.h \
     src/gui/optionsmenu.h \
+    src/gui/rainguide.h \
     src/gui/standaloneoptions.h \
     src/gui/styles/base/basestyle.h \
     src/gui/styles/base/phantomcolor.h \
@@ -97,9 +103,12 @@ FORMS += \
     src/gui/diarymenu.ui \
     src/gui/diarypixels.ui \
     src/gui/diarystats.ui \
+    src/gui/emotionsreference.ui \
+    src/gui/gratitudeguide.ui \
     src/gui/mainmenu.ui \
     src/gui/mainwindow.ui \
     src/gui/optionsmenu.ui \
+    src/gui/rainguide.ui \
     src/gui/standaloneoptions.ui
 
 # Default rules for deployment.
@@ -110,8 +119,8 @@ else: unix:!android: target.path = /usr/bin
 win32:RC_ICONS = images/windows_icons/icon.ico
 win32:VERSION = 1.0.0.0
 win32:QMAKE_TARGET_COMPANY = someretical
-win32:QMAKE_TARGET_PRODUCT = "TheoreticalDiary"
-win32:QMAKE_TARGET_DESCRIPTION = "Digital diary."
+win32:QMAKE_TARGET_PRODUCT = "Theoretical Diary"
+win32:QMAKE_TARGET_DESCRIPTION = "Digital diary"
 win32:QMAKE_TARGET_COPYRIGHT = 2022
 
 RESOURCES += \

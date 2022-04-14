@@ -44,7 +44,7 @@ public:
     void restore_state();
     void closeEvent(QCloseEvent *event);
 
-    td::Window current_window;
+    td::Window m_current_window;
 
 public slots:
     void lock_diary();
@@ -53,7 +53,7 @@ public slots:
     void show_options_menu();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *m_ui;
 };
 
 #endif // MAINWINDOW_H

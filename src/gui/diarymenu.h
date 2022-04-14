@@ -36,7 +36,7 @@ public slots:
     void tab_changed(int const);
 
 private:
-    Ui::DiaryMenu *ui;
+    Ui::DiaryMenu *m_ui;
 };
 
 #endif // DIARYMENU_H

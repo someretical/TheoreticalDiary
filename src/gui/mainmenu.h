@@ -40,8 +40,8 @@ public slots:
     bool get_diary_contents();
 
 private:
-    Ui::MainMenu *ui;
-    QShortcut *enter_shortcut;
+    Ui::MainMenu *m_ui;
+    QShortcut *m_enter_bind;
 };
 
 #endif // MAINMENU_H

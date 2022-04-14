@@ -42,8 +42,8 @@ public:
     InactiveFilter(qint64 const i, QObject *parent = nullptr);
     ~InactiveFilter();
 
-    QTimer *timer;
-    qint64 interval;
+    QTimer *m_timer;
+    qint64 m_interval;
 
 public slots:
     void slot_inactive_timeout();

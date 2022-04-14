@@ -26,22 +26,22 @@
 char const *MONTH_LETTERS = "JFMAMJJASOND";
 int const LABEL_SIZE = 36;
 
-DiaryPixels::DiaryPixels(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryPixels)
+DiaryPixels::DiaryPixels(QWidget *parent) : QWidget(parent), m_ui(new Ui::DiaryPixels)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
     setup_grid();
-    ui->year_edit->setDate(QDate::currentDate());
+    m_ui->year_edit->setDate(QDate::currentDate());
 
     connect(InternalManager::instance(), &InternalManager::update_data, this, &DiaryPixels::render_grid,
         Qt::QueuedConnection);
-    connect(ui->year_edit, &QDateEdit::dateChanged, this, &DiaryPixels::render_grid, Qt::QueuedConnection);
-    connect(ui->export_img_button, &QPushButton::clicked, this, &DiaryPixels::export_image, Qt::QueuedConnection);
+    connect(m_ui->year_edit, &QDateEdit::dateChanged, this, &DiaryPixels::render_grid, Qt::QueuedConnection);
+    connect(m_ui->export_img_button, &QPushButton::clicked, this, &DiaryPixels::export_image, Qt::QueuedConnection);
     // current_date is initialised by &InternalManager::change_month signal.
 }
 
 DiaryPixels::~DiaryPixels()
 {
-    delete ui;
+    delete m_ui;
 }
 
 int DiaryPixels::calculate_size()
@@ -53,15 +53,15 @@ int DiaryPixels::calculate_size()
     updateGeometry();
 
     int gap = 0;
-    int w = ui->hidden_frame->width() - 18; // - 18 because the hidden_frame has margins of 9px on all sides.
-    int h = ui->hidden_frame->height() - 18;
+    int w = m_ui->hidden_frame->width() - 18; // - 18 because the hidden_frame has margins of 9px on all sides.
+    int h = m_ui->hidden_frame->height() - 18;
     int top = std::max({w, h, 1218});
 
     // For every 500px width/height, increase gap by 1px.
     while ((top -= 500) > -1)
         gap++;
 
-    ui->grid->setSpacing(gap);
+    m_ui->grid->setSpacing(gap);
 
     // This approach is not entirely ideal but it's the most read friendly since there are no calculations of ratios and
     // all that stuff.
@@ -81,7 +81,7 @@ int DiaryPixels::calculate_size()
 
 void DiaryPixels::render_button_clicked()
 {
-    render_grid(ui->year_edit->date());
+    render_grid(m_ui->year_edit->date());
 }
 
 void DiaryPixels::setup_grid()
@@ -97,13 +97,13 @@ void DiaryPixels::setup_grid()
         label->setFixedHeight(LABEL_SIZE);
         label->setFixedWidth(LABEL_SIZE);
         label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        ui->grid->addWidget(label, month - 1, 0);
+        m_ui->grid->addWidget(label, month - 1, 0);
 
         for (int day = 1; day < 32; ++day) {
             auto ptr = new DiaryPixelLabel(td::Rating::Unknown, false, month, day, size, this);
             connect(this, &DiaryPixels::sig_changed_size, ptr, &DiaryPixelLabel::resize_slot, Qt::QueuedConnection);
 
-            ui->grid->addWidget(ptr, month - 1, day);
+            m_ui->grid->addWidget(ptr, month - 1, day);
         }
     }
 
@@ -112,26 +112,26 @@ void DiaryPixels::setup_grid()
 
 void DiaryPixels::render_grid(QDate const &new_date)
 {
-    current_date = new_date;
-    ui->year_edit->blockSignals(true);
-    ui->year_edit->setDate(new_date);
-    ui->year_edit->blockSignals(false);
-    auto const &opt = DiaryHolder::instance()->get_yearmap(current_date);
+    const QSignalBlocker b1(m_ui->year_edit);
+    m_current_date = new_date;
+    m_ui->year_edit->setDate(new_date);
+
+    auto const &opt = DiaryHolder::instance()->get_yearmap(m_current_date);
 
     for (int month = 1; month < 13; ++month) {
-        int days = QDate(current_date.year(), month, 1).daysInMonth();
+        int days = QDate(m_current_date.year(), month, 1).daysInMonth();
 
         auto placeholder = [this, month, days]() {
             for (int day = 1; day < 32; ++day) {
-                auto pixel = qobject_cast<DiaryPixelLabel *>(ui->grid->itemAtPosition(month - 1, day)->widget());
+                auto pixel = qobject_cast<DiaryPixelLabel *>(m_ui->grid->itemAtPosition(month - 1, day)->widget());
 
                 if (day > days)
                     pixel->setVisible(false);
                 else
                     pixel->setVisible(true);
 
-                pixel->rating = td::Rating::Unknown;
-                pixel->special = false;
+                pixel->m_rating = td::Rating::Unknown;
+                pixel->m_special = false;
                 pixel->update();
             }
         };
@@ -147,7 +147,7 @@ void DiaryPixels::render_grid(QDate const &new_date)
                 auto const &entrymap = iter->second;
 
                 for (int day = 1; day < 32; ++day) {
-                    auto pixel = qobject_cast<DiaryPixelLabel *>(ui->grid->itemAtPosition(month - 1, day)->widget());
+                    auto pixel = qobject_cast<DiaryPixelLabel *>(m_ui->grid->itemAtPosition(month - 1, day)->widget());
                     auto const &iter2 = entrymap.find(day);
 
                     if (day > days)
@@ -156,13 +156,13 @@ void DiaryPixels::render_grid(QDate const &new_date)
                         pixel->setVisible(true);
 
                     if (iter2 == entrymap.end()) {
-                        pixel->rating = td::Rating::Unknown;
-                        pixel->special = false;
+                        pixel->m_rating = td::Rating::Unknown;
+                        pixel->m_special = false;
                     }
                     else {
-                        auto const &[important, rating, dummy, d2] = iter2->second;
-                        pixel->rating = rating;
-                        pixel->special = important;
+                        auto const &[important, rating, dummy, d2, d3, d4] = iter2->second;
+                        pixel->m_rating = rating;
+                        pixel->m_special = important;
                     }
 
                     pixel->update();
@@ -174,12 +174,12 @@ void DiaryPixels::render_grid(QDate const &new_date)
         }
     }
 
-    qDebug() << "Updated pixels grid" << current_date;
+    qDebug() << "Updated pixels grid" << m_current_date;
 }
 
 void DiaryPixels::export_image()
 {
-    auto year = QString::number(ui->year_edit->date().year());
+    auto year = QString::number(m_ui->year_edit->date().year());
     auto const &filename = QFileDialog::getSaveFileName(
         this, "Export image", QString("%1/%2.png").arg(QDir::homePath(), year), "Images (*.png);;All files");
 
@@ -189,8 +189,8 @@ void DiaryPixels::export_image()
     AppBusyLock lock;
     QPixmap pixmap;
 
-    if (ui->add_year_checkbox->isChecked()) {
-        auto frame = ui->hidden_frame->grab();
+    if (m_ui->add_year_checkbox->isChecked()) {
+        auto frame = m_ui->hidden_frame->grab();
         pixmap = QPixmap(frame.size().width(), frame.size().height() + 50);
         pixmap.fill(frame.toImage().pixel(0, 0));
 
@@ -211,7 +211,7 @@ void DiaryPixels::export_image()
         p.drawText(rect, Qt::AlignTop | Qt::AlignHCenter, year);
     }
     else {
-        pixmap = ui->hidden_frame->grab();
+        pixmap = m_ui->hidden_frame->grab();
     }
 
     if (pixmap.save(filename)) {

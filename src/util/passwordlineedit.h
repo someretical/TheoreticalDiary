@@ -38,10 +38,10 @@ public:
         setFont(monospaced);
 
         QAction *action = addAction(QIcon(get_eye_icon(false)), QLineEdit::TrailingPosition);
-        button = qobject_cast<QToolButton *>(action->associatedWidgets().last());
-        button->setCursor(QCursor(Qt::PointingHandCursor));
-        connect(button, &QToolButton::pressed, this, &PasswordLineEdit::on_pressed, Qt::QueuedConnection);
-        connect(button, &QToolButton::released, this, &PasswordLineEdit::on_released, Qt::QueuedConnection);
+        m_eye_button = qobject_cast<QToolButton *>(action->associatedWidgets().last());
+        m_eye_button->setCursor(QCursor(Qt::PointingHandCursor));
+        connect(m_eye_button, &QToolButton::pressed, this, &PasswordLineEdit::on_pressed, Qt::QueuedConnection);
+        connect(m_eye_button, &QToolButton::released, this, &PasswordLineEdit::on_released, Qt::QueuedConnection);
 
         connect(InternalManager::instance(), &InternalManager::update_theme, this, &PasswordLineEdit::update_theme,
             Qt::QueuedConnection);
@@ -50,7 +50,7 @@ public:
 public slots:
     void update_theme()
     {
-        button->setIcon(QIcon(get_eye_icon(true)));
+        m_eye_button->setIcon(QIcon(get_eye_icon(true)));
     }
 
 private slots:
@@ -69,7 +69,7 @@ private slots:
     }
 
 private:
-    QToolButton *button;
+    QToolButton *m_eye_button;
 
     QString get_eye_icon(bool const on)
     {

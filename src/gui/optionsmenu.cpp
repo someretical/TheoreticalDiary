@@ -32,39 +32,39 @@
 #include "optionsmenu.h"
 #include "ui_optionsmenu.h"
 
-OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidget(parent), ui(new Ui::OptionsMenu)
+OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidget(parent), m_ui(new Ui::OptionsMenu)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    ui->pie_slice_sorting->setId(ui->pie_slice_sort1, static_cast<int>(td::settings::PieSliceSort::Days));
-    ui->pie_slice_sorting->setId(ui->pie_slice_sort2, static_cast<int>(td::settings::PieSliceSort::Category));
+    m_ui->pie_slice_sorting->setId(m_ui->pie_slice_sort1, static_cast<int>(td::settings::PieSliceSort::Days));
+    m_ui->pie_slice_sorting->setId(m_ui->pie_slice_sort2, static_cast<int>(td::settings::PieSliceSort::Category));
 
-    diary_editor_mode = from_diary_editor;
+    m_diary_editor_mode = from_diary_editor;
 
-    connect(ui->ok_button, &QPushButton::clicked, this, &OptionsMenu::back, Qt::QueuedConnection);
-    connect(ui->apply_button, &QPushButton::clicked, this, &OptionsMenu::save_settings, Qt::QueuedConnection);
-    connect(ui->export_button, &QPushButton::clicked, this, &OptionsMenu::export_diary, Qt::QueuedConnection);
+    connect(m_ui->ok_button, &QPushButton::clicked, this, &OptionsMenu::back, Qt::QueuedConnection);
+    connect(m_ui->apply_button, &QPushButton::clicked, this, &OptionsMenu::save_settings, Qt::QueuedConnection);
+    connect(m_ui->export_button, &QPushButton::clicked, this, &OptionsMenu::export_diary, Qt::QueuedConnection);
     connect(
-        ui->update_lock_timeout, &QPushButton::clicked, this, &OptionsMenu::update_lock_timeout, Qt::QueuedConnection);
+        m_ui->update_lock_timeout, &QPushButton::clicked, this, &OptionsMenu::update_lock_timeout, Qt::QueuedConnection);
     connect(
-        ui->change_password_button, &QPushButton::clicked, this, &OptionsMenu::change_password, Qt::QueuedConnection);
-    connect(ui->auth_button, &QPushButton::clicked, this, &OptionsMenu::complete_oauth, Qt::QueuedConnection);
+        m_ui->change_password_button, &QPushButton::clicked, this, &OptionsMenu::change_password, Qt::QueuedConnection);
+    connect(m_ui->auth_button, &QPushButton::clicked, this, &OptionsMenu::complete_oauth, Qt::QueuedConnection);
     connect(
-        ui->download_backup_button, &QPushButton::clicked, this, &OptionsMenu::download_backup, Qt::QueuedConnection);
-    connect(ui->upload_backup_button, &QPushButton::clicked, this, &OptionsMenu::upload_diary, Qt::QueuedConnection);
-    connect(ui->flush_oauth_button, &QPushButton::clicked, this, &OptionsMenu::flush_oauth, Qt::QueuedConnection);
-    connect(ui->dev_list_files_button, &QPushButton::clicked, this, &OptionsMenu::dev_list, Qt::QueuedConnection);
-    connect(ui->dev_upload_file_button, &QPushButton::clicked, this, &OptionsMenu::dev_upload, Qt::QueuedConnection);
+        m_ui->download_backup_button, &QPushButton::clicked, this, &OptionsMenu::download_backup, Qt::QueuedConnection);
+    connect(m_ui->upload_backup_button, &QPushButton::clicked, this, &OptionsMenu::upload_diary, Qt::QueuedConnection);
+    connect(m_ui->flush_oauth_button, &QPushButton::clicked, this, &OptionsMenu::flush_oauth, Qt::QueuedConnection);
+    connect(m_ui->dev_list_files_button, &QPushButton::clicked, this, &OptionsMenu::dev_list, Qt::QueuedConnection);
+    connect(m_ui->dev_upload_file_button, &QPushButton::clicked, this, &OptionsMenu::dev_upload, Qt::QueuedConnection);
     connect(
-        ui->dev_download_file_button, &QPushButton::clicked, this, &OptionsMenu::dev_download, Qt::QueuedConnection);
-    connect(ui->dev_update_file_button, &QPushButton::clicked, this, &OptionsMenu::dev_update, Qt::QueuedConnection);
-    connect(ui->dev_copy_file_button, &QPushButton::clicked, this, &OptionsMenu::dev_copy, Qt::QueuedConnection);
-    connect(ui->dev_delete_button, &QPushButton::clicked, this, &OptionsMenu::dev_delete, Qt::QueuedConnection);
-    connect(ui->about_button, &QPushButton::clicked, this, &OptionsMenu::show_about, Qt::QueuedConnection);
-    connect(ui->reset_button, &QPushButton::clicked, this, &OptionsMenu::reset_settings, Qt::QueuedConnection);
-    connect(ui->test_button, &QPushButton::clicked, this, &OptionsMenu::test, Qt::QueuedConnection);
+        m_ui->dev_download_file_button, &QPushButton::clicked, this, &OptionsMenu::dev_download, Qt::QueuedConnection);
+    connect(m_ui->dev_update_file_button, &QPushButton::clicked, this, &OptionsMenu::dev_update, Qt::QueuedConnection);
+    connect(m_ui->dev_copy_file_button, &QPushButton::clicked, this, &OptionsMenu::dev_copy, Qt::QueuedConnection);
+    connect(m_ui->dev_delete_button, &QPushButton::clicked, this, &OptionsMenu::dev_delete, Qt::QueuedConnection);
+    connect(m_ui->about_button, &QPushButton::clicked, this, &OptionsMenu::show_about, Qt::QueuedConnection);
+    connect(m_ui->reset_button, &QPushButton::clicked, this, &OptionsMenu::reset_settings, Qt::QueuedConnection);
+    connect(m_ui->test_button, &QPushButton::clicked, this, &OptionsMenu::test, Qt::QueuedConnection);
 
-    connect(GoogleWrapper::instance()->google, &O2Google::linkedChanged, this, &OptionsMenu::refresh_linked_checkbox,
+    connect(GoogleWrapper::instance()->m_o2g, &O2Google::linkedChanged, this, &OptionsMenu::refresh_linked_checkbox,
         Qt::QueuedConnection);
 
     setup_layout();
@@ -72,7 +72,7 @@ OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidge
 
 OptionsMenu::~OptionsMenu()
 {
-    delete ui;
+    delete m_ui;
 }
 
 void OptionsMenu::back()
@@ -82,13 +82,13 @@ void OptionsMenu::back()
 
 void OptionsMenu::save_settings()
 {
-    auto settings = InternalManager::instance()->settings;
+    auto settings = InternalManager::instance()->m_settings;
 
-    settings->setValue("sync_enabled", ui->sync_checkbox->isChecked());
-    settings->setValue("pie_slice_sort", ui->pie_slice_sorting->checkedId());
+    settings->setValue("sync_enabled", m_ui->sync_checkbox->isChecked());
+    settings->setValue("pie_slice_sort", m_ui->pie_slice_sorting->checkedId());
 
     //    auto original_theme = InternalManager::instance()->get_theme();
-    auto new_theme = ui->theme_dropdown->currentIndex() == 0 ? td::Theme::Dark : td::Theme::Light;
+    auto new_theme = m_ui->theme_dropdown->currentIndex() == 0 ? td::Theme::Dark : td::Theme::Light;
     //    if (original_theme != new_theme) {
     //        settings->setValue("theme", static_cast<int>(new_theme));
     //        InternalManager::instance()->start_update_theme();
@@ -97,8 +97,8 @@ void OptionsMenu::save_settings()
 
     // This workaround has to be put in place to make sure that the diary is uploaded if the user decrypts it, ticks the
     // backup option, and closes the diary without making any other changes.
-    if (ui->sync_checkbox->isChecked())
-        InternalManager::instance()->diary_file_changed = true;
+    if (m_ui->sync_checkbox->isChecked())
+        InternalManager::instance()->m_diary_file_changed = true;
 
     InternalManager::instance()->start_update_theme();
 
@@ -107,36 +107,36 @@ void OptionsMenu::save_settings()
 
 void OptionsMenu::setup_layout()
 {
-    ui->pwd_alert_text->set_text("");
-    ui->lock_timeout_text->set_text("");
+    m_ui->pwd_alert_text->set_text("");
+    m_ui->lock_timeout_text->set_text("");
 
-    auto const &settings = InternalManager::instance()->settings;
+    auto const &settings = InternalManager::instance()->m_settings;
 
     auto theme = static_cast<td::Theme>(settings->value("theme").toInt());
-    ui->theme_dropdown->setCurrentIndex(td::Theme::Dark == theme ? 0 : 1);
+    m_ui->theme_dropdown->setCurrentIndex(td::Theme::Dark == theme ? 0 : 1);
 
-    ui->oauth_checkbox->setEnabled(false);
-    ui->lock_timeout_textedit->setText(QString::number(settings->value("lock_timeout").toLongLong()));
-    ui->sync_checkbox->setChecked(settings->value("sync_enabled").toBool());
-    qobject_cast<QRadioButton *>(ui->pie_slice_sorting->button(settings->value("pie_slice_sort").toInt()))
+    m_ui->oauth_checkbox->setEnabled(false);
+    m_ui->lock_timeout_textedit->setText(QString::number(settings->value("lock_timeout").toLongLong()));
+    m_ui->sync_checkbox->setChecked(settings->value("sync_enabled").toBool());
+    qobject_cast<QRadioButton *>(m_ui->pie_slice_sorting->button(settings->value("pie_slice_sort").toInt()))
         ->setChecked(true);
 
-    if (!diary_editor_mode) {
-        ui->export_button->setEnabled(false);
-        ui->lock_timeout_textedit->setEnabled(false);
-        ui->update_lock_timeout->setEnabled(false);
-        ui->change_password_button->setEnabled(false);
-        ui->new_password->setEnabled(false);
-        ui->new_password_confirm->setEnabled(false);
-        ui->dev_list_files_button->setEnabled(false);
-        ui->dev_upload_file_button->setEnabled(false);
-        ui->dev_download_file_button->setEnabled(false);
-        ui->dev_update_file_button->setEnabled(false);
-        ui->dev_copy_file_button->setEnabled(false);
-        ui->dev_delete_button->setEnabled(false);
+    if (!m_diary_editor_mode) {
+        m_ui->export_button->setEnabled(false);
+        m_ui->lock_timeout_textedit->setEnabled(false);
+        m_ui->update_lock_timeout->setEnabled(false);
+        m_ui->change_password_button->setEnabled(false);
+        m_ui->new_password->setEnabled(false);
+        m_ui->new_password_confirm->setEnabled(false);
+        m_ui->dev_list_files_button->setEnabled(false);
+        m_ui->dev_upload_file_button->setEnabled(false);
+        m_ui->dev_download_file_button->setEnabled(false);
+        m_ui->dev_update_file_button->setEnabled(false);
+        m_ui->dev_copy_file_button->setEnabled(false);
+        m_ui->dev_delete_button->setEnabled(false);
     }
     else {
-        ui->ok_button->setVisible(false);
+        m_ui->ok_button->setVisible(false);
     }
 
     refresh_linked_checkbox();
@@ -144,24 +144,24 @@ void OptionsMenu::setup_layout()
 
 void OptionsMenu::refresh_linked_checkbox()
 {
-    if (GoogleWrapper::instance()->google->linked()) {
-        ui->oauth_checkbox->setCheckState(Qt::Checked);
-        ui->flush_oauth_button->setEnabled(true);
+    if (GoogleWrapper::instance()->m_o2g->linked()) {
+        m_ui->oauth_checkbox->setCheckState(Qt::Checked);
+        m_ui->flush_oauth_button->setEnabled(true);
 
-        if (diary_editor_mode) {
-            ui->upload_backup_button->setEnabled(true);
-            ui->download_backup_button->setEnabled(false);
+        if (m_diary_editor_mode) {
+            m_ui->upload_backup_button->setEnabled(true);
+            m_ui->download_backup_button->setEnabled(false);
         }
         else {
-            ui->upload_backup_button->setEnabled(false);
-            ui->download_backup_button->setEnabled(true);
+            m_ui->upload_backup_button->setEnabled(false);
+            m_ui->download_backup_button->setEnabled(true);
         }
     }
     else {
-        ui->oauth_checkbox->setCheckState(Qt::Unchecked);
-        ui->download_backup_button->setEnabled(false);
-        ui->upload_backup_button->setEnabled(false);
-        ui->flush_oauth_button->setEnabled(false);
+        m_ui->oauth_checkbox->setCheckState(Qt::Unchecked);
+        m_ui->download_backup_button->setEnabled(false);
+        m_ui->upload_backup_button->setEnabled(false);
+        m_ui->flush_oauth_button->setEnabled(false);
     }
 }
 
@@ -179,7 +179,7 @@ void OptionsMenu::export_diary()
     if (dst.fail())
         return cmb::display_local_io_error(this);
 
-    nlohmann::json const &j = DiaryHolder::instance()->diary;
+    nlohmann::json const &j = DiaryHolder::instance()->m_diary;
     dst << j.dump(4);
 
     auto msgbox = new QMessageBox(this);
@@ -194,42 +194,42 @@ void OptionsMenu::update_lock_timeout()
 {
     AppBusyLock lock;
     bool ok = true;
-    qint64 const &ms = ui->lock_timeout_textedit->text().toLongLong(&ok, 10);
+    qint64 const &ms = m_ui->lock_timeout_textedit->text().toLongLong(&ok, 10);
 
     if (!ok || ms < 0)
-        return ui->lock_timeout_text->set_text("Please provide a positive integer.");
+        return m_ui->lock_timeout_text->set_text("Please provide a positive integer.");
 
-    InternalManager::instance()->settings->setValue("lock_timeout", ms);
-    InternalManager::instance()->inactive_filter->interval = ms;
-    InternalManager::instance()->inactive_filter->timer->start();
+    InternalManager::instance()->m_settings->setValue("lock_timeout", ms);
+    InternalManager::instance()->m_inactive_filter->m_interval = ms;
+    InternalManager::instance()->m_inactive_filter->m_timer->start();
 
-    ui->lock_timeout_text->set_text("Lock timeout updated.");
+    m_ui->lock_timeout_text->set_text("Lock timeout updated.");
 }
 
 void OptionsMenu::change_password()
 {
     AppBusyLock lock(true);
-    ui->pwd_alert_text->set_text("");
+    m_ui->pwd_alert_text->set_text("");
 
-    auto const &password = ui->new_password->text();
-    if (password != ui->new_password_confirm->text()) {
-        ui->pwd_alert_text->set_text("The passwords do not match.");
+    auto const &password = m_ui->new_password->text();
+    if (password != m_ui->new_password_confirm->text()) {
+        m_ui->pwd_alert_text->set_text("The passwords do not match.");
 
         return lock.release();
     }
 
     auto cb = [this](bool const) {
         AppBusyLock lock;
-        InternalManager::instance()->internal_diary_changed = true;
-        ui->pwd_alert_text->set_text("Password updated.");
+        InternalManager::instance()->m_internal_diary_changed = true;
+        m_ui->pwd_alert_text->set_text("Password updated.");
     };
 
     if (0 != password.length()) {
-        ui->pwd_alert_text->set_text("Changing password...", false);
-        ui->new_password->setText("");
-        ui->new_password->update();
-        ui->new_password_confirm->setText("");
-        ui->new_password_confirm->update();
+        m_ui->pwd_alert_text->set_text("Changing password...", false);
+        m_ui->new_password->setText("");
+        m_ui->new_password->update();
+        m_ui->new_password_confirm->setText("");
+        m_ui->new_password_confirm->update();
 
         auto hash_controller = new HashController();
         connect(hash_controller, &HashController::sig_done, cb);
@@ -270,9 +270,9 @@ void OptionsMenu::complete_oauth()
         }
     };
 
-    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
     AppBusyLock lock(true);
-    gwrapper->google->link();
+    gwrapper->m_o2g->link();
 }
 
 void OptionsMenu::download_backup()
@@ -329,7 +329,7 @@ void OptionsMenu::download_backup()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
-            lock.persist = true;
+            lock.m_persist = true;
             gwrapper->list_files().subscribe(cb2);
             break;
         }
@@ -339,9 +339,9 @@ void OptionsMenu::download_backup()
         if (QMessageBox::No == res)
             return;
 
-        AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+        AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
         AppBusyLock lock(true);
-        gwrapper->google->link();
+        gwrapper->m_o2g->link();
     };
 
     cmb::prompt_diary_overwrite(this, cb);
@@ -427,15 +427,15 @@ void OptionsMenu::upload_diary()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
-            lock.persist = true;
+            lock.m_persist = true;
             gwrapper->list_files().subscribe(cb2);
             break;
         }
     };
 
-    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
     AppBusyLock lock(true);
-    gwrapper->google->link();
+    gwrapper->m_o2g->link();
 }
 
 void OptionsMenu::flush_oauth()
@@ -445,7 +445,7 @@ void OptionsMenu::flush_oauth()
     auto cb = [this, gwrapper](td::NR const &) {
         AppBusyLock lock;
 
-        gwrapper->google->unlink();
+        gwrapper->m_o2g->unlink();
 
         auto msgbox = new QMessageBox(this);
         msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -482,15 +482,15 @@ void OptionsMenu::dev_list()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
-            lock.persist = true;
+            lock.m_persist = true;
             gwrapper->list_files().subscribe(cb_final);
             break;
         }
     };
 
-    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
     AppBusyLock lock(true);
-    gwrapper->google->link();
+    gwrapper->m_o2g->link();
 }
 
 void OptionsMenu::dev_upload()
@@ -527,16 +527,16 @@ void OptionsMenu::dev_upload()
             if (!file_ptr->open(QIODevice::ReadOnly))
                 return cmb::display_local_io_error(this);
 
-            lock.persist = true;
+            lock.m_persist = true;
             QFileInfo fileinfo(file_ptr->fileName());
             gwrapper->upload_file(file_ptr, fileinfo.fileName()).subscribe(cb_final);
             break;
         }
     };
 
-    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
     AppBusyLock lock(true);
-    gwrapper->google->link();
+    gwrapper->m_o2g->link();
 }
 
 void OptionsMenu::dev_download()
@@ -580,15 +580,15 @@ void OptionsMenu::dev_download()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
-            lock.persist = true;
-            gwrapper->download_file(ui->dev_download_file_id->text()).subscribe(cb_final);
+            lock.m_persist = true;
+            gwrapper->download_file(m_ui->dev_download_file_id->text()).subscribe(cb_final);
             break;
         }
     };
 
-    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
     AppBusyLock lock(true);
-    gwrapper->google->link();
+    gwrapper->m_o2g->link();
 }
 
 void OptionsMenu::dev_update()
@@ -625,15 +625,15 @@ void OptionsMenu::dev_update()
             if (!file_ptr->open(QIODevice::ReadOnly))
                 return cmb::display_local_io_error(this);
 
-            lock.persist = true;
-            gwrapper->update_file(file_ptr, ui->dev_update_file_id->text()).subscribe(cb_final);
+            lock.m_persist = true;
+            gwrapper->update_file(file_ptr, m_ui->dev_update_file_id->text()).subscribe(cb_final);
             break;
         }
     };
 
-    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
     AppBusyLock lock(true);
-    gwrapper->google->link();
+    gwrapper->m_o2g->link();
 }
 
 void OptionsMenu::dev_copy()
@@ -660,15 +660,15 @@ void OptionsMenu::dev_copy()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
-            lock.persist = true;
-            gwrapper->copy_file(ui->dev_copy_file_id->text(), ui->dev_copy_file_new_name->text()).subscribe(cb_final);
+            lock.m_persist = true;
+            gwrapper->copy_file(m_ui->dev_copy_file_id->text(), m_ui->dev_copy_file_new_name->text()).subscribe(cb_final);
             break;
         }
     };
 
-    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
     AppBusyLock lock(true);
-    gwrapper->google->link();
+    gwrapper->m_o2g->link();
 }
 
 void OptionsMenu::dev_delete()
@@ -696,15 +696,15 @@ void OptionsMenu::dev_delete()
             cmb::display_google_drive_auth_error(this);
             break;
         case td::LinkingResponse::OK:
-            lock.persist = true;
-            gwrapper->delete_file(ui->dev_delete_file_id->text()).subscribe(cb_final);
+            lock.m_persist = true;
+            gwrapper->delete_file(m_ui->dev_delete_file_id->text()).subscribe(cb_final);
             break;
         }
     };
 
-    AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+    AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
     AppBusyLock lock(true);
-    gwrapper->google->link();
+    gwrapper->m_o2g->link();
 }
 
 void OptionsMenu::show_about()

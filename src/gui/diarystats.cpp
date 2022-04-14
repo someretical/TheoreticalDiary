@@ -35,86 +35,86 @@ auto const light_background = QColor(230, 230, 230, 170);
 auto const dark_white = light_background.darker();
 auto const light_black = dark_background.lighter();
 
-DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats)
+DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), m_ui(new Ui::DiaryStats)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
     // Give DiaryComparisonLabels proper attributes.
-    ui->very_bad->rating = td::Rating::VeryBad;
-    ui->bad->rating = td::Rating::Bad;
-    ui->ok->rating = td::Rating::Ok;
-    ui->good->rating = td::Rating::Good;
-    ui->very_good->rating = td::Rating::VeryGood;
-    ui->unknown->rating = td::Rating::Unknown;
-    ui->starred->special = true;
+    m_ui->very_bad->m_rating = td::Rating::VeryBad;
+    m_ui->bad->m_rating = td::Rating::Bad;
+    m_ui->ok->m_rating = td::Rating::Ok;
+    m_ui->good->m_rating = td::Rating::Good;
+    m_ui->very_good->m_rating = td::Rating::VeryGood;
+    m_ui->unknown->m_rating = td::Rating::Unknown;
+    m_ui->starred->m_special = true;
 
-    ui->very_bad_2->rating = td::Rating::VeryBad;
-    ui->bad_2->rating = td::Rating::Bad;
-    ui->ok_2->rating = td::Rating::Ok;
-    ui->good_2->rating = td::Rating::Good;
-    ui->very_good_2->rating = td::Rating::VeryGood;
-    ui->unknown_2->rating = td::Rating::Unknown;
-    ui->starred_2->special = true;
+    m_ui->very_bad_2->m_rating = td::Rating::VeryBad;
+    m_ui->bad_2->m_rating = td::Rating::Bad;
+    m_ui->ok_2->m_rating = td::Rating::Ok;
+    m_ui->good_2->m_rating = td::Rating::Good;
+    m_ui->very_good_2->m_rating = td::Rating::VeryGood;
+    m_ui->unknown_2->m_rating = td::Rating::Unknown;
+    m_ui->starred_2->m_special = true;
 
-    ui->very_bad_3->rating = td::Rating::VeryBad;
-    ui->bad_3->rating = td::Rating::Bad;
-    ui->ok_3->rating = td::Rating::Ok;
-    ui->good_3->rating = td::Rating::Good;
-    ui->very_good_3->rating = td::Rating::VeryGood;
-    ui->unknown_3->rating = td::Rating::Unknown;
-    ui->starred_3->special = true;
+    m_ui->very_bad_3->m_rating = td::Rating::VeryBad;
+    m_ui->bad_3->m_rating = td::Rating::Bad;
+    m_ui->ok_3->m_rating = td::Rating::Ok;
+    m_ui->good_3->m_rating = td::Rating::Good;
+    m_ui->very_good_3->m_rating = td::Rating::VeryGood;
+    m_ui->unknown_3->m_rating = td::Rating::Unknown;
+    m_ui->starred_3->m_special = true;
 
-    ui->very_bad->update_tooltip();
-    ui->bad->update_tooltip();
-    ui->ok->update_tooltip();
-    ui->good->update_tooltip();
-    ui->very_good->update_tooltip();
-    ui->unknown->update_tooltip();
-    ui->starred->update_tooltip();
+    m_ui->very_bad->update_tooltip();
+    m_ui->bad->update_tooltip();
+    m_ui->ok->update_tooltip();
+    m_ui->good->update_tooltip();
+    m_ui->very_good->update_tooltip();
+    m_ui->unknown->update_tooltip();
+    m_ui->starred->update_tooltip();
 
-    ui->very_bad_2->update_tooltip();
-    ui->bad_2->update_tooltip();
-    ui->ok_2->update_tooltip();
-    ui->good_2->update_tooltip();
-    ui->very_good_2->update_tooltip();
-    ui->unknown_2->update_tooltip();
-    ui->starred_2->update_tooltip();
+    m_ui->very_bad_2->update_tooltip();
+    m_ui->bad_2->update_tooltip();
+    m_ui->ok_2->update_tooltip();
+    m_ui->good_2->update_tooltip();
+    m_ui->very_good_2->update_tooltip();
+    m_ui->unknown_2->update_tooltip();
+    m_ui->starred_2->update_tooltip();
 
-    ui->very_bad_3->update_tooltip();
-    ui->bad_3->update_tooltip();
-    ui->ok_3->update_tooltip();
-    ui->good_3->update_tooltip();
-    ui->very_good_3->update_tooltip();
-    ui->unknown_3->update_tooltip();
-    ui->starred_3->update_tooltip();
+    m_ui->very_bad_3->update_tooltip();
+    m_ui->bad_3->update_tooltip();
+    m_ui->ok_3->update_tooltip();
+    m_ui->good_3->update_tooltip();
+    m_ui->very_good_3->update_tooltip();
+    m_ui->unknown_3->update_tooltip();
+    m_ui->starred_3->update_tooltip();
 
     // Make the numbers display in a monospaced font.
     auto monospaced = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     monospaced.setLetterSpacing(QFont::PercentageSpacing, 110);
 
-    ui->l0->setFont(monospaced);
-    ui->l1->setFont(monospaced);
-    ui->l2->setFont(monospaced);
-    ui->l3->setFont(monospaced);
-    ui->l4->setFont(monospaced);
-    ui->l5->setFont(monospaced);
-    ui->ls->setFont(monospaced);
+    m_ui->l0->setFont(monospaced);
+    m_ui->l1->setFont(monospaced);
+    m_ui->l2->setFont(monospaced);
+    m_ui->l3->setFont(monospaced);
+    m_ui->l4->setFont(monospaced);
+    m_ui->l5->setFont(monospaced);
+    m_ui->ls->setFont(monospaced);
 
-    ui->t0->setFont(monospaced);
-    ui->t1->setFont(monospaced);
-    ui->t2->setFont(monospaced);
-    ui->t3->setFont(monospaced);
-    ui->t4->setFont(monospaced);
-    ui->t5->setFont(monospaced);
-    ui->ts->setFont(monospaced);
+    m_ui->t0->setFont(monospaced);
+    m_ui->t1->setFont(monospaced);
+    m_ui->t2->setFont(monospaced);
+    m_ui->t3->setFont(monospaced);
+    m_ui->t4->setFont(monospaced);
+    m_ui->t5->setFont(monospaced);
+    m_ui->ts->setFont(monospaced);
 
-    ui->d0->setFont(monospaced);
-    ui->d1->setFont(monospaced);
-    ui->d2->setFont(monospaced);
-    ui->d3->setFont(monospaced);
-    ui->d4->setFont(monospaced);
-    ui->d5->setFont(monospaced);
-    ui->ds->setFont(monospaced);
+    m_ui->d0->setFont(monospaced);
+    m_ui->d1->setFont(monospaced);
+    m_ui->d2->setFont(monospaced);
+    m_ui->d3->setFont(monospaced);
+    m_ui->d4->setFont(monospaced);
+    m_ui->d5->setFont(monospaced);
+    m_ui->ds->setFont(monospaced);
 
     // Initilise pie chart.
     auto pie_chart = new QChart();
@@ -122,8 +122,8 @@ DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats
     pie_chart->setBackgroundVisible(false);
     pie_chart->legend()->hide();
     pie_chart->setEnabled(false); // Disables scrolling (at the cost of what?).
-    ui->pie_chart_view->setRenderHint(QPainter::Antialiasing);
-    ui->pie_chart_view->setChart(pie_chart);
+    m_ui->pie_chart_view->setRenderHint(QPainter::Antialiasing);
+    m_ui->pie_chart_view->setChart(pie_chart);
 
     // Initialise polar chart.
     auto polar_chart = new QPolarChart();
@@ -131,8 +131,8 @@ DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats
     polar_chart->setBackgroundVisible(false);
     polar_chart->legend()->hide();
     polar_chart->setEnabled(false);
-    ui->polar_chart_view->setRenderHint(QPainter::Antialiasing);
-    ui->polar_chart_view->setChart(polar_chart);
+    m_ui->polar_chart_view->setRenderHint(QPainter::Antialiasing);
+    m_ui->polar_chart_view->setChart(polar_chart);
 
     // Initialise spline chart.
     auto spline_chart = new QChart();
@@ -140,18 +140,26 @@ DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats
     spline_chart->setBackgroundVisible(false);
     spline_chart->legend()->hide();
     spline_chart->setEnabled(false);
-    ui->spline_chart_view->setRenderHint(QPainter::Antialiasing);
-    ui->spline_chart_view->setChart(spline_chart);
+    m_ui->spline_chart_view->setRenderHint(QPainter::Antialiasing);
+    m_ui->spline_chart_view->setChart(spline_chart);
 
     connect(InternalManager::instance(), &InternalManager::update_data, this, &DiaryStats::render_stats,
         Qt::QueuedConnection);
 
     // Navigator slots.
-    connect(ui->month_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DiaryStats::month_changed,
+    connect(m_ui->month_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DiaryStats::month_changed,
         Qt::QueuedConnection);
-    connect(ui->year_edit, &QDateEdit::dateChanged, this, &DiaryStats::year_changed, Qt::QueuedConnection);
-    connect(ui->next_month, &QPushButton::clicked, this, &DiaryStats::next_month, Qt::QueuedConnection);
-    connect(ui->prev_month, &QPushButton::clicked, this, &DiaryStats::prev_month, Qt::QueuedConnection);
+    connect(m_ui->year_edit, &QDateEdit::dateChanged, this, &DiaryStats::year_changed, Qt::QueuedConnection);
+    connect(m_ui->next_month, &QPushButton::clicked, this, &DiaryStats::next_month, Qt::QueuedConnection);
+    connect(m_ui->prev_month, &QPushButton::clicked, this, &DiaryStats::prev_month, Qt::QueuedConnection);
+
+    // Next/prev month keyboard shortcuts
+    m_next_month_bind = new QShortcut(Qt::Key_Down, this);
+    m_next_month_bind->setAutoRepeat(true);
+    connect(m_next_month_bind, &QShortcut::activated, this, &DiaryStats::next_month, Qt::QueuedConnection);
+    m_prev_month_bind = new QShortcut(Qt::Key_Up, this);
+    m_prev_month_bind->setAutoRepeat(true);
+    connect(m_prev_month_bind, &QShortcut::activated, this, &DiaryStats::prev_month, Qt::QueuedConnection);
 
     connect(InternalManager::instance(), &InternalManager::update_theme, this, &DiaryStats::update_theme,
         Qt::QueuedConnection);
@@ -161,7 +169,9 @@ DiaryStats::DiaryStats(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryStats
 
 DiaryStats::~DiaryStats()
 {
-    delete ui;
+    delete m_ui;
+    delete m_next_month_bind;
+    delete m_prev_month_bind;
 }
 
 void DiaryStats::update_theme()
@@ -171,41 +181,41 @@ void DiaryStats::update_theme()
 
 void DiaryStats::next_month()
 {
-    auto const &&next = ui->year_edit->date().addMonths(1);
+    auto const &&next = m_ui->year_edit->date().addMonths(1);
     if (next.isValid())
         render_stats(next);
 }
 
 void DiaryStats::prev_month()
 {
-    auto const &&prev = ui->year_edit->date().addMonths(-1);
+    auto const &&prev = m_ui->year_edit->date().addMonths(-1);
     if (prev.isValid())
         render_stats(prev);
 }
 
 void DiaryStats::month_changed(int const)
 {
-    render_stats(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1));
+    render_stats(QDate(m_ui->year_edit->date().year(), m_ui->month_dropdown->currentIndex() + 1, 1));
 }
 
 void DiaryStats::year_changed(QDate const &date)
 {
     if (date.isValid())
-        render_stats(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1));
+        render_stats(QDate(m_ui->year_edit->date().year(), m_ui->month_dropdown->currentIndex() + 1, 1));
 }
 
 void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
 {
     auto theme = InternalManager::instance()->get_theme();
     // Clear all data from the chart so new values can be added.
-    ui->pie_chart_view->chart()->removeAllSeries();
+    m_ui->pie_chart_view->chart()->removeAllSeries();
 
     auto *pie_series = new QPieSeries();
     pie_series->setPieEndAngle(330);
 
-    if (current_date.daysInMonth() == rating_counts[0]) {
+    if (m_current_date.daysInMonth() == rating_counts[0]) {
         // If there is no data for the current month, display an empty pie chart.
-        pie_series->append(ratings[0], current_date.daysInMonth());
+        pie_series->append(ratings[0], m_current_date.daysInMonth());
         auto slice = pie_series->slices().at(0);
         slice->setBrush(InternalManager::instance()->colour(td::ColourRole::Unknown));
         slice->setLabelColor(InternalManager::instance()->colour(td::ColourRole::Text));
@@ -218,7 +228,7 @@ void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
         auto sorted = std::vector<std::pair<td::Rating, int>>();
 
         switch (static_cast<td::settings::PieSliceSort>(
-            InternalManager::instance()->settings->value("pie_slice_sort").toInt())) {
+            InternalManager::instance()->m_settings->value("pie_slice_sort").toInt())) {
         case td::settings::PieSliceSort::Category:
             for (int i = 1; i < 6; ++i)
                 if (0 != rating_counts[i])
@@ -249,16 +259,16 @@ void DiaryStats::render_pie_chart(std::vector<int> const &rating_counts)
         }
     }
 
-    ui->pie_chart_view->chart()->addSeries(pie_series);
-    ui->pie_chart_view->update();
+    m_ui->pie_chart_view->chart()->addSeries(pie_series);
+    m_ui->pie_chart_view->update();
     qDebug() << "Rendered pie chart.";
 }
 
 void DiaryStats::render_polar_chart(std::optional<td::YearMap::iterator> const &opt)
 {
     auto theme = InternalManager::instance()->get_theme();
-    auto chart = qobject_cast<QPolarChart *>(ui->polar_chart_view->chart());
-    auto const angular_max = current_date.daysInMonth();
+    auto chart = qobject_cast<QPolarChart *>(m_ui->polar_chart_view->chart());
+    auto const angular_max = m_current_date.daysInMonth();
 
     chart->removeAllSeries();
     for (auto const &i : chart->axes())
@@ -281,7 +291,7 @@ void DiaryStats::render_polar_chart(std::optional<td::YearMap::iterator> const &
 
     if (opt) {
         for (auto const &[day, data] : (*opt)->second) {
-            auto const &[dummy, rating, d2, d3] = data;
+            auto const &[dummy, rating, d2, d3, d4, d5] = data;
 
             if (td::Rating::Unknown != rating) {
                 auto upper = new QLineSeries();
@@ -312,7 +322,7 @@ void DiaryStats::render_polar_chart(std::optional<td::YearMap::iterator> const &
 void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const &opt)
 {
     auto theme = InternalManager::instance()->get_theme();
-    auto chart = ui->spline_chart_view->chart();
+    auto chart = m_ui->spline_chart_view->chart();
 
     chart->removeAllSeries();
     for (auto const &i : chart->axes())
@@ -321,27 +331,27 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
     auto x_axis = new QValueAxis();
     chart->addAxis(x_axis, Qt::AlignBottom);
 
-    switch (current_date.daysInMonth()) {
+    switch (m_current_date.daysInMonth()) {
     case 28:
-        x_axis->setRange(0, current_date.daysInMonth());
+        x_axis->setRange(0, m_current_date.daysInMonth());
         x_axis->setTickAnchor(0);
         x_axis->setTickInterval(2);
         x_axis->setTickCount(15);
         break;
     case 29:
-        x_axis->setRange(1, current_date.daysInMonth());
+        x_axis->setRange(1, m_current_date.daysInMonth());
         x_axis->setTickAnchor(1);
         x_axis->setTickInterval(2);
         x_axis->setTickCount(15);
         break;
     case 30:
-        x_axis->setRange(0, current_date.daysInMonth());
+        x_axis->setRange(0, m_current_date.daysInMonth());
         x_axis->setTickAnchor(0);
         x_axis->setTickInterval(2);
         x_axis->setTickCount(16);
         break;
     case 31:
-        x_axis->setRange(1, current_date.daysInMonth());
+        x_axis->setRange(1, m_current_date.daysInMonth());
         x_axis->setTickAnchor(1);
         x_axis->setTickInterval(2);
         x_axis->setTickCount(16);
@@ -349,11 +359,11 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
     default:
         // This will probably happen if somebody puts the year all the way back to 1700s when the calendar was reset or
         // something really obscure like that.
-        x_axis->setRange(1, current_date.daysInMonth());
+        x_axis->setRange(1, m_current_date.daysInMonth());
         x_axis->setTickAnchor(1);
         x_axis->setTickInterval(2);
         x_axis->setTickCount(15);
-        qDebug() << "This month has an invalid number of days in it:" << current_date;
+        qDebug() << "This month has an invalid number of days in it:" << m_current_date;
         break;
     }
 
@@ -392,7 +402,7 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
         current_spline_series->setColor(InternalManager::instance()->colour(td::ColourRole::Text));
 
         for (auto const &[day, data] : (*opt)->second) {
-            auto const &[important, rating, dummy, d2] = data;
+            auto const &[important, rating, dummy, d2, d3, d4] = data;
             if (td::Rating::Unknown != rating) {
                 // Each spline series covers a segment made from consecutive days with known ratings. This is done to
                 // prevent the warping of the spline line if there are large gaps between days with ratings. Map
@@ -426,52 +436,52 @@ void DiaryStats::render_spline_chart(std::optional<td::YearMap::iterator> const 
 
 void DiaryStats::render_comparison(std::vector<int> const &rating_counts)
 {
-    ui->t0->setText(QString::number(rating_counts[0]));
-    ui->t1->setText(QString::number(rating_counts[1]));
-    ui->t2->setText(QString::number(rating_counts[2]));
-    ui->t3->setText(QString::number(rating_counts[3]));
-    ui->t4->setText(QString::number(rating_counts[4]));
-    ui->t5->setText(QString::number(rating_counts[5]));
-    ui->ts->setText(QString::number(rating_counts[6]));
+    m_ui->t0->setText(QString::number(rating_counts[0]));
+    m_ui->t1->setText(QString::number(rating_counts[1]));
+    m_ui->t2->setText(QString::number(rating_counts[2]));
+    m_ui->t3->setText(QString::number(rating_counts[3]));
+    m_ui->t4->setText(QString::number(rating_counts[4]));
+    m_ui->t5->setText(QString::number(rating_counts[5]));
+    m_ui->ts->setText(QString::number(rating_counts[6]));
 
-    auto const &prev_month = current_date.addMonths(-1);
+    auto const &prev_month = m_current_date.addMonths(-1);
     if (!prev_month.isValid()) {
-        ui->l0->setText("N/A");
-        ui->l1->setText("N/A");
-        ui->l2->setText("N/A");
-        ui->l3->setText("N/A");
-        ui->l4->setText("N/A");
-        ui->l5->setText("N/A");
-        ui->ls->setText("N/A");
+        m_ui->l0->setText("N/A");
+        m_ui->l1->setText("N/A");
+        m_ui->l2->setText("N/A");
+        m_ui->l3->setText("N/A");
+        m_ui->l4->setText("N/A");
+        m_ui->l5->setText("N/A");
+        m_ui->ls->setText("N/A");
 
-        ui->d0->setText("N/A");
-        ui->d1->setText("N/A");
-        ui->d2->setText("N/A");
-        ui->d3->setText("N/A");
-        ui->d4->setText("N/A");
-        ui->d5->setText("N/A");
-        ui->ds->setText("N/A");
+        m_ui->d0->setText("N/A");
+        m_ui->d1->setText("N/A");
+        m_ui->d2->setText("N/A");
+        m_ui->d3->setText("N/A");
+        m_ui->d4->setText("N/A");
+        m_ui->d5->setText("N/A");
+        m_ui->ds->setText("N/A");
         return;
     }
 
     auto const &prev_stats =
         DiaryStats::get_rating_stats(DiaryHolder::instance()->get_monthmap(prev_month), prev_month.daysInMonth());
 
-    ui->l0->setText(QString::number(prev_stats[0]));
-    ui->l1->setText(QString::number(prev_stats[1]));
-    ui->l2->setText(QString::number(prev_stats[2]));
-    ui->l3->setText(QString::number(prev_stats[3]));
-    ui->l4->setText(QString::number(prev_stats[4]));
-    ui->l5->setText(QString::number(prev_stats[5]));
-    ui->ls->setText(QString::number(prev_stats[6]));
+    m_ui->l0->setText(QString::number(prev_stats[0]));
+    m_ui->l1->setText(QString::number(prev_stats[1]));
+    m_ui->l2->setText(QString::number(prev_stats[2]));
+    m_ui->l3->setText(QString::number(prev_stats[3]));
+    m_ui->l4->setText(QString::number(prev_stats[4]));
+    m_ui->l5->setText(QString::number(prev_stats[5]));
+    m_ui->ls->setText(QString::number(prev_stats[6]));
 
-    ui->d0->setText(QString::number(rating_counts[0] - prev_stats[0]));
-    ui->d1->setText(QString::number(rating_counts[1] - prev_stats[1]));
-    ui->d2->setText(QString::number(rating_counts[2] - prev_stats[2]));
-    ui->d3->setText(QString::number(rating_counts[3] - prev_stats[3]));
-    ui->d4->setText(QString::number(rating_counts[4] - prev_stats[4]));
-    ui->d5->setText(QString::number(rating_counts[5] - prev_stats[5]));
-    ui->ds->setText(QString::number(rating_counts[6] - prev_stats[6]));
+    m_ui->d0->setText(QString::number(rating_counts[0] - prev_stats[0]));
+    m_ui->d1->setText(QString::number(rating_counts[1] - prev_stats[1]));
+    m_ui->d2->setText(QString::number(rating_counts[2] - prev_stats[2]));
+    m_ui->d3->setText(QString::number(rating_counts[3] - prev_stats[3]));
+    m_ui->d4->setText(QString::number(rating_counts[4] - prev_stats[4]));
+    m_ui->d5->setText(QString::number(rating_counts[5] - prev_stats[5]));
+    m_ui->ds->setText(QString::number(rating_counts[6] - prev_stats[6]));
 
     qDebug() << "Rendered stats table.";
 }
@@ -482,7 +492,7 @@ std::vector<int> DiaryStats::get_rating_stats(std::optional<td::YearMap::iterato
 
     if (opt) {
         for (auto const &[day, data] : (*opt)->second) {
-            auto const &[important, rating, dummy, d2] = data;
+            auto const &[important, rating, dummy, d2, d3, d4] = data;
             if (td::Rating::Unknown != rating) {
                 --rating_counts[0];
                 ++rating_counts[static_cast<int>(rating)];
@@ -498,26 +508,23 @@ std::vector<int> DiaryStats::get_rating_stats(std::optional<td::YearMap::iterato
 
 void DiaryStats::render_stats(QDate const &date)
 {
-    current_date = date;
+    m_current_date = date;
 
     // Update the selector UI.
-    ui->month_dropdown->blockSignals(true);
-    ui->year_edit->blockSignals(true);
+    const QSignalBlocker b1(m_ui->month_dropdown);
+    const QSignalBlocker b2(m_ui->year_edit);
 
     if (date.isValid()) {
-        ui->month_dropdown->setCurrentIndex(date.month() - 1);
-        ui->year_edit->setDate(date);
+        m_ui->month_dropdown->setCurrentIndex(date.month() - 1);
+        m_ui->year_edit->setDate(date);
     }
     else {
-        ui->month_dropdown->setCurrentIndex(current_date.month() - 1);
-        ui->year_edit->setDate(current_date);
+        m_ui->month_dropdown->setCurrentIndex(m_current_date.month() - 1);
+        m_ui->year_edit->setDate(m_current_date);
     }
 
-    ui->month_dropdown->blockSignals(false);
-    ui->year_edit->blockSignals(false);
-
-    auto const &opt = DiaryHolder::instance()->get_monthmap(current_date);
-    auto const &rating_counts = DiaryStats::get_rating_stats(opt, current_date.daysInMonth());
+    auto const &opt = DiaryHolder::instance()->get_monthmap(m_current_date);
+    auto const &rating_counts = DiaryStats::get_rating_stats(opt, m_current_date.daysInMonth());
 
     render_pie_chart(rating_counts);
     render_polar_chart(opt);

@@ -43,7 +43,7 @@ public:
     void render_spline_chart(std::optional<td::YearMap::iterator> const &opt);
     void render_comparison(std::vector<int> const &rating_counts);
 
-    QDate current_date;
+    QDate m_current_date;
 
 public slots:
     void update_theme();
@@ -54,7 +54,10 @@ public slots:
     void year_changed(QDate const &date);
 
 private:
-    Ui::DiaryStats *ui;
+    Ui::DiaryStats *m_ui;
+
+    QShortcut *m_next_month_bind;
+    QShortcut *m_prev_month_bind;
 };
 
 #endif // DIARYSTATS_H

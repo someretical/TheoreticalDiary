@@ -36,7 +36,7 @@ public slots:
     void update_theme();
 
 private:
-    Ui::StandaloneOptions *ui;
+    Ui::StandaloneOptions *m_ui;
 };
 
 #endif // STANDALONEOPTIONS_H

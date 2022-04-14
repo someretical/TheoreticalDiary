@@ -20,10 +20,10 @@
 
 AlertLabel::AlertLabel(QWidget *parent) : QLabel(parent)
 {
-    timer = new QTimer(this);
-    timer->setSingleShot(true);
+    m_timer = new QTimer(this);
+    m_timer->setSingleShot(true);
 
-    connect(timer, &QTimer::timeout, this, &AlertLabel::timeout);
+    connect(m_timer, &QTimer::timeout, this, &AlertLabel::timeout);
 }
 
 void AlertLabel::set_text(const QString &&t, bool const auto_hide)
@@ -36,11 +36,11 @@ void AlertLabel::set_text(const QString &&t, bool const auto_hide)
         setVisible(true);
 
         if (auto_hide) {
-            timer->setInterval(5000);
-            timer->start();
+            m_timer->setInterval(5000);
+            m_timer->start();
         }
         else {
-            timer->stop();
+            m_timer->stop();
         }
     }
 

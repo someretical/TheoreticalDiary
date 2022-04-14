@@ -35,22 +35,22 @@
 
 MainWindow *main_window_ptr;
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
     main_window_ptr = this;
 
     setWindowTitle(QApplication::applicationName());
     restore_state();
     show_main_menu(false);
 
-    connect(InternalManager::instance()->inactive_filter, &InactiveFilter::sig_inactive_timeout, this,
+    connect(InternalManager::instance()->m_inactive_filter, &InactiveFilter::sig_inactive_timeout, this,
         &MainWindow::lock_diary);
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    delete m_ui;
 }
 
 MainWindow *MainWindow::instance()
@@ -60,15 +60,15 @@ MainWindow *MainWindow::instance()
 
 void MainWindow::store_state()
 {
-    InternalManager::instance()->settings->setValue("geometry", saveGeometry());
-    InternalManager::instance()->settings->setValue("window_state", saveState());
+    InternalManager::instance()->m_settings->setValue("geometry", saveGeometry());
+    InternalManager::instance()->m_settings->setValue("window_state", saveState());
     qDebug() << "Stored window state.";
 }
 
 void MainWindow::restore_state()
 {
-    auto geo = InternalManager::instance()->settings->value("geometry", "").toByteArray();
-    auto state = InternalManager::instance()->settings->value("window_state", "").toByteArray();
+    auto geo = InternalManager::instance()->m_settings->value("geometry", "").toByteArray();
+    auto state = InternalManager::instance()->m_settings->value("window_state", "").toByteArray();
     restoreGeometry(geo);
     restoreState(state);
     qDebug() << "Restored window state.";
@@ -84,11 +84,11 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
     auto encryptor = Encryptor::instance();
 
     // Clean up.
-    intman->internal_diary_changed = false;
+    intman->m_internal_diary_changed = false;
     DiaryHolder::instance()->init();
 
     // Backup on Google Drive.
-    if (intman->settings->value("sync_enabled").toBool() && intman->diary_file_changed) {
+    if (intman->m_settings->value("sync_enabled").toBool() && intman->m_diary_file_changed) {
         auto check_error = [this, locked](td::NR const &reply) {
             if (QNetworkReply::NoError != reply.error) {
                 if (!locked) {
@@ -108,9 +108,9 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
             if (!check_error(reply))
                 return;
 
-            intman->diary_file_changed = false;
+            intman->m_diary_file_changed = false;
             gwrapper->encrypt_credentials();
-            gwrapper->google->unlink();
+            gwrapper->m_o2g->unlink();
             encryptor->reset();
 
             if (!locked)
@@ -179,18 +179,18 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
                     cmb::display_google_drive_auth_error(this);
                 break;
             case td::LinkingResponse::OK:
-                lock.persist = true;
+                lock.m_persist = true;
                 gwrapper->list_files().subscribe(cb2);
             }
         };
 
-        AsyncFuture::observe(gwrapper->google, &O2Google::linkingDone).subscribe(cb1);
+        AsyncFuture::observe(gwrapper->m_o2g, &O2Google::linkingDone).subscribe(cb1);
         AppBusyLock lock(true);
-        gwrapper->google->link();
+        gwrapper->m_o2g->link();
     }
     else {
         gwrapper->encrypt_credentials();
-        gwrapper->google->unlink();
+        gwrapper->m_o2g->unlink();
         encryptor->reset();
     }
 
@@ -201,7 +201,7 @@ void MainWindow::exit_diary_to_main_menu(bool const locked)
 void MainWindow::lock_diary()
 {
     qDebug() << "Timeout detected.";
-    if (td::Window::Main == current_window || td::Window::Options == current_window) {
+    if (td::Window::Main == m_current_window || td::Window::Options == m_current_window) {
         // This isn't implemented because I don't believe it's a high risk for those tokens to be leaked?
         // In any case, if that ever DOES prove a threat, I can just uncomment the code below.
         // GoogleWrapper::instance()->google->unlink();
@@ -220,7 +220,7 @@ void MainWindow::clear_grid()
     misc::clear_message_boxes();
 
     QLayoutItem *child;
-    while ((child = ui->central_grid->takeAt(0))) {
+    while ((child = m_ui->central_grid->takeAt(0))) {
         qDebug() << "Clearing grid of:" << child->widget() << child;
         child->widget()->deleteLater();
         delete child;
@@ -229,31 +229,31 @@ void MainWindow::clear_grid()
 
 void MainWindow::show_main_menu(bool const show_locked_message)
 {
-    current_window = td::Window::Main;
+    m_current_window = td::Window::Main;
 
     clear_grid();
-    ui->central_grid->addWidget(new MainMenu(show_locked_message, this));
+    m_ui->central_grid->addWidget(new MainMenu(show_locked_message, this));
 }
 
 void MainWindow::show_options_menu()
 {
-    current_window = td::Window::Options;
+    m_current_window = td::Window::Options;
 
     clear_grid();
-    ui->central_grid->addWidget(new StandaloneOptions(this));
+    m_ui->central_grid->addWidget(new StandaloneOptions(this));
 }
 
 void MainWindow::show_diary_menu()
 {
-    current_window = td::Window::Editor;
+    m_current_window = td::Window::Editor;
 
     clear_grid();
-    ui->central_grid->addWidget(new DiaryMenu(this));
+    m_ui->central_grid->addWidget(new DiaryMenu(this));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (InternalManager::instance()->app_busy) {
+    if (InternalManager::instance()->m_app_busy) {
         event->ignore();
 
         AppBusyLock lock;
@@ -279,14 +279,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
         QObject::connect(msgbox, &QMessageBox::finished, cb);
         msgbox->show();
     }
-    else if (td::Window::Options == current_window) {
+    else if (td::Window::Options == m_current_window) {
         event->ignore(); // Don't close the main window, but exit to the main menu.
         show_main_menu(false);
     }
-    else if (td::Window::Editor == current_window) {
+    else if (td::Window::Editor == m_current_window) {
         event->ignore(); // Don't close the main window, but exit to the main menu.
 
-        if (InternalManager::instance()->internal_diary_changed) {
+        if (InternalManager::instance()->m_internal_diary_changed) {
             auto cb = [this](int const res) {
                 if (QMessageBox::Cancel == res)
                     return;

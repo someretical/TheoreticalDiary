@@ -45,35 +45,6 @@ bool is_not_space(int ch)
     return !std::isspace(ch);
 }
 
-// Assumes trimmed input!!!
-std::string get_trunc_first_line(std::string input, int max_line_len)
-{
-    std::string first_line;
-    auto newlines_exist = input.find('\n') != std::string::npos;
-
-    if (newlines_exist) {
-        std::istringstream stream(input);
-        std::getline(stream, first_line);
-    }
-    else {
-        first_line = std::move(input);
-    }
-
-    // Truncate line and append ... if it's too long.
-    // Cast max_line_len from 'int const' to 'long unsigned int'.
-    if (first_line.size() > static_cast<std::make_unsigned<decltype(max_line_len)>::type>(max_line_len)) {
-        first_line.resize(max_line_len);
-        first_line.append("...");
-    }
-    else if (newlines_exist) {
-        // There can be multiple lines in an entry where the first line does not have at least LONGEST_LINE_LENGTH
-        // characters.
-        first_line.append("...");
-    }
-
-    return first_line;
-}
-
 void extend_top_line(std::string &top, long unsigned int const max_line_len)
 {
     if (top.size() < max_line_len)

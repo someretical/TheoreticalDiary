@@ -31,35 +31,35 @@
 #include "mainwindow.h"
 #include "ui_mainmenu.h"
 
-MainMenu::MainMenu(bool const show_locked_message, QWidget *parent) : QWidget(parent), ui(new Ui::MainMenu)
+MainMenu::MainMenu(bool const show_locked_message, QWidget *parent) : QWidget(parent), m_ui(new Ui::MainMenu)
 {
-    ui->setupUi(this);
-    ui->version->setText("Version " + QApplication::applicationVersion());
-    ui->version->update();
-    ui->app_name->setText(QApplication::applicationName());
-    ui->app_name->update();
-    ui->pwd_alert_text->set_text(show_locked_message ? "Diary locked due to inactivity." : "");
+    m_ui->setupUi(this);
+    m_ui->version->setText("Version " + QApplication::applicationVersion());
+    m_ui->version->update();
+    m_ui->app_name->setText(QApplication::applicationName());
+    m_ui->app_name->update();
+    m_ui->pwd_alert_text->set_text(show_locked_message ? "Diary locked due to inactivity." : "");
 
-    QTimer::singleShot(0, [&]() { ui->password_box->setFocus(); });
+    QTimer::singleShot(0, [&]() { m_ui->password_box->setFocus(); });
 
     // Pressing enter will try to decrypt
-    enter_shortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+    m_enter_bind = new QShortcut(QKeySequence(Qt::Key_Return), this);
     connect(
-        enter_shortcut, &QShortcut::activated, this,
-        [&]() { QMetaObject::invokeMethod(ui->decrypt_button, "clicked"); }, Qt::QueuedConnection);
+        m_enter_bind, &QShortcut::activated, this,
+        [&]() { QMetaObject::invokeMethod(m_ui->decrypt_button, "clicked"); }, Qt::QueuedConnection);
 
-    connect(ui->decrypt_button, &QPushButton::clicked, this, &MainMenu::decrypt_diary, Qt::QueuedConnection);
-    connect(ui->new_button, &QPushButton::clicked, this, &MainMenu::new_diary, Qt::QueuedConnection);
-    connect(ui->import_button, &QPushButton::clicked, this, &MainMenu::import_diary, Qt::QueuedConnection);
-    connect(ui->options_button, &QPushButton::clicked, this, &MainMenu::open_options, Qt::QueuedConnection);
-    connect(ui->quit_button, &QPushButton::clicked, qobject_cast<MainWindow *>(parent), &MainWindow::close,
+    connect(m_ui->decrypt_button, &QPushButton::clicked, this, &MainMenu::decrypt_diary, Qt::QueuedConnection);
+    connect(m_ui->new_button, &QPushButton::clicked, this, &MainMenu::new_diary, Qt::QueuedConnection);
+    connect(m_ui->import_button, &QPushButton::clicked, this, &MainMenu::import_diary, Qt::QueuedConnection);
+    connect(m_ui->options_button, &QPushButton::clicked, this, &MainMenu::open_options, Qt::QueuedConnection);
+    connect(m_ui->quit_button, &QPushButton::clicked, qobject_cast<MainWindow *>(parent), &MainWindow::close,
         Qt::QueuedConnection);
 }
 
 MainMenu::~MainMenu()
 {
-    delete ui;
-    delete enter_shortcut;
+    delete m_ui;
+    delete m_enter_bind;
 }
 
 void MainMenu::open_options()
@@ -91,7 +91,7 @@ bool MainMenu::get_diary_contents()
         }
     }
 
-    Encryptor::instance()->encrypted_str.assign(stream.str());
+    Encryptor::instance()->m_encrypted_str.assign(stream.str());
     return true;
 }
 
@@ -100,10 +100,10 @@ void MainMenu::decrypt_diary()
     qDebug() << "Attempting to decrypt diary...";
     AppBusyLock lock(true);
 
-    auto const &password = ui->password_box->text().toStdString();
-    ui->password_box->setText("");
-    ui->password_box->update();
-    ui->pwd_alert_text->set_text("");
+    auto const &password = m_ui->password_box->text().toStdString();
+    m_ui->password_box->setText("");
+    m_ui->password_box->update();
+    m_ui->pwd_alert_text->set_text("");
 
     auto const &opt = get_diary_contents();
     if (!opt) {
@@ -126,18 +126,18 @@ void MainMenu::decrypt_diary()
     auto decrypt_diary_cb = [this](bool const perform_decrypt) {
         std::string decrypted;
         if (perform_decrypt) {
-            auto const &res = Encryptor::instance()->decrypt(Encryptor::instance()->encrypted_str);
+            auto const &res = Encryptor::instance()->decrypt(Encryptor::instance()->m_encrypted_str);
             if (!res)
                 return QTimer::singleShot(2000, [this]() {
                     AppBusyLock lock;
-                    ui->pwd_alert_text->set_text("Wrong password.");
+                    m_ui->pwd_alert_text->set_text("Wrong password.");
                 });
 
             decrypted.assign(*res);
         }
 
         std::string decompressed;
-        if (Zipper::unzip((perform_decrypt ? decrypted : Encryptor::instance()->encrypted_str), decompressed) &&
+        if (Zipper::unzip((perform_decrypt ? decrypted : Encryptor::instance()->m_encrypted_str), decompressed) &&
             DiaryHolder::instance()->load(decompressed)) {
 
             GoogleWrapper::instance()->decrypt_credentials(perform_decrypt);
@@ -149,11 +149,11 @@ void MainMenu::decrypt_diary()
         // 2000ms delay here to stop the app from getting spammed.
         QTimer::singleShot(2000, [this]() {
             AppBusyLock lock;
-            ui->pwd_alert_text->set_text("Unable to parse diary.");
+            m_ui->pwd_alert_text->set_text("Unable to parse diary.");
         });
     };
 
-    auto &str = Encryptor::instance()->encrypted_str;
+    auto &str = Encryptor::instance()->m_encrypted_str;
     // If the password box is empty, try to decompress immediately.
     // If the encrypted string length is too short, throw the same error.
     // This is the simplest way of letting a user know their file is scuffed.
@@ -164,13 +164,13 @@ void MainMenu::decrypt_diary()
         else
             qDebug() << "No password to hash in decrypt_diary.";
 
-        ui->pwd_alert_text->set_text("Parsing diary...", false);
+        m_ui->pwd_alert_text->set_text("Parsing diary...", false);
         return decrypt_diary_cb(false);
     }
 
     Encryptor::instance()->parse_encrypted_string(str);
 
-    ui->pwd_alert_text->set_text("Decrypting...", false);
+    m_ui->pwd_alert_text->set_text("Decrypting...", false);
 
     auto hash_controller = new HashController();
     connect(hash_controller, &HashController::sig_done, decrypt_diary_cb);
@@ -187,7 +187,7 @@ void MainMenu::new_diary(bool const skip_overwrite_check)
 
         Encryptor::instance()->reset();
         DiaryHolder::instance()->init();
-        InternalManager::instance()->internal_diary_changed = true;
+        InternalManager::instance()->m_internal_diary_changed = true;
 
         qDebug() << "Showing diary menu from new diary.";
         MainWindow::instance()->show_diary_menu();
@@ -225,7 +225,7 @@ void MainMenu::import_diary()
             return msgbox->show();
         }
 
-        InternalManager::instance()->internal_diary_changed = true;
+        InternalManager::instance()->m_internal_diary_changed = true;
         qDebug() << "Showing diary menu from import diary.";
         MainWindow::instance()->show_diary_menu();
     };

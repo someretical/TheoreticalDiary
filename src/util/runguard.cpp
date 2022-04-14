@@ -30,15 +30,15 @@ QString generate_key_hash(QString const &key, QString const &salt)
 }
 
 RunGuard::RunGuard(QString const &key)
-    : key(key), mem_lock_key(generate_key_hash(key, "_mem_lock_key")),
-      shared_mem_key(generate_key_hash(key, "_shared_mem_key")), shared_mem(shared_mem_key), mem_lock(mem_lock_key, 1)
+    : m_key(key), m_mem_lock_key(generate_key_hash(key, "_mem_lock_key")),
+      m_shared_mem_key(generate_key_hash(key, "_shared_mem_key")), m_shared_mem(m_shared_mem_key), m_mem_lock(m_mem_lock_key, 1)
 {
-    mem_lock.acquire();
+    m_mem_lock.acquire();
     {
-        QSharedMemory fix(shared_mem_key); // Fix for *nix: http://habrahabr.ru/post/173281/
+        QSharedMemory fix(m_shared_mem_key); // Fix for *nix: http://habrahabr.ru/post/173281/
         fix.attach();
     }
-    mem_lock.release();
+    m_mem_lock.release();
 }
 
 RunGuard::~RunGuard()
@@ -48,14 +48,14 @@ RunGuard::~RunGuard()
 
 bool RunGuard::is_another_running()
 {
-    if (shared_mem.isAttached())
+    if (m_shared_mem.isAttached())
         return false;
 
-    mem_lock.acquire();
-    bool const isRunning = shared_mem.attach();
+    m_mem_lock.acquire();
+    bool const isRunning = m_shared_mem.attach();
     if (isRunning)
-        shared_mem.detach();
-    mem_lock.release();
+        m_shared_mem.detach();
+    m_mem_lock.release();
 
     return isRunning;
 }
@@ -65,9 +65,9 @@ bool RunGuard::try_to_run()
     if (is_another_running()) // Extra check.
         return false;
 
-    mem_lock.acquire();
-    bool const result = shared_mem.create(sizeof(quint64));
-    mem_lock.release();
+    m_mem_lock.acquire();
+    bool const result = m_shared_mem.create(sizeof(quint64));
+    m_mem_lock.release();
     if (!result) {
         release();
         return false;
@@ -78,8 +78,8 @@ bool RunGuard::try_to_run()
 
 void RunGuard::release()
 {
-    mem_lock.acquire();
-    if (shared_mem.isAttached())
-        shared_mem.detach();
-    mem_lock.release();
+    m_mem_lock.acquire();
+    if (m_shared_mem.isAttached())
+        m_shared_mem.detach();
+    m_mem_lock.release();
 }

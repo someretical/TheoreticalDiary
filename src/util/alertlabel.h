@@ -31,7 +31,7 @@ public:
 
 private:
     // The timer is used to auto hide the alert text after it has been shown for a while.
-    QTimer *timer;
+    QTimer *m_timer;
 
 private slots:
     void timeout();

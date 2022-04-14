@@ -16,19 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "standaloneoptions.h"
-#include "optionsmenu.h"
-#include "ui_standaloneoptions.h"
+#ifndef RAINGUIDE_H
+#define RAINGUIDE_H
 
-StandaloneOptions::StandaloneOptions(QWidget *parent) : QWidget(parent), m_ui(new Ui::StandaloneOptions)
-{
-    m_ui->setupUi(this);
-    m_ui->settings_frame->layout()->addWidget(new OptionsMenu(false, this));
+#include <QWidget>
+
+namespace Ui {
+class RAINGuide;
 }
 
-StandaloneOptions::~StandaloneOptions()
-{
-    delete m_ui;
-}
+class RAINGuide : public QWidget {
+    Q_OBJECT
 
-void StandaloneOptions::update_theme() {}
+public:
+    explicit RAINGuide(QWidget *parent = nullptr);
+    ~RAINGuide();
+
+private:
+    Ui::RAINGuide *m_ui;
+};
+
+#endif // RAINGUIDE_H

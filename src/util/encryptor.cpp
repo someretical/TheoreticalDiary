@@ -50,11 +50,11 @@ Encryptor *encryptor_ptr;
 Encryptor::Encryptor()
 {
     encryptor_ptr = this;
-    salt = CryptoPP::SecByteBlock(SALT_SIZE);
-    key = CryptoPP::SecByteBlock(KEY_SIZE);
-    key_set = false;
-    decrypt_iv = CryptoPP::SecByteBlock(IV_SIZE);
-    encrypted_str = std::string();
+    m_salt = CryptoPP::SecByteBlock(SALT_SIZE);
+    m_key = CryptoPP::SecByteBlock(KEY_SIZE);
+    m_key_set = false;
+    m_decrypt_iv = CryptoPP::SecByteBlock(IV_SIZE);
+    m_encrypted_str = std::string();
 }
 
 Encryptor::~Encryptor() {}
@@ -66,18 +66,18 @@ Encryptor *Encryptor::instance()
 
 void Encryptor::reset()
 {
-    salt.Assign(CryptoPP::SecByteBlock(SALT_SIZE));
-    key.Assign(CryptoPP::SecByteBlock(KEY_SIZE));
-    key_set = false;
-    decrypt_iv.Assign(CryptoPP::SecByteBlock(IV_SIZE));
-    encrypted_str.clear();
+    m_salt.Assign(CryptoPP::SecByteBlock(SALT_SIZE));
+    m_key.Assign(CryptoPP::SecByteBlock(KEY_SIZE));
+    m_key_set = false;
+    m_decrypt_iv.Assign(CryptoPP::SecByteBlock(IV_SIZE));
+    m_encrypted_str.clear();
     qDebug() << "Encryptor reset.";
 }
 
 void Encryptor::regenerate_salt()
 {
     CryptoPP::AutoSeededRandomPool prng;
-    prng.GenerateBlock(salt.data(), SALT_SIZE);
+    prng.GenerateBlock(m_salt.data(), SALT_SIZE);
     qDebug() << "Salt regenerated.";
 }
 
@@ -85,17 +85,17 @@ void Encryptor::set_key(std::string const &plaintext)
 {
     CryptoPP::SecByteBlock byte_block(reinterpret_cast<CryptoPP::byte const *>(plaintext.data()), plaintext.size());
     CryptoPP::Scrypt scrypt;
-    key_set = true;
+    m_key_set = true;
 
     // This is supposed to be computationally expensive to make it hard to brute force attack. It SHOULD take a
     // reasonable amount of time. Unfortunately it takes WAY longer on Windows compared with Linux.
     scrypt.DeriveKey(
-        key.data(), KEY_SIZE, byte_block.data(), byte_block.size(), salt.data(), SALT_SIZE, 1 << 15, 8, 16);
+        m_key.data(), KEY_SIZE, byte_block.data(), byte_block.size(), m_salt.data(), SALT_SIZE, 1 << 15, 8, 16);
 }
 
 void Encryptor::set_salt(std::string const &salt_str)
 {
-    salt.Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(salt_str.data()), SALT_SIZE));
+    m_salt.Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(salt_str.data()), SALT_SIZE));
     qDebug() << "New salt set.";
 }
 
@@ -115,7 +115,7 @@ void Encryptor::encrypt(std::string const &plaintext, std::string &encrypted)
     CryptoPP::GCM<CryptoPP::AES>::Encryption encryptor;
 
     prng.GenerateBlock(iv, IV_SIZE);
-    encryptor.SetKeyWithIV(key.data(), KEY_SIZE, iv, IV_SIZE);
+    encryptor.SetKeyWithIV(m_key.data(), KEY_SIZE, iv, IV_SIZE);
 
     // Put content to be encrypted in the encryption AND authentication channel.
     CryptoPP::AuthenticatedEncryptionFilter encryption_filter(
@@ -128,13 +128,13 @@ void Encryptor::encrypt(std::string const &plaintext, std::string &encrypted)
     encrypted.insert(0, iv_str);
 
     // Prepend the salt.
-    std::string const salt_str(reinterpret_cast<char const *>(salt.data()), SALT_SIZE);
+    std::string const salt_str(reinterpret_cast<char const *>(m_salt.data()), SALT_SIZE);
     encrypted.insert(0, salt_str);
 }
 
 void Encryptor::set_decrypt_iv(std::string const &iv_str)
 {
-    decrypt_iv.Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(iv_str.data()), IV_SIZE));
+    m_decrypt_iv.Assign(CryptoPP::SecByteBlock(reinterpret_cast<CryptoPP::byte const *>(iv_str.data()), IV_SIZE));
     qDebug() << "New decrypt IV set.";
 }
 
@@ -143,7 +143,7 @@ std::optional<std::string> Encryptor::decrypt(std::string const &encrypted)
 {
     try {
         CryptoPP::GCM<CryptoPP::AES>::Decryption decryptor;
-        decryptor.SetKeyWithIV(key.data(), KEY_SIZE, decrypt_iv, IV_SIZE);
+        decryptor.SetKeyWithIV(m_key.data(), KEY_SIZE, m_decrypt_iv, IV_SIZE);
 
         std::string encrypted_data = encrypted.substr(0, encrypted.size() - TAG_SIZE);
         std::string mac_value = encrypted.substr(encrypted.size() - TAG_SIZE);

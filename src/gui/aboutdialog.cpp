@@ -56,29 +56,29 @@ QString const LIBRARIES = R"(
 )";
 // clang-format on
 
-AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
+AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), m_ui(new Ui::AboutDialog)
 {
-    ui->setupUi(this);
-    ui->description->setText(QString(DESCRIPTION).replace("%APPNAME%", QApplication::applicationName()));
-    ui->contributors->setText(CONTRIBUTORS);
-    ui->licenses->setText(LIBRARIES);
+    m_ui->setupUi(this);
+    m_ui->description->setText(QString(DESCRIPTION).replace("%APPNAME%", QApplication::applicationName()));
+    m_ui->contributors->setText(CONTRIBUTORS);
+    m_ui->licenses->setText(LIBRARIES);
 
     QFile file(":/REVISION.txt");
     file.open(QIODevice::ReadOnly);
 
-    ui->about->setText(QString(ABOUT)
-                           .replace("%VERSION%", QApplication::applicationVersion())
-                           .replace("%REVISION%", file.readAll())
-                           .replace("%OS%", QSysInfo::prettyProductName())
-                           .replace("%CPU%", QSysInfo::currentCpuArchitecture())
-                           .replace("%KERNEL%", QSysInfo::kernelType() + " " + QSysInfo::kernelVersion()));
+    m_ui->about->setText(QString(ABOUT)
+                             .replace("%VERSION%", QApplication::applicationVersion())
+                             .replace("%REVISION%", file.readAll())
+                             .replace("%OS%", QSysInfo::prettyProductName())
+                             .replace("%CPU%", QSysInfo::currentCpuArchitecture())
+                             .replace("%KERNEL%", QSysInfo::kernelType() + " " + QSysInfo::kernelVersion()));
 
-    connect(ui->ok_button, &QPushButton::clicked, this, &AboutDialog::accept, Qt::QueuedConnection);
-    connect(ui->clipboard, &QPushButton::clicked,
-        [this]() { QGuiApplication::clipboard()->setText(ui->about->toPlainText()); });
+    connect(m_ui->ok_button, &QPushButton::clicked, this, &AboutDialog::accept, Qt::QueuedConnection);
+    connect(m_ui->clipboard, &QPushButton::clicked,
+        [this]() { QGuiApplication::clipboard()->setText(m_ui->about->toPlainText()); });
 }
 
 AboutDialog::~AboutDialog()
 {
-    delete ui;
+    delete m_ui;
 }

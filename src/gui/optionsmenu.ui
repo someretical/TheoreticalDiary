@@ -81,14 +81,11 @@
      </item>
      <item row="0" column="1" alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="apply_button">
-       <property name="minimumSize">
-        <size>
-         <width>90</width>
-         <height>0</height>
-        </size>
-       </property>
        <property name="text">
         <string>Apply</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
        </property>
        <property name="default">
         <bool>true</bool>
@@ -97,14 +94,11 @@
      </item>
      <item row="0" column="2" alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="ok_button">
-       <property name="minimumSize">
-        <size>
-         <width>90</width>
-         <height>0</height>
-        </size>
-       </property>
        <property name="text">
         <string>Close</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -190,14 +184,11 @@
                <layout class="QGridLayout" name="gridLayout_14">
                 <item row="2" column="0">
                  <widget class="QPushButton" name="upload_backup_button">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>0</height>
-                   </size>
-                  </property>
                   <property name="text">
                    <string>Upload backup</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -206,31 +197,28 @@
                   <property name="text">
                    <string>Authorize</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="0">
                  <widget class="QPushButton" name="download_backup_button">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>0</height>
-                   </size>
-                  </property>
                   <property name="text">
                    <string>Download backup</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="3" column="0">
                  <widget class="QPushButton" name="flush_oauth_button">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>0</height>
-                   </size>
-                  </property>
                   <property name="text">
                    <string>Deauthorize</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -359,12 +347,6 @@
              <layout class="QGridLayout" name="gridLayout_13">
               <item row="0" column="1" alignment="Qt::AlignLeft">
                <widget class="QComboBox" name="theme_dropdown">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <item>
                  <property name="text">
                   <string>Dark</string>
@@ -395,14 +377,11 @@
              <layout class="QGridLayout" name="gridLayout_16">
               <item row="0" column="0" alignment="Qt::AlignLeft">
                <widget class="QPushButton" name="reset_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="text">
                  <string>Reset</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -420,14 +399,11 @@
               </property>
               <item row="0" column="0" alignment="Qt::AlignLeft">
                <widget class="QPushButton" name="about_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="text">
                  <string>View app information</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -608,17 +584,14 @@
               </item>
               <item row="5" column="0" alignment="Qt::AlignLeft">
                <widget class="QPushButton" name="change_password_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="toolTip">
                  <string>Update the password.</string>
                 </property>
                 <property name="text">
                  <string>Update</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -633,17 +606,14 @@
              <layout class="QGridLayout" name="gridLayout_5">
               <item row="4" column="0" alignment="Qt::AlignLeft">
                <widget class="QPushButton" name="update_lock_timeout">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="toolTip">
                  <string>Update the lock timeout.</string>
                 </property>
                 <property name="text">
                  <string>Update</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -707,14 +677,11 @@
                 </item>
                 <item row="0" column="0">
                  <widget class="QPushButton" name="export_button">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>0</height>
-                   </size>
-                  </property>
                   <property name="text">
                    <string>Export diary</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -778,40 +745,31 @@
               </property>
               <item row="1" column="2">
                <widget class="QPushButton" name="dev_upload_file_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="text">
                  <string>Upload</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item row="4" column="2">
                <widget class="QPushButton" name="dev_copy_file_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="text">
                  <string>Copy</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item row="0" column="2">
                <widget class="QPushButton" name="dev_list_files_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="text">
                  <string>List</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -824,14 +782,11 @@
               </item>
               <item row="3" column="2">
                <widget class="QPushButton" name="dev_update_file_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="text">
                  <string>Update</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -900,27 +855,21 @@
               </item>
               <item row="2" column="2">
                <widget class="QPushButton" name="dev_download_file_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="text">
                  <string>Download</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item row="6" column="2">
                <widget class="QPushButton" name="dev_delete_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="text">
                  <string>Delete</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -933,14 +882,11 @@
               </item>
               <item row="7" column="2">
                <widget class="QPushButton" name="test_button">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
                 <property name="text">
                  <string>Test</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>

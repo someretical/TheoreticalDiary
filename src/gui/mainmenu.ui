@@ -153,33 +153,27 @@
      </property>
      <item row="0" column="1">
       <widget class="QPushButton" name="options_button">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
        <property name="toolTip">
         <string>Open the settings menu.</string>
        </property>
        <property name="text">
         <string>Settings</string>
        </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="0" column="2">
       <widget class="QPushButton" name="quit_button">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
        <property name="toolTip">
         <string>Exit the application.</string>
        </property>
        <property name="text">
         <string>Quit</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -329,17 +323,14 @@
           </property>
           <item row="0" column="0">
            <widget class="QPushButton" name="decrypt_button">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>0</height>
-             </size>
-            </property>
             <property name="toolTip">
              <string>Open local diary.</string>
             </property>
             <property name="text">
              <string>Open</string>
+            </property>
+            <property name="autoDefault">
+             <bool>true</bool>
             </property>
             <property name="default">
              <bool>true</bool>
@@ -348,33 +339,27 @@
           </item>
           <item row="0" column="2">
            <widget class="QPushButton" name="import_button">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>0</height>
-             </size>
-            </property>
             <property name="toolTip">
              <string>Import an unencrypted JSON diary.</string>
             </property>
             <property name="text">
              <string>Import</string>
             </property>
+            <property name="autoDefault">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="0" column="1">
            <widget class="QPushButton" name="new_button">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>0</height>
-             </size>
-            </property>
             <property name="toolTip">
              <string>Create a new diary.</string>
             </property>
             <property name="text">
              <string>New</string>
+            </property>
+            <property name="autoDefault">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

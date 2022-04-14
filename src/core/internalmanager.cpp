@@ -25,23 +25,23 @@ InternalManager *i_m_ptr;
 InternalManager::InternalManager()
 {
     i_m_ptr = this;
-    app_busy = false;
-    internal_diary_changed = false;
-    diary_file_changed = false;
+    m_app_busy = false;
+    m_internal_diary_changed = false;
+    m_diary_file_changed = false;
 
-    settings = new QSettings(QString("%1/%2").arg(data_location(), "config.ini"), QSettings::IniFormat, this);
+    m_settings = new QSettings(QString("%1/%2").arg(data_location(), "config.ini"), QSettings::IniFormat, this);
     init_settings(false);
 
-    inactive_filter = new InactiveFilter(settings->value("lock_timeout").toLongLong(), this);
-    QApplication::instance()->installEventFilter(inactive_filter);
+    m_inactive_filter = new InactiveFilter(m_settings->value("lock_timeout").toLongLong(), this);
+    QApplication::instance()->installEventFilter(m_inactive_filter);
 
     start_update_theme();
 }
 
 InternalManager::~InternalManager()
 {
-    delete settings;
-    delete inactive_filter;
+    delete m_settings;
+    delete m_inactive_filter;
 }
 
 InternalManager *InternalManager::instance()
@@ -51,27 +51,27 @@ InternalManager *InternalManager::instance()
 
 void InternalManager::init_settings(const bool force_reset)
 {
-    if (!settings->contains("sync_enabled") || force_reset)
-        settings->setValue("sync_enabled", false);
+    if (!m_settings->contains("sync_enabled") || force_reset)
+        m_settings->setValue("sync_enabled", false);
 
-    if (!settings->contains("theme") || force_reset)
-        settings->setValue("theme", static_cast<int>(td::Theme::Dark));
+    if (!m_settings->contains("theme") || force_reset)
+        m_settings->setValue("theme", static_cast<int>(td::Theme::Dark));
 
-    if (!settings->contains("lock_timeout") || force_reset)
-        settings->setValue("lock_timeout", static_cast<qint64>(300000 /* 5 minutes */));
+    if (!m_settings->contains("lock_timeout") || force_reset)
+        m_settings->setValue("lock_timeout", static_cast<qint64>(300000 /* 5 minutes */));
 
-    if (!settings->contains("pie_slice_sorting") || force_reset)
-        settings->setValue("pie_slice_sorting", static_cast<int>(td::settings::PieSliceSort::Days));
+    if (!m_settings->contains("pie_slice_sorting") || force_reset)
+        m_settings->setValue("pie_slice_sorting", static_cast<int>(td::settings::PieSliceSort::Days));
 }
 
 td::Theme InternalManager::get_theme(bool const opposite)
 {
     if (opposite) {
-        return static_cast<td::Theme>(settings->value("theme").toInt()) == td::Theme::Dark ? td::Theme::Light
+        return static_cast<td::Theme>(m_settings->value("theme").toInt()) == td::Theme::Dark ? td::Theme::Light
                                                                                            : td::Theme::Dark;
     }
     else {
-        return static_cast<td::Theme>(settings->value("theme").toInt());
+        return static_cast<td::Theme>(m_settings->value("theme").toInt());
     }
 }
 
@@ -87,27 +87,33 @@ QString InternalManager::get_theme_str(bool const opposite)
 
 QString InternalManager::data_location()
 {
+    // Testing convenience
+#ifdef QT_DEBUG
+    return QString("%1/%2-DEBUG")
+        .arg(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QApplication::applicationName());
+#else
     return QString("%1/%2").arg(
         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QApplication::applicationName());
+#endif
 }
 
 void InternalManager::start_busy_mode()
 {
-    if (app_busy)
+    if (m_app_busy)
         return;
 
-    QApplication::instance()->installEventFilter(&busy_filter);
-    app_busy = true;
+    QApplication::instance()->installEventFilter(&m_busy_filter);
+    m_app_busy = true;
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 void InternalManager::end_busy_mode()
 {
-    if (!app_busy)
+    if (!m_app_busy)
         return;
 
-    QApplication::instance()->removeEventFilter(&busy_filter);
-    app_busy = false;
+    QApplication::instance()->removeEventFilter(&m_busy_filter);
+    m_app_busy = false;
     QGuiApplication::restoreOverrideCursor();
 }
 

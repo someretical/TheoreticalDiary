@@ -47,7 +47,7 @@ public:
     void create_entry(QDate const &date, td::Entry const &entry);
     void delete_entry(QDate const &date);
 
-    td::Diary diary;
+    td::Diary m_diary;
 };
 
 #endif // DIARYHOLDER_H

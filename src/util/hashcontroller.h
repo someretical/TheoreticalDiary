@@ -47,25 +47,25 @@ signals:
 class HashController : public QObject {
     Q_OBJECT
 
-    QThread worker_thread;
+    QThread m_worker_thread;
 
 public:
     HashController()
     {
         auto *worker = new HashWorker;
-        worker->moveToThread(&worker_thread);
+        worker->moveToThread(&m_worker_thread);
 
-        connect(&worker_thread, &QThread::finished, worker, &QObject::deleteLater);
+        connect(&m_worker_thread, &QThread::finished, worker, &QObject::deleteLater);
         connect(this, &HashController::operate, worker, &HashWorker::hash);
         connect(worker, &HashWorker::done, this, &HashController::handle_results);
 
-        worker_thread.start();
+        m_worker_thread.start();
     }
 
     ~HashController()
     {
-        worker_thread.quit();
-        worker_thread.wait();
+        m_worker_thread.quit();
+        m_worker_thread.wait();
     }
 
 public slots:

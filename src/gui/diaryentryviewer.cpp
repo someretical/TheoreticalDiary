@@ -49,16 +49,24 @@ const QString HR_ROW(R"(
 
 char const *TABLE_END = "</table>";
 
-DiaryEntryViewer::DiaryEntryViewer(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryEntryViewer)
+DiaryEntryViewer::DiaryEntryViewer(QWidget *parent) : QWidget(parent), m_ui(new Ui::DiaryEntryViewer)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
     // Navigator slots
-    connect(ui->month_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+    connect(m_ui->month_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
         &DiaryEntryViewer::month_changed, Qt::QueuedConnection);
-    connect(ui->year_edit, &QDateEdit::dateChanged, this, &DiaryEntryViewer::year_changed, Qt::QueuedConnection);
-    connect(ui->next_month, &QPushButton::clicked, this, &DiaryEntryViewer::next_month, Qt::QueuedConnection);
-    connect(ui->prev_month, &QPushButton::clicked, this, &DiaryEntryViewer::prev_month, Qt::QueuedConnection);
+    connect(m_ui->year_edit, &QDateEdit::dateChanged, this, &DiaryEntryViewer::year_changed, Qt::QueuedConnection);
+    connect(m_ui->next_month, &QPushButton::clicked, this, &DiaryEntryViewer::next_month, Qt::QueuedConnection);
+    connect(m_ui->prev_month, &QPushButton::clicked, this, &DiaryEntryViewer::prev_month, Qt::QueuedConnection);
+
+    // Next/prev month keyboard shortcuts
+    m_next_month_bind = new QShortcut(Qt::Key_Down, this);
+    m_next_month_bind->setAutoRepeat(true);
+    connect(m_next_month_bind, &QShortcut::activated, this, &DiaryEntryViewer::next_month, Qt::QueuedConnection);
+    m_prev_month_bind = new QShortcut(Qt::Key_Up, this);
+    m_prev_month_bind->setAutoRepeat(true);
+    connect(m_prev_month_bind, &QShortcut::activated, this, &DiaryEntryViewer::prev_month, Qt::QueuedConnection);
 
     connect(InternalManager::instance(), &InternalManager::update_data, this, &DiaryEntryViewer::change_month,
         Qt::QueuedConnection);
@@ -70,7 +78,9 @@ DiaryEntryViewer::DiaryEntryViewer(QWidget *parent) : QWidget(parent), ui(new Ui
 
 DiaryEntryViewer::~DiaryEntryViewer()
 {
-    delete ui;
+    delete m_ui;
+    delete m_next_month_bind;
+    delete m_prev_month_bind;
 }
 
 void DiaryEntryViewer::update_theme()
@@ -83,36 +93,33 @@ void DiaryEntryViewer::change_month(QDate const &date)
     qDebug() << "Changed diary entry viewer month:" << date;
 
     // Update the selector UI.
-    ui->month_dropdown->blockSignals(true);
-    ui->year_edit->blockSignals(true);
+    const QSignalBlocker b1(m_ui->month_dropdown);
+    const QSignalBlocker b2(m_ui->year_edit);
 
     if (date.isValid()) {
-        ui->month_dropdown->setCurrentIndex(date.month() - 1);
-        ui->year_edit->setDate(date);
+        m_ui->month_dropdown->setCurrentIndex(date.month() - 1);
+        m_ui->year_edit->setDate(date);
     }
     else {
-        ui->month_dropdown->setCurrentIndex(current_date.month() - 1);
-        ui->year_edit->setDate(current_date);
+        m_ui->month_dropdown->setCurrentIndex(m_current_date.month() - 1);
+        m_ui->year_edit->setDate(m_current_date);
     }
 
-    ui->month_dropdown->blockSignals(false);
-    ui->year_edit->blockSignals(false);
-
-    auto const &opt = DiaryHolder::instance()->get_monthmap(date.isValid() ? date : current_date);
+    auto const &opt = DiaryHolder::instance()->get_monthmap(date.isValid() ? date : m_current_date);
     if (!opt)
-        return ui->entry_edit->setText(PLACEHOLDER_TEXT);
+        return m_ui->entry_edit->setText(PLACEHOLDER_TEXT);
 
     QString html(TABLE_START);
 
     auto row_counter = 0;
     for (auto const &i : (*opt)->second) {
-        auto const &[important, rating, message, le] = i.second;
+        auto const &[important, rating, general_message, dummy, d2, le] = i.second;
 
-        // Don't add any days that don't have text entries.
-        if (message.empty())
+        // Don't add any days that don't have general_message's.
+        if (general_message.empty())
             continue;
 
-        auto copy = message;
+        auto copy = general_message;
         QDateTime last_edited;
         last_edited.setTime_t(le);
 
@@ -134,40 +141,40 @@ void DiaryEntryViewer::change_month(QDate const &date)
     }
 
     if (0 == row_counter) {
-        return ui->entry_edit->setText(PLACEHOLDER_TEXT);
+        return m_ui->entry_edit->setText(PLACEHOLDER_TEXT);
     }
     else {
         html.chop(HR_ROW.size());
         html.append(TABLE_END);
-        ui->entry_edit->setText(html);
+        m_ui->entry_edit->setText(html);
     }
 
-    current_date = date;
+    m_current_date = date;
 }
 
 void DiaryEntryViewer::next_month()
 {
-    QDate const next = ui->year_edit->date().addMonths(1);
+    QDate const next = m_ui->year_edit->date().addMonths(1);
     if (next.isValid())
         change_month(next);
 }
 
 void DiaryEntryViewer::prev_month()
 {
-    QDate const prev = ui->year_edit->date().addMonths(-1);
+    QDate const prev = m_ui->year_edit->date().addMonths(-1);
     if (prev.isValid())
         change_month(prev);
 }
 
 void DiaryEntryViewer::month_changed(int)
 {
-    change_month(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1));
+    change_month(QDate(m_ui->year_edit->date().year(), m_ui->month_dropdown->currentIndex() + 1, 1));
 }
 
 void DiaryEntryViewer::year_changed(QDate const &date)
 {
     if (date.isValid())
-        change_month(QDate(ui->year_edit->date().year(), ui->month_dropdown->currentIndex() + 1, 1));
+        change_month(QDate(m_ui->year_edit->date().year(), m_ui->month_dropdown->currentIndex() + 1, 1));
 }
 
 QByteArray DiaryEntryViewer::generate_base64_icon(int const day, td::Rating const rating, bool const important)

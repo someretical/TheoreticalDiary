@@ -55,8 +55,8 @@ public slots:
     void test();
 
 private:
-    Ui::OptionsMenu *ui;
-    bool diary_editor_mode;
+    Ui::OptionsMenu *m_ui;
+    bool m_diary_editor_mode;
 };
 
 #endif // OPTIONSMENU_H

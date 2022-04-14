@@ -37,36 +37,36 @@ GoogleWrapper *google_wrapper_ptr;
 GoogleWrapper::GoogleWrapper(QObject *parent) : QObject(parent)
 {
     google_wrapper_ptr = this;
-    google = new O2Google(this);
-    google->setClientId(CLIENT_ID);
-    google->setClientSecret(CLIENT_SECRET);
-    google->setScope(SCOPE);
-    google->setLocalPort(PORT);
-    google->setReplyContent(REPLY_CONTENT);
+    m_o2g = new O2Google(this);
+    m_o2g->setClientId(CLIENT_ID);
+    m_o2g->setClientSecret(CLIENT_SECRET);
+    m_o2g->setScope(SCOPE);
+    m_o2g->setLocalPort(PORT);
+    m_o2g->setReplyContent(REPLY_CONTENT);
 
     QVariantMap params;
     params["access_type"] = QVariant("offline");
-    google->setExtraRequestParams(params);
+    m_o2g->setExtraRequestParams(params);
 
     // To stop o2 from writing to the disk, a dummy read only file from the resource file is provided.
     // Don't want o2 to write to disk because a custom encryption method is already employed.
     auto settings = new QSettings(":/dummysettings", QSettings::IniFormat);
     auto settings_store = new O0SettingsStore(settings, QApplication::applicationName() /* Placeholder value */);
-    google->setStore(settings_store);
+    m_o2g->setStore(settings_store);
 
-    manager = new QNetworkAccessManager(this);
-    requestor = new O2Requestor(manager, qobject_cast<O2 *>(google), this);
-    requestor->setAddAccessTokenInQuery(false);
-    requestor->setAccessTokenInAuthenticationHTTPHeaderFormat("Bearer %1");
+    m_man = new QNetworkAccessManager(this);
+    m_req = new O2Requestor(m_man, qobject_cast<O2 *>(m_o2g), this);
+    m_req->setAddAccessTokenInQuery(false);
+    m_req->setAccessTokenInAuthenticationHTTPHeaderFormat("Bearer %1");
 
-    connect(google, &O2Google::openBrowser, [](QUrl const &url) { QDesktopServices::openUrl(url); });
+    connect(m_o2g, &O2Google::openBrowser, [](QUrl const &url) { QDesktopServices::openUrl(url); });
 }
 
 GoogleWrapper::~GoogleWrapper()
 {
-    delete google;
-    delete manager;
-    delete requestor;
+    delete m_o2g;
+    delete m_man;
+    delete m_req;
 }
 
 GoogleWrapper *GoogleWrapper::instance()
@@ -76,14 +76,14 @@ GoogleWrapper *GoogleWrapper::instance()
 
 bool GoogleWrapper::encrypt_credentials()
 {
-    nlohmann::json const j = td::Credentials{google->token().toStdString(), google->refreshToken().toStdString()};
+    nlohmann::json const j = td::Credentials{m_o2g->token().toStdString(), m_o2g->refreshToken().toStdString()};
 
     // Gzip JSON.
     std::string compressed, encrypted, decompressed = j.dump();
     Zipper::zip(compressed, decompressed);
 
     // Encrypt if there is a password set.
-    auto const key_set = Encryptor::instance()->key_set;
+    auto const key_set = Encryptor::instance()->m_key_set;
     if (key_set)
         Encryptor::instance()->encrypt(compressed, encrypted);
 
@@ -145,9 +145,9 @@ bool GoogleWrapper::decrypt_credentials(bool const perform_decrypt)
 
     try {
         auto credentials = json.get<td::Credentials>();
-        google->setToken(credentials.access_token.data());
-        google->setRefreshToken(credentials.refresh_token.data());
-        google->setLinked(true);
+        m_o2g->setToken(credentials.access_token.data());
+        m_o2g->setRefreshToken(credentials.refresh_token.data());
+        m_o2g->setLinked(true);
 
         qDebug() << "Decrypted tokens.";
         return true;
@@ -160,14 +160,14 @@ bool GoogleWrapper::decrypt_credentials(bool const perform_decrypt)
 
 td::LinkingResponse GoogleWrapper::verify_auth()
 {
-    if (!google->linked()) {
+    if (!m_o2g->linked()) {
         qDebug() << "Linking failed.";
         return td::LinkingResponse::Fail;
     }
 
     // Confirm scopes.
     // Quite possibly the ONLY regular expression in the entire project :o
-    QStringList scope_list = google->scope().split(QRegularExpression("\\+|\\s"));
+    QStringList scope_list = m_o2g->scope().split(QRegularExpression("\\+|\\s"));
     QStringList required_list = QString(SCOPE).split(" ");
     std::sort(scope_list.begin(), scope_list.end());
     std::sort(required_list.begin(), required_list.end());
@@ -185,12 +185,12 @@ td::LinkingResponse GoogleWrapper::verify_auth()
 td::NRO GoogleWrapper::revoke_access()
 {
     qDebug() << "Attempting to revoke access via Google.";
-    QUrl url(QString("https://oauth2.googleapis.com/revoke?token=%1").arg(google->token()));
+    QUrl url(QString("https://oauth2.googleapis.com/revoke?token=%1").arg(m_o2g->token()));
     QNetworkRequest req(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-    auto observable = AsyncFuture::observe(requestor, qOverload<td::NR>(&O2Requestor::finished));
-    requestor->post(req, "");
+    auto observable = AsyncFuture::observe(m_req, qOverload<td::NR>(&O2Requestor::finished));
+    m_req->post(req, "");
     return observable;
 }
 
@@ -200,8 +200,8 @@ td::NRO GoogleWrapper::list_files()
     QUrl url("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder");
     QNetworkRequest req(url);
 
-    auto observable = AsyncFuture::observe(requestor, qOverload<td::NR>(&O2Requestor::finished));
-    requestor->get(req);
+    auto observable = AsyncFuture::observe(m_req, qOverload<td::NR>(&O2Requestor::finished));
+    m_req->get(req);
     return observable;
 }
 
@@ -226,9 +226,9 @@ td::NRO GoogleWrapper::upload_file(QFile *file, QString const &name)
     multi_part->append(metadata);
     multi_part->append(media);
 
-    auto observable = AsyncFuture::observe(requestor, qOverload<td::NR>(&O2Requestor::finished));
+    auto observable = AsyncFuture::observe(m_req, qOverload<td::NR>(&O2Requestor::finished));
     // The content type and content length headers are automatically set by Qt.
-    requestor->post(req, multi_part);
+    m_req->post(req, multi_part);
     return observable;
 }
 
@@ -239,8 +239,8 @@ td::NRO GoogleWrapper::copy_file(QString const &id, QString const &new_name)
     QNetworkRequest req(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    auto observable = AsyncFuture::observe(requestor, qOverload<td::NR>(&O2Requestor::finished));
-    requestor->post(req, QString("{\"name\":\"%1\",\"parents\":[\"appDataFolder\"]}").arg(new_name).toUtf8());
+    auto observable = AsyncFuture::observe(m_req, qOverload<td::NR>(&O2Requestor::finished));
+    m_req->post(req, QString("{\"name\":\"%1\",\"parents\":[\"appDataFolder\"]}").arg(new_name).toUtf8());
     return observable;
 }
 
@@ -250,8 +250,8 @@ td::NRO GoogleWrapper::download_file(QString const &id)
     QUrl url(QString("https://www.googleapis.com/drive/v3/files/%1?alt=media").arg(id));
     QNetworkRequest req(url);
 
-    auto observable = AsyncFuture::observe(requestor, qOverload<td::NR>(&O2Requestor::finished));
-    requestor->get(req);
+    auto observable = AsyncFuture::observe(m_req, qOverload<td::NR>(&O2Requestor::finished));
+    m_req->get(req);
     return observable;
 }
 
@@ -261,8 +261,8 @@ td::NRO GoogleWrapper::delete_file(QString const &id)
     QUrl url(QString("https://www.googleapis.com/drive/v3/files/%1").arg(id));
     QNetworkRequest req(url);
 
-    auto observable = AsyncFuture::observe(requestor, qOverload<td::NR>(&O2Requestor::finished));
-    requestor->deleteResource(req);
+    auto observable = AsyncFuture::observe(m_req, qOverload<td::NR>(&O2Requestor::finished));
+    m_req->deleteResource(req);
     return observable;
 }
 
@@ -287,8 +287,8 @@ td::NRO GoogleWrapper::update_file(QFile *file, QString const &id)
     multi_part->append(metadata);
     multi_part->append(media);
 
-    auto observable = AsyncFuture::observe(requestor, qOverload<td::NR>(&O2Requestor::finished));
-    requestor->customRequest(req, "PATCH", multi_part);
+    auto observable = AsyncFuture::observe(m_req, qOverload<td::NR>(&O2Requestor::finished));
+    m_req->customRequest(req, "PATCH", multi_part);
     return observable;
 }
 

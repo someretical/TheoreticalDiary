@@ -38,8 +38,8 @@ public:
         td::Rating const r, bool const s, int const month, int const day, int const size, QWidget *parent = nullptr)
         : QLabel(parent)
     {
-        special = s;
-        rating = r;
+        m_special = s;
+        m_rating = r;
 
         setFixedHeight(size);
         setFixedWidth(size);
@@ -50,8 +50,8 @@ public:
 
     ~DiaryPixelLabel() {}
 
-    td::Rating rating;
-    bool special;
+    td::Rating m_rating;
+    bool m_special;
 
 public slots:
     void resize_slot(int const new_width)
@@ -71,7 +71,7 @@ protected:
         p.setRenderHint(QPainter::Antialiasing);
         p.drawPixmap(0, 0, generate_pixmap(size_));
 
-        if (special) {
+        if (m_special) {
             p.setOpacity(0.5);
             p.drawPixmap(0, 0, generate_star(size_));
         }
@@ -82,12 +82,12 @@ private:
     {
         QPixmap pixmap(size_.width(), size_.width());
         QString key = QString("pixellabel:%1:%2:%3")
-                          .arg(QString::number(static_cast<int>(rating)), QString::number(size_.width()),
+                          .arg(QString::number(static_cast<int>(m_rating)), QString::number(size_.width()),
                               QString::number(static_cast<int>(InternalManager::instance()->get_theme())));
 
         if (!QPixmapCache::find(key, pixmap)) {
             pixmap.fill(Qt::transparent);
-            QColor bkg_colour = misc::rating_to_colour(rating);
+            QColor bkg_colour = misc::rating_to_colour(m_rating);
             QPainter p(&pixmap);
             p.setRenderHint(QPainter::Antialiasing);
 
@@ -109,7 +109,7 @@ private:
         QPixmap pixmap(size_.width(), size_.width());
         pixmap.fill(Qt::transparent);
 
-        auto theme_str = misc::rating_to_theme(rating) == td::Theme::Dark ? "dark" : "light";
+        auto theme_str = misc::rating_to_theme(m_rating) == td::Theme::Dark ? "dark" : "light";
         QSvgRenderer renderer(QString(":/themes/%1/star.svg").arg(theme_str));
         QPainter painter(&pixmap);
         renderer.render(&painter);

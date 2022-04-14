@@ -24,30 +24,30 @@
 #include "optionsmenu.h"
 #include "ui_diarymenu.h"
 
-DiaryMenu::DiaryMenu(QWidget *parent) : QWidget(parent), ui(new Ui::DiaryMenu)
+DiaryMenu::DiaryMenu(QWidget *parent) : QWidget(parent), m_ui(new Ui::DiaryMenu)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
     auto date = QDate::currentDate();
 
     AppBusyLock lock;
 
-    ui->entries->layout()->addWidget(new DiaryEntryViewer(this));
-    ui->statistics->layout()->addWidget(new DiaryStats(this));
-    ui->pixels->layout()->addWidget(new DiaryPixels(this));
+    m_ui->entries->layout()->addWidget(new DiaryEntryViewer(this));
+    m_ui->statistics->layout()->addWidget(new DiaryStats(this));
+    m_ui->pixels->layout()->addWidget(new DiaryPixels(this));
     // DiaryEditor has to be initialised last because it tells all the other widgets to update.
-    ui->editor->layout()->addWidget(new DiaryEditor(date, this));
-    ui->settings_tab->layout()->addWidget(new OptionsMenu(true, this));
+    m_ui->editor->layout()->addWidget(new DiaryEditor(date, this));
+    m_ui->settings_tab->layout()->addWidget(new OptionsMenu(true, this));
 
-    connect(ui->diary_menu_tab, &QTabWidget::currentChanged, this, &DiaryMenu::tab_changed, Qt::QueuedConnection);
+    connect(m_ui->diary_menu_tab, &QTabWidget::currentChanged, this, &DiaryMenu::tab_changed, Qt::QueuedConnection);
 }
 
 DiaryMenu::~DiaryMenu()
 {
-    delete ui;
+    delete m_ui;
 }
 
 void DiaryMenu::tab_changed(int const)
 {
-    qDebug() << "Switched to tab:" << ui->diary_menu_tab->tabText(ui->diary_menu_tab->currentIndex());
+    qDebug() << "Switched to tab:" << m_ui->diary_menu_tab->tabText(m_ui->diary_menu_tab->currentIndex());
 }

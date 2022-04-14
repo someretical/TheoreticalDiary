@@ -33,7 +33,7 @@ public:
     ~APIResponse();
 
 private:
-    Ui::APIResponse *ui;
+    Ui::APIResponse *m_ui;
 };
 
 #endif // APIRESPONSE_H

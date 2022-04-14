@@ -47,15 +47,15 @@ public:
     void encrypt(std::string const &plaintext, std::string &encrypted);
     std::optional<std::string> decrypt(std::string const &encrypted);
 
-    bool key_set;
+    bool m_key_set;
     // This string exists as a cache of only the encrypted part of the string when trying to decrypt the diary.
     // The full diary string includes the salt and the IV.
-    std::string encrypted_str;
+    std::string m_encrypted_str;
 
 private:
-    CryptoPP::SecByteBlock salt;
-    CryptoPP::SecByteBlock key;
-    CryptoPP::SecByteBlock decrypt_iv;
+    CryptoPP::SecByteBlock m_salt;
+    CryptoPP::SecByteBlock m_key;
+    CryptoPP::SecByteBlock m_decrypt_iv;
 };
 
 #endif // ENCRYPTOR_H

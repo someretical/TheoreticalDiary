@@ -22,14 +22,13 @@
 #include "../util/zipper.h"
 #include "diaryholder.h"
 
-int const CURRENT_SAVE_VERSION = 4;
+int const CURRENT_SAVE_VERSION = 5;
 DiaryHolder *diary_holder_ptr;
 
 DiaryHolder::DiaryHolder()
 {
     diary_holder_ptr = this;
-    diary = td::Diary{
-        td::DiaryLog(), td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()}, td::Settings{}};
+    m_diary = td::Diary{td::DiaryLog(), td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()}};
 }
 
 DiaryHolder::~DiaryHolder() {}
@@ -42,8 +41,7 @@ DiaryHolder *DiaryHolder::instance()
 void DiaryHolder::init()
 {
     qDebug() << "Initialised diary.";
-    diary = td::Diary{
-        td::DiaryLog(), td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()}, td::Settings{}};
+    m_diary = td::Diary{td::DiaryLog(), td::Metadata{CURRENT_SAVE_VERSION, QDateTime::currentSecsSinceEpoch()}};
 }
 
 bool DiaryHolder::load(std::string &raw)
@@ -54,12 +52,8 @@ bool DiaryHolder::load(std::string &raw)
         return false;
     }
 
-    // Here is where updating save versions will occur *if* I every actually get
-    // around to doing this which will probably never happen because I'm the only
-    // person using my own app :')
-
     try {
-        diary = json.get<td::Diary>();
+        m_diary = json.get<td::Diary>();
     }
     catch (nlohmann::json::exception const &e) {
         qDebug() << "Exception while loading JSON diary.";
@@ -89,15 +83,15 @@ bool DiaryHolder::save()
     }
 
     // Update last_updated.
-    diary.metadata.last_updated = QDateTime::currentSecsSinceEpoch();
-    nlohmann::json const j = diary;
+    m_diary.metadata.last_updated = QDateTime::currentSecsSinceEpoch();
+    nlohmann::json const j = m_diary;
 
     // Gzip JSON.
     std::string compressed, encrypted, decompressed = j.dump();
     Zipper::zip(compressed, decompressed);
 
     // Encrypt if there is a password set.
-    auto const key_set = Encryptor::instance()->key_set;
+    auto const key_set = Encryptor::instance()->m_key_set;
     if (key_set)
         Encryptor::instance()->encrypt(compressed, encrypted);
 
@@ -106,8 +100,8 @@ bool DiaryHolder::save()
     if (!ofs.fail()) {
         ofs << (key_set ? encrypted : compressed);
 
-        InternalManager::instance()->internal_diary_changed = false;
-        InternalManager::instance()->diary_file_changed = true;
+        InternalManager::instance()->m_internal_diary_changed = false;
+        InternalManager::instance()->m_diary_file_changed = true;
         qDebug() << "Saved diary to disk.";
         return true;
     }
@@ -119,8 +113,8 @@ bool DiaryHolder::save()
 
 std::optional<td::DiaryLog::iterator> DiaryHolder::get_yearmap(QDate const &date)
 {
-    auto const &year_iter = diary.log.find(date.year());
-    if (year_iter == diary.log.end())
+    auto const &year_iter = m_diary.log.find(date.year());
+    if (year_iter == m_diary.log.end())
         return std::nullopt;
 
     return std::optional(year_iter);
@@ -128,8 +122,8 @@ std::optional<td::DiaryLog::iterator> DiaryHolder::get_yearmap(QDate const &date
 
 std::optional<td::YearMap::iterator> DiaryHolder::get_monthmap(QDate const &date)
 {
-    auto const &year_iter = diary.log.find(date.year());
-    if (year_iter == diary.log.end())
+    auto const &year_iter = m_diary.log.find(date.year());
+    if (year_iter == m_diary.log.end())
         return std::nullopt;
 
     auto const &month_iter = year_iter->second.find(date.month());
@@ -141,8 +135,8 @@ std::optional<td::YearMap::iterator> DiaryHolder::get_monthmap(QDate const &date
 
 std::optional<td::MonthMap::iterator> DiaryHolder::get_entry(QDate const &date)
 {
-    auto const &year_iter = diary.log.find(date.year());
-    if (year_iter == diary.log.end())
+    auto const &year_iter = m_diary.log.find(date.year());
+    if (year_iter == m_diary.log.end())
         return std::nullopt;
 
     auto const &month_iter = year_iter->second.find(date.month());
@@ -158,7 +152,7 @@ std::optional<td::MonthMap::iterator> DiaryHolder::get_entry(QDate const &date)
 
 void DiaryHolder::create_entry(QDate const &date, td::Entry const &entry)
 {
-    auto &year_map = DiaryHolder::instance()->diary.log;
+    auto &year_map = DiaryHolder::instance()->m_diary.log;
     auto const &[year_iter, dummy] = year_map.try_emplace(date.year(), td::YearMap());
     auto const &[month_iter, d2] = year_iter->second.try_emplace(date.month(), td::MonthMap());
 
