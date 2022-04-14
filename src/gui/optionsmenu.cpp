@@ -44,8 +44,8 @@ OptionsMenu::OptionsMenu(bool const from_diary_editor, QWidget *parent) : QWidge
     connect(m_ui->ok_button, &QPushButton::clicked, this, &OptionsMenu::back, Qt::QueuedConnection);
     connect(m_ui->apply_button, &QPushButton::clicked, this, &OptionsMenu::save_settings, Qt::QueuedConnection);
     connect(m_ui->export_button, &QPushButton::clicked, this, &OptionsMenu::export_diary, Qt::QueuedConnection);
-    connect(
-        m_ui->update_lock_timeout, &QPushButton::clicked, this, &OptionsMenu::update_lock_timeout, Qt::QueuedConnection);
+    connect(m_ui->update_lock_timeout, &QPushButton::clicked, this, &OptionsMenu::update_lock_timeout,
+        Qt::QueuedConnection);
     connect(
         m_ui->change_password_button, &QPushButton::clicked, this, &OptionsMenu::change_password, Qt::QueuedConnection);
     connect(m_ui->auth_button, &QPushButton::clicked, this, &OptionsMenu::complete_oauth, Qt::QueuedConnection);
@@ -168,7 +168,7 @@ void OptionsMenu::refresh_linked_checkbox()
 void OptionsMenu::export_diary()
 {
     auto const &filename = QFileDialog::getSaveFileName(
-        this, "Export diary", QString("%1/export.json").arg(QDir::homePath()), "JSON (*.json);;All files");
+        this, "Export diary", QString("%1/theoretical_diary.json").arg(QDir::homePath()), "JSON (*.json);;All files");
 
     if (filename.isEmpty())
         return;
@@ -661,7 +661,8 @@ void OptionsMenu::dev_copy()
             break;
         case td::LinkingResponse::OK:
             lock.m_persist = true;
-            gwrapper->copy_file(m_ui->dev_copy_file_id->text(), m_ui->dev_copy_file_new_name->text()).subscribe(cb_final);
+            gwrapper->copy_file(m_ui->dev_copy_file_id->text(), m_ui->dev_copy_file_new_name->text())
+                .subscribe(cb_final);
             break;
         }
     };

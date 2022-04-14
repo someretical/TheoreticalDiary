@@ -225,6 +225,7 @@ void MainMenu::import_diary()
             return msgbox->show();
         }
 
+        Encryptor::instance()->reset();
         InternalManager::instance()->m_internal_diary_changed = true;
         qDebug() << "Showing diary menu from import diary.";
         MainWindow::instance()->show_diary_menu();
