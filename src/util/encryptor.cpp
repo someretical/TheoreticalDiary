@@ -22,6 +22,7 @@
 #include <files.h>
 #include <filters.h>
 #include <gcm.h>
+#include <limits>
 #include <osrng.h>
 #include <scrypt.h>
 
@@ -141,6 +142,9 @@ void Encryptor::set_decrypt_iv(std::string const &iv_str)
 // Requires a salt and IV already set.
 std::optional<std::string> Encryptor::decrypt(std::string const &encrypted)
 {
+    if (encrypted.size() < TAG_SIZE)
+        return std::nullopt;
+
     try {
         CryptoPP::GCM<CryptoPP::AES>::Decryption decryptor;
         decryptor.SetKeyWithIV(m_key.data(), KEY_SIZE, m_decrypt_iv, IV_SIZE);
@@ -165,7 +169,7 @@ std::optional<std::string> Encryptor::decrypt(std::string const &encrypted)
             return std::nullopt;
 
         // Allocate enough space for the decrypted content.
-        std::size_t n = (std::size_t)-1;
+        std::size_t n = std::numeric_limits<std::size_t>::max();
         decryption_filter.SetRetrievalChannel("");
         n = static_cast<std::size_t>(decryption_filter.MaxRetrievable());
         std::string plaintext;

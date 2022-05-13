@@ -46,7 +46,7 @@ jobs:
         id: windeploy
         shell: cmd
         run: |
-          windeployqt release\\theoreticaldiary.exe --compiler-runtime
+          windeployqt --compiler-runtime --release --no-translations release\\theoreticaldiary.exe
           set /p VERSION=<"text/VERSION.txt"
           set FILE_NAME=TheoreticalDiary-v%VERSION%-x86_64
           echo ::set-output name=file_name::%FILE_NAME%
