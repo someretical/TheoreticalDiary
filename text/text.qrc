@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>VERSION.txt</file>
-        <file>dummysettings</file>
-        <file>REVISION.txt</file>
-    </qresource>
-</RCC>

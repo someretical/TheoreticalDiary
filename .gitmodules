@@ -1,13 +1,9 @@
-[submodule "external-libs/json"]
-	path = external-libs/json
-	url = https://github.com/nlohmann/json.git
-	branch = master
-[submodule "external-libs/cryptopp"]
-	path = external-libs/cryptopp
-	url = https://github.com/weidai11/cryptopp.git
 [submodule "external-libs/someretical-o2"]
 	path = external-libs/someretical-o2
 	url = https://github.com/someretical/o2.git
 [submodule "external-libs/asyncfuture"]
 	path = external-libs/asyncfuture
 	url = https://github.com/benlau/asyncfuture.git
+[submodule "external-libs/CuteLogger"]
+	path = external-libs/CuteLogger
+	url = https://github.com/dept2/CuteLogger

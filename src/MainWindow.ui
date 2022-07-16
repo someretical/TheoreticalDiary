@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Theoretical Diary</string>
+  </property>
+  <widget class="QWidget" name="StackWidgetHolder">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QStackedWidget" name="StackWidget"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="MenuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="MenuDiary">
+    <property name="title">
+     <string>Diary</string>
+    </property>
+    <widget class="QMenu" name="MenuOpenRecentDiary">
+     <property name="title">
+      <string>Open Recent Diary</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="Clear"/>
+    </widget>
+    <addaction name="OpenDiary"/>
+    <addaction name="MenuOpenRecentDiary"/>
+    <addaction name="NewDiary"/>
+    <addaction name="ImportDiary"/>
+    <addaction name="separator"/>
+    <addaction name="LockDiary"/>
+    <addaction name="separator"/>
+    <addaction name="UploadDiary"/>
+    <addaction name="DownloadDiary"/>
+    <addaction name="ConnectGoogleDrive"/>
+   </widget>
+   <widget class="QMenu" name="MenuEntry">
+    <property name="title">
+     <string>Entry</string>
+    </property>
+    <addaction name="SaveEntry"/>
+    <addaction name="DeleteEntry"/>
+    <addaction name="JumpToToday"/>
+    <addaction name="SearchEntries"/>
+   </widget>
+   <widget class="QMenu" name="MenuPreferences">
+    <property name="title">
+     <string>Preferences</string>
+    </property>
+    <widget class="QMenu" name="menuTheme">
+     <property name="title">
+      <string>Theme</string>
+     </property>
+     <addaction name="LightTheme"/>
+     <addaction name="DarkTheme"/>
+    </widget>
+    <addaction name="menuTheme"/>
+    <addaction name="separator"/>
+    <addaction name="Settings"/>
+   </widget>
+   <widget class="QMenu" name="MenuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="About"/>
+    <addaction name="ReportABug"/>
+    <addaction name="RequestAFeature"/>
+   </widget>
+   <addaction name="MenuDiary"/>
+   <addaction name="MenuEntry"/>
+   <addaction name="MenuPreferences"/>
+   <addaction name="MenuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="StatusBar"/>
+  <action name="SaveEntry">
+   <property name="text">
+    <string>Save Entry</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="DeleteEntry">
+   <property name="text">
+    <string>Delete Entry</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Del</string>
+   </property>
+  </action>
+  <action name="Settings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+,</string>
+   </property>
+  </action>
+  <action name="About">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="ReportABug">
+   <property name="text">
+    <string>Report a Bug</string>
+   </property>
+  </action>
+  <action name="RequestAFeature">
+   <property name="text">
+    <string>Request a Feature</string>
+   </property>
+  </action>
+  <action name="Clear">
+   <property name="text">
+    <string>Clear</string>
+   </property>
+  </action>
+  <action name="LockDiary">
+   <property name="text">
+    <string>Lock Diary</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="UploadDiary">
+   <property name="text">
+    <string>Upload Diary</string>
+   </property>
+  </action>
+  <action name="DownloadDiary">
+   <property name="text">
+    <string>Download Diary</string>
+   </property>
+  </action>
+  <action name="ConnectGoogleDrive">
+   <property name="text">
+    <string>Connect Google Drive</string>
+   </property>
+  </action>
+  <action name="JumpToToday">
+   <property name="text">
+    <string>Jump to Today</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+J</string>
+   </property>
+  </action>
+  <action name="SearchEntries">
+   <property name="text">
+    <string>Search Entries</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Space</string>
+   </property>
+  </action>
+  <action name="LightTheme">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Switch to Light Theme</string>
+   </property>
+  </action>
+  <action name="DarkTheme">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Switch to Dark Theme</string>
+   </property>
+  </action>
+  <action name="OpenDiary">
+   <property name="text">
+    <string>Open Diary...</string>
+   </property>
+  </action>
+  <action name="NewDiary">
+   <property name="text">
+    <string>New Diary</string>
+   </property>
+  </action>
+  <action name="ImportDiary">
+   <property name="text">
+    <string>Import Diary...</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

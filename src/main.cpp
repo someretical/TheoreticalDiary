@@ -1,72 +1,80 @@
 /*
- * This file is part of Theoretical Diary.
- * Copyright (C) 2022 someretical
+ *  This file is part of Theoretical Diary.
+ *  Copyright (C) 2022 someretical
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <QtCore>
-#include <string>
+#include <ConsoleAppender.h>
+#include <FileAppender.h>
+#include <Logger.h>
+#include <QApplication>
 
-#include "core/internalmanager.h"
+#include "MainWindow.h"
 #include "core/theoreticaldiary.h"
-#include "gui/mainwindow.h"
-#include "o2requestor.h"
-#include "util/runguard.h"
+#include "styling/StyleManager.h"
+#include "util/RunGuard.h"
+#include "util/Util.h"
 
-Q_DECLARE_METATYPE(td::NR)
-Q_DECLARE_METATYPE(std::string)
-Q_DECLARE_METATYPE(td::CalendarButtonData)
+const char *FORMAT_STRING = "[%{Type:-7}] <%{line:4-:%{Function}> %{message}\n";
 
-int main(int argc, char **argv)
+void setup_app()
 {
-// https:// stackoverflow.com/a/41701133
-// Basically allows debugging output on Windows.
-#ifdef _WIN32
-    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
-        freopen("CONOUT$", "w", stdout);
-        freopen("CONOUT$", "w", stderr);
-        freopen("CONIN$", "r", stdin);
-    }
-#endif
+    QFile file(QStringLiteral(":/meta/version"));
+    file.open(QIODevice::ReadOnly);
+    QApplication::setApplicationVersion(file.readAll());
 
-    // Make sure only 1 instance of the app is running at all times. Courtesy of https://stackoverflow.com/a/28172162
-    RunGuard guard("theoreticaldiary");
-    if (!guard.try_to_run()) {
-        qDebug() << "Quitting as an instance of this app already exists.";
+    QApplication::setApplicationName(QStringLiteral("Theoretical Diary"));
+    QApplication::setDesktopFileName(QStringLiteral(":/meta/me.someretical.TheoreticalDiary.desktop"));
+    QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/theoreticaldiary.svg")));
+}
+
+void setup_logging()
+{
+    auto path = util::data_path();
+    auto log = path + "/log";
+
+    QDir dir(path);
+    if (!dir.exists())
+        dir.mkpath(".");
+
+    QFile::remove(log);
+
+    auto file_appender = new FileAppender(log);
+    file_appender->setFormat(FORMAT_STRING);
+    auto console_appender = new ConsoleAppender;
+    console_appender->setFormat(FORMAT_STRING);
+
+    cuteLogger->registerAppender(file_appender);
+    cuteLogger->registerAppender(console_appender);
+}
+
+int main(int argc, char *argv[])
+{
+    RunGuard guard(QStringLiteral("Theoretical Diary"));
+    if (!guard.try_to_run())
         return 0;
-    }
 
-    QGuiApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
-    QApplication::setAttribute(Qt::AA_Use96Dpi);
-    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    QApplication app(argc, argv);
 
-    // Remove ? button in the title bar (only on Windows).
-    QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
+    setup_logging();
+    setup_app();
 
-    // Remove icons from context menus
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+    StyleManager sm;
 
-    // Register types so they can be used in signals and slots.
-    qRegisterMetaType<std::string>();
-    qRegisterMetaType<td::CalendarButtonData>();
-    qRegisterMetaType<td::NR>();
+    MainWindow w;
+    w.show();
 
-    TheoreticalDiary app(argc, argv);
-
-    MainWindow window;
-    window.show();
-
-    return app.exec();
+    return QApplication::exec();
 }

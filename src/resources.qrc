@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>meta/revision</file>
+        <file>meta/version</file>
+        <file>styling/BaseStyle.qss</file>
+        <file>styling/DarkStyle.qss</file>
+        <file>styling/LightStyle.qss</file>
+        <file>meta/dummysettings</file>
+        <file>icons/eye_off_0.svg</file>
+        <file>icons/eye_off_1.svg</file>
+        <file>icons/eye_on_0.svg</file>
+        <file>icons/eye_on_1.svg</file>
+        <file>icons/star_0.svg</file>
+        <file>icons/star_1.svg</file>
+        <file>icons/theoreticaldiary.icns</file>
+        <file>icons/theoreticaldiary.ico</file>
+        <file>icons/theoreticaldiary.svg</file>
+        <file>meta/me.someretical.TheoreticalDiary.desktop</file>
+    </qresource>
+</RCC>
