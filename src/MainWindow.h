@@ -19,7 +19,8 @@
 #ifndef THEORETICAL_DIARY_MAINWINDOW_H
 #define THEORETICAL_DIARY_MAINWINDOW_H
 
-#include <QtWidgets>
+#include <QActionGroup>
+#include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,18 +32,26 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow() override;
+
+    static auto instance() -> MainWindow *;
 
 private:
-    void restore_window();
-    void create_action_groups();
-    void set_icons();
+    void restoreWindow();
+    void createActionGroups();
+    void setIcons();
 
-    Ui::MainWindow *ui;
-    QActionGroup *m_theme_action_group;
+    static MainWindow *m_instance;
+    Ui::MainWindow *m_ui;
+    QActionGroup *m_ThemeActionGroup{};
 
 protected:
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 };
+
+inline auto mainWindow() -> MainWindow *
+{
+    return MainWindow::instance();
+}
 #endif // THEORETICAL_DIARY_MAINWINDOW_H

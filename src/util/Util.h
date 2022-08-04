@@ -19,13 +19,13 @@
 #ifndef THEORETICAL_DIARY_UTIL_H
 #define THEORETICAL_DIARY_UTIL_H
 
+#include <QSettings>
+
 #include "Constants.h"
-#include <QtWidgets>
 
 namespace util {
-QString data_path();
-QSettings settings();
-TD::Theme theme();
+auto dataPath() -> QString;
+auto settings() -> QSettings;
 } // namespace util
 
 #endif // THEORETICAL_DIARY_UTIL_H

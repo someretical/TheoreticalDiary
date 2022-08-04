@@ -19,24 +19,25 @@
 #ifndef THEORETICAL_DIARY_RUNGUARD_H
 #define THEORETICAL_DIARY_RUNGUARD_H
 
-#include <QtWidgets>
+#include <QSharedMemory>
+#include <QSystemSemaphore>
 
 class RunGuard {
 public:
-    RunGuard(QString const &m_key);
+    explicit RunGuard(QString const &m_key);
     ~RunGuard();
 
-    bool is_another_running();
-    bool try_to_run();
+    auto is_another_running() -> bool;
+    auto tryToRun() -> bool;
     void release();
 
 private:
     QString const m_key;
-    QString const m_mem_lock_key;
-    QString const m_shared_mem_key;
+    QString const m_memLockKey;
+    QString const m_sharedMemKey;
 
-    QSharedMemory m_shared_mem;
-    QSystemSemaphore m_mem_lock;
+    QSharedMemory m_SharedMem;
+    QSystemSemaphore m_memLock;
 
     Q_DISABLE_COPY(RunGuard)
 };

@@ -16,8 +16,10 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../util/Constants.h"
-#include <QtWidgets>
+#include <QColor>
+#include <QHash>
+
+#include "util/Constants.h"
 
 #ifndef THEORETICAL_DIARY_STYLEMANAGER_H
 #define THEORETICAL_DIARY_STYLEMANAGER_H
@@ -26,18 +28,27 @@ class StyleManager {
 public:
     StyleManager();
     ~StyleManager();
-    static StyleManager *instance();
 
-    void update_style();
-    TD::Theme theme();
+    void updateStyle();
+    static auto theme() -> TD::Theme;
+    static auto instance() -> StyleManager *;
 
-    QHash<int, QColor> m_colourmap;
+    QHash<int, QColor> m_colourMap;
 
 private:
-    inline void set_colour(TD::ColourRole role, const QColor &colour)
+    inline void setColour(TD::ColourRole role, const QColor &colour)
     {
-        m_colourmap[static_cast<int>(role)] = colour;
+        m_colourMap[static_cast<int>(role)] = colour;
     }
+
+    static StyleManager *m_instance;
 };
+
+inline auto styleManager() -> StyleManager *
+{
+    return StyleManager::instance();
+}
+
+auto getStyleManager() -> StyleManager *;
 
 #endif // THEORETICAL_DIARY_STYLEMANAGER_H

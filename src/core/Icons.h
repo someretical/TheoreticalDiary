@@ -1,5 +1,6 @@
 /*
  *  Copyright (C) 2020 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2011 Felix Geyer <debfx@fobos.de>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,23 +16,27 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KEEPASSXC_DARKSTYLE_H
-#define KEEPASSXC_DARKSTYLE_H
+#ifndef THEORETICAL_DIARY_ICONS_H
+#define THEORETICAL_DIARY_ICONS_H
 
-#include "BaseStyle.h"
+#include <QIcon>
 
-class DarkStyle : public BaseStyle {
-    Q_OBJECT
-
+class Icons {
 public:
-    DarkStyle();
-    auto standardPalette() const -> QPalette override;
+    Icons();
+    auto icon(const QString &name, bool recolor = true, const QColor &overrideColor = QColor::Invalid) -> QIcon;
+    auto onOffIcon(const QString &name, bool on, bool recolor = true) -> QIcon;
 
-    using BaseStyle::polish;
-    void polish(QWidget *widget) override;
+    static auto instance() -> Icons *;
 
-protected:
-    auto getAppStyleSheet() const -> QString override;
+private:
+    static Icons *m_instance;
+    QHash<QString, QIcon> m_iconCache;
 };
 
-#endif // KEEPASSXC_DARKSTYLE_H
+inline auto icons() -> Icons *
+{
+    return Icons::instance();
+}
+
+#endif // THEORETICAL_DIARY_ICONS_H

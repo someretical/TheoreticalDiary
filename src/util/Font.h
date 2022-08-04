@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2017 KeePassXC Team <team@keepassxc.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,23 +15,18 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KEEPASSXC_DARKSTYLE_H
-#define KEEPASSXC_DARKSTYLE_H
+#ifndef KEEPASSX_FONT_H
+#define KEEPASSX_FONT_H
 
-#include "BaseStyle.h"
+class QFont;
 
-class DarkStyle : public BaseStyle {
-    Q_OBJECT
-
+class Font {
 public:
-    DarkStyle();
-    auto standardPalette() const -> QPalette override;
+    static auto defaultFont() -> QFont;
+    static QFont fixedFont();
 
-    using BaseStyle::polish;
-    void polish(QWidget *widget) override;
-
-protected:
-    auto getAppStyleSheet() const -> QString override;
+private:
+    Font() = default;
 };
 
-#endif // KEEPASSXC_DARKSTYLE_H
+#endif // KEEPASSX_FONT_H

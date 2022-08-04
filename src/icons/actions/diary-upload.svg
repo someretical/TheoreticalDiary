@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   id="mdi-cloud-download-outline"
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   sodipodi:docname="diary-upload.svg"
+   inkscape:version="1.2 (1:1.2.1+202207142221+cd75a1ee6d)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs7" />
+  <sodipodi:namedview
+     id="namedview5"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     showgrid="false"
+     inkscape:zoom="44.5"
+     inkscape:cx="12.011236"
+     inkscape:cy="12"
+     inkscape:window-width="2560"
+     inkscape:window-height="1372"
+     inkscape:window-x="1920"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="mdi-cloud-download-outline" />
+  <path
+     id="path1063"
+     d="M 12 4 C 9.1100029 4 6.5996081 5.6390649 5.3496094 8.0390625 C 2.3396124 8.3590622 0 10.910003 0 14 A 6 6 0 0 0 6 20 L 19 20 A 5 5 0 0 0 24 15 C 24 12.360003 21.949607 10.219062 19.349609 10.039062 C 18.66961 6.589066 15.639996 4 12 4 z M 12 6 C 14.619997 6 16.880626 7.8596901 17.390625 10.429688 L 17.689453 11.929688 L 19.220703 12.039062 C 20.780702 12.139062 22 13.450002 22 15 A 3 3 0 0 1 19 18 L 6 18 A 4 4 0 0 1 2 14 C 2 11.950002 3.5305489 10.239297 5.5605469 10.029297 L 6.6308594 9.9199219 L 7.1308594 8.9707031 C 8.0808584 7.140705 9.9400021 6 12 6 z M 12 10 L 8 14 L 10.550781 14 L 10.550781 17 L 13.449219 17 L 13.449219 14 L 16 14 L 12 10 z " />
+</svg>

@@ -20,29 +20,30 @@
 #include <FileAppender.h>
 #include <Logger.h>
 #include <QApplication>
+#include <QDir>
 
 #include "MainWindow.h"
-#include "core/theoreticaldiary.h"
+#include "src/core/Icons.h"
+#include "src/core/RunGuard.h"
 #include "styling/StyleManager.h"
-#include "util/RunGuard.h"
 #include "util/Util.h"
 
 const char *FORMAT_STRING = "[%{Type:-7}] <%{line:4-:%{Function}> %{message}\n";
 
-void setup_app()
+void setupApp()
 {
-    QFile file(QStringLiteral(":/meta/version"));
+    QFile file(":/meta/version");
     file.open(QIODevice::ReadOnly);
     QApplication::setApplicationVersion(file.readAll());
 
-    QApplication::setApplicationName(QStringLiteral("Theoretical Diary"));
-    QApplication::setDesktopFileName(QStringLiteral(":/meta/me.someretical.TheoreticalDiary.desktop"));
-    QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/theoreticaldiary.svg")));
+    QApplication::setApplicationName("Theoretical Diary");
+    QApplication::setDesktopFileName(":/meta/me.someretical.TheoreticalDiary.desktop");
+    QApplication::setWindowIcon(QIcon(":/icons/apps/theoreticaldiary.svg"));
 }
 
-void setup_logging()
+void setupLogging()
 {
-    auto path = util::data_path();
+    auto path = util::dataPath();
     auto log = path + "/log";
 
     QDir dir(path);
@@ -51,29 +52,36 @@ void setup_logging()
 
     QFile::remove(log);
 
-    auto file_appender = new FileAppender(log);
-    file_appender->setFormat(FORMAT_STRING);
-    auto console_appender = new ConsoleAppender;
-    console_appender->setFormat(FORMAT_STRING);
+    auto fileAppender = new FileAppender(log);
+    fileAppender->setFormat(FORMAT_STRING);
+    auto consoleAppender = new ConsoleAppender;
+    consoleAppender->setFormat(FORMAT_STRING);
 
-    cuteLogger->registerAppender(file_appender);
-    cuteLogger->registerAppender(console_appender);
+    cuteLogger->registerAppender(fileAppender);
+    cuteLogger->registerAppender(consoleAppender);
 }
 
-int main(int argc, char *argv[])
+auto main(int argc, char *argv[]) -> int
 {
-    RunGuard guard(QStringLiteral("Theoretical Diary"));
-    if (!guard.try_to_run())
+#ifdef QT_DEBUG
+    RunGuard guard("Theoretical Diary Debug");
+#else
+    RunGuard guard("Theoretical Diary");
+#endif
+    if (!guard.tryToRun())
         return 0;
 
     QApplication app(argc, argv);
 
-    setup_logging();
-    setup_app();
+    setupLogging();
+    setupApp();
 
-    StyleManager sm;
+    StyleManager sm{};
+    Icons icns{};
 
-    MainWindow w;
+    qDebug() << QIcon::themeSearchPaths();
+
+    MainWindow w{};
     w.show();
 
     return QApplication::exec();

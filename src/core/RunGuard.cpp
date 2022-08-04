@@ -16,9 +16,11 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <QCryptographicHash>
+
 #include "RunGuard.h"
 
-QString generate_key_hash(QString const &key, QString const &salt)
+auto generate_key_hash(QString const &key, QString const &salt) -> QString
 {
     QByteArray data;
 
@@ -30,16 +32,15 @@ QString generate_key_hash(QString const &key, QString const &salt)
 }
 
 RunGuard::RunGuard(QString const &key)
-    : m_key(key), m_mem_lock_key(generate_key_hash(key, QStringLiteral("_mem_lock_key"))),
-      m_shared_mem_key(generate_key_hash(key, QStringLiteral("_shared_mem_key"))), m_shared_mem(m_shared_mem_key),
-      m_mem_lock(m_mem_lock_key, 1)
+    : m_key(key), m_memLockKey(generate_key_hash(key, "1")), m_sharedMemKey(generate_key_hash(key, "2")),
+      m_SharedMem(m_sharedMemKey), m_memLock(m_memLockKey, 1)
 {
-    m_mem_lock.acquire();
+    m_memLock.acquire();
     {
-        QSharedMemory fix(m_shared_mem_key); // Fix for *nix: http://habrahabr.ru/post/173281/
+        QSharedMemory fix(m_sharedMemKey); // Fix for *nix: http://habrahabr.ru/post/173281/
         fix.attach();
     }
-    m_mem_lock.release();
+    m_memLock.release();
 }
 
 RunGuard::~RunGuard()
@@ -47,28 +48,28 @@ RunGuard::~RunGuard()
     release();
 }
 
-bool RunGuard::is_another_running()
+auto RunGuard::is_another_running() -> bool
 {
-    if (m_shared_mem.isAttached())
+    if (m_SharedMem.isAttached())
         return false;
 
-    m_mem_lock.acquire();
-    bool const isRunning = m_shared_mem.attach();
+    m_memLock.acquire();
+    bool const isRunning = m_SharedMem.attach();
     if (isRunning)
-        m_shared_mem.detach();
-    m_mem_lock.release();
+        m_SharedMem.detach();
+    m_memLock.release();
 
     return isRunning;
 }
 
-bool RunGuard::try_to_run()
+auto RunGuard::tryToRun() -> bool
 {
-    if (is_another_running()) // Extra check.
+    if (is_another_running()) // Extra check
         return false;
 
-    m_mem_lock.acquire();
-    bool const result = m_shared_mem.create(sizeof(quint64));
-    m_mem_lock.release();
+    m_memLock.acquire();
+    bool const result = m_SharedMem.create(sizeof(quint64));
+    m_memLock.release();
     if (!result) {
         release();
         return false;
@@ -79,8 +80,8 @@ bool RunGuard::try_to_run()
 
 void RunGuard::release()
 {
-    m_mem_lock.acquire();
-    if (m_shared_mem.isAttached())
-        m_shared_mem.detach();
-    m_mem_lock.release();
+    m_memLock.acquire();
+    if (m_SharedMem.isAttached())
+        m_SharedMem.detach();
+    m_memLock.release();
 }

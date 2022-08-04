@@ -6,15 +6,34 @@
         <file>styling/DarkStyle.qss</file>
         <file>styling/LightStyle.qss</file>
         <file>meta/dummysettings</file>
-        <file>icons/eye_off_0.svg</file>
-        <file>icons/eye_off_1.svg</file>
-        <file>icons/eye_on_0.svg</file>
-        <file>icons/eye_on_1.svg</file>
-        <file>icons/star_0.svg</file>
-        <file>icons/star_1.svg</file>
-        <file>icons/theoreticaldiary.icns</file>
-        <file>icons/theoreticaldiary.ico</file>
-        <file>icons/theoreticaldiary.svg</file>
+        <file>icons/apps/theoreticaldiary.icns</file>
+        <file>icons/apps/theoreticaldiary.ico</file>
+        <file>icons/apps/theoreticaldiary.svg</file>
         <file>meta/me.someretical.TheoreticalDiary.desktop</file>
+        <file>icons/actions/application-exit.svg</file>
+        <file>icons/actions/bugreport.svg</file>
+        <file>icons/actions/configure.svg</file>
+        <file>icons/actions/diary-lock.svg</file>
+        <file>icons/actions/diary-upload.svg</file>
+        <file>icons/actions/diary-download.svg</file>
+        <file>icons/actions/document-export.svg</file>
+        <file>icons/actions/document-import.svg</file>
+        <file>icons/actions/document-new.svg</file>
+        <file>icons/actions/document-open-recent.svg</file>
+        <file>icons/actions/document-open.svg</file>
+        <file>icons/actions/document-save-as.svg</file>
+        <file>icons/actions/document-save.svg</file>
+        <file>icons/actions/help-about.svg</file>
+        <file>icons/actions/password-show-off.svg</file>
+        <file>icons/actions/password-show-on.svg</file>
+        <file>icons/actions/featurerequest.svg</file>
+        <file>icons/actions/statistics.svg</file>
+        <file>icons/actions/connect-google-drive.svg</file>
+        <file>icons/actions/entry-edit.svg</file>
+        <file>icons/actions/entry-delete.svg</file>
+        <file>icons/actions/entry-jump.svg</file>
+        <file>icons/actions/system-search.svg</file>
+        <file>icons/actions/palette.svg</file>
+        <file>icons/actions/clearhistory.svg</file>
     </qresource>
 </RCC>

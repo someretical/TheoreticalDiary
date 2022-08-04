@@ -24,8 +24,8 @@ add_executable(theoreticaldiary
         src/styling/LightStyle.h
         src/util/Util.cpp
         src/util/Util.h
-        src/util/RunGuard.cpp
-        src/util/RunGuard.h
+        src/core/RunGuard.cpp
+        src/core/RunGuard.h
         src/main.cpp
         src/MainWindow.cpp
         src/MainWindow.h
@@ -33,9 +33,11 @@ add_executable(theoreticaldiary
         src/resources.qrc
         src/util/Constants.h
         src/styling/StyleManager.cpp
-        src/styling/StyleManager.h)
+        src/styling/StyleManager.h src/util/AsyncTask.h src/core/Icons.cpp src/core/Icons.h src/util/Font.cpp src/util/Font.h)
 
 add_subdirectory(external-libs/CuteLogger)
+
+target_include_directories(theoreticaldiary PRIVATE src/)
 
 target_link_libraries(theoreticaldiary
         PRIVATE

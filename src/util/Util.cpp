@@ -16,10 +16,12 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <QDir>
+
 #include "Util.h"
 
 namespace util {
-QString data_path()
+auto dataPath() -> QString
 {
 #ifdef QT_DEBUG
     return QStringLiteral("%1/.theoreticaldiary/debug").arg(QDir::homePath());
@@ -28,8 +30,8 @@ QString data_path()
 #endif
 }
 
-QSettings settings()
+auto settings() -> QSettings
 {
-    return QSettings(QStringLiteral("%1/config.ini").arg(data_path()), QSettings::IniFormat);
+    return QSettings(QStringLiteral("%1/config.ini").arg(dataPath()), QSettings::IniFormat);
 };
 } // namespace util

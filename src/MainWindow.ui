@@ -50,27 +50,32 @@
     </property>
     <widget class="QMenu" name="MenuOpenRecentDiary">
      <property name="title">
-      <string>Open Recent Diary</string>
+      <string>Recent Diaries</string>
      </property>
      <addaction name="separator"/>
-     <addaction name="Clear"/>
+     <addaction name="ClearHistory"/>
     </widget>
+    <addaction name="NewDiary"/>
     <addaction name="OpenDiary"/>
     <addaction name="MenuOpenRecentDiary"/>
-    <addaction name="NewDiary"/>
+    <addaction name="SaveDiary"/>
+    <addaction name="SaveDiaryAs"/>
     <addaction name="ImportDiary"/>
+    <addaction name="ExportDiary"/>
     <addaction name="separator"/>
     <addaction name="LockDiary"/>
     <addaction name="separator"/>
     <addaction name="UploadDiary"/>
     <addaction name="DownloadDiary"/>
     <addaction name="ConnectGoogleDrive"/>
+    <addaction name="separator"/>
+    <addaction name="ExitApplication"/>
    </widget>
    <widget class="QMenu" name="MenuEntry">
     <property name="title">
      <string>Entry</string>
     </property>
-    <addaction name="SaveEntry"/>
+    <addaction name="EditEntry"/>
     <addaction name="DeleteEntry"/>
     <addaction name="JumpToToday"/>
     <addaction name="SearchEntries"/>
@@ -79,14 +84,14 @@
     <property name="title">
      <string>Preferences</string>
     </property>
-    <widget class="QMenu" name="menuTheme">
+    <widget class="QMenu" name="MenuTheme">
      <property name="title">
       <string>Theme</string>
      </property>
      <addaction name="LightTheme"/>
      <addaction name="DarkTheme"/>
     </widget>
-    <addaction name="menuTheme"/>
+    <addaction name="MenuTheme"/>
     <addaction name="separator"/>
     <addaction name="Settings"/>
    </widget>
@@ -107,9 +112,6 @@
   <action name="SaveEntry">
    <property name="text">
     <string>Save Entry</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="DeleteEntry">
@@ -143,9 +145,9 @@
     <string>Request a Feature</string>
    </property>
   </action>
-  <action name="Clear">
+  <action name="ClearHistory">
    <property name="text">
-    <string>Clear</string>
+    <string>Clear History</string>
    </property>
   </action>
   <action name="LockDiary">
@@ -153,7 +155,7 @@
     <string>Lock Diary</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+L</string>
+    <string>Ctrl+W</string>
    </property>
   </action>
   <action name="UploadDiary">
@@ -192,7 +194,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Switch to Light Theme</string>
+    <string>Light</string>
    </property>
   </action>
   <action name="DarkTheme">
@@ -200,22 +202,59 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Switch to Dark Theme</string>
+    <string>Dark</string>
    </property>
   </action>
   <action name="OpenDiary">
    <property name="text">
     <string>Open Diary...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="NewDiary">
    <property name="text">
-    <string>New Diary</string>
+    <string>New Diary...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+N</string>
    </property>
   </action>
   <action name="ImportDiary">
    <property name="text">
     <string>Import Diary...</string>
+   </property>
+  </action>
+  <action name="ExportDiary">
+   <property name="text">
+    <string>Export Diary</string>
+   </property>
+  </action>
+  <action name="SaveDiary">
+   <property name="text">
+    <string>Save Diary</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="SaveDiaryAs">
+   <property name="text">
+    <string>Save Diary As...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="ExitApplication">
+   <property name="text">
+    <string>Exit Application</string>
+   </property>
+  </action>
+  <action name="EditEntry">
+   <property name="text">
+    <string>Edit Entry</string>
    </property>
   </action>
  </widget>

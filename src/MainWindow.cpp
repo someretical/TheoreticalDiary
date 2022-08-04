@@ -16,61 +16,100 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <Logger.h>
+
 #include "MainWindow.h"
+#include "core/Icons.h"
 #include "styling/StyleManager.h"
 #include "ui_MainWindow.h"
 #include "util/Util.h"
-#include <Logger.h>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow *MainWindow::m_instance = nullptr;
+
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+    m_instance = this;
+    m_ui->setupUi(this);
 
-    restore_window();
-    create_action_groups();
-    set_icons();
+    restoreWindow();
+    createActionGroups();
+    setIcons();
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-    // delete m_theme_action_group; Qt automatically deletes
+    delete m_ui;
+    // delete m_ThemeActionGroup; Qt automatically deletes
 }
 
-void MainWindow::restore_window()
+auto MainWindow::instance() -> MainWindow *
+{
+    return m_instance;
+}
+
+void MainWindow::restoreWindow()
 {
     auto settings = util::settings();
-    settings.beginGroup(QStringLiteral("Window"));
-    if (settings.contains(QStringLiteral("Geometry")))
-        restoreGeometry(settings.value(QStringLiteral("Geometry")).toByteArray());
+    settings.beginGroup("Window");
+    if (settings.contains("Geometry"))
+        restoreGeometry(settings.value("Geometry").toByteArray());
 
-    if (settings.contains(QStringLiteral("State")))
-        restoreState(settings.value(QStringLiteral("State")).toByteArray());
+    if (settings.contains("State"))
+        restoreState(settings.value("State").toByteArray());
     settings.endGroup();
 }
 
-void MainWindow::create_action_groups()
+void MainWindow::createActionGroups()
 {
-    m_theme_action_group = new QActionGroup(this);
-    m_theme_action_group->addAction(ui->LightTheme);
-    m_theme_action_group->addAction(ui->DarkTheme);
-    if (TD::Theme::Dark == StyleManager::instance()->theme())
-        ui->DarkTheme->setChecked(true);
+    m_ThemeActionGroup = new QActionGroup(this);
+    m_ThemeActionGroup->addAction(m_ui->LightTheme);
+    m_ThemeActionGroup->addAction(m_ui->DarkTheme);
+    if (TD::Theme::Dark == styleManager()->theme())
+        m_ui->DarkTheme->setChecked(true);
     else
-        ui->LightTheme->setChecked(true);
+        m_ui->LightTheme->setChecked(true);
 }
 
-void MainWindow::set_icons()
+void MainWindow::setIcons()
 {
-    auto suffix = QString(TD::Theme::Dark == StyleManager::instance()->theme() ? "_0" : "_1");
+    // Diary menu
+    m_ui->NewDiary->setIcon(icons()->icon("document-new"));
+    m_ui->OpenDiary->setIcon(icons()->icon("document-open"));
+    m_ui->MenuOpenRecentDiary->setIcon(icons()->icon("document-open-recent"));
+    m_ui->ClearHistory->setIcon(icons()->icon("clearhistory"));
+    m_ui->SaveDiary->setIcon(icons()->icon("document-save"));
+    m_ui->SaveDiaryAs->setIcon(icons()->icon("document-save-as"));
+    m_ui->ImportDiary->setIcon(icons()->icon("document-import"));
+    m_ui->ExportDiary->setIcon(icons()->icon("document-export"));
+    m_ui->LockDiary->setIcon(icons()->icon("diary-lock"));
+    m_ui->UploadDiary->setIcon(icons()->icon("diary-upload"));
+    m_ui->DownloadDiary->setIcon(icons()->icon("diary-download"));
+    m_ui->ConnectGoogleDrive->setIcon(icons()->icon("connect-google-drive"));
+    m_ui->ExitApplication->setIcon(icons()->icon("application-exit"));
+
+    // Entry menu
+    m_ui->EditEntry->setIcon(icons()->icon("entry-edit"));
+    m_ui->DeleteEntry->setIcon(icons()->icon("entry-delete"));
+    m_ui->JumpToToday->setIcon(icons()->icon("entry-jump"));
+    m_ui->SearchEntries->setIcon(icons()->icon("system-search"));
+
+    // Preferences menu
+    m_ui->MenuTheme->setIcon(icons()->icon("palette"));
+    m_ui->Settings->setIcon(icons()->icon("configure"));
+
+    // Help menu
+    m_ui->About->setIcon(icons()->icon("help-about"));
+    m_ui->ReportABug->setIcon(icons()->icon("bugreport"));
+    m_ui->RequestAFeature->setIcon(icons()->icon("featurerequest"));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     auto settings = util::settings();
-    settings.setValue(QStringLiteral("Window/Geometry"), saveGeometry());
-    settings.setValue(QStringLiteral("Window/State"), saveState());
+    settings.setValue("Window/Geometry", saveGeometry());
+    settings.setValue("Window/State", saveState());
     LOG_INFO() << "Saved window geometry and state";
 
+    LOG_INFO() << "Exiting application";
     QWidget::closeEvent(event);
 }

@@ -25,13 +25,13 @@ class LightStyle : public BaseStyle {
 
 public:
     LightStyle();
-    QPalette standardPalette() const override;
+    auto standardPalette() const -> QPalette override;
 
     using BaseStyle::polish;
     void polish(QWidget *widget) override;
 
 protected:
-    QString getAppStyleSheet() const override;
+    auto getAppStyleSheet() const -> QString override;
 };
 
 #endif // KEEPASSXC_LIGHTSTYLE_H
