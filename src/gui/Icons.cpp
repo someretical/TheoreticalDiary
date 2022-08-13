@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Logger.h>
+#include "external-libs/CuteLogger/include/Logger.h"
 #include <QBuffer>
 #include <QIconEngine>
 #include <QImageReader>
@@ -25,7 +25,7 @@
 #include <QPalette>
 
 #include "Icons.h"
-#include "src/MainWindow.h"
+#include "src/gui/MainWindow.h"
 
 class AdaptiveIconEngine : public QIconEngine {
 public:
@@ -97,27 +97,18 @@ auto AdaptiveIconEngine::clone() const -> QIconEngine *
 
 Icons *Icons::m_instance = nullptr;
 
-Icons::Icons()
-{
-    m_instance = this;
+Icons::Icons() = default;
 
-    QIcon::setFallbackSearchPaths(QStringList{":/icons/actions"});
-    QIcon::setThemeName("application");
+auto Icons::instance() -> Icons *
+{
+    if (!m_instance)
+        m_instance = new Icons();
+
+    return m_instance;
 }
 
 auto Icons::icon(const QString &name, bool recolor, const QColor &overrideColor) -> QIcon
 {
-#ifdef Q_OS_LINUX
-    // Resetting the application theme name before calling QIcon::fromTheme() is required for hacky
-    // QPA platform themes such as qt5ct, which randomly mess with the configured icon theme.
-    // If we do not reset the theme name here, it will become empty at some point, causing
-    // Qt to look for icons at the user-level and global default locations.
-    //
-    // See issue #4963: https://github.com/keepassxreboot/keepassxc/issues/4963
-    // and qt5ct issue #80: https://sourceforge.net/p/qt5ct/tickets/80/
-    QIcon::setThemeName("application");
-#endif
-
     QString cacheName =
         QStringLiteral("%1:%2:%3").arg(recolor ? "1" : "0", overrideColor.isValid() ? overrideColor.name() : "#", name);
     QIcon icon = m_iconCache.value(cacheName);
@@ -125,7 +116,7 @@ auto Icons::icon(const QString &name, bool recolor, const QColor &overrideColor)
     if (!icon.isNull() && !overrideColor.isValid())
         return icon;
 
-    icon = QIcon::fromTheme(name);
+    icon = QIcon(QStringLiteral(":/icons/actions/%1").arg(name));
     if (recolor) {
         icon = QIcon(new AdaptiveIconEngine(icon, overrideColor));
         icon.setIsMask(true);
@@ -138,9 +129,4 @@ auto Icons::icon(const QString &name, bool recolor, const QColor &overrideColor)
 auto Icons::onOffIcon(const QString &name, bool on, bool recolor) -> QIcon
 {
     return icon(name + (on ? "-on" : "-off"), recolor);
-}
-
-auto Icons::instance() -> Icons *
-{
-    return m_instance;
 }

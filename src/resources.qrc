@@ -2,9 +2,9 @@
     <qresource prefix="/">
         <file>meta/revision</file>
         <file>meta/version</file>
-        <file>styling/BaseStyle.qss</file>
-        <file>styling/DarkStyle.qss</file>
-        <file>styling/LightStyle.qss</file>
+        <file>gui/styling/BaseStyle.qss</file>
+        <file>gui/styling/DarkStyle.qss</file>
+        <file>gui/styling/LightStyle.qss</file>
         <file>meta/dummysettings</file>
         <file>icons/apps/theoreticaldiary.icns</file>
         <file>icons/apps/theoreticaldiary.ico</file>
@@ -35,5 +35,6 @@
         <file>icons/actions/system-search.svg</file>
         <file>icons/actions/palette.svg</file>
         <file>icons/actions/clearhistory.svg</file>
+        <file>icons/actions/message-close.svg</file>
     </qresource>
 </RCC>

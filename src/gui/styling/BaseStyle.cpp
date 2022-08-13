@@ -4137,13 +4137,13 @@ void BaseStyle::polish(QApplication *app)
     }
 
     QString stylesheet;
-    QFile baseStylesheetFile(":/styling/BaseStyle.qss");
+    QFile baseStylesheetFile(":/gui/styling/BaseStyle.qss");
     if (baseStylesheetFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         stylesheet = baseStylesheetFile.readAll();
         baseStylesheetFile.close();
     }
     else {
-        qWarning("Failed to load base theme stylesheet.");
+        qWarning("Failed to load base theme stylesheet");
     }
 
     stylesheet.append(getAppStyleSheet());

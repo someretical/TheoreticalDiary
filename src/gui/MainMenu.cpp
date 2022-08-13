@@ -16,39 +16,21 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <QColor>
-#include <QHash>
+#include <QFile>
+#include <Logger.h>
 
-#include "util/Constants.h"
+#include "MainMenu.h"
+#include "ui_MainMenu.h"
 
-#ifndef THEORETICAL_DIARY_STYLEMANAGER_H
-#define THEORETICAL_DIARY_STYLEMANAGER_H
-
-class StyleManager {
-public:
-    StyleManager();
-    ~StyleManager();
-
-    void updateStyle();
-    static auto theme() -> TD::Theme;
-    static auto instance() -> StyleManager *;
-
-    QHash<int, QColor> m_colourMap;
-
-private:
-    inline void setColour(TD::ColourRole role, const QColor &colour)
-    {
-        m_colourMap[static_cast<int>(role)] = colour;
-    }
-
-    static StyleManager *m_instance;
-};
-
-inline auto styleManager() -> StyleManager *
+MainMenu::MainMenu(QWidget *parent) : QWidget(parent), m_ui(new Ui::MainMenu)
 {
-    return StyleManager::instance();
+    m_ui->setupUi(this);
+    m_ui->versionText->setText(QStringLiteral("Version %1").arg(QApplication::applicationVersion()));
+    QPixmap icon(":/icons/apps/theoreticaldiary.svg");
+    m_ui->labelIcon->setPixmap(icon.scaled(100, 100, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
-auto getStyleManager() -> StyleManager *;
-
-#endif // THEORETICAL_DIARY_STYLEMANAGER_H
+MainMenu::~MainMenu()
+{
+    delete m_ui;
+}

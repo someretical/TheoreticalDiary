@@ -16,14 +16,14 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <Logger.h>
+#include "external-libs/CuteLogger/include/Logger.h"
 #include <QApplication>
 #include <QPixmapCache>
 
 #include "DarkStyle.h"
 #include "LightStyle.h"
 #include "StyleManager.h"
-#include "util/Util.h"
+#include "core/Config.h"
 
 StyleManager *StyleManager::m_instance = nullptr;
 
@@ -37,6 +37,9 @@ StyleManager::~StyleManager() = default;
 
 auto StyleManager::instance() -> StyleManager *
 {
+    if (!m_instance)
+        m_instance = new StyleManager();
+
     return m_instance;
 }
 
@@ -46,7 +49,7 @@ void StyleManager::updateStyle()
 
     // There is no memory leak here as Qt deletes the old style
     // I made sure to actually check the source code of QApplication
-    if (theme() == TD::Theme::Dark) {
+    if (config()->get(Config::GUI_Theme).toInt() == TD::Theme::Dark) {
         setColour(TD::ColourRole::Unknown, 0x2F2F32);
         setColour(TD::ColourRole::VeryBad, 0xC43F31);
         setColour(TD::ColourRole::Bad, 0xDB9837);
@@ -73,19 +76,5 @@ void StyleManager::updateStyle()
         QApplication::setPalette(s->standardPalette());
         QApplication::setStyle(s);
         LOG_INFO() << "Switched to light theme";
-    }
-}
-
-auto StyleManager::theme() -> TD::Theme
-{
-    auto settings = util::settings();
-    settings.beginGroup("General");
-
-    if (settings.contains("Theme")) {
-        return static_cast<TD::Theme>(settings.value("Theme").toInt());
-    }
-    else {
-        settings.setValue("Theme", static_cast<int>(TD::Theme::Dark));
-        return TD::Theme::Dark;
     }
 }

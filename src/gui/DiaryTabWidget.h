@@ -16,42 +16,25 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef THEORETICAL_DIARY_MAINWINDOW_H
-#define THEORETICAL_DIARY_MAINWINDOW_H
+#ifndef THEORETICAL_DIARY_DIARYTABWIDGET_H
+#define THEORETICAL_DIARY_DIARYTABWIDGET_H
 
-#include <QActionGroup>
-#include <QMainWindow>
+#include <QTabWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class MainWindow;
+class DiaryTabWidget;
 }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+class DiaryTabWidget : public QTabWidget {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow() override;
-
-    static auto instance() -> MainWindow *;
+    explicit DiaryTabWidget(QWidget *parent = nullptr);
+    ~DiaryTabWidget() override;
 
 private:
-    void restoreWindow();
-    void createActionGroups();
-    void setIcons();
-
-    static MainWindow *m_instance;
-    Ui::MainWindow *m_ui;
-    QActionGroup *m_ThemeActionGroup{};
-
-protected:
-    void closeEvent(QCloseEvent *event) override;
 };
 
-inline auto mainWindow() -> MainWindow *
-{
-    return MainWindow::instance();
-}
-#endif // THEORETICAL_DIARY_MAINWINDOW_H
+#endif // THEORETICAL_DIARY_DIARYTABWIDGET_H

@@ -20,8 +20,9 @@
 #define THEORETICAL_DIARY_CONSTANTS_H
 
 namespace TD {
-enum class Theme { Dark, Light };
-enum class ColourRole { Text, Unknown, VeryBad, Bad, Ok, Good, VeryGood };
+enum Theme { Dark, Light };
+enum ColourRole { Text, Unknown, VeryBad, Bad, Ok, Good, VeryGood };
+enum CurrentScreen { MainMenu };
 } // namespace TD
 
 #endif // THEORETICAL_DIARY_CONSTANTS_H

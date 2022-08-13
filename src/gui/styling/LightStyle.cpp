@@ -17,7 +17,7 @@
 
 #include "LightStyle.h"
 
-#include <Logger.h>
+#include "external-libs/CuteLogger/include/Logger.h"
 #include <QDialog>
 #include <QFile>
 #include <QMainWindow>
@@ -98,11 +98,11 @@ auto LightStyle::standardPalette() const -> QPalette
 
 auto LightStyle::getAppStyleSheet() const -> QString
 {
-    QFile extStylesheetFile(":/styling/LightStyle.qss");
+    QFile extStylesheetFile(":/gui/styling/LightStyle.qss");
     if (extStylesheetFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return extStylesheetFile.readAll();
     }
-    LOG_ERROR() << "Failed to load dark theme stylesheet.";
+    LOG_ERROR() << "Failed to load dark theme stylesheet";
     return {};
 }
 

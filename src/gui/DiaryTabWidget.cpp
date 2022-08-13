@@ -16,16 +16,11 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef THEORETICAL_DIARY_UTIL_H
-#define THEORETICAL_DIARY_UTIL_H
+#include "DiaryTabWidget.h"
+#include "ui_DiaryTabWidget.h"
 
-#include <QSettings>
+DiaryTabWidget::DiaryTabWidget(QWidget *parent) : QTabWidget(parent)
+{
+}
 
-#include "Constants.h"
-
-namespace util {
-auto dataPath() -> QString;
-auto settings() -> QSettings;
-} // namespace util
-
-#endif // THEORETICAL_DIARY_UTIL_H
+DiaryTabWidget::~DiaryTabWidget() = default;

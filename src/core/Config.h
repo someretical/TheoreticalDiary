@@ -16,22 +16,41 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <QDir>
+#ifndef THEORETICAL_DIARY_CONFIG_H
+#define THEORETICAL_DIARY_CONFIG_H
 
-#include "Util.h"
+#include <QSettings>
 
-namespace util {
-auto dataPath() -> QString
+class Config : public QObject {
+    Q_OBJECT
+
+public:
+    enum ConfigKey {
+        RecentDiaries,
+        MaximumRecentDiaries,
+
+        GUI_Theme,
+        GUI_MainWindowState,
+        GUI_MainWindowGeometry
+    };
+
+    explicit Config(QObject* parent);
+    ~Config() override;
+
+    static auto instance() -> Config *;
+    static auto getDefault(ConfigKey key) -> QVariant;
+    auto get(ConfigKey key) -> QVariant;
+    void set(ConfigKey key, const QVariant &value);
+    void sync();
+
+private:
+    static Config *m_instance;
+    QSettings *m_settings;
+};
+
+inline auto config() -> Config *
 {
-#ifdef QT_DEBUG
-    return QStringLiteral("%1/.theoreticaldiary/debug").arg(QDir::homePath());
-#else
-    return QString("%1/.theoreticaldiary").arg(QDir::homePath());
-#endif
+    return Config::instance();
 }
 
-auto settings() -> QSettings
-{
-    return QSettings(QStringLiteral("%1/config.ini").arg(dataPath()), QSettings::IniFormat);
-};
-} // namespace util
+#endif // THEORETICAL_DIARY_CONFIG_H
