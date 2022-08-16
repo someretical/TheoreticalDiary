@@ -22,6 +22,9 @@
 #include <QActionGroup>
 #include <QMainWindow>
 
+#include "DiaryTabWidget.h"
+#include "core/Constants.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -37,13 +40,16 @@ public:
 
     static auto instance() -> MainWindow *;
 
+    void openDiary(const QString &path);
+    void updateActions(TD::DiaryMainMenuWidget widgetEnum);
+    void updateActions(TD::DiaryWidget widgetEnum);
+
 private:
     void restoreWindow();
     void createThemeActionGroup();
     void connectActions();
     void setIcons();
     void setupRecentlyOpenedDiaries();
-    void openDiary(const QString& path);
 
     static MainWindow *m_instance;
     Ui::MainWindow *m_ui;
@@ -54,7 +60,7 @@ private:
 private slots:
     void updateActions();
     void clearRecentDiaries();
-    void updateRecentDiaries();
+    void listRecentDiaries();
 
 protected:
     void closeEvent(QCloseEvent *event) override;

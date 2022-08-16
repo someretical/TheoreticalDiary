@@ -16,31 +16,26 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef THEORETICAL_DIARY_MAINMENU_H
-#define THEORETICAL_DIARY_MAINMENU_H
+#include <Logger.h>
 
-#include <QWidget>
+#include "DiaryMainMenuWidget.h"
+#include "MainWindow.h"
+#include "core/Constants.h"
+#include "ui_DiaryMainMenuWidget.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainMenu;
+DiaryMainMenuWidget::DiaryMainMenuWidget(QWidget *parent) : QWidget(parent), m_ui(new Ui::DiaryMainMenuWidget)
+{
+    m_ui->setupUi(this);
 }
-QT_END_NAMESPACE
 
-class MainMenu : public QWidget {
-    Q_OBJECT
+DiaryMainMenuWidget::~DiaryMainMenuWidget()
+{
+    delete m_ui;
+}
 
-public:
-    explicit MainMenu(QWidget *parent = nullptr);
-    ~MainMenu() override;
-
-    void updateRecentlyOpenedDiaries();
-
-private:
-    Ui::MainMenu *m_ui;
-
-private slots:
-    void openExistingDiary();
-};
-
-#endif // THEORETICAL_DIARY_MAINMENU_H
+void DiaryMainMenuWidget::updateActions()
+{
+    auto widgetName = m_ui->stackedWidget->currentWidget()->objectName();
+    mainWindow()->updateActions(TD::diaryMainMenuWidgets.value(widgetName));
+    LOG_INFO() << "Updated actions for diary main menu widget" << widgetName;
+}

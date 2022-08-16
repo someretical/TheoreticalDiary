@@ -26,10 +26,8 @@ const int MessageWidget::DefaultAutoHideTimeout = 6000;
 const int MessageWidget::LongAutoHideTimeout = 15000;
 const int MessageWidget::DisableAutoHide = -1;
 
-MessageWidget::MessageWidget(QWidget* parent)
-    : KMessageWidget(parent)
-    , m_autoHideTimer(new QTimer(this))
-    , m_autoHideTimeout(DefaultAutoHideTimeout)
+MessageWidget::MessageWidget(QWidget *parent)
+    : KMessageWidget(parent), m_autoHideTimer(new QTimer(this)), m_autoHideTimeout(DefaultAutoHideTimeout)
 {
     m_autoHideTimer->setSingleShot(true);
     connect(m_autoHideTimer, SIGNAL(timeout()), this, SLOT(animatedHide()));
@@ -46,12 +44,12 @@ int MessageWidget::autoHideTimeout() const
     return m_autoHideTimeout;
 }
 
-void MessageWidget::showMessage(const QString& text, MessageWidget::MessageType type)
+void MessageWidget::showMessage(const QString &text, MessageWidget::MessageType type)
 {
     showMessage(text, type, m_autoHideTimeout);
 }
 
-void MessageWidget::showMessage(const QString& text, KMessageWidget::MessageType type, int autoHideTimeout)
+void MessageWidget::showMessage(const QString &text, KMessageWidget::MessageType type, int autoHideTimeout)
 {
     setMessageType(type);
     setText(text);
@@ -59,14 +57,16 @@ void MessageWidget::showMessage(const QString& text, KMessageWidget::MessageType
     emit showAnimationStarted();
     if (m_animate) {
         animatedShow();
-    } else {
+    }
+    else {
         show();
         emit showAnimationFinished();
     }
 
     if (autoHideTimeout > 0) {
         m_autoHideTimer->start(autoHideTimeout);
-    } else {
+    }
+    else {
         m_autoHideTimer->stop();
     }
 }
@@ -76,7 +76,8 @@ void MessageWidget::hideMessage()
     emit hideAnimationStarted();
     if (m_animate) {
         animatedHide();
-    } else {
+    }
+    else {
         hide();
         emit hideAnimationFinished();
     }
@@ -98,7 +99,7 @@ void MessageWidget::setAutoHideTimeout(int autoHideTimeout)
  *
  * @param link link URL
  */
-void MessageWidget::openHttpUrl(const QString& link)
+void MessageWidget::openHttpUrl(const QString &link)
 {
     if (link.startsWith("http://") || link.startsWith("https://")) {
         QDesktopServices::openUrl(QUrl(link));

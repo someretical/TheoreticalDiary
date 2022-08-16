@@ -23,12 +23,11 @@
 
 class QTimer;
 
-class MessageWidget : public KMessageWidget
-{
+class MessageWidget : public KMessageWidget {
     Q_OBJECT
 
 public:
-    explicit MessageWidget(QWidget* parent = nullptr);
+    explicit MessageWidget(QWidget *parent = nullptr);
 
     int autoHideTimeout() const;
 
@@ -43,14 +42,14 @@ signals:
     void hideAnimationStarted();
 
 public slots:
-    void showMessage(const QString& text, MessageWidget::MessageType type);
-    void showMessage(const QString& text, MessageWidget::MessageType type, int autoHideTimeout);
+    void showMessage(const QString &text, MessageWidget::MessageType type);
+    void showMessage(const QString &text, MessageWidget::MessageType type, int autoHideTimeout);
     void hideMessage();
     void setAutoHideTimeout(int autoHideTimeout);
-    static void openHttpUrl(QString const& url);
+    static void openHttpUrl(QString const &url);
 
 private:
-    QTimer* m_autoHideTimer;
+    QTimer *m_autoHideTimer;
     int m_autoHideTimeout;
     bool m_animate = true;
 };

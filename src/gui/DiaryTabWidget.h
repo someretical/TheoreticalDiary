@@ -33,8 +33,21 @@ class DiaryTabWidget : public QTabWidget {
 public:
     explicit DiaryTabWidget(QWidget *parent = nullptr);
     ~DiaryTabWidget() override;
+    static auto instance() -> DiaryTabWidget *;
+
+    void openDiary(const QString &filePath);
+
+public slots:
+    void updateActions();
+    void closeDiary(int);
 
 private:
+    static DiaryTabWidget *m_instance;
 };
+
+inline auto diaryTabWidget() -> DiaryTabWidget *
+{
+    return DiaryTabWidget::instance();
+}
 
 #endif // THEORETICAL_DIARY_DIARYTABWIDGET_H

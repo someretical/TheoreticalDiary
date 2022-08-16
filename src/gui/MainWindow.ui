@@ -150,27 +150,32 @@
     <addaction name="actionNewDiary"/>
     <addaction name="actionOpenDiary"/>
     <addaction name="menuOpenRecentDiary"/>
+    <addaction name="actionImportDiary"/>
+    <addaction name="separator"/>
     <addaction name="actionSaveDiary"/>
     <addaction name="actionSaveDiaryAs"/>
-    <addaction name="actionImportDiary"/>
     <addaction name="actionExportDiary"/>
     <addaction name="separator"/>
+    <addaction name="actionDiarySettings"/>
     <addaction name="actionLockDiary"/>
-    <addaction name="separator"/>
-    <addaction name="actionUploadDiary"/>
-    <addaction name="actionDownloadDiary"/>
-    <addaction name="actionConnectGoogleDrive"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menuEntry">
+   <widget class="QMenu" name="menuCalendar">
     <property name="title">
-     <string>Entry</string>
+     <string>Calendar</string>
     </property>
-    <addaction name="actionEditEntry"/>
-    <addaction name="actionDeleteEntry"/>
+    <addaction name="actionEditSelectedEntry"/>
+    <addaction name="actionDeleteSelectedEntry"/>
+    <addaction name="separator"/>
     <addaction name="actionJumpToToday"/>
-    <addaction name="actionSearchEntries"/>
+    <addaction name="separator"/>
+    <addaction name="actionNextDay"/>
+    <addaction name="actionPreviousDay"/>
+    <addaction name="actionNextMonth"/>
+    <addaction name="actionPreviousMonth"/>
+    <addaction name="actionNextYear"/>
+    <addaction name="actionPreviousYear"/>
    </widget>
    <widget class="QMenu" name="menuPreferences">
     <property name="title">
@@ -185,7 +190,7 @@
     </widget>
     <addaction name="menuTheme"/>
     <addaction name="separator"/>
-    <addaction name="actionSettings"/>
+    <addaction name="actionApplicationSettings"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -195,7 +200,14 @@
     <addaction name="actionReportABug"/>
     <addaction name="actionRequestAFeature"/>
    </widget>
+   <widget class="QMenu" name="menuEntry">
+    <property name="title">
+     <string>Entry</string>
+    </property>
+    <addaction name="actionCloseEntry"/>
+   </widget>
    <addaction name="menuDiary"/>
+   <addaction name="menuCalendar"/>
    <addaction name="menuEntry"/>
    <addaction name="menuPreferences"/>
    <addaction name="menuHelp"/>
@@ -206,17 +218,17 @@
     <string>Save Entry</string>
    </property>
   </action>
-  <action name="actionDeleteEntry">
+  <action name="actionDeleteSelectedEntry">
    <property name="text">
-    <string>Delete Entry</string>
+    <string>Delete Selected Entry</string>
    </property>
    <property name="shortcut">
     <string>Shift+Del</string>
    </property>
   </action>
-  <action name="actionSettings">
+  <action name="actionApplicationSettings">
    <property name="text">
-    <string>Settings</string>
+    <string>Application Settings</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+,</string>
@@ -286,7 +298,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Light</string>
+    <string>Light Theme</string>
    </property>
   </action>
   <action name="actionDarkTheme">
@@ -294,7 +306,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Dark</string>
+    <string>Dark Theme</string>
    </property>
   </action>
   <action name="actionOpenDiary">
@@ -347,9 +359,49 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionEditEntry">
+  <action name="actionEditSelectedEntry">
    <property name="text">
-    <string>Edit Entry</string>
+    <string>Edit Selected Entry</string>
+   </property>
+  </action>
+  <action name="actionNextMonth">
+   <property name="text">
+    <string>Next Month</string>
+   </property>
+  </action>
+  <action name="actionPreviousMonth">
+   <property name="text">
+    <string>Previous Month</string>
+   </property>
+  </action>
+  <action name="actionNextYear">
+   <property name="text">
+    <string>Next Year</string>
+   </property>
+  </action>
+  <action name="actionPreviousYear">
+   <property name="text">
+    <string>Previous Year</string>
+   </property>
+  </action>
+  <action name="actionCloseEntry">
+   <property name="text">
+    <string>Close Entry</string>
+   </property>
+  </action>
+  <action name="actionDiarySettings">
+   <property name="text">
+    <string>Diary Settings</string>
+   </property>
+  </action>
+  <action name="actionNextDay">
+   <property name="text">
+    <string>Next Day</string>
+   </property>
+  </action>
+  <action name="actionPreviousDay">
+   <property name="text">
+    <string>Previous Day</string>
    </property>
   </action>
  </widget>

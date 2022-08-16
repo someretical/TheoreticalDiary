@@ -34,8 +34,7 @@
 //---------------------------------------------------------------------
 // KMessageWidgetPrivate
 //---------------------------------------------------------------------
-class KMessageWidgetPrivate
-{
+class KMessageWidgetPrivate {
 public:
     void init(KMessageWidget *);
 
@@ -112,7 +111,7 @@ void KMessageWidgetPrivate::createLayout()
     buttons.clear();
 
     const auto actions = q->actions();
-    for (QAction *action: actions) {
+    for (QAction *action : actions) {
         auto button = new QToolButton(content);
         button->setDefaultAction(action);
         button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -132,7 +131,7 @@ void KMessageWidgetPrivate::createLayout()
 
         auto buttonLayout = new QHBoxLayout;
         buttonLayout->addStretch();
-        for (QToolButton* button: buttons) {
+        for (QToolButton *button : buttons) {
             // For some reason, calling show() is necessary if wordwrap is true,
             // otherwise the buttons do not show up. It is not needed if
             // wordwrap is false.
@@ -141,12 +140,13 @@ void KMessageWidgetPrivate::createLayout()
         }
         buttonLayout->addWidget(closeButton);
         layout->addItem(buttonLayout, 1, 0, 1, 2);
-    } else {
+    }
+    else {
         auto layout = new QHBoxLayout(content);
         layout->addWidget(iconLabel);
         layout->addWidget(textLabel);
 
-        for (QToolButton* button: buttons) {
+        for (QToolButton *button : buttons) {
             layout->addWidget(button);
         }
 
@@ -194,7 +194,8 @@ void KMessageWidgetPrivate::slotTimeLineFinished()
 
         // notify about finished animation
         emit q->showAnimationFinished();
-    } else {
+    }
+    else {
         // hide and notify about finished animation
         q->hide();
         emit q->hideAnimationFinished();
@@ -213,16 +214,12 @@ int KMessageWidgetPrivate::bestContentHeight() const
 //---------------------------------------------------------------------
 // KMessageWidget
 //---------------------------------------------------------------------
-KMessageWidget::KMessageWidget(QWidget *parent)
-: QFrame(parent)
-, d(new KMessageWidgetPrivate)
+KMessageWidget::KMessageWidget(QWidget *parent) : QFrame(parent), d(new KMessageWidgetPrivate)
 {
     d->init(this);
 }
 
-KMessageWidget::KMessageWidget(const QString &text, QWidget *parent)
-: QFrame(parent)
-, d(new KMessageWidgetPrivate)
+KMessageWidget::KMessageWidget(const QString &text, QWidget *parent) : QFrame(parent), d(new KMessageWidgetPrivate)
 {
     d->init(this);
     setText(text);
@@ -285,34 +282,30 @@ void KMessageWidget::setMessageType(KMessageWidget::MessageType type)
     painter.end();
     d->closeButton->setIcon(closeButtonPixmap);
     d->closeButton->setStyleSheet(QStringLiteral("QToolButton {"
-                                  "  background: transparent;"
-                                  "  border-radius: 2px;"
-                                  "  border: none; }"
-                                  "QToolButton:hover, QToolButton:focus {"
-                                  "  border: 1px solid %1; }").arg(fg.name()));
+                                                 "  background: transparent;"
+                                                 "  border-radius: 2px;"
+                                                 "  border: none; }"
+                                                 "QToolButton:hover, QToolButton:focus {"
+                                                 "  border: 1px solid %1; }")
+                                      .arg(fg.name()));
 
     d->content->setStyleSheet(
         QStringLiteral(".QFrame {"
-        "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-        "    stop: 0 %1,"
-        "    stop: 0.1 %2,"
-        "    stop: 1.0 %3);"
-        "    border-radius: 2px;"
-        "    border: 1px solid %4;"
-        "    margin: %5px;"
-        "    padding: 5px;"
-        "}"
-        ".QLabel { color: %6; }"
-        )
-        .arg(bg0.name(),
-             bg1.name(),
-             bg2.name(),
-             border.name())
-        // DefaultFrameWidth returns the size of the external margin + border width. We know our border is 1px,
-        // so we subtract this from the frame normal QStyle FrameWidth to get our margin
-        .arg(style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, this) - 1)
-        .arg(fg.name())
-    );
+                       "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+                       "    stop: 0 %1,"
+                       "    stop: 0.1 %2,"
+                       "    stop: 1.0 %3);"
+                       "    border-radius: 2px;"
+                       "    border: 1px solid %4;"
+                       "    margin: %5px;"
+                       "    padding: 5px;"
+                       "}"
+                       ".QLabel { color: %6; }")
+            .arg(bg0.name(), bg1.name(), bg2.name(), border.name())
+            // DefaultFrameWidth returns the size of the external margin + border width. We know our border is 1px,
+            // so we subtract this from the frame normal QStyle FrameWidth to get our margin
+            .arg(style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, this) - 1)
+            .arg(fg.name()));
 }
 
 QSize KMessageWidget::sizeHint() const
@@ -453,14 +446,12 @@ void KMessageWidget::animatedHide()
 
 bool KMessageWidget::isHideAnimationRunning() const
 {
-    return (d->timeLine->direction() == QTimeLine::Backward)
-    && (d->timeLine->state() == QTimeLine::Running);
+    return (d->timeLine->direction() == QTimeLine::Backward) && (d->timeLine->state() == QTimeLine::Running);
 }
 
 bool KMessageWidget::isShowAnimationRunning() const
 {
-    return (d->timeLine->direction() == QTimeLine::Forward)
-    && (d->timeLine->state() == QTimeLine::Running);
+    return (d->timeLine->direction() == QTimeLine::Forward) && (d->timeLine->state() == QTimeLine::Running);
 }
 
 QIcon KMessageWidget::icon() const
@@ -473,7 +464,8 @@ void KMessageWidget::setIcon(const QIcon &icon)
     d->icon = icon;
     if (d->icon.isNull()) {
         d->iconLabel->hide();
-    } else {
+    }
+    else {
         const int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
         d->iconLabel->setPixmap(d->icon.pixmap(size));
         d->iconLabel->show();

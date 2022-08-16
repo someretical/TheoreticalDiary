@@ -16,11 +16,53 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <Logger.h>
+
 #include "DiaryTabWidget.h"
+#include "DiaryWidget.h"
 #include "ui_DiaryTabWidget.h"
+
+DiaryTabWidget *DiaryTabWidget::m_instance = nullptr;
 
 DiaryTabWidget::DiaryTabWidget(QWidget *parent) : QTabWidget(parent)
 {
+    m_instance = this;
+
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(updateActions()));
+    connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeDiary(int)));
 }
 
 DiaryTabWidget::~DiaryTabWidget() = default;
+
+auto DiaryTabWidget::instance() -> DiaryTabWidget *
+{
+    return m_instance;
+}
+
+void DiaryTabWidget::openDiary(const QString &filePath)
+{
+    LOG_INFO() << filePath;
+}
+
+void DiaryTabWidget::closeDiary(int widgetIndex)
+{
+    auto ptr = widget(widgetIndex);
+    if (!ptr) {
+        LOG_WARNING() << "Received tab close request from non-existent tab";
+        return;
+    }
+
+    // TODO add more checks
+
+    removeTab(widgetIndex);
+}
+
+void DiaryTabWidget::updateActions()
+{
+    auto ptr = qobject_cast<DiaryWidget *>(currentWidget());
+
+    if (!ptr)
+        return;
+
+    ptr->updateActions();
+}

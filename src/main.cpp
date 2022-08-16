@@ -16,19 +16,9 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ConsoleAppender.h>
-#include <FileAppender.h>
-#include <Logger.h>
-#include <QApplication>
-#include <QDir>
-
+#include "core/Application.h"
 #include "core/RunGuard.h"
-#include "core/Util.h"
-#include "gui/Icons.h"
 #include "gui/MainWindow.h"
-#include "gui/styling/StyleManager.h"
-
-const char *FORMAT_STRING = "[%{Type:-7}] <%{line:4-:%{Function}> %{message}\n";
 
 auto main(int argc, char *argv[]) -> int
 {
@@ -51,61 +41,10 @@ auto main(int argc, char *argv[]) -> int
         return 0;
 
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
-    QApplication app(argc, argv);
-#ifdef QT_DEBUG
-    QApplication::setApplicationVersion("DEBUG");
-#else
-    QFile file(":/meta/version");
-    file.open(QIODevice::ReadOnly);
-    QApplication::setApplicationVersion(file.readAll());
-#endif
-    QApplication::setApplicationName("Theoretical Diary");
-    QApplication::setDesktopFileName(":/meta/me.someretical.TheoreticalDiary.desktop");
-    QApplication::setWindowIcon(QIcon(QPixmap(":/icons/apps/theoreticaldiary.svg")
-                                          .scaled(QSize(256, 256), Qt::KeepAspectRatio, Qt::SmoothTransformation)));
-    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
-
-    // Remove ? button in the title bar (only on Windows).
-    QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton, true);
-
-#ifdef Q_OS_LINUX
-    auto testFont = QFont();
-    if (testFont.defaultFamily() == "DejaVu Sans") {
-        auto ubuntu = QFont("Ubuntu");
-        ubuntu.setPointSize(11);
-        QApplication::setFont(ubuntu);
-    }
-#endif
-
-#ifdef Q_OS_WIN
-    // Qt on Windows uses "MS Shell Dlg 2" as the default font for many widgets, which resolves
-    // to Tahoma 8pt, whereas the correct font would be "Segoe UI" 9pt.
-    // Apparently, some widgets are already using the correct font. Thanks, MuseScore for this neat fix!
-    QApplication::setFont(QApplication::font("QMessageBox"));
-#endif
-
-    auto path = dataPath();
-    auto log = path + "/log";
-
-    QDir dir(path);
-    if (!dir.exists())
-        dir.mkpath(".");
-
-    QFile::remove(log);
-
-    auto fileAppender = new FileAppender(log);
-    fileAppender->setFormat(FORMAT_STRING);
-    auto consoleAppender = new ConsoleAppender;
-    consoleAppender->setFormat(FORMAT_STRING);
-
-    cuteLogger->registerAppender(fileAppender);
-    cuteLogger->registerAppender(consoleAppender);
-
-    styleManager();
-    icons();
+    Application theoreticalDiary(argc, argv);
 
     MainWindow w{};
     w.show();
 
-    return QApplication::exec();
+    return theoreticalDiary.exec();
 }

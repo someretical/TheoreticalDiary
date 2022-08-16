@@ -16,10 +16,12 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <QFile>
 #include <Logger.h>
+#include <QFile>
+#include <QFileDialog>
 
 #include "MainMenu.h"
+#include "MainWindow.h"
 #include "ui_MainMenu.h"
 
 MainMenu::MainMenu(QWidget *parent) : QWidget(parent), m_ui(new Ui::MainMenu)
@@ -28,9 +30,19 @@ MainMenu::MainMenu(QWidget *parent) : QWidget(parent), m_ui(new Ui::MainMenu)
     m_ui->versionText->setText(QStringLiteral("Version %1").arg(QApplication::applicationVersion()));
     QPixmap icon(":/icons/apps/theoreticaldiary.svg");
     m_ui->labelIcon->setPixmap(icon.scaled(100, 100, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+    connect(m_ui->buttonOpenExistingDiary, SIGNAL(clicked(bool)), this, SLOT(openExistingDiary()));
 }
 
 MainMenu::~MainMenu()
 {
     delete m_ui;
+}
+
+void MainMenu::updateRecentlyOpenedDiaries() {}
+
+void MainMenu::openExistingDiary()
+{
+    auto filePath = QFileDialog::getOpenFileName(this, "Open Diary", QDir::homePath(), "Diary (*.dat);;All files");
+    mainWindow()->openDiary(filePath);
 }

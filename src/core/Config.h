@@ -34,7 +34,7 @@ public:
         GUI_MainWindowGeometry
     };
 
-    explicit Config(QObject* parent);
+    explicit Config(QObject *parent);
     ~Config() override;
 
     static auto instance() -> Config *;

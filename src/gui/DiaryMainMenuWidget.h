@@ -16,31 +16,29 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef THEORETICAL_DIARY_MAINMENU_H
-#define THEORETICAL_DIARY_MAINMENU_H
+#ifndef THEORETICAL_DIARY_DIARYMAINMENUWIDGET_H
+#define THEORETICAL_DIARY_DIARYMAINMENUWIDGET_H
 
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class MainMenu;
+class DiaryMainMenuWidget;
 }
 QT_END_NAMESPACE
 
-class MainMenu : public QWidget {
+class DiaryMainMenuWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit MainMenu(QWidget *parent = nullptr);
-    ~MainMenu() override;
+    explicit DiaryMainMenuWidget(QWidget *parent = nullptr);
+    ~DiaryMainMenuWidget() override;
 
-    void updateRecentlyOpenedDiaries();
+public slots:
+    void updateActions();
 
 private:
-    Ui::MainMenu *m_ui;
-
-private slots:
-    void openExistingDiary();
+    Ui::DiaryMainMenuWidget *m_ui;
 };
 
-#endif // THEORETICAL_DIARY_MAINMENU_H
+#endif // THEORETICAL_DIARY_DIARYMAINMENUWIDGET_H

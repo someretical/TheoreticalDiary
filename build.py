@@ -44,6 +44,8 @@ def linux_build():
 
     print("Compiled binary")
 
+    # Copy over platformthemes/libqgtk3.so as well
+    os.environ["DEPLOY_PLATFORM_THEMES"] = "dummy value"
     os.system(f"{BUILD_DIR}/linuxdeploy-x86_64.AppImage --appdir AppDir --executable "
               f"{BUILD_DIR}/theoreticaldiary --desktop-file src/meta/me.someretical.TheoreticalDiary.desktop "
               f"--icon-file src/icons/apps/theoreticaldiary.svg --plugin qt")
@@ -52,7 +54,6 @@ def linux_build():
 
     with open("AppDir/AppRun", "r") as file:
         contents = file.read().replace("AppRun.wrapped", '"Theoretical Diary"')
-
     with open("AppDir/AppRun", "w") as file:
         file.write(contents)
 
@@ -63,7 +64,7 @@ def linux_build():
         destination = f"{BUILD_DIR}/bin/Theoretical_Diary-v{version}-x86_64.AppImage"
         os.system(f"{BUILD_DIR}/appimagetool-x86_64.AppImage ./AppDir {destination}")
 
-    print("Packed AppImage")
+    print(f"Packed AppImage in {BUILD_DIR}/bin")
 
 
 def main():

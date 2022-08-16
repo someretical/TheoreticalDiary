@@ -19,8 +19,8 @@
 #include <QCoreApplication>
 
 #include "Config.h"
-#include "core/Util.h"
 #include "core/Constants.h"
+#include "core/Util.h"
 
 #define QS QStringLiteral
 

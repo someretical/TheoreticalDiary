@@ -19,10 +19,30 @@
 #ifndef THEORETICAL_DIARY_CONSTANTS_H
 #define THEORETICAL_DIARY_CONSTANTS_H
 
+#include <QHash>
+#define QS QStringLiteral
+
 namespace TD {
+static const char *FORMAT_STRING = "[%{Type}] <%{Function}:%{line}> %{message}\n";
 enum Theme { Dark, Light };
 enum ColourRole { Text, Unknown, VeryBad, Bad, Ok, Good, VeryGood };
-enum CurrentScreen { MainMenu };
+
+enum class MainWindowWidget { MainMenu, DiaryTabWidget, Settings };
+static const QHash<QString, MainWindowWidget> mainWindowWidgets = {{QS("pageMainMenu"), MainWindowWidget::MainMenu},
+    {QS("pageDiaryTabWidget"), MainWindowWidget::DiaryTabWidget}, {QS("pageSettings"), MainWindowWidget::Settings}};
+
+enum class DiaryWidget { UnlockPage, DiaryMainMenu, EntryEditor };
+static const QHash<QString, DiaryWidget> diaryWidgets = {{QS("pageUnlock"), DiaryWidget::UnlockPage},
+    {QS("pageDiaryMainMenu"), DiaryWidget::DiaryMainMenu}, {QS("pageEntryEditor"), DiaryWidget::EntryEditor}};
+
+enum class DiaryMainMenuWidget { Calendar, Statistics, Pixels, Search, DiarySettings };
+static const QHash<QString, DiaryMainMenuWidget> diaryMainMenuWidgets = {
+    {QS("pageCalendar"), DiaryMainMenuWidget::Calendar},
+    {QS("pageStatistics"), DiaryMainMenuWidget::Statistics},
+    {QS("pagePixels"), DiaryMainMenuWidget::Pixels},
+    {QS("pageSearch"), DiaryMainMenuWidget::Search},
+    {QS("pageDiaryMenu"), DiaryMainMenuWidget::DiarySettings},
+};
 } // namespace TD
 
 #endif // THEORETICAL_DIARY_CONSTANTS_H

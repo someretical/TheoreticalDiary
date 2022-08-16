@@ -1,21 +1,22 @@
 <RCC>
     <qresource prefix="/">
-        <file>meta/revision</file>
-        <file>meta/version</file>
         <file>gui/styling/BaseStyle.qss</file>
         <file>gui/styling/DarkStyle.qss</file>
         <file>gui/styling/LightStyle.qss</file>
-        <file>meta/dummysettings</file>
-        <file>icons/apps/theoreticaldiary.icns</file>
-        <file>icons/apps/theoreticaldiary.ico</file>
-        <file>icons/apps/theoreticaldiary.svg</file>
-        <file>meta/me.someretical.TheoreticalDiary.desktop</file>
         <file>icons/actions/application-exit.svg</file>
         <file>icons/actions/bugreport.svg</file>
+        <file>icons/actions/calendar-delete-entry.svg</file>
+        <file>icons/actions/calendar-edit-entry.svg</file>
+        <file>icons/actions/calendar-jump-to-today.svg</file>
+        <file>icons/actions/calendar-next-day.svg</file>
+        <file>icons/actions/calendar-next-month.svg</file>
+        <file>icons/actions/calendar-next-year.svg</file>
+        <file>icons/actions/calendar-previous-day.svg</file>
+        <file>icons/actions/calendar-previous-month.svg</file>
+        <file>icons/actions/calendar-previous-year.svg</file>
+        <file>icons/actions/clear-history.svg</file>
         <file>icons/actions/configure.svg</file>
         <file>icons/actions/diary-lock.svg</file>
-        <file>icons/actions/diary-upload.svg</file>
-        <file>icons/actions/diary-download.svg</file>
         <file>icons/actions/document-export.svg</file>
         <file>icons/actions/document-import.svg</file>
         <file>icons/actions/document-new.svg</file>
@@ -23,18 +24,23 @@
         <file>icons/actions/document-open.svg</file>
         <file>icons/actions/document-save-as.svg</file>
         <file>icons/actions/document-save.svg</file>
+        <file>icons/actions/entry-close.svg</file>
+        <file>icons/actions/featurerequest.svg</file>
         <file>icons/actions/help-about.svg</file>
+        <file>icons/actions/message-close.svg</file>
+        <file>icons/actions/palette.svg</file>
         <file>icons/actions/password-show-off.svg</file>
         <file>icons/actions/password-show-on.svg</file>
-        <file>icons/actions/featurerequest.svg</file>
         <file>icons/actions/statistics.svg</file>
-        <file>icons/actions/connect-google-drive.svg</file>
-        <file>icons/actions/entry-edit.svg</file>
-        <file>icons/actions/entry-delete.svg</file>
-        <file>icons/actions/entry-jump.svg</file>
         <file>icons/actions/system-search.svg</file>
-        <file>icons/actions/palette.svg</file>
-        <file>icons/actions/clearhistory.svg</file>
-        <file>icons/actions/message-close.svg</file>
+        <file>icons/actions/theme-dark.svg</file>
+        <file>icons/actions/theme-light.svg</file>
+        <file>icons/apps/theoreticaldiary.icns</file>
+        <file>icons/apps/theoreticaldiary.ico</file>
+        <file>icons/apps/theoreticaldiary.svg</file>
+        <file>meta/dummysettings</file>
+        <file>meta/me.someretical.TheoreticalDiary.desktop</file>
+        <file>meta/revision</file>
+        <file>meta/version</file>
     </qresource>
 </RCC>
