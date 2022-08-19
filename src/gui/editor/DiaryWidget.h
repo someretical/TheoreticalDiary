@@ -16,26 +16,37 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <Logger.h>
+#ifndef THEORETICAL_DIARY_DIARYWIDGET_H
+#define THEORETICAL_DIARY_DIARYWIDGET_H
 
-#include "DiaryMainMenuWidget.h"
-#include "MainWindow.h"
-#include "core/Constants.h"
-#include "ui_DiaryMainMenuWidget.h"
+#include <QWidget>
 
-DiaryMainMenuWidget::DiaryMainMenuWidget(QWidget *parent) : QWidget(parent), m_ui(new Ui::DiaryMainMenuWidget)
-{
-    m_ui->setupUi(this);
+#include "gui/DiaryTabWidget.h"
+
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class DiaryWidget;
 }
+QT_END_NAMESPACE
 
-DiaryMainMenuWidget::~DiaryMainMenuWidget()
-{
-    delete m_ui;
-}
+class DiaryWidget : public QWidget {
+    Q_OBJECT
 
-void DiaryMainMenuWidget::updateActions()
-{
-    auto widgetName = m_ui->stackedWidget->currentWidget()->objectName();
-    mainWindow()->updateActions(TD::diaryMainMenuWidgets.value(widgetName));
-    LOG_INFO() << "Updated actions for diary main menu widget" << widgetName;
-}
+public:
+    explicit DiaryWidget(const QString &filePath, QWidget *parent = nullptr);
+    ~DiaryWidget() override;
+
+public slots:
+    void updateActions();
+
+private:
+    QString m_filePath;
+
+public:
+    auto getFilePath() const -> const QString &;
+
+private:
+    Ui::DiaryWidget *m_ui;
+};
+
+#endif // THEORETICAL_DIARY_DIARYWIDGET_H

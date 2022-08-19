@@ -16,15 +16,44 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <Logger.h>
+#include <QDialogButtonBox>
+
 #include "DiaryUnlockWidget.h"
 #include "ui_DiaryUnlockWidget.h"
 
 DiaryUnlockWidget::DiaryUnlockWidget(QWidget *parent) : QWidget(parent), m_ui(new Ui::DiaryUnlockWidget)
 {
     m_ui->setupUi(this);
+
+    connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, []() {
+        LOG_INFO() << "Open button pressed";
+        // TODO implement
+    });
+
+    connect(
+        m_ui->buttonBox, &QDialogButtonBox::rejected, this,
+        []() { diaryTabWidget()->closeDiaryTab(diaryTabWidget()->currentIndex(), true); }, Qt::QueuedConnection);
+
+    connect(m_ui->checkBoxNoPassword, &QCheckBox::stateChanged, [this]() {
+        if (m_ui->lineEditPassword->isEnabled())
+            m_ui->lineEditPassword->setText("");
+
+        m_ui->lineEditPassword->setEnabled(!m_ui->lineEditPassword->isEnabled());
+    });
 }
 
 DiaryUnlockWidget::~DiaryUnlockWidget()
 {
     delete m_ui;
+}
+
+void DiaryUnlockWidget::setFilePath(const QString &filePath)
+{
+    m_ui->filePath->setText(filePath);
+}
+
+auto DiaryUnlockWidget::getDiaryWidget() -> DiaryWidget *
+{
+    return qobject_cast<DiaryWidget *>(parentWidget()->parentWidget()->parentWidget());
 }

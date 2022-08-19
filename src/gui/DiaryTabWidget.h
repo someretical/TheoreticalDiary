@@ -39,7 +39,8 @@ public:
 
 public slots:
     void updateActions();
-    void closeDiary(int);
+    void closeDiaryTab(int index, bool skipChecks);
+    void updateWindowTitle(int);
 
 private:
     static DiaryTabWidget *m_instance;

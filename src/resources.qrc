@@ -17,6 +17,7 @@
         <file>icons/actions/clear-history.svg</file>
         <file>icons/actions/configure.svg</file>
         <file>icons/actions/diary-lock.svg</file>
+        <file>icons/actions/document-close.svg</file>
         <file>icons/actions/document-export.svg</file>
         <file>icons/actions/document-import.svg</file>
         <file>icons/actions/document-new.svg</file>
@@ -24,7 +25,8 @@
         <file>icons/actions/document-open.svg</file>
         <file>icons/actions/document-save-as.svg</file>
         <file>icons/actions/document-save.svg</file>
-        <file>icons/actions/entry-close.svg</file>
+        <file>icons/actions/entry-delete.svg</file>
+        <file>icons/actions/entry-update.svg</file>
         <file>icons/actions/featurerequest.svg</file>
         <file>icons/actions/help-about.svg</file>
         <file>icons/actions/message-close.svg</file>
@@ -38,6 +40,10 @@
         <file>icons/apps/theoreticaldiary.icns</file>
         <file>icons/apps/theoreticaldiary.ico</file>
         <file>icons/apps/theoreticaldiary.svg</file>
+        <file>icons/status/dialog-error.svg</file>
+        <file>icons/status/dialog-information.svg</file>
+        <file>icons/status/dialog-ok.svg</file>
+        <file>icons/status/dialog-warning.svg</file>
         <file>meta/dummysettings</file>
         <file>meta/me.someretical.TheoreticalDiary.desktop</file>
         <file>meta/revision</file>

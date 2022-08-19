@@ -51,6 +51,7 @@ QStatusBar {
     background-color: palette(window);
 }
 
-QTabWidget::tab-bar#diary_menu_tab, QTabWidget::tab-bar#settings_tabs, QTabWidget::tab-bar#charts {
-    alignment: center;
+DiaryUnlockWidget #stackedWidget {
+    border: 1px solid palette(mid);
+    background: palette(light);
 }

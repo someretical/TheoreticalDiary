@@ -16,29 +16,25 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef THEORETICAL_DIARY_DIARYWIDGET_H
-#define THEORETICAL_DIARY_DIARYWIDGET_H
+#ifndef THEORETICAL_DIARY_PASSWORDLINEEDIT_H
+#define THEORETICAL_DIARY_PASSWORDLINEEDIT_H
 
-#include <QWidget>
+#include <QLineEdit>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class DiaryWidget;
-}
-QT_END_NAMESPACE
-
-class DiaryWidget : public QWidget {
+class PasswordLineEdit : public QLineEdit {
     Q_OBJECT
 
 public:
-    explicit DiaryWidget(QWidget *parent = nullptr);
-    ~DiaryWidget() override;
-
-public slots:
-    void updateActions();
+    explicit PasswordLineEdit(QWidget *parent = nullptr);
+    ~PasswordLineEdit() override;
 
 private:
-    Ui::DiaryWidget *m_ui;
+    QAction *m_actionMatch;
+    QAction *m_actionMismatch;
+    QAction *m_actionToggleVisibility;
+
+private slots:
+    void toggleVisibility(bool show);
 };
 
-#endif // THEORETICAL_DIARY_DIARYWIDGET_H
+#endif // THEORETICAL_DIARY_PASSWORDLINEEDIT_H

@@ -19,10 +19,13 @@
 #include <Logger.h>
 #include <QFile>
 #include <QFileDialog>
+#include <QKeyEvent>
 
 #include "MainMenu.h"
 #include "MainWindow.h"
+#include "core/Config.h"
 #include "ui_MainMenu.h"
+#include "ui_MainWindow.h"
 
 MainMenu::MainMenu(QWidget *parent) : QWidget(parent), m_ui(new Ui::MainMenu)
 {
@@ -32,6 +35,15 @@ MainMenu::MainMenu(QWidget *parent) : QWidget(parent), m_ui(new Ui::MainMenu)
     m_ui->labelIcon->setPixmap(icon.scaled(100, 100, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
     connect(m_ui->buttonOpenExistingDiary, SIGNAL(clicked(bool)), this, SLOT(openExistingDiary()));
+    connect(m_ui->recentDiariesList, &QListWidget::itemActivated,
+        [](QListWidgetItem *item) { mainWindow()->openDiary(item->text()); });
+    connect(m_ui->buttonImportDiary, &QPushButton::clicked, []() {
+        mainWindow()->getUI()->messageWidget->showMessage(
+            "This is a test messageThis is a test messageThis is a test messageThis is a test messageThis is a test "
+            "messageThis is a test messageThis is a test messageThis is a test message",
+            KMessageWidget::Information);
+        // TODO implement
+    });
 }
 
 MainMenu::~MainMenu()
@@ -39,10 +51,62 @@ MainMenu::~MainMenu()
     delete m_ui;
 }
 
-void MainMenu::updateRecentlyOpenedDiaries() {}
+void MainMenu::updateRecentlyOpenedDiaries()
+{
+    m_ui->recentDiariesList->clear();
+
+    auto recentDiaryList = config()->get(Config::RecentDiaries).toStringList();
+    for (auto &diaryFile : recentDiaryList) {
+        auto item = new QListWidgetItem{};
+        item->setText(diaryFile);
+        m_ui->recentDiariesList->addItem(item);
+    }
+
+    if (m_ui->recentDiariesList->count() > 0) {
+        m_ui->recentDiariesWidget->setVisible(true);
+        m_ui->welcomeLabel->setText("Welcome Back to");
+        m_ui->buttonCreateNewDiary->setDefault(false);
+    }
+    else {
+        m_ui->recentDiariesWidget->setVisible(false);
+        m_ui->welcomeLabel->setText("Welcome to");
+        m_ui->buttonCreateNewDiary->setDefault(true);
+    }
+    LOG_INFO() << "Updated recently opened diary list in the main menu";
+}
 
 void MainMenu::openExistingDiary()
 {
-    auto filePath = QFileDialog::getOpenFileName(this, "Open Diary", QDir::homePath(), "Diary (*.dat);;All files");
-    mainWindow()->openDiary(filePath);
+    auto filePath = QFileDialog::getOpenFileName(this, "Open Diary", QDir::homePath(), "Diary (*.td);;All files (*)");
+    if (filePath.size())
+        mainWindow()->openDiary(filePath);
+}
+
+void MainMenu::keyPressEvent(QKeyEvent *event)
+{
+    if (m_ui->recentDiariesList->hasFocus()) {
+        auto currentItem = m_ui->recentDiariesList->currentItem();
+        if (!currentItem || currentItem->text().isEmpty())
+            return;
+
+        if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+            mainWindow()->openDiary(currentItem->text());
+        }
+        else if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
+            auto recentDiaries = config()->get(Config::RecentDiaries).toStringList();
+            recentDiaries.removeOne(currentItem->text());
+            config()->set(Config::RecentDiaries, recentDiaries);
+
+            LOG_INFO() << "Removed file path from recently opened diary list" << currentItem->text();
+            updateRecentlyOpenedDiaries();
+        }
+    }
+
+    QWidget::keyPressEvent(event);
+}
+
+void MainMenu::showEvent(QShowEvent *event)
+{
+    updateRecentlyOpenedDiaries();
+    QWidget::showEvent(event);
 }

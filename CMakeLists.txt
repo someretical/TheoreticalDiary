@@ -24,18 +24,18 @@ add_executable(theoreticaldiary
         src/core/RunGuard.h
         src/core/Util.cpp
         src/core/Util.h
-        src/gui/DiaryMainMenuWidget.cpp
-        src/gui/DiaryMainMenuWidget.h
-        src/gui/DiaryMainMenuWidget.ui
         src/gui/DiaryTabWidget.cpp
         src/gui/DiaryTabWidget.h
         src/gui/DiaryTabWidget.ui
-        src/gui/DiaryWidget.cpp
-        src/gui/DiaryWidget.h
-        src/gui/DiaryWidget.ui
-        src/gui/DiaryUnlockWidget.cpp
-        src/gui/DiaryUnlockWidget.h
-        src/gui/DiaryUnlockWidget.ui
+        src/gui/editor/DiaryMainMenuWidget.cpp
+        src/gui/editor/DiaryMainMenuWidget.h
+        src/gui/editor/DiaryMainMenuWidget.ui
+        src/gui/editor/DiaryWidget.cpp
+        src/gui/editor/DiaryWidget.h
+        src/gui/editor/DiaryWidget.ui
+        src/gui/editor/DiaryUnlockWidget.cpp
+        src/gui/editor/DiaryUnlockWidget.h
+        src/gui/editor/DiaryUnlockWidget.ui
         src/gui/Font.cpp
         src/gui/Font.h
         src/gui/Icons.cpp
@@ -50,6 +50,8 @@ add_executable(theoreticaldiary
         src/gui/MainWindow.ui
         src/gui/MessageWidget.cpp
         src/gui/MessageWidget.h
+        src/gui/PasswordLineEdit.cpp
+        src/gui/PasswordLineEdit.h
         src/gui/styling/BaseStyle.cpp
         src/gui/styling/BaseStyle.h
         src/gui/styling/DarkStyle.cpp

@@ -23,6 +23,7 @@
 #include <QMainWindow>
 
 #include "DiaryTabWidget.h"
+#include "MessageWidget.h"
 #include "core/Constants.h"
 
 QT_BEGIN_NAMESPACE
@@ -41,8 +42,8 @@ public:
     static auto instance() -> MainWindow *;
 
     void openDiary(const QString &path);
-    void updateActions(TD::DiaryMainMenuWidget widgetEnum);
-    void updateActions(TD::DiaryWidget widgetEnum);
+    void changeCurrentWidget(TD::MainWindowWidget widget);
+    auto getUI() const -> Ui::MainWindow *;
 
 private:
     void restoreWindow();
@@ -53,6 +54,8 @@ private:
 
     static MainWindow *m_instance;
     Ui::MainWindow *m_ui;
+
+private:
     QAction *m_clearHistoryAction;
     QActionGroup *m_themeActionGroup;
     QActionGroup *m_recentDiariesActionGroup;

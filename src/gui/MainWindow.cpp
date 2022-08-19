@@ -18,15 +18,15 @@
 
 #include <Logger.h>
 #include <QDesktopServices>
+#include <QFileDialog>
 #include <QUrl>
 
 #include "Icons.h"
 #include "MainMenu.h"
 #include "MainWindow.h"
 #include "core/Config.h"
-#include "src/core/Util.h"
-#include "styling/StyleManager.h"
-#include "ui_MainWindow.h"
+#include "gui/styling/StyleManager.h"
+#include "src/gui/ui_MainWindow.h"
 
 MainWindow *MainWindow::m_instance = nullptr;
 
@@ -55,6 +55,11 @@ MainWindow::~MainWindow()
 auto MainWindow::instance() -> MainWindow *
 {
     return m_instance;
+}
+
+auto MainWindow::getUI() const -> Ui::MainWindow *
+{
+    return m_ui;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -101,6 +106,16 @@ void MainWindow::createThemeActionGroup()
 
 void MainWindow::connectActions()
 {
+    connect(m_ui->actionOpenDiary, &QAction::triggered, [this]() {
+        auto filePath =
+            QFileDialog::getOpenFileName(this, "Open Diary", QDir::homePath(), "Diary (*.td);;All files (*)");
+        if (filePath.size())
+            openDiary(filePath);
+    });
+
+    connect(m_ui->actionCloseDiary, &QAction::triggered,
+        [this]() { m_ui->diaryTabWidget->closeDiaryTab(m_ui->diaryTabWidget->currentIndex(), false); });
+
     connect(m_ui->actionReportABug, &QAction::triggered,
         []() { QDesktopServices::openUrl(QUrl("https://github.com/someretical/TheoreticalDiary/issues")); });
 
@@ -116,12 +131,14 @@ void MainWindow::setIcons()
     m_ui->actionNewDiary->setIcon(icons()->icon("document-new"));
     m_ui->actionOpenDiary->setIcon(icons()->icon("document-open"));
     m_ui->menuOpenRecentDiary->setIcon(icons()->icon("document-open-recent"));
-    m_ui->actionClearHistory->setIcon(icons()->icon("clearhistory"));
+    // This is set up in setupRecentlyOpenedDiaries()
+    //    m_ui->actionClearHistory->setIcon(icons()->icon("clear-history"));
     m_ui->actionSaveDiary->setIcon(icons()->icon("document-save"));
     m_ui->actionSaveDiaryAs->setIcon(icons()->icon("document-save-as"));
     m_ui->actionImportDiary->setIcon(icons()->icon("document-import"));
     m_ui->actionExportDiary->setIcon(icons()->icon("document-export"));
     m_ui->actionDiarySettings->setIcon(icons()->icon("configure"));
+    m_ui->actionCloseDiary->setIcon(icons()->icon("document-close"));
     m_ui->actionLockDiary->setIcon(icons()->icon("diary-lock"));
     m_ui->actionQuit->setIcon(icons()->icon("application-exit"));
 
@@ -137,7 +154,8 @@ void MainWindow::setIcons()
     m_ui->actionPreviousYear->setIcon(icons()->icon("calendar-previous-year"));
 
     // Entry menu
-    m_ui->actionCloseEntry->setIcon(icons()->icon("entry-close"));
+    m_ui->actionUpdateEntry->setIcon(icons()->icon("entry-update"));
+    m_ui->actionDeleteEntry->setIcon(icons()->icon("entry-delete"));
 
     // Preferences menu
     m_ui->menuTheme->setIcon(icons()->icon("palette"));
@@ -157,8 +175,30 @@ void MainWindow::updateActions()
 
     switch (TD::mainWindowWidgets.value(widgetName)) {
     case TD::MainWindowWidget::Settings:
-        // Fall through here
+        // Fall through
     case TD::MainWindowWidget::MainMenu:
+        // Diary menu
+        m_ui->actionSaveDiary->setEnabled(false);
+        m_ui->actionSaveDiaryAs->setEnabled(false);
+        m_ui->actionExportDiary->setEnabled(false);
+        m_ui->actionDiarySettings->setEnabled(false);
+        m_ui->actionCloseDiary->setEnabled(false);
+        m_ui->actionLockDiary->setEnabled(false);
+
+        // Calendar menu
+        m_ui->actionEditSelectedEntry->setEnabled(false);
+        m_ui->actionDeleteSelectedEntry->setEnabled(false);
+        m_ui->actionJumpToToday->setEnabled(false);
+        m_ui->actionNextDay->setEnabled(false);
+        m_ui->actionPreviousDay->setEnabled(false);
+        m_ui->actionNextMonth->setEnabled(false);
+        m_ui->actionPreviousMonth->setEnabled(false);
+        m_ui->actionNextYear->setEnabled(false);
+        m_ui->actionPreviousYear->setEnabled(false);
+
+        // Entry menu
+        m_ui->actionDeleteEntry->setEnabled(false);
+        m_ui->actionUpdateEntry->setEnabled(false);
         break;
     case TD::MainWindowWidget::DiaryTabWidget:
         m_ui->diaryTabWidget->updateActions();
@@ -168,39 +208,10 @@ void MainWindow::updateActions()
     LOG_INFO() << "Updated actions for main window widget" << widgetName;
 }
 
-void MainWindow::updateActions(TD::DiaryMainMenuWidget widgetEnum)
-{
-    switch (widgetEnum) {
-    case TD::DiaryMainMenuWidget::Calendar:
-        break;
-    case TD::DiaryMainMenuWidget::Statistics:
-        break;
-    case TD::DiaryMainMenuWidget::Pixels:
-        break;
-    case TD::DiaryMainMenuWidget::Search:
-        break;
-    case TD::DiaryMainMenuWidget::DiarySettings:
-        break;
-    }
-}
-
-void MainWindow::updateActions(TD::DiaryWidget widgetEnum)
-{
-    switch (widgetEnum) {
-    case TD::DiaryWidget::UnlockPage:
-        break;
-    case TD::DiaryWidget::DiaryMainMenu:
-        // This one is already covered by the caller
-        break;
-    case TD::DiaryWidget::EntryEditor:
-        break;
-    }
-}
-
 void MainWindow::setupRecentlyOpenedDiaries()
 {
     m_clearHistoryAction = new QAction("Clear History", m_ui->menuDiary);
-    m_clearHistoryAction->setIcon(icons()->icon("clearhistory"));
+    m_clearHistoryAction->setIcon(icons()->icon("clear-history"));
     m_recentDiariesActionGroup = new QActionGroup(m_ui->menuOpenRecentDiary);
 
     connect(m_clearHistoryAction, SIGNAL(triggered()), this, SLOT(clearRecentDiaries()));
@@ -217,9 +228,9 @@ void MainWindow::openDiary(const QString &filePath)
 void MainWindow::clearRecentDiaries()
 {
     config()->set(Config::RecentDiaries, {});
-    m_ui->mainMenu->updateRecentlyOpenedDiaries();
-
     LOG_INFO() << "Cleared list of recently opened diaries from the menu bar";
+
+    m_ui->mainMenu->updateRecentlyOpenedDiaries();
 }
 
 void MainWindow::listRecentDiaries()
@@ -237,4 +248,23 @@ void MainWindow::listRecentDiaries()
     m_ui->menuOpenRecentDiary->addAction(m_clearHistoryAction);
 
     LOG_INFO() << "Rendered list of recently opened diaries for menu bar";
+}
+
+void MainWindow::changeCurrentWidget(TD::MainWindowWidget widget)
+{
+    switch (widget) {
+    case TD::MainWindowWidget::MainMenu:
+        m_ui->stackedWidget->setCurrentIndex(0);
+        setWindowTitle("Theoretical Diary");
+        break;
+    case TD::MainWindowWidget::DiaryTabWidget:
+        m_ui->stackedWidget->setCurrentIndex(1);
+        break;
+    case TD::MainWindowWidget::Settings:
+        m_ui->stackedWidget->setCurrentIndex(2);
+        setWindowTitle("Settings - Theoretical Diary");
+        break;
+    }
+
+    LOG_INFO() << "Switched to main window widget" << m_ui->stackedWidget->currentWidget()->objectName();
 }

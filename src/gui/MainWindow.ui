@@ -21,6 +21,9 @@
   </property>
   <widget class="QWidget" name="widget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -87,7 +90,10 @@
        </layout>
       </widget>
       <widget class="QWidget" name="pageDiaryTabWidget">
-       <layout class="QGridLayout" name="gridLayout_2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <property name="leftMargin">
          <number>0</number>
         </property>
@@ -100,10 +106,7 @@
         <property name="bottomMargin">
          <number>0</number>
         </property>
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <item row="0" column="0">
+        <item>
          <widget class="DiaryTabWidget" name="diaryTabWidget">
           <property name="currentIndex">
            <number>-1</number>
@@ -157,6 +160,7 @@
     <addaction name="actionExportDiary"/>
     <addaction name="separator"/>
     <addaction name="actionDiarySettings"/>
+    <addaction name="actionCloseDiary"/>
     <addaction name="actionLockDiary"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -204,7 +208,8 @@
     <property name="title">
      <string>Entry</string>
     </property>
-    <addaction name="actionCloseEntry"/>
+    <addaction name="actionUpdateEntry"/>
+    <addaction name="actionDeleteEntry"/>
    </widget>
    <addaction name="menuDiary"/>
    <addaction name="menuCalendar"/>
@@ -368,10 +373,16 @@
    <property name="text">
     <string>Next Month</string>
    </property>
+   <property name="shortcut">
+    <string>Up</string>
+   </property>
   </action>
   <action name="actionPreviousMonth">
    <property name="text">
     <string>Previous Month</string>
+   </property>
+   <property name="shortcut">
+    <string/>
    </property>
   </action>
   <action name="actionNextYear">
@@ -384,9 +395,9 @@
     <string>Previous Year</string>
    </property>
   </action>
-  <action name="actionCloseEntry">
+  <action name="actionUpdateEntry">
    <property name="text">
-    <string>Close Entry</string>
+    <string>Update Entry</string>
    </property>
   </action>
   <action name="actionDiarySettings">
@@ -398,10 +409,29 @@
    <property name="text">
     <string>Next Day</string>
    </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
   </action>
   <action name="actionPreviousDay">
    <property name="text">
     <string>Previous Day</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionDeleteEntry">
+   <property name="text">
+    <string>Delete Entry</string>
+   </property>
+  </action>
+  <action name="actionCloseDiary">
+   <property name="text">
+    <string>Close Diary</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>

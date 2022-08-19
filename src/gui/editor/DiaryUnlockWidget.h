@@ -21,6 +21,8 @@
 
 #include <QWidget>
 
+#include "DiaryWidget.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class DiaryUnlockWidget;
@@ -33,6 +35,9 @@ class DiaryUnlockWidget : public QWidget {
 public:
     explicit DiaryUnlockWidget(QWidget *parent = nullptr);
     ~DiaryUnlockWidget() override;
+
+    void setFilePath(const QString &filePath);
+    auto getDiaryWidget() -> DiaryWidget *;
 
 private:
     Ui::DiaryUnlockWidget *m_ui;

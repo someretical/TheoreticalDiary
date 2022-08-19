@@ -36,6 +36,10 @@ public:
 
     void updateRecentlyOpenedDiaries();
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+
 private:
     Ui::MainMenu *m_ui;
 

@@ -16,8 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "external-libs/CuteLogger/include/Logger.h"
+#include <Logger.h>
 #include <QBuffer>
+#include <QDir>
+#include <QFile>
 #include <QIconEngine>
 #include <QImageReader>
 #include <QPaintDevice>
@@ -116,7 +118,18 @@ auto Icons::icon(const QString &name, bool recolor, const QColor &overrideColor)
     if (!icon.isNull() && !overrideColor.isValid())
         return icon;
 
-    icon = QIcon(QStringLiteral(":/icons/actions/%1").arg(name));
+    static auto iconPath = QStringLiteral(":/icons/%1/%2.svg");
+
+    QDir folder(":/icons");
+    auto folders = folder.entryList(QDir::Filter::Dirs);
+
+    for (auto &dir : folders) {
+        auto fullPath = iconPath.arg(dir, name);
+        if (QFile::exists(fullPath)) {
+            icon = QIcon(fullPath);
+        }
+    }
+
     if (recolor) {
         icon = QIcon(new AdaptiveIconEngine(icon, overrideColor));
         icon.setIsMask(true);
