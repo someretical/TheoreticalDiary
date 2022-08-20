@@ -24,6 +24,9 @@ add_executable(theoreticaldiary
         src/core/RunGuard.h
         src/core/Util.cpp
         src/core/Util.h
+        src/gui/CategoryListWidget.cpp
+        src/gui/CategoryListWidget.h
+        src/gui/CategoryListWidget.ui
         src/gui/DiaryTabWidget.cpp
         src/gui/DiaryTabWidget.h
         src/gui/DiaryTabWidget.ui
@@ -52,6 +55,9 @@ add_executable(theoreticaldiary
         src/gui/MessageWidget.h
         src/gui/PasswordLineEdit.cpp
         src/gui/PasswordLineEdit.h
+        src/gui/SettingsWidget.cpp
+        src/gui/SettingsWidget.h
+        src/gui/SettingsWidget.ui
         src/gui/styling/BaseStyle.cpp
         src/gui/styling/BaseStyle.h
         src/gui/styling/DarkStyle.cpp

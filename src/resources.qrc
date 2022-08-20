@@ -33,6 +33,8 @@
         <file>icons/actions/palette.svg</file>
         <file>icons/actions/password-show-off.svg</file>
         <file>icons/actions/password-show-on.svg</file>
+        <file>icons/actions/preferences-other.svg</file>
+        <file>icons/actions/preferences-security.svg</file>
         <file>icons/actions/statistics.svg</file>
         <file>icons/actions/system-search.svg</file>
         <file>icons/actions/theme-dark.svg</file>

@@ -127,7 +127,28 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="pageSettings"/>
+      <widget class="QWidget" name="pageSettings">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="SettingsWidget" name="settingsWidget" native="true"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -445,13 +466,19 @@
   <customwidget>
    <class>MainMenu</class>
    <extends>QWidget</extends>
-   <header>src/gui/MainMenu.h</header>
+   <header>gui/MainMenu.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>DiaryTabWidget</class>
    <extends>QTabWidget</extends>
-   <header>src/gui/DiaryTabWidget.h</header>
+   <header>gui/DiaryTabWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SettingsWidget</class>
+   <extends>QWidget</extends>
+   <header>gui/SettingsWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

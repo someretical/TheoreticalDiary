@@ -25,9 +25,27 @@ class Config : public QObject {
     Q_OBJECT
 
 public:
+    enum PieChartSortType {
+        PieChart_Rating = 1,
+        PieChart_Days = 2,
+    };
+
+    enum SortOrder {
+        AscendingOrder = 0,
+        DescendingOrder = 1
+    };
+
     enum ConfigKey {
         RecentDiaries,
         MaximumRecentDiaries,
+
+        Diary_LockTimeoutEnabled,
+        Diary_LockTimeout,
+        Diary_SaveOnLock,
+        Diary_BackupBeforeSave,
+
+        PieChartSortType,
+        PieChartSortOrder,
 
         GUI_Theme,
         GUI_MainWindowState,

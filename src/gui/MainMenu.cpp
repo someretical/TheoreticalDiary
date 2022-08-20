@@ -97,6 +97,7 @@ void MainMenu::keyPressEvent(QKeyEvent *event)
             recentDiaries.removeOne(currentItem->text());
             config()->set(Config::RecentDiaries, recentDiaries);
 
+            mainWindow()->statusBar()->showMessage(QStringLiteral("Removed file %1").arg(currentItem->text()));
             LOG_INFO() << "Removed file path from recently opened diary list" << currentItem->text();
             updateRecentlyOpenedDiaries();
         }

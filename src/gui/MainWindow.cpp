@@ -113,6 +113,18 @@ void MainWindow::connectActions()
             openDiary(filePath);
     });
 
+    connect(m_ui->actionApplicationSettings, &QAction::triggered, [this]() {
+        auto name = m_ui->stackedWidget->currentWidget()->objectName();
+        auto widget = TD::mainWindowWidgets.value(name);
+        if (TD::MainWindowWidget::Settings != widget) {
+            m_ui->settingsWidget->setPreviousWidget(widget);
+
+            LOG_INFO() << "Switching to settings widget, previous main window widget" << name;
+
+            changeCurrentWidget(TD::MainWindowWidget::Settings);
+        }
+    });
+
     connect(m_ui->actionCloseDiary, &QAction::triggered,
         [this]() { m_ui->diaryTabWidget->closeDiaryTab(m_ui->diaryTabWidget->currentIndex(), false); });
 
@@ -231,6 +243,7 @@ void MainWindow::clearRecentDiaries()
     LOG_INFO() << "Cleared list of recently opened diaries from the menu bar";
 
     m_ui->mainMenu->updateRecentlyOpenedDiaries();
+    statusBar()->showMessage("Cleared list of recently opened diaries");
 }
 
 void MainWindow::listRecentDiaries()

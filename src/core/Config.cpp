@@ -34,6 +34,14 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
     {Config::RecentDiaries,   {QS("General/RecentDiaries"), {}}},
     {Config::MaximumRecentDiaries,   {QS("General/MaximumRecentDiaries"), 10}},
 
+    {Config::Diary_LockTimeoutEnabled, {QS("Diary/LockTimeoutEnabled"), true}},
+    {Config::Diary_LockTimeout, {QS("Diary/LockTimeout"), 300}},
+    {Config::Diary_SaveOnLock, {QS("Diary/SaveOnLock"),true }},
+    {Config::Diary_BackupBeforeSave, {QS("Diary/BackupBeforeSave"), true}},
+
+    {Config::PieChartSortType, {QS("Diary/PieChartSortType"), Config::PieChart_Days}},
+    {Config::PieChartSortOrder, {QS("Diary/PieChartSortOrder"), Config::AscendingOrder}},
+
     {Config::GUI_Theme, {QS("GUI/Theme"), TD::Theme::Dark}},
     {Config::GUI_MainWindowGeometry, {QS("GUI/MainWindowGeometry"), {}}},
     {Config::GUI_MainWindowState,    {QS("GUI/MainWindowState"), {}}},

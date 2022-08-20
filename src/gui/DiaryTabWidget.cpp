@@ -53,7 +53,7 @@ void DiaryTabWidget::openDiary(const QString &filePath)
 
     if (!exists) {
         mainWindow()->getUI()->messageWidget->showMessage(
-            "<b>Error:</b> This file no longer exists", MessageWidget::Error);
+            "<b>Error:</b> This file does not exist", MessageWidget::Error);
         recentDiaries.removeOne(filePath);
         LOG_INFO() << "Removed invalid file path from recently opened diary list" << filePath;
     }
