@@ -1,9 +1,7 @@
-[submodule "external-libs/someretical-o2"]
-	path = external-libs/someretical-o2
-	url = https://github.com/someretical/o2.git
-[submodule "external-libs/asyncfuture"]
-	path = external-libs/asyncfuture
-	url = https://github.com/benlau/asyncfuture.git
 [submodule "external-libs/CuteLogger"]
 	path = external-libs/CuteLogger
 	url = https://github.com/dept2/CuteLogger
+[submodule "external-libs/botan"]
+	path = external-libs/botan
+	url = https://github.com/randombit/botan.git
+	branch = master
