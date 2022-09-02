@@ -1,6 +1,6 @@
 [submodule "external-libs/CuteLogger"]
 	path = external-libs/CuteLogger
-	url = https://github.com/dept2/CuteLogger
+	url = git@github.com:dept2/CuteLogger.git
 [submodule "external-libs/botan"]
 	path = external-libs/botan
 	url = https://github.com/randombit/botan.git
