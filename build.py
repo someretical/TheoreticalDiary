@@ -1,8 +1,30 @@
 import os
 import platform
 import shutil
+import sys
 
 BUILD_DIR = "cmake-build-release"
+
+
+def setup_botan():
+    os.system("python3 external-libs/botan/configure.py --amalgamation --minimized-build --disable-shared "
+              "--enable-modules="
+              "aes,"
+              "argon2,"
+              "auto_rng,"
+              "base64,"
+              "compression,"
+              "gcm,"
+              "hmac,"
+              "sha2_32,"
+              "sha2_64,"
+              "system_rng,"
+              "zlib,"
+              )
+    shutil.move("botan_all.cpp", "src/crypto/botan_all.cpp")
+    shutil.move("botan_all.h", "src/crypto/botan_all.h")
+
+    print("Setup Botan")
 
 
 def windows_build():
@@ -68,6 +90,12 @@ def linux_build():
 
 
 def main():
+    if "--build-botan-only" in sys.argv:
+        return setup_botan()
+
+    if "--build-botan" in sys.argv:
+        setup_botan()
+
     if platform.system() == "Windows":
         windows_build()
     elif platform.system() == "Darwin":
