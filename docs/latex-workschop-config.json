@@ -1,0 +1,129 @@
+"latex-workshop.latex.autoBuild.run": "onSave",
+"latex-workshop.view.pdf.viewer": "tab",
+"latex-workshop.synctex.afterBuild.enabled": true,
+"latex-workshop.latex.outDir": "%DIR%/build",
+"latex-workshop.latex.tools": [
+    {
+        "name": "pdflatex",
+        "command": "pdflatex",
+        "args": [
+            "-output-directory=build",
+            "-synctex=1",
+            "-interaction=nonstopmode",
+            "-shell-escape",
+            "-file-line-error",
+            "%DOC%"
+        ],
+        "env": {}
+    },
+    {
+        "name": "biber",
+        "command": "biber",
+        "args": [
+            "--output-directory",
+            "build/",
+            "%DOCFILE%"
+        ],
+        "env": {}
+    },
+    {
+        "name": "gs-ebook",
+        "command": "gs",
+        "args": [
+            "-sDEVICE=pdfwrite",
+            "-dCompatibilityLevel=1.4",
+            "-dPDFSETTINGS=/ebook",
+            "-dNOPAUSE",
+            "-dQUIET",
+            "-dBATCH",
+            "-sOutputFile=final/compressed_%DOCFILE%.pdf",
+            "%OUTDIR%/%DOCFILE%.pdf"
+        ],
+        "env": {}
+    },
+    {
+        "name": "gs-print",
+        "command": "gs",
+        "args": [
+            "-sDEVICE=pdfwrite",
+            "-dCompatibilityLevel=1.4",
+            "-dPDFSETTINGS=/printer",
+            "-dNOPAUSE",
+            "-dQUIET",
+            "-dBATCH",
+            "-sOutputFile=final/print_%DOCFILE%.pdf",
+            "%OUTDIR%/%DOCFILE%.pdf"
+        ],
+        "env": {}
+    },
+    {
+        "name": "mktmp",
+        "command": "mkdir",
+        "args": [
+            "-p",
+            "build"
+        ],
+        "env": {}
+    },
+    {
+        "name": "mkfinal",
+        "command": "mkdir",
+        "args": [
+            "-p",
+            "final"
+        ],
+        "env": {}
+    }
+],
+"latex-workshop.latex.recipes": [
+    {
+        "name": "quick",
+        "tools": [
+            "mktmp",
+            "pdflatex"
+        ]
+    },
+    {
+        "name": "bibtex",
+        "tools": [
+            "mktmp",
+            "pdflatex",
+            "biber",
+            "pdflatex"
+        ]
+    },
+    {
+        "name": "quick ebook build",
+        "tools": [
+            "mkfinal",
+            "gs-ebook"
+        ]
+    },
+    {
+        "name": "full ebook build",
+        "tools": [
+            "mktmp",
+            "pdflatex",
+            "pdflatex",
+            "mkfinal",
+            "gs-ebook"
+        ]
+    },
+    {
+        "name": "quick print build",
+        "tools": [
+            "mkfinal",
+            "gs-print"
+        ]
+    },
+    {
+        "name": "full print build",
+        "tools": [
+            "mktmp",
+            "pdflatex",
+            "pdflatex",
+            "mkfinal",
+            "gs-print"
+        ]
+    }
+]

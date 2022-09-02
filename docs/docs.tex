@@ -1,0 +1,121 @@
+\documentclass[a4paper, english, final]{article}
+
+\usepackage[T1]{fontenc}
+
+\usepackage[activate={true,nocompatibility}, final, tracking=true, kerning=true, spacing=true, factor=1100, stretch=10, shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
+
+\usepackage{xcolor}
+
+% Code blocks
+\usepackage{listings, calc}
+\lstset{%
+numbers=left,
+stepnumber=1,
+numberstyle=\tiny,
+basicstyle=\ttfamily\small,
+breaklines=true,
+tabsize=4,
+captionpos=t,
+frame=TRbl
+}
+\renewcommand{\lstlistingname}{Listing}
+\renewcommand{\lstlistlistingname}{List of \lstlistingname s}
+
+% Captions
+\usepackage[labelfont=normalfont, font=it]{caption}
+
+% Number figures, listings, and tables by section instead of a global counter
+\usepackage{chngcntr}
+
+% Display images
+\usepackage{graphicx}
+
+% Centre figures when they exceed line width
+\usepackage[export]{adjustbox}
+
+% "H" option for figures, tables
+\usepackage{float}
+
+% Rotate figures
+\usepackage{rotating}
+
+% Tables that cross pages
+\usepackage{longtable}
+
+% Thicker lines in table top and bottom
+\usepackage{booktabs}
+
+\usepackage[inline]{enumitem}
+
+% Subfigure capability
+\usepackage[list=true, listformat=simple]{subcaption}
+
+% Fancy paths, menus, key combinations
+\usepackage[os=win]{menukeys}
+\renewmenumacro{\menu}[>]{menus}
+\renewmenumacro{\directory}[/]{hyphenatepathswithfolder}
+\renewmenumacro{\keys}[+]{roundedkeys}
+
+% hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+pdftitle={Theoretical Diary Documentation},
+pdfauthor={someretical},
+hidelinks
+}
+
+% Reference multiple figures, listings, tables at once
+\usepackage{cleveref}
+\crefformat{section}{\S#2#1#3}
+\crefmultiformat{section}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
+\crefformat{subsection}{\S#2#1#3}
+\crefmultiformat{subsection}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
+
+% Especially important to load these AFTER
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\AtBeginDocument{\counterwithin{lstlisting}{section}}
+
+% custom commands
+\newcommand{\appname}[0]{\textit{Theoretical Diary}}
+
+\begin{document}
+\pagenumbering{roman}
+\hspace{0pt} % centre vertically
+\vfill
+\begin{center}
+    \includegraphics[keepaspectratio, width=0.8\textwidth]{figures/final/icon.pdf}
+    \vskip 2em
+    {\LARGE \textbf \appname{}}
+    \vskip .5em
+    {\LARGE \textbf{Documentation}}
+    \vskip 1.5em
+    someretical
+    \vskip 1em
+    v\input{../src/meta/version}
+\end{center}
+\vfill
+\thispagestyle{empty}
+\hspace{0pt}
+\newpage
+
+\section*{Acknowledgements}
+TODO
+
+\newpage
+
+\microtypesetup{protrusion=false}
+\tableofcontents
+\listoffigures
+\lstlistoflistings
+\listoftables
+\microtypesetup{protrusion=true}
+\newpage
+
+\pagenumbering{arabic}
+
+\section{Installation}
+TODO
+
+\end{document}
