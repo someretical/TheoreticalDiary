@@ -18,11 +18,11 @@
 
 #include <Logger.h>
 
-#include "../MainWindow.h"
 #include "../ui_MainWindow.h"
 #include "DiaryMainMenuWidget.h"
 #include "DiaryWidget.h"
 #include "core/Constants.h"
+#include "gui/MainWindow.h"
 #include "ui_DiaryWidget.h"
 
 DiaryWidget::DiaryWidget(const QString &filePath, QWidget *parent)

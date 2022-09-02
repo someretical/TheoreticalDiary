@@ -29,8 +29,8 @@
 SettingsWidget::SettingsWidget(QWidget *parent) : QWidget(parent), m_ui(new Ui::SettingsWidget)
 {
     m_ui->setupUi(this);
-    m_ui->categoryListWidget->addCategory("General", icons()->icon("preferences-other"));
-    m_ui->categoryListWidget->addCategory("Security", icons()->icon("preferences-security"));
+    m_ui->categoryListWidget->addCategory("General", icons().icon("preferences-other"));
+    m_ui->categoryListWidget->addCategory("Security", icons().icon("preferences-security"));
     connect(m_ui->categoryListWidget, SIGNAL(categoryChanged(int)), m_ui->stackedWidget, SLOT(setCurrentIndex(int)));
 
     m_ui->pieChartSortButtonGroup->setId(m_ui->pieChartSortByRatingRadioButton, Config::PieChart_Rating);

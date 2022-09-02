@@ -16,40 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <QColor>
-#include <QHash>
+#include "Diary.h"
 
-#include "src/core/Constants.h"
+Diary::Diary() {}
 
-#ifndef THEORETICAL_DIARY_STYLEMANAGER_H
-#define THEORETICAL_DIARY_STYLEMANAGER_H
-
-class StyleManager {
-public:
-    static auto instance() -> StyleManager &
-    {
-        static StyleManager SM;
-        return SM;
-    }
-
-    void updateStyle();
-
-    QHash<int, QColor> m_colourMap;
-
-private:
-    StyleManager();
-    ~StyleManager();
-    inline void setColour(TD::ColourRole role, const QColor &colour)
-    {
-        m_colourMap[static_cast<int>(role)] = colour;
-    }
-
-    static StyleManager *m_instance;
-};
-
-inline auto styleManager() -> StyleManager &
-{
-    return StyleManager::instance();
-}
-
-#endif // THEORETICAL_DIARY_STYLEMANAGER_H
+Diary::~Diary() {}

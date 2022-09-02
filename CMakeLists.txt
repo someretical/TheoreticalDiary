@@ -11,6 +11,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(ZLIB REQUIRED)
+if(ZLIB_VERSION_STRING VERSION_LESS "1.2.0")
+    message(FATAL_ERROR "zlib 1.2.0 or higher is required to use the gzip format")
+endif()
+include_directories(SYSTEM ${ZLIB_INCLUDE_DIR})
+
 find_package(Qt5 COMPONENTS Widgets Charts REQUIRED)
 
 add_executable(theoreticaldiary
@@ -20,10 +26,24 @@ add_executable(theoreticaldiary
         src/core/Config.cpp
         src/core/Config.h
         src/core/Constants.h
+        src/core/Diary.cpp
+        src/core/Diary.h
+        src/core/DiaryKey.cpp
+        src/core/DiaryKey.h
         src/core/RunGuard.cpp
         src/core/RunGuard.h
+        src/core/TimeDelta.cpp
+        src/core/TimeDelta.h
         src/core/Util.cpp
         src/core/Util.h
+        src/crypto/botan_all.cpp
+        src/crypto/botan_all.h
+        src/crypto/Cipher.cpp
+        src/crypto/Cipher.h
+        src/crypto/Hash.cpp
+        src/crypto/Hash.h
+        src/crypto/Random.cpp
+        src/crypto/Random.h
         src/gui/CategoryListWidget.cpp
         src/gui/CategoryListWidget.h
         src/gui/CategoryListWidget.ui
@@ -69,7 +89,15 @@ add_executable(theoreticaldiary
         src/gui/styling/StyleManager.cpp
         src/gui/styling/StyleManager.h
         src/main.cpp
-        src/resources.qrc)
+        src/resources.qrc
+        src/streams/LayeredStream.cpp
+        src/streams/LayeredStream.h
+        src/streams/qtiocompressor.cpp
+        src/streams/qtiocompressor.h
+        src/streams/StoreDataStream.cpp
+        src/streams/StoreDataStream.h
+        src/streams/SymmetricCipherStream.cpp
+        src/streams/SymmetricCipherStream.h)
 
 add_subdirectory(external-libs/CuteLogger)
 
@@ -78,5 +106,5 @@ target_include_directories(theoreticaldiary PRIVATE src/)
 target_link_libraries(theoreticaldiary
         PRIVATE
         Qt5::Widgets
-        Qt5::Charts
-        CuteLogger)
+        CuteLogger
+        ${ZLIB_LIBRARIES})

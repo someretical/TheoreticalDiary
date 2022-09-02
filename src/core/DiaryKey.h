@@ -16,40 +16,34 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <QColor>
-#include <QHash>
+#ifndef THEORETICAL_DIARY_DIARYKEY_H
+#define THEORETICAL_DIARY_DIARYKEY_H
 
-#include "src/core/Constants.h"
+#include <QString>
 
-#ifndef THEORETICAL_DIARY_STYLEMANAGER_H
-#define THEORETICAL_DIARY_STYLEMANAGER_H
+#include "crypto/botan_all.h"
 
-class StyleManager {
+const qint32 DEFAULT_ROUNDS = 10;
+const quint64 DEFAULT_MEMORY_SIZE = 1 << 16; // In kibibytes
+const qint32 SALT_SIZE = 32;                 // Bytes
+const qint32 KEY_SIZE = 32;                  // Bytes
+
+class DiaryKey {
 public:
-    static auto instance() -> StyleManager &
-    {
-        static StyleManager SM;
-        return SM;
-    }
+    explicit DiaryKey(const QString &password, qint32 rounds, quint64 memory);
+    ~DiaryKey();
 
-    void updateStyle();
+    auto getKey() -> Botan::secure_vector<char> &;
+    void generateKey(const QString &password);
+    auto serialise() -> QByteArray;
 
-    QHash<int, QColor> m_colourMap;
+    auto benchmark(int ms) -> int;
 
 private:
-    StyleManager();
-    ~StyleManager();
-    inline void setColour(TD::ColourRole role, const QColor &colour)
-    {
-        m_colourMap[static_cast<int>(role)] = colour;
-    }
-
-    static StyleManager *m_instance;
+    Botan::secure_vector<char> m_key;
+    QByteArray m_salt;
+    qint32 m_rounds;
+    quint64 m_memory;
 };
 
-inline auto styleManager() -> StyleManager &
-{
-    return StyleManager::instance();
-}
-
-#endif // THEORETICAL_DIARY_STYLEMANAGER_H
+#endif // THEORETICAL_DIARY_DIARYKEY_H

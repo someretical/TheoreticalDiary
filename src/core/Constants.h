@@ -25,7 +25,7 @@
 namespace TD {
 static const char *FORMAT_STRING = "[%{Type}] <%{Function}:%{line}> %{message}\n";
 enum Theme { Dark, Light };
-enum ColourRole { Text, Unknown, VeryBad, Bad, Ok, Good, VeryGood };
+enum ColourRole { Unknown, VeryBad, Bad, Ok, Good, VeryGood, Text };
 
 enum class MainWindowWidget { MainMenu, DiaryTabWidget, Settings };
 static const QHash<QString, MainWindowWidget> mainWindowWidgets = {{QS("pageMainMenu"), MainWindowWidget::MainMenu},

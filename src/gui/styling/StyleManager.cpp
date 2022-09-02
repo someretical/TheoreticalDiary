@@ -25,23 +25,12 @@
 #include "StyleManager.h"
 #include "core/Config.h"
 
-StyleManager *StyleManager::m_instance = nullptr;
-
 StyleManager::StyleManager()
 {
-    m_instance = this;
     updateStyle();
 }
 
 StyleManager::~StyleManager() = default;
-
-auto StyleManager::instance() -> StyleManager *
-{
-    if (!m_instance)
-        m_instance = new StyleManager();
-
-    return m_instance;
-}
 
 void StyleManager::updateStyle()
 {

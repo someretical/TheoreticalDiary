@@ -97,17 +97,9 @@ auto AdaptiveIconEngine::clone() const -> QIconEngine *
     return new AdaptiveIconEngine(m_baseIcon);
 }
 
-Icons *Icons::m_instance = nullptr;
-
 Icons::Icons() = default;
 
-auto Icons::instance() -> Icons *
-{
-    if (!m_instance)
-        m_instance = new Icons();
-
-    return m_instance;
-}
+Icons::~Icons() = default;
 
 auto Icons::icon(const QString &name, bool recolor, const QColor &overrideColor) -> QIcon
 {

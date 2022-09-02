@@ -44,6 +44,10 @@ MainMenu::MainMenu(QWidget *parent) : QWidget(parent), m_ui(new Ui::MainMenu)
             KMessageWidget::Information);
         // TODO implement
     });
+    connect(m_ui->buttonSettings, &QPushButton::clicked, this,
+        []() { mainWindow()->getUI()->actionApplicationSettings->trigger(); });
+    connect(
+        m_ui->buttonQuit, &QPushButton::clicked, this, []() { mainWindow()->close(); }, Qt::QueuedConnection);
 }
 
 MainMenu::~MainMenu()

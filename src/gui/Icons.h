@@ -23,18 +23,23 @@
 
 class Icons {
 public:
-    Icons();
+    static auto instance() -> Icons &
+    {
+        static Icons I;
+        return I;
+    }
+
     auto icon(const QString &name, bool recolor = true, const QColor &overrideColor = QColor::Invalid) -> QIcon;
     auto onOffIcon(const QString &name, bool on, bool recolor = true) -> QIcon;
 
-    static auto instance() -> Icons *;
-
 private:
-    static Icons *m_instance;
+    Icons();
+    ~Icons();
+
     QHash<QString, QIcon> m_iconCache;
 };
 
-inline auto icons() -> Icons *
+inline auto icons() -> Icons &
 {
     return Icons::instance();
 }

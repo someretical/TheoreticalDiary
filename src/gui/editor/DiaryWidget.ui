@@ -138,13 +138,13 @@
   <customwidget>
    <class>DiaryUnlockWidget</class>
    <extends>QWidget</extends>
-   <header>gui/DiaryUnlockWidget.h</header>
+   <header>gui/editor/DiaryUnlockWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>DiaryMainMenuWidget</class>
    <extends>QWidget</extends>
-   <header>gui/DiaryMainMenuWidget.h</header>
+   <header>gui/editor/DiaryMainMenuWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

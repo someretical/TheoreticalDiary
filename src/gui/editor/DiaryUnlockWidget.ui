@@ -66,9 +66,6 @@
    </item>
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
      <widget class="QWidget" name="widget">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="leftMargin">
@@ -102,7 +99,7 @@
           <item>
            <widget class="QCheckBox" name="checkBoxNoPassword">
             <property name="text">
-             <string>No Password</string>
+             <string>Unlock Without Password</string>
             </property>
            </widget>
           </item>
@@ -113,9 +110,6 @@
         <widget class="QDialogButtonBox" name="buttonBox">
          <property name="standardButtons">
           <set>QDialogButtonBox::Close|QDialogButtonBox::Open</set>
-         </property>
-         <property name="centerButtons">
-          <bool>false</bool>
          </property>
         </widget>
        </item>

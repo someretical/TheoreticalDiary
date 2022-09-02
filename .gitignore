@@ -1,5 +1,8 @@
-AppDir
-CMakeFiles
+AppDir/
+CMakeFiles/
+build/
+src/crypto/botan_all.cpp
+src/crypto/botan_all.h
 
 # C++ objects and libs
 *.slo

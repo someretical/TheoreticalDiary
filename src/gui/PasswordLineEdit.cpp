@@ -25,12 +25,12 @@
 
 PasswordLineEdit::PasswordLineEdit(QWidget *parent) : QLineEdit(parent)
 {
-    const QIcon errorIcon = icons()->icon("dialog-error");
+    const QIcon errorIcon = icons().icon("dialog-error");
     m_actionMismatch = addAction(errorIcon, QLineEdit::TrailingPosition);
     m_actionMismatch->setVisible(false);
     m_actionMismatch->setToolTip(tr("Passwords do not match"));
 
-    const QIcon correctIcon = icons()->icon("dialog-ok");
+    const QIcon correctIcon = icons().icon("dialog-ok");
     m_actionMatch = addAction(correctIcon, QLineEdit::TrailingPosition);
     m_actionMatch->setVisible(false);
     m_actionMatch->setToolTip(tr("Passwords match so far"));
@@ -42,7 +42,7 @@ PasswordLineEdit::PasswordLineEdit(QWidget *parent) : QLineEdit(parent)
     passwordFont.setLetterSpacing(QFont::PercentageSpacing, 110);
     setFont(passwordFont);
 
-    m_actionToggleVisibility = new QAction(icons()->onOffIcon("password-show", false), "Toggle Password", this);
+    m_actionToggleVisibility = new QAction(icons().onOffIcon("password-show", false), "Toggle Password", this);
     m_actionToggleVisibility->setCheckable(true);
     addAction(m_actionToggleVisibility, QLineEdit::TrailingPosition);
     connect(m_actionToggleVisibility, &QAction::triggered, this, &PasswordLineEdit::toggleVisibility);
@@ -53,6 +53,6 @@ PasswordLineEdit::~PasswordLineEdit() = default;
 void PasswordLineEdit::toggleVisibility(bool show)
 {
     setEchoMode(show ? QLineEdit::Normal : QLineEdit::Password);
-    m_actionToggleVisibility->setIcon(icons()->onOffIcon("password-show", show));
+    m_actionToggleVisibility->setIcon(icons().onOffIcon("password-show", show));
     m_actionToggleVisibility->setChecked(show);
 }

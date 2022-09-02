@@ -46,12 +46,22 @@ auto DiaryTabWidget::instance() -> DiaryTabWidget *
     return m_instance;
 }
 
+void DiaryTabWidget::addDiaryTab(const QString &filePath)
+{
+    mainWindow()->changeCurrentWidget(TD::MainWindowWidget::DiaryTabWidget);
+    LOG_INFO() << "Opening new diary tab for" << filePath;
+
+    auto tab = new DiaryWidget(filePath, this);
+    QFileInfo info(filePath);
+    auto index = addTab(tab, QStringLiteral("%1 [Locked]").arg(info.fileName()));
+    setCurrentIndex(index);
+}
+
 void DiaryTabWidget::openDiary(const QString &filePath)
 {
-    auto exists = QFile::exists(filePath);
     auto recentDiaries = config()->get(Config::RecentDiaries).toStringList();
 
-    if (!exists) {
+    if (!QFile::exists(filePath)) {
         mainWindow()->getUI()->messageWidget->showMessage(
             "<b>Error:</b> This file does not exist", MessageWidget::Error);
         recentDiaries.removeOne(filePath);
@@ -66,8 +76,8 @@ void DiaryTabWidget::openDiary(const QString &filePath)
         }
         LOG_INFO() << "Added file path to recently opened diary list" << filePath;
 
-        auto skip = false;
-        for (int i = 0; i < count(); ++i) {
+        bool skip = false;
+        for (int i = 0; !skip && i < count(); ++i) {
             if (filePath == qobject_cast<DiaryWidget *>(widget(i))->getFilePath()) {
                 skip = true;
                 setCurrentIndex(i);
@@ -76,18 +86,40 @@ void DiaryTabWidget::openDiary(const QString &filePath)
             }
         }
 
-        if (!skip) {
-            mainWindow()->changeCurrentWidget(TD::MainWindowWidget::DiaryTabWidget);
-            LOG_INFO() << "Opening new diary tab for" << filePath;
-
-            auto tab = new DiaryWidget(filePath, this);
-            QFileInfo info(filePath);
-            auto index = addTab(tab, QStringLiteral("%1 [Locked]").arg(info.fileName()));
-            setCurrentIndex(index);
-        }
+        if (!skip)
+            addDiaryTab(filePath);
     }
 
     config()->set(Config::RecentDiaries, recentDiaries);
+}
+
+void DiaryTabWidget::openLastSessionDiaries()
+{
+    LOG_INFO() << "Opening previous sessions open diaries";
+    auto fileList = config()->get(Config::GUI_LastSessionDiaries).toStringList();
+
+    for (auto &filePath : fileList) {
+        if (QFile::exists(filePath)) {
+            addDiaryTab(filePath);
+        }
+    }
+
+    auto index = config()->get(Config::GUI_LastDiaryTabIndex).toInt();
+    if (index != -1 && index < count())
+        setCurrentIndex(index);
+}
+
+void DiaryTabWidget::saveLastSessionDiaries()
+{
+    QStringList fileList{};
+
+    for (int i = 0; i < count(); ++i) {
+        fileList << qobject_cast<DiaryWidget *>(widget(i))->getFilePath();
+    }
+
+    config()->set(Config::GUI_LastSessionDiaries, fileList);
+    config()->set(Config::GUI_LastDiaryTabIndex, currentIndex());
+    LOG_INFO() << "Saved current session opened diary tabs";
 }
 
 void DiaryTabWidget::closeDiaryTab(int widgetIndex, bool skipChecks)

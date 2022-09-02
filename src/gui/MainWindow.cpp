@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_ui(new Ui::Main
 
     connect(m_ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(updateActions()));
     updateActions();
+
+    m_ui->diaryTabWidget->openLastSessionDiaries();
 }
 
 MainWindow::~MainWindow()
@@ -67,6 +69,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     config()->set(Config::GUI_MainWindowState, saveGeometry());
     config()->set(Config::GUI_MainWindowGeometry, saveGeometry());
     LOG_INFO() << "Saved window geometry and state";
+
+    m_ui->diaryTabWidget->saveLastSessionDiaries();
 
     LOG_INFO() << "Exiting application";
     QWidget::closeEvent(event);
@@ -97,7 +101,7 @@ void MainWindow::createThemeActionGroup()
             return;
 
         config()->set(Config::GUI_Theme, action->data());
-        styleManager()->updateStyle();
+        styleManager().updateStyle();
         m_ui->statusBar->showMessage(
             QStringLiteral("Switched to %1 theme").arg(TD::Theme::Dark == action->data().toInt() ? "dark" : "light"),
             5000);
@@ -140,45 +144,45 @@ void MainWindow::connectActions()
 void MainWindow::setIcons()
 {
     // Diary menu
-    m_ui->actionNewDiary->setIcon(icons()->icon("document-new"));
-    m_ui->actionOpenDiary->setIcon(icons()->icon("document-open"));
-    m_ui->menuOpenRecentDiary->setIcon(icons()->icon("document-open-recent"));
+    m_ui->actionNewDiary->setIcon(icons().icon("document-new"));
+    m_ui->actionOpenDiary->setIcon(icons().icon("document-open"));
+    m_ui->menuOpenRecentDiary->setIcon(icons().icon("document-open-recent"));
     // This is set up in setupRecentlyOpenedDiaries()
-    //    m_ui->actionClearHistory->setIcon(icons()->icon("clear-history"));
-    m_ui->actionSaveDiary->setIcon(icons()->icon("document-save"));
-    m_ui->actionSaveDiaryAs->setIcon(icons()->icon("document-save-as"));
-    m_ui->actionImportDiary->setIcon(icons()->icon("document-import"));
-    m_ui->actionExportDiary->setIcon(icons()->icon("document-export"));
-    m_ui->actionDiarySettings->setIcon(icons()->icon("configure"));
-    m_ui->actionCloseDiary->setIcon(icons()->icon("document-close"));
-    m_ui->actionLockDiary->setIcon(icons()->icon("diary-lock"));
-    m_ui->actionQuit->setIcon(icons()->icon("application-exit"));
+    //    m_ui->actionClearHistory->setIcon(icons().icon("clear-history"));
+    m_ui->actionSaveDiary->setIcon(icons().icon("document-save"));
+    m_ui->actionSaveDiaryAs->setIcon(icons().icon("document-save-as"));
+    m_ui->actionImportDiary->setIcon(icons().icon("document-import"));
+    m_ui->actionExportDiary->setIcon(icons().icon("document-export"));
+    m_ui->actionDiarySettings->setIcon(icons().icon("configure"));
+    m_ui->actionCloseDiary->setIcon(icons().icon("document-close"));
+    m_ui->actionLockDiary->setIcon(icons().icon("diary-lock"));
+    m_ui->actionQuit->setIcon(icons().icon("application-exit"));
 
     // Calendar menu
-    m_ui->actionEditSelectedEntry->setIcon(icons()->icon("calendar-edit-entry"));
-    m_ui->actionDeleteSelectedEntry->setIcon(icons()->icon("calendar-delete-entry"));
-    m_ui->actionJumpToToday->setIcon(icons()->icon("calendar-jump-to-today"));
-    m_ui->actionNextDay->setIcon(icons()->icon("calendar-next-day"));
-    m_ui->actionPreviousDay->setIcon(icons()->icon("calendar-previous-day"));
-    m_ui->actionNextMonth->setIcon(icons()->icon("calendar-next-month"));
-    m_ui->actionPreviousMonth->setIcon(icons()->icon("calendar-previous-month"));
-    m_ui->actionNextYear->setIcon(icons()->icon("calendar-next-year"));
-    m_ui->actionPreviousYear->setIcon(icons()->icon("calendar-previous-year"));
+    m_ui->actionEditSelectedEntry->setIcon(icons().icon("calendar-edit-entry"));
+    m_ui->actionDeleteSelectedEntry->setIcon(icons().icon("calendar-delete-entry"));
+    m_ui->actionJumpToToday->setIcon(icons().icon("calendar-jump-to-today"));
+    m_ui->actionNextDay->setIcon(icons().icon("calendar-next-day"));
+    m_ui->actionPreviousDay->setIcon(icons().icon("calendar-previous-day"));
+    m_ui->actionNextMonth->setIcon(icons().icon("calendar-next-month"));
+    m_ui->actionPreviousMonth->setIcon(icons().icon("calendar-previous-month"));
+    m_ui->actionNextYear->setIcon(icons().icon("calendar-next-year"));
+    m_ui->actionPreviousYear->setIcon(icons().icon("calendar-previous-year"));
 
     // Entry menu
-    m_ui->actionUpdateEntry->setIcon(icons()->icon("entry-update"));
-    m_ui->actionDeleteEntry->setIcon(icons()->icon("entry-delete"));
+    m_ui->actionUpdateEntry->setIcon(icons().icon("entry-update"));
+    m_ui->actionDeleteEntry->setIcon(icons().icon("entry-delete"));
 
     // Preferences menu
-    m_ui->menuTheme->setIcon(icons()->icon("palette"));
-    m_ui->actionApplicationSettings->setIcon(icons()->icon("configure"));
-    m_ui->actionLightTheme->setIcon(icons()->icon("theme-light"));
-    m_ui->actionDarkTheme->setIcon(icons()->icon("theme-dark"));
+    m_ui->menuTheme->setIcon(icons().icon("palette"));
+    m_ui->actionApplicationSettings->setIcon(icons().icon("configure"));
+    m_ui->actionLightTheme->setIcon(icons().icon("theme-light"));
+    m_ui->actionDarkTheme->setIcon(icons().icon("theme-dark"));
 
     // Help menu
-    m_ui->actionAbout->setIcon(icons()->icon("help-about"));
-    m_ui->actionReportABug->setIcon(icons()->icon("bugreport"));
-    m_ui->actionRequestAFeature->setIcon(icons()->icon("featurerequest"));
+    m_ui->actionAbout->setIcon(icons().icon("help-about"));
+    m_ui->actionReportABug->setIcon(icons().icon("bugreport"));
+    m_ui->actionRequestAFeature->setIcon(icons().icon("featurerequest"));
 }
 
 void MainWindow::updateActions()
@@ -223,7 +227,7 @@ void MainWindow::updateActions()
 void MainWindow::setupRecentlyOpenedDiaries()
 {
     m_clearHistoryAction = new QAction("Clear History", m_ui->menuDiary);
-    m_clearHistoryAction->setIcon(icons()->icon("clear-history"));
+    m_clearHistoryAction->setIcon(icons().icon("clear-history"));
     m_recentDiariesActionGroup = new QActionGroup(m_ui->menuOpenRecentDiary);
 
     connect(m_clearHistoryAction, SIGNAL(triggered()), this, SLOT(clearRecentDiaries()));

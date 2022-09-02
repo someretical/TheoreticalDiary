@@ -30,10 +30,7 @@ public:
         PieChart_Days = 2,
     };
 
-    enum SortOrder {
-        AscendingOrder = 0,
-        DescendingOrder = 1
-    };
+    enum SortOrder { AscendingOrder = 0, DescendingOrder = 1 };
 
     enum ConfigKey {
         RecentDiaries,
@@ -49,7 +46,9 @@ public:
 
         GUI_Theme,
         GUI_MainWindowState,
-        GUI_MainWindowGeometry
+        GUI_MainWindowGeometry,
+        GUI_LastSessionDiaries,
+        GUI_LastDiaryTabIndex,
     };
 
     explicit Config(QObject *parent);

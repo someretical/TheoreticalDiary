@@ -52,6 +52,6 @@ QStatusBar {
 }
 
 DiaryUnlockWidget #stackedWidget {
-    border: 1px solid palette(mid);
+    border: 2px groove palette(mid);
     background: palette(light);
 }

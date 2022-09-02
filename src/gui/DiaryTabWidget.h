@@ -35,7 +35,10 @@ public:
     ~DiaryTabWidget() override;
     static auto instance() -> DiaryTabWidget *;
 
+    void addDiaryTab(const QString &filePath);
     void openDiary(const QString &filePath);
+    void openLastSessionDiaries();
+    void saveLastSessionDiaries();
 
 public slots:
     void updateActions();

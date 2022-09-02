@@ -44,7 +44,9 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
 
     {Config::GUI_Theme, {QS("GUI/Theme"), TD::Theme::Dark}},
     {Config::GUI_MainWindowGeometry, {QS("GUI/MainWindowGeometry"), {}}},
-    {Config::GUI_MainWindowState,    {QS("GUI/MainWindowState"), {}}},
+    {Config::GUI_MainWindowState, {QS("GUI/MainWindowState"), {}}},
+    {Config::GUI_LastSessionDiaries, {QS("GUI/LastSessionDiaries"), {}}},
+    {Config::GUI_LastDiaryTabIndex, {QS("GUI/LastDiaryTabIndex"), 0}}
 };
 // clang-format on
 
