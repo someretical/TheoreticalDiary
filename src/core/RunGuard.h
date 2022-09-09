@@ -27,7 +27,7 @@ public:
     explicit RunGuard(QString const &m_key);
     ~RunGuard();
 
-    auto is_another_running() -> bool;
+    auto isAnotherRunning() -> bool;
     auto tryToRun() -> bool;
     void release();
 

@@ -16,11 +16,11 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <QCryptographicHash>
-
 #include "RunGuard.h"
 
-auto generate_key_hash(QString const &key, QString const &salt) -> QString
+#include <QCryptographicHash>
+
+auto generateKeyHash(QString const &key, QString const &salt) -> QString
 {
     QByteArray data;
 
@@ -32,7 +32,7 @@ auto generate_key_hash(QString const &key, QString const &salt) -> QString
 }
 
 RunGuard::RunGuard(QString const &key)
-    : m_key(key), m_memLockKey(generate_key_hash(key, "1")), m_sharedMemKey(generate_key_hash(key, "2")),
+    : m_key(key), m_memLockKey(generateKeyHash(key, "1")), m_sharedMemKey(generateKeyHash(key, "2")),
       m_SharedMem(m_sharedMemKey), m_memLock(m_memLockKey, 1)
 {
     m_memLock.acquire();
@@ -48,7 +48,7 @@ RunGuard::~RunGuard()
     release();
 }
 
-auto RunGuard::is_another_running() -> bool
+auto RunGuard::isAnotherRunning() -> bool
 {
     if (m_SharedMem.isAttached())
         return false;
@@ -64,7 +64,7 @@ auto RunGuard::is_another_running() -> bool
 
 auto RunGuard::tryToRun() -> bool
 {
-    if (is_another_running()) // Extra check
+    if (isAnotherRunning()) // Extra check
         return false;
 
     m_memLock.acquire();

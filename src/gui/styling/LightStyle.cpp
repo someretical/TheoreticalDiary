@@ -17,7 +17,7 @@
 
 #include "LightStyle.h"
 
-#include "external-libs/CuteLogger/include/Logger.h"
+#include <Logger.h>
 #include <QDialog>
 #include <QFile>
 #include <QMainWindow>

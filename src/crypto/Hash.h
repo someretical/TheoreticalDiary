@@ -19,13 +19,10 @@
 #ifndef THEORETICAL_DIARY_HASH_H
 #define THEORETICAL_DIARY_HASH_H
 
-#include <QByteArray>
-#include <QScopedPointer>
-
 #include "crypto/botan_all.h"
 
-const int SHA256_BYTES = 32;
-const int SHA512_BYTES = 64;
+#include <QByteArray>
+#include <QScopedPointer>
 
 class Hash {
 public:

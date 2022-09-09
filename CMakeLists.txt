@@ -28,37 +28,29 @@ add_executable(theoreticaldiary
         src/core/Constants.h
         src/core/Diary.cpp
         src/core/Diary.h
-        src/core/DiaryKey.cpp
-        src/core/DiaryKey.h
         src/core/RunGuard.cpp
         src/core/RunGuard.h
         src/core/TimeDelta.cpp
         src/core/TimeDelta.h
         src/core/Util.cpp
         src/core/Util.h
-        src/crypto/botan_all.cpp
-        src/crypto/botan_all.h
         src/crypto/Cipher.cpp
         src/crypto/Cipher.h
+        src/crypto/DiaryKey.cpp
+        src/crypto/DiaryKey.h
         src/crypto/Hash.cpp
         src/crypto/Hash.h
         src/crypto/Random.cpp
         src/crypto/Random.h
+        src/crypto/botan_all.cpp
+        src/crypto/botan_all.h
         src/gui/CategoryListWidget.cpp
         src/gui/CategoryListWidget.h
         src/gui/CategoryListWidget.ui
+        src/gui/ContextMenuOverride.h
         src/gui/DiaryTabWidget.cpp
         src/gui/DiaryTabWidget.h
         src/gui/DiaryTabWidget.ui
-        src/gui/editor/DiaryMainMenuWidget.cpp
-        src/gui/editor/DiaryMainMenuWidget.h
-        src/gui/editor/DiaryMainMenuWidget.ui
-        src/gui/editor/DiaryWidget.cpp
-        src/gui/editor/DiaryWidget.h
-        src/gui/editor/DiaryWidget.ui
-        src/gui/editor/DiaryUnlockWidget.cpp
-        src/gui/editor/DiaryUnlockWidget.h
-        src/gui/editor/DiaryUnlockWidget.ui
         src/gui/Font.cpp
         src/gui/Font.h
         src/gui/Icons.cpp
@@ -78,6 +70,20 @@ add_executable(theoreticaldiary
         src/gui/SettingsWidget.cpp
         src/gui/SettingsWidget.h
         src/gui/SettingsWidget.ui
+        src/gui/diary_menu/DiaryMainMenuWidget.cpp
+        src/gui/diary_menu/DiaryMainMenuWidget.h
+        src/gui/diary_menu/DiaryMainMenuWidget.ui
+        src/gui/diary_menu/DiaryUnlockWidget.cpp
+        src/gui/diary_menu/DiaryUnlockWidget.h
+        src/gui/diary_menu/DiaryUnlockWidget.ui
+        src/gui/diary_menu/DiaryWidget.cpp
+        src/gui/diary_menu/DiaryWidget.h
+        src/gui/diary_menu/DiaryWidget.ui
+        src/gui/diary_menu/calendar/DiaryCalendar.cpp
+        src/gui/diary_menu/calendar/DiaryCalendar.h
+        src/gui/diary_menu/calendar/DiaryCalendar.ui
+        src/gui/diary_menu/calendar/MonthTableWidget.cpp
+        src/gui/diary_menu/calendar/MonthTableWidget.h
         src/gui/styling/BaseStyle.cpp
         src/gui/styling/BaseStyle.h
         src/gui/styling/DarkStyle.cpp
@@ -92,12 +98,12 @@ add_executable(theoreticaldiary
         src/resources.qrc
         src/streams/LayeredStream.cpp
         src/streams/LayeredStream.h
-        src/streams/qtiocompressor.cpp
-        src/streams/qtiocompressor.h
         src/streams/StoreDataStream.cpp
         src/streams/StoreDataStream.h
         src/streams/SymmetricCipherStream.cpp
-        src/streams/SymmetricCipherStream.h)
+        src/streams/SymmetricCipherStream.h
+        src/streams/qtiocompressor.cpp
+        src/streams/qtiocompressor.h)
 
 add_subdirectory(external-libs/CuteLogger)
 

@@ -16,11 +16,11 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <QCoreApplication>
-
 #include "Config.h"
-#include "core/Constants.h"
 #include "core/Util.h"
+#include "core/Constants.h"
+
+#include <QCoreApplication>
 
 #define QS QStringLiteral
 

@@ -16,6 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "gui/Icons.h"
+#include "gui/MainWindow.h"
+
 #include <Logger.h>
 #include <QBuffer>
 #include <QDir>
@@ -25,9 +28,6 @@
 #include <QPaintDevice>
 #include <QPainter>
 #include <QPalette>
-
-#include "Icons.h"
-#include "src/gui/MainWindow.h"
 
 class AdaptiveIconEngine : public QIconEngine {
 public:

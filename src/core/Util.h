@@ -19,10 +19,9 @@
 #ifndef THEORETICAL_DIARY_UTIL_H
 #define THEORETICAL_DIARY_UTIL_H
 
-#include <QSettings>
-
-#include "Constants.h"
+#include <QString>
 
 auto dataPath() -> QString;
+auto getOrdinalSuffix(int const number) -> QString;
 
 #endif // THEORETICAL_DIARY_UTIL_H

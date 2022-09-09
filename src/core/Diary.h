@@ -19,12 +19,12 @@
 #ifndef THEORETICAL_DIARY_DIARY_H
 #define THEORETICAL_DIARY_DIARY_H
 
+#include "TimeDelta.h"
+
 #include <QDate>
 #include <QHash>
 #include <QString>
 #include <QVector>
-
-#include "TimeDelta.h"
 
 namespace DiaryRating {
 enum Rating { Unknown, VeryBad, Bad, Ok, Good, VeryGood };
@@ -73,8 +73,13 @@ struct Entry {
 
 struct Year {
     QDateTime lastUpdated;
-    QDate year;
+    QDate date;
     QHash<QDate, Entry> entries;
+};
+
+struct EntryPreviewData {
+    bool important = false;
+    DiaryRating::Rating rating = DiaryRating::Unknown;
 };
 
 class Diary {
@@ -82,9 +87,8 @@ public:
     Diary();
     ~Diary();
 
-private:
     QDateTime lastUpdated;
-    QVector<Year> years;
+    QHash<int, Year> years;
     QVector<Reminder> reminders;
     QVector<Quote> quotes;
     QVector<Note> notes;

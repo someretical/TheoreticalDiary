@@ -16,12 +16,12 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <Logger.h>
-#include <QAction>
-
 #include "PasswordLineEdit.h"
 #include "gui/Font.h"
 #include "gui/Icons.h"
+
+#include <Logger.h>
+#include <QAction>
 
 PasswordLineEdit::PasswordLineEdit(QWidget *parent) : QLineEdit(parent)
 {

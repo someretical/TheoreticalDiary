@@ -19,11 +19,11 @@
 #ifndef THEORETICAL_DIARY_CIPHER_H
 #define THEORETICAL_DIARY_CIPHER_H
 
+#include "botan_all.h"
+
 #include <QString>
 #include <QScopedPointer>
 #include <QByteArray>
-
-#include "botan_all.h"
 
 class Cipher
 {
@@ -31,7 +31,7 @@ public:
     explicit Cipher() = default;
     ~Cipher() = default;
 
-    auto isInitalized() const -> bool;
+    auto initialised() const -> bool;
     auto init(Botan::Cipher_Dir direction, const QByteArray& key, const QByteArray& iv) -> bool;
     auto process(char* data, int len) -> bool;
     auto process(QByteArray& data) -> bool;

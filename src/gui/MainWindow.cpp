@@ -16,17 +16,17 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "gui/MainWindow.h"
+#include "core/Config.h"
+#include "gui/Icons.h"
+#include "gui/MainMenu.h"
+#include "gui/styling/StyleManager.h"
+#include "ui_MainWindow.h"
+
 #include <Logger.h>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QUrl>
-
-#include "Icons.h"
-#include "MainMenu.h"
-#include "MainWindow.h"
-#include "core/Config.h"
-#include "gui/styling/StyleManager.h"
-#include "src/gui/ui_MainWindow.h"
 
 MainWindow *MainWindow::m_instance = nullptr;
 
@@ -64,6 +64,13 @@ auto MainWindow::getUI() const -> Ui::MainWindow *
     return m_ui;
 }
 
+/**
+ * Captures the main window close event.
+ * - Saves the window geometry
+ * - Saves the currently opened tab names
+ *
+ * @param event
+ */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     config()->set(Config::GUI_MainWindowState, saveGeometry());
@@ -162,10 +169,6 @@ void MainWindow::setIcons()
     m_ui->actionEditSelectedEntry->setIcon(icons().icon("calendar-edit-entry"));
     m_ui->actionDeleteSelectedEntry->setIcon(icons().icon("calendar-delete-entry"));
     m_ui->actionJumpToToday->setIcon(icons().icon("calendar-jump-to-today"));
-    m_ui->actionNextDay->setIcon(icons().icon("calendar-next-day"));
-    m_ui->actionPreviousDay->setIcon(icons().icon("calendar-previous-day"));
-    m_ui->actionNextMonth->setIcon(icons().icon("calendar-next-month"));
-    m_ui->actionPreviousMonth->setIcon(icons().icon("calendar-previous-month"));
     m_ui->actionNextYear->setIcon(icons().icon("calendar-next-year"));
     m_ui->actionPreviousYear->setIcon(icons().icon("calendar-previous-year"));
 
@@ -224,6 +227,9 @@ void MainWindow::updateActions()
     LOG_INFO() << "Updated actions for main window widget" << widgetName;
 }
 
+/**
+ * Creates the clear history action w.r.t. recently opened diaries
+ */
 void MainWindow::setupRecentlyOpenedDiaries()
 {
     m_clearHistoryAction = new QAction("Clear History", m_ui->menuDiary);
@@ -250,6 +256,9 @@ void MainWindow::clearRecentDiaries()
     statusBar()->showMessage("Cleared list of recently opened diaries");
 }
 
+/**
+ * Generates the list of recently opened diaries in the main window QMenuBar
+ */
 void MainWindow::listRecentDiaries()
 {
     m_ui->menuOpenRecentDiary->clear();

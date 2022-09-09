@@ -19,12 +19,12 @@
 #ifndef THEORETICAL_DIARY_MAINWINDOW_H
 #define THEORETICAL_DIARY_MAINWINDOW_H
 
+#include "gui/DiaryTabWidget.h"
+#include "gui/MessageWidget.h"
+#include "core/Constants.h"
+
 #include <QActionGroup>
 #include <QMainWindow>
-
-#include "DiaryTabWidget.h"
-#include "MessageWidget.h"
-#include "core/Constants.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

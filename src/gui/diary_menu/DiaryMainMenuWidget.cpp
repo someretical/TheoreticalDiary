@@ -16,22 +16,38 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <Logger.h>
-
+#include "gui/diary_menu/DiaryMainMenuWidget.h"
 #include "../MainWindow.h"
 #include "../ui_MainWindow.h"
-#include "DiaryMainMenuWidget.h"
 #include "core/Constants.h"
+#include "gui/Icons.h"
 #include "ui_DiaryMainMenuWidget.h"
+
+#include <Logger.h>
 
 DiaryMainMenuWidget::DiaryMainMenuWidget(QWidget *parent) : QWidget(parent), m_ui(new Ui::DiaryMainMenuWidget)
 {
     m_ui->setupUi(this);
+
+    m_ui->categoryListWidget->addCategory("Calendar", icons().icon("calendar"));
+    m_ui->categoryListWidget->addCategory("Statistics", icons().icon("statistics"));
+    m_ui->categoryListWidget->addCategory("Pixels", icons().icon("pixels"));
+    m_ui->categoryListWidget->addCategory("Search", icons().icon("system-search"));
+    m_ui->categoryListWidget->addCategory("Notes", icons().icon("preferences-other"));
+    m_ui->categoryListWidget->addCategory("Reminders", icons().icon("reminder"));
+    m_ui->categoryListWidget->addCategory("Quotes", icons().icon("quote"));
+    connect(m_ui->categoryListWidget, SIGNAL(categoryChanged(int)), m_ui->stackedWidget, SLOT(setCurrentIndex(int)));
+    connect(m_ui->stackedWidget, SIGNAL(currentChanged(int)), this, SLOT(updateActions()));
 }
 
 DiaryMainMenuWidget::~DiaryMainMenuWidget()
 {
     delete m_ui;
+}
+
+DiaryWidget *DiaryMainMenuWidget::getDiaryWidget()
+{
+    return qobject_cast<DiaryWidget *>(parentWidget()->parentWidget()->parentWidget());
 }
 
 void DiaryMainMenuWidget::updateActions()
@@ -56,32 +72,41 @@ void DiaryMainMenuWidget::updateActions()
         mainWindow()->getUI()->actionEditSelectedEntry->setEnabled(true);
         mainWindow()->getUI()->actionDeleteSelectedEntry->setEnabled(true);
         mainWindow()->getUI()->actionJumpToToday->setEnabled(true);
-        mainWindow()->getUI()->actionNextDay->setEnabled(true);
-        mainWindow()->getUI()->actionPreviousDay->setEnabled(true);
-        mainWindow()->getUI()->actionNextMonth->setEnabled(true);
-        mainWindow()->getUI()->actionPreviousMonth->setEnabled(true);
         mainWindow()->getUI()->actionNextYear->setEnabled(true);
         mainWindow()->getUI()->actionPreviousYear->setEnabled(true);
         break;
     case TD::DiaryMainMenuWidget::Statistics:
-        // Fall through
+        // TODO implement date navigation
     case TD::DiaryMainMenuWidget::Pixels:
-        // Fall through
+        // TODO implement date navigation as well
     case TD::DiaryMainMenuWidget::Search:
-        // Fall through
-    case TD::DiaryMainMenuWidget::DiarySettings:
+    case TD::DiaryMainMenuWidget::Notes:
+    case TD::DiaryMainMenuWidget::Reminders:
+    case TD::DiaryMainMenuWidget::Quotes:
         // Calendar menu
         mainWindow()->getUI()->actionEditSelectedEntry->setEnabled(false);
         mainWindow()->getUI()->actionDeleteSelectedEntry->setEnabled(false);
         mainWindow()->getUI()->actionJumpToToday->setEnabled(false);
-        mainWindow()->getUI()->actionNextDay->setEnabled(false);
-        mainWindow()->getUI()->actionPreviousDay->setEnabled(false);
-        mainWindow()->getUI()->actionNextMonth->setEnabled(false);
-        mainWindow()->getUI()->actionPreviousMonth->setEnabled(false);
         mainWindow()->getUI()->actionNextYear->setEnabled(false);
         mainWindow()->getUI()->actionPreviousYear->setEnabled(false);
         break;
     }
 
     LOG_INFO() << "Updated actions for diary main menu widget" << widgetName;
+}
+
+/**
+ * Selects the first item in the CategoryListWidget upon first showing the main menu
+ *
+ * @param event
+ */
+void DiaryMainMenuWidget::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+
+    static bool firstTime = true;
+    if (firstTime) {
+        m_ui->categoryListWidget->setCurrentCategory(0);
+        firstTime = false;
+    }
 }

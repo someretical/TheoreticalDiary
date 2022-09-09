@@ -16,10 +16,15 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "core/Util.h"
+
 #include <QDir>
 
-#include "Util.h"
-
+/**
+ * Get the application data path used to store configuration files
+ *
+ * @return
+ */
 auto dataPath() -> QString
 {
 #ifdef QT_DEBUG
@@ -27,4 +32,28 @@ auto dataPath() -> QString
 #else
     return QString("%1/.theoreticaldiary").arg(QDir::homePath());
 #endif
+}
+
+/**
+ * Get the ordinal suffix for a number. E.g. -st, -nd, -rd, -th
+ *
+ * @param number
+ * @return
+ */
+auto getOrdinalSuffix(int const number) -> QString
+{
+    switch (number) {
+    case 1:
+    case 21:
+    case 31:
+        return "st";
+    case 2:
+    case 22:
+        return "nd";
+    case 3:
+    case 23:
+        return "rd";
+    default:
+        return "th";
+    }
 }

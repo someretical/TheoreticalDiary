@@ -16,16 +16,16 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "gui/MainMenu.h"
+#include "core/Config.h"
+#include "gui/MainWindow.h"
+#include "ui_MainMenu.h"
+#include "ui_MainWindow.h"
+
 #include <Logger.h>
 #include <QFile>
 #include <QFileDialog>
 #include <QKeyEvent>
-
-#include "MainMenu.h"
-#include "MainWindow.h"
-#include "core/Config.h"
-#include "ui_MainMenu.h"
-#include "ui_MainWindow.h"
 
 MainMenu::MainMenu(QWidget *parent) : QWidget(parent), m_ui(new Ui::MainMenu)
 {
@@ -55,6 +55,10 @@ MainMenu::~MainMenu()
     delete m_ui;
 }
 
+/**
+ * Generates the QListWidget which displays the list of recently opened diaries. This function also sets the welcome
+ * text depending on if there are any recently opened diaries.
+ */
 void MainMenu::updateRecentlyOpenedDiaries()
 {
     m_ui->recentDiariesList->clear();
@@ -86,15 +90,23 @@ void MainMenu::openExistingDiary()
         mainWindow()->openDiary(filePath);
 }
 
+/**
+ * Captures key press events for:
+ * - Navigating the recently opened diares QListWidget
+ * - Deleting recently opened diaries from the QListWidget
+ *
+ * @param event
+ */
 void MainMenu::keyPressEvent(QKeyEvent *event)
 {
     if (m_ui->recentDiariesList->hasFocus()) {
         auto currentItem = m_ui->recentDiariesList->currentItem();
-        if (!currentItem || currentItem->text().isEmpty())
-            return;
+        if (!currentItem || currentItem->text().isEmpty()) {
+            return QWidget::keyPressEvent(event);
+        }
 
         if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
-            mainWindow()->openDiary(currentItem->text());
+            return mainWindow()->openDiary(currentItem->text());
         }
         else if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
             auto recentDiaries = config()->get(Config::RecentDiaries).toStringList();
@@ -103,13 +115,18 @@ void MainMenu::keyPressEvent(QKeyEvent *event)
 
             mainWindow()->statusBar()->showMessage(QStringLiteral("Removed file %1").arg(currentItem->text()));
             LOG_INFO() << "Removed file path from recently opened diary list" << currentItem->text();
-            updateRecentlyOpenedDiaries();
+            return updateRecentlyOpenedDiaries();
         }
     }
 
     QWidget::keyPressEvent(event);
 }
 
+/**
+ * Additionally calls updateRecentlyOpenedDiaries
+ *
+ * @param event
+ */
 void MainMenu::showEvent(QShowEvent *event)
 {
     updateRecentlyOpenedDiaries();

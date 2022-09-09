@@ -19,6 +19,9 @@
 #include "core/Application.h"
 #include "core/RunGuard.h"
 #include "gui/MainWindow.h"
+#include "crypto/Random.h"
+
+#include <QDebug>
 
 auto main(int argc, char *argv[]) -> int
 {
@@ -46,5 +49,5 @@ auto main(int argc, char *argv[]) -> int
     MainWindow w{};
     w.show();
 
-    return theoreticalDiary.exec();
+    return Application::exec();
 }

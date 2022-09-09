@@ -16,13 +16,12 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <Logger.h>
-
 #include "Hash.h"
+
+#include <Logger.h>
 
 Hash::Hash(Hash::Algorithm algo, bool hmac)
 {
-
     switch (algo) {
     case Hash::Sha256:
         if (hmac) {

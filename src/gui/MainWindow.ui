@@ -195,10 +195,6 @@
     <addaction name="separator"/>
     <addaction name="actionJumpToToday"/>
     <addaction name="separator"/>
-    <addaction name="actionNextDay"/>
-    <addaction name="actionPreviousDay"/>
-    <addaction name="actionNextMonth"/>
-    <addaction name="actionPreviousMonth"/>
     <addaction name="actionNextYear"/>
     <addaction name="actionPreviousYear"/>
    </widget>

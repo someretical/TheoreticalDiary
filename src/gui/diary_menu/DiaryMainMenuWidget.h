@@ -19,6 +19,8 @@
 #ifndef THEORETICAL_DIARY_DIARYMAINMENUWIDGET_H
 #define THEORETICAL_DIARY_DIARYMAINMENUWIDGET_H
 
+#include "gui/diary_menu/DiaryWidget.h"
+
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -33,6 +35,11 @@ class DiaryMainMenuWidget : public QWidget {
 public:
     explicit DiaryMainMenuWidget(QWidget *parent = nullptr);
     ~DiaryMainMenuWidget() override;
+
+    DiaryWidget *getDiaryWidget();
+
+protected:
+    void showEvent(QShowEvent * event) override;
 
 public slots:
     void updateActions();

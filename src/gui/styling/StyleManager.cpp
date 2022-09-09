@@ -16,22 +16,42 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "external-libs/CuteLogger/include/Logger.h"
+#include "gui/styling/DarkStyle.h"
+#include "gui/styling/LightStyle.h"
+#include "gui/styling/StyleManager.h"
+#include "core/Config.h"
+
+#include <Logger.h>
 #include <QApplication>
 #include <QPixmapCache>
 
-#include "DarkStyle.h"
-#include "LightStyle.h"
-#include "StyleManager.h"
-#include "core/Config.h"
 
 StyleManager::StyleManager()
 {
+    setDarkColour(TD::ColourRole::Unknown, 0x2F2F32);
+    setDarkColour(TD::ColourRole::VeryBad, 0xC43F31);
+    setDarkColour(TD::ColourRole::Bad, 0xDB9837);
+    setDarkColour(TD::ColourRole::Ok, 0xF0C400);
+    setDarkColour(TD::ColourRole::Good, 0x608A22);
+    setDarkColour(TD::ColourRole::VeryGood, 0x1F8023);
+    setDarkColour(TD::ColourRole::Text, 0xCACBCE);
+
+    setLightColour(TD::ColourRole::Unknown, 0xC9C9CF);
+    setLightColour(TD::ColourRole::VeryBad, 0xC43F31);
+    setLightColour(TD::ColourRole::Bad, 0xE07F16);
+    setLightColour(TD::ColourRole::Ok, 0xFFD30F);
+    setLightColour(TD::ColourRole::Good, 0x5EA10E);
+    setLightColour(TD::ColourRole::VeryGood, 0x118F17);
+    setLightColour(TD::ColourRole::Text, 0x1D1D20);
+
     updateStyle();
 }
 
 StyleManager::~StyleManager() = default;
 
+/**
+ * Updates the display style. Call config()->set(Config::GUI_Theme, TD::Theme) first
+ */
 void StyleManager::updateStyle()
 {
     QPixmapCache::clear();
@@ -65,5 +85,51 @@ void StyleManager::updateStyle()
         QApplication::setPalette(s->standardPalette());
         QApplication::setStyle(s);
         LOG_INFO() << "Switched to light theme";
+    }
+}
+
+/**
+ * Get the associated colour for a rating
+ * @param rating
+ * @return
+ */
+auto StyleManager::getRatingColour(const DiaryRating::Rating rating) -> QColor
+{
+    switch (rating) {
+    case DiaryRating::Rating::Unknown:
+        return m_colourMap[TD::ColourRole::Unknown];
+    case DiaryRating::Rating::VeryBad:
+        return m_colourMap[TD::ColourRole::VeryBad];
+    case DiaryRating::Rating::Bad:
+        return m_colourMap[TD::ColourRole::Bad];
+    case DiaryRating::Rating::Ok:
+        return m_colourMap[TD::ColourRole::Ok];
+    case DiaryRating::Rating::Good:
+        return m_colourMap[TD::ColourRole::Good];
+    case DiaryRating::Rating::VeryGood:
+        return m_colourMap[TD::ColourRole::VeryGood];
+    }
+}
+
+/**
+ * Get the colour of the text that should be drawn on top of the rating
+ * @param rating
+ * @return
+ */
+auto StyleManager::getTextColourFromTheme(const DiaryRating::Rating rating) -> QColor
+{
+    switch (rating) {
+    case DiaryRating::Rating::Unknown:
+        if (config()->get(Config::GUI_Theme).toInt() == TD::Theme::Light)
+            return m_lightThemeMap[TD::ColourRole::Text];
+        else
+            return m_darkThemeMap[TD::ColourRole::Text];
+    case DiaryRating::Rating::VeryBad:
+    case DiaryRating::Rating::Bad:
+    case DiaryRating::Rating::Ok:
+    case DiaryRating::Rating::Good:
+        return m_lightThemeMap[TD::ColourRole::Text];
+    case DiaryRating::Rating::VeryGood:
+        return m_darkThemeMap[TD::ColourRole::Text];
     }
 }

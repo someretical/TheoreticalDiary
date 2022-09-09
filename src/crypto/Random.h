@@ -18,9 +18,9 @@
 #ifndef KEEPASSX_RANDOM_H
 #define KEEPASSX_RANDOM_H
 
-#include <QSharedPointer>
-
 #include "botan_all.h"
+
+#include <QSharedPointer>
 
 class Random {
 public:

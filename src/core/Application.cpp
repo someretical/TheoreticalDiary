@@ -16,17 +16,17 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ConsoleAppender.h>
-#include <FileAppender.h>
-#include <Logger.h>
-#include <QDir>
-#include <QIcon>
-
 #include "Application.h"
 #include "core/Constants.h"
 #include "core/Util.h"
 #include "gui/Icons.h"
 #include "gui/styling/StyleManager.h"
+
+#include <ConsoleAppender.h>
+#include <FileAppender.h>
+#include <Logger.h>
+#include <QDir>
+#include <QIcon>
 
 Application *Application::m_instance = nullptr;
 
@@ -35,26 +35,26 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     m_instance = this;
 
 #ifdef QT_DEBUG
-    QApplication::setApplicationVersion("DEBUG");
+    setApplicationVersion("DEBUG");
 #else
     QFile file(":/meta/version");
     file.open(QIODevice::ReadOnly);
-    QApplication::setApplicationVersion(file.readAll());
+    setApplicationVersion(file.readAll());
 #endif
-    QApplication::setApplicationName("Theoretical Diary");
-    QApplication::setDesktopFileName(":/meta/me.someretical.Application.desktop");
-    QApplication::setWindowIcon(QIcon(QPixmap(":/icons/apps/theoreticaldiary.svg")
-                                          .scaled(QSize(256, 256), Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+    setApplicationName("Theoretical Diary");
+    setDesktopFileName(":/meta/me.someretical.Application.desktop");
+    setWindowIcon(QIcon(QPixmap(":/icons/apps/theoreticaldiary.svg")
+                            .scaled(QSize(256, 256), Qt::KeepAspectRatio, Qt::SmoothTransformation)));
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 
     // Remove ? button in the title bar
-    QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton, true);
+    setAttribute(Qt::AA_DisableWindowContextHelpButton, true);
 
 #ifdef Q_OS_WIN
     // Qt on Windows uses "MS Shell Dlg 2" as the default font for many widgets, which resolves
     // to Tahoma 8pt, whereas the correct font would be "Segoe UI" 9pt.
     // Apparently, some widgets are already using the correct font. Thanks, MuseScore for this neat fix!
-    QApplication::setFont(QApplication::font("QMessageBox"));
+    setFont(font("QMessageBox"));
 #endif
 
     auto path = dataPath();

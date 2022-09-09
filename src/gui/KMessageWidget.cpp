@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "KMessageWidget.h"
 
+#include "KMessageWidget.h"
 #include "gui/Icons.h"
 
 #include <QAction>

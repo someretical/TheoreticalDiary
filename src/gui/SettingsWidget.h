@@ -19,9 +19,9 @@
 #ifndef THEORETICAL_DIARY_SETTINGSWIDGET_H
 #define THEORETICAL_DIARY_SETTINGSWIDGET_H
 
-#include <QWidget>
-
 #include "core/Constants.h"
+
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

@@ -16,15 +16,15 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <Logger.h>
-#include <QStatusBar>
-
-#include "Icons.h"
-#include "MainWindow.h"
-#include "SettingsWidget.h"
+#include "gui/SettingsWidget.h"
 #include "core/Config.h"
 #include "core/Constants.h"
+#include "gui/Icons.h"
+#include "gui/MainWindow.h"
 #include "ui_SettingsWidget.h"
+
+#include <Logger.h>
+#include <QStatusBar>
 
 SettingsWidget::SettingsWidget(QWidget *parent) : QWidget(parent), m_ui(new Ui::SettingsWidget)
 {
@@ -64,6 +64,11 @@ SettingsWidget::~SettingsWidget()
     delete m_ui;
 }
 
+/**
+ * Stores the enum ID of the previously open widget before the settings widget was switched to
+ *
+ * @param mPreviousWidget
+ */
 void SettingsWidget::setPreviousWidget(TD::MainWindowWidget mPreviousWidget)
 {
     m_previousWidget = mPreviousWidget;

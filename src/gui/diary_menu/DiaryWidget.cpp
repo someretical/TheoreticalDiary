@@ -16,17 +16,16 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <Logger.h>
-
+#include "gui/diary_menu/DiaryWidget.h"
 #include "../ui_MainWindow.h"
-#include "DiaryMainMenuWidget.h"
-#include "DiaryWidget.h"
 #include "core/Constants.h"
 #include "gui/MainWindow.h"
 #include "ui_DiaryWidget.h"
 
+#include <Logger.h>
+
 DiaryWidget::DiaryWidget(const QString &filePath, QWidget *parent)
-    : QWidget(parent), m_ui(new Ui::DiaryWidget), m_filePath(filePath)
+    : QWidget(parent), m_ui(new Ui::DiaryWidget), m_filePath(filePath), m_diaryKey()
 {
     m_ui->setupUi(this);
     m_ui->diaryUnlockWidget->setFilePath(filePath);
@@ -37,6 +36,11 @@ DiaryWidget::DiaryWidget(const QString &filePath, QWidget *parent)
 DiaryWidget::~DiaryWidget()
 {
     delete m_ui;
+}
+
+auto DiaryWidget::getDiary() -> Diary &
+{
+    return m_diary;
 }
 
 void DiaryWidget::updateActions()
@@ -70,7 +74,7 @@ void DiaryWidget::updateActions()
         mainWindow()->getUI()->actionUpdateEntry->setEnabled(false);
         break;
     case TD::DiaryWidget::DiaryMainMenu:
-        qobject_cast<DiaryMainMenuWidget *>(currentWidget)->updateActions();
+        m_ui->diaryMainMenuWidget->updateActions();
         break;
     case TD::DiaryWidget::EntryEditor:
         // Diary menu
@@ -104,4 +108,19 @@ void DiaryWidget::updateActions()
 auto DiaryWidget::getFilePath() const -> const QString &
 {
     return m_filePath;
+}
+
+void DiaryWidget::changeCurrentWidget(TD::DiaryWidget widget)
+{
+    switch (widget) {
+    case TD::DiaryWidget::UnlockPage:
+        m_ui->stackedWidget->setCurrentIndex(0);
+        break;
+    case TD::DiaryWidget::DiaryMainMenu:
+        m_ui->stackedWidget->setCurrentIndex(1);
+        break;
+    case TD::DiaryWidget::EntryEditor:
+        m_ui->stackedWidget->setCurrentIndex(2);
+        break;
+    }
 }

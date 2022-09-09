@@ -16,15 +16,15 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <Logger.h>
-#include <QFileInfo>
-
-#include "DiaryTabWidget.h"
-#include "MainWindow.h"
+#include "gui/DiaryTabWidget.h"
 #include "core/Config.h"
-#include "gui/editor/DiaryWidget.h"
+#include "gui/MainWindow.h"
+#include "gui/diary_menu/DiaryWidget.h"
 #include "ui_DiaryTabWidget.h"
 #include "ui_MainWindow.h"
+
+#include <Logger.h>
+#include <QFileInfo>
 
 DiaryTabWidget *DiaryTabWidget::m_instance = nullptr;
 
@@ -46,6 +46,11 @@ auto DiaryTabWidget::instance() -> DiaryTabWidget *
     return m_instance;
 }
 
+/**
+ * Adds a new tab based on filePath
+ *
+ * @param filePath
+ */
 void DiaryTabWidget::addDiaryTab(const QString &filePath)
 {
     mainWindow()->changeCurrentWidget(TD::MainWindowWidget::DiaryTabWidget);
@@ -57,6 +62,14 @@ void DiaryTabWidget::addDiaryTab(const QString &filePath)
     setCurrentIndex(index);
 }
 
+/**
+ * Helper function for opening a diary file in the UI. This function checks the following:
+ * - If the file exists
+ * - If the diary is already opened in another tab
+ * - Adds the file path to the recently opened diary list
+ *
+ * @param filePath
+ */
 void DiaryTabWidget::openDiary(const QString &filePath)
 {
     auto recentDiaries = config()->get(Config::RecentDiaries).toStringList();
@@ -93,6 +106,9 @@ void DiaryTabWidget::openDiary(const QString &filePath)
     config()->set(Config::RecentDiaries, recentDiaries);
 }
 
+/**
+ * Reopens all the tabs that were open the last time when Theoretical Diary was closed
+ */
 void DiaryTabWidget::openLastSessionDiaries()
 {
     LOG_INFO() << "Opening previous sessions open diaries";
@@ -109,6 +125,9 @@ void DiaryTabWidget::openLastSessionDiaries()
         setCurrentIndex(index);
 }
 
+/**
+ * Saves the currently opened tabs to the configuration file
+ */
 void DiaryTabWidget::saveLastSessionDiaries()
 {
     QStringList fileList{};
@@ -122,6 +141,12 @@ void DiaryTabWidget::saveLastSessionDiaries()
     LOG_INFO() << "Saved current session opened diary tabs";
 }
 
+/**
+ * Closes a tab. This function switches back to the main menu if there are no tabs left.
+ *
+ * @param widgetIndex 0-based index of the tab
+ * @param skipChecks Don't save the diary before closing the tab
+ */
 void DiaryTabWidget::closeDiaryTab(int widgetIndex, bool skipChecks)
 {
     auto ptr = widget(widgetIndex);

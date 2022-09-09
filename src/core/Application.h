@@ -20,6 +20,7 @@
 #define THEORETICAL_DIARY_APPLICATION_H
 
 #include <QApplication>
+#include <QDir>
 
 class Application : public QApplication {
     Q_OBJECT

@@ -35,7 +35,7 @@ auto Cipher::init(Botan::Cipher_Dir direction, const QByteArray& key, const QByt
     return true;
 }
 
-auto Cipher::isInitalized() const -> bool
+auto Cipher::initialised() const -> bool
 {
     return m_cipher;
 }
@@ -77,7 +77,7 @@ auto Cipher::finish(QByteArray& data) -> bool
 void Cipher::reset()
 {
     m_error.clear();
-    if (isInitalized())
+    if (initialised())
         m_cipher.reset();
 
 }

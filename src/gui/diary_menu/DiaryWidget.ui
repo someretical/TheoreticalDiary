@@ -100,7 +100,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="DiaryMainMenuWidget" name="widget" native="true"/>
+        <widget class="DiaryMainMenuWidget" name="diaryMainMenuWidget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -138,13 +138,13 @@
   <customwidget>
    <class>DiaryUnlockWidget</class>
    <extends>QWidget</extends>
-   <header>gui/editor/DiaryUnlockWidget.h</header>
+   <header>gui/diary_menu/DiaryUnlockWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>DiaryMainMenuWidget</class>
    <extends>QWidget</extends>
-   <header>gui/editor/DiaryMainMenuWidget.h</header>
+   <header>gui/diary_menu/DiaryMainMenuWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

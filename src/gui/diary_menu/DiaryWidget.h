@@ -16,31 +16,41 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef THEORETICAL_DIARY_DIARYUNLOCKWIDGET_H
-#define THEORETICAL_DIARY_DIARYUNLOCKWIDGET_H
+#ifndef THEORETICAL_DIARY_DIARYWIDGET_H
+#define THEORETICAL_DIARY_DIARYWIDGET_H
+
+#include "core/Constants.h"
+#include "core/Diary.h"
+#include "crypto/DiaryKey.h"
+#include "gui/DiaryTabWidget.h"
 
 #include <QWidget>
 
-#include "DiaryWidget.h"
-
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class DiaryUnlockWidget;
+class DiaryWidget;
 }
 QT_END_NAMESPACE
 
-class DiaryUnlockWidget : public QWidget {
+class DiaryWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit DiaryUnlockWidget(QWidget *parent = nullptr);
-    ~DiaryUnlockWidget() override;
+    explicit DiaryWidget(const QString &filePath, QWidget *parent = nullptr);
+    ~DiaryWidget() override;
 
-    void setFilePath(const QString &filePath);
-    auto getDiaryWidget() -> DiaryWidget *;
+    auto getDiary() -> Diary &;
+    auto getFilePath() const -> const QString &;
+    void changeCurrentWidget(TD::DiaryWidget widget);
+
+public slots:
+    void updateActions();
 
 private:
-    Ui::DiaryUnlockWidget *m_ui;
+    Ui::DiaryWidget *m_ui;
+    QString m_filePath;
+    DiaryKey m_diaryKey;
+    Diary m_diary;
 };
 
-#endif // THEORETICAL_DIARY_DIARYUNLOCKWIDGET_H
+#endif // THEORETICAL_DIARY_DIARYWIDGET_H

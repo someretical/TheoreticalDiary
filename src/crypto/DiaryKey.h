@@ -19,9 +19,9 @@
 #ifndef THEORETICAL_DIARY_DIARYKEY_H
 #define THEORETICAL_DIARY_DIARYKEY_H
 
-#include <QString>
-
 #include "crypto/botan_all.h"
+
+#include <QString>
 
 const qint32 DEFAULT_ROUNDS = 10;
 const quint64 DEFAULT_MEMORY_SIZE = 1 << 16; // In kibibytes
@@ -30,16 +30,17 @@ const qint32 KEY_SIZE = 32;                  // Bytes
 
 class DiaryKey {
 public:
-    explicit DiaryKey(const QString &password, qint32 rounds, quint64 memory);
+    explicit DiaryKey(const qint32 rounds = DEFAULT_ROUNDS, const quint64 memory = DEFAULT_MEMORY_SIZE);
     ~DiaryKey();
 
+    void setPassword(const QString &password);
     auto getKey() -> Botan::secure_vector<char> &;
-    void generateKey(const QString &password);
+    void generateKey();
     auto serialise() -> QByteArray;
-
     auto benchmark(int ms) -> int;
 
 private:
+    Botan::secure_vector<char> m_password;
     Botan::secure_vector<char> m_key;
     QByteArray m_salt;
     qint32 m_rounds;

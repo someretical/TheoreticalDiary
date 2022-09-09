@@ -16,10 +16,11 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "core/Constants.h"
+#include "core/Diary.h"
+
 #include <QColor>
 #include <QHash>
-
-#include "src/core/Constants.h"
 
 #ifndef THEORETICAL_DIARY_STYLEMANAGER_H
 #define THEORETICAL_DIARY_STYLEMANAGER_H
@@ -33,18 +34,29 @@ public:
     }
 
     void updateStyle();
+    auto getRatingColour(const DiaryRating::Rating rating) -> QColor;
+    auto getTextColourFromTheme(const DiaryRating::Rating rating) -> QColor;
 
     QHash<int, QColor> m_colourMap;
+    QHash<int, QColor> m_darkThemeMap;
+    QHash<int, QColor> m_lightThemeMap;
 
 private:
     StyleManager();
     ~StyleManager();
+
     inline void setColour(TD::ColourRole role, const QColor &colour)
     {
         m_colourMap[static_cast<int>(role)] = colour;
     }
 
-    static StyleManager *m_instance;
+    inline void setDarkColour(TD::ColourRole role, const QColor &colour) {
+        m_darkThemeMap[static_cast<int>(role)] = colour;
+    }
+
+    inline void setLightColour(TD::ColourRole role, const QColor &colour) {
+        m_lightThemeMap[static_cast<int>(role)] = colour;
+    }
 };
 
 inline auto styleManager() -> StyleManager &

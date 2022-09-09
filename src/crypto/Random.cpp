@@ -36,11 +36,22 @@ auto Random::getRng() -> QSharedPointer<Botan::RandomNumberGenerator>
     return m_rng;
 }
 
+/**
+ * Fills an existing QByteArray with random bytes
+ *
+ * @param ba
+ */
 void Random::randomize(QByteArray &ba)
 {
     m_rng->randomize(reinterpret_cast<uint8_t *>(ba.data()), ba.size());
 }
 
+/**
+ * Generates a QByteArray filled with random bytes
+ *
+ * @param len Length of QByteArray
+ * @return
+ */
 auto Random::randomArray(int len) -> QByteArray
 {
     QByteArray ba(len, '\0');
@@ -48,6 +59,12 @@ auto Random::randomArray(int len) -> QByteArray
     return ba;
 }
 
+/**
+ * Generates a random unsigned integer between [0, limit)
+ *
+ * @param limit Upper limit (exclusive)
+ * @return
+ */
 auto Random::randomUInt(quint32 limit) -> quint32
 {
     if (limit == 0) {
@@ -65,6 +82,13 @@ auto Random::randomUInt(quint32 limit) -> quint32
     return (rand % limit);
 }
 
+/**
+ * Generates a random unsigned integer between [min, max)
+ *
+ * @param min Lower limit (inclusive)
+ * @param max Upper limit (exclusive)
+ * @return
+ */
 auto Random::randomUIntRange(quint32 min, quint32 max) -> quint32
 {
     return min + randomUInt(max - min);

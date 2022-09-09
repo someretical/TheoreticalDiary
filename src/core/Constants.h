@@ -28,21 +28,28 @@ enum Theme { Dark, Light };
 enum ColourRole { Unknown, VeryBad, Bad, Ok, Good, VeryGood, Text };
 
 enum class MainWindowWidget { MainMenu, DiaryTabWidget, Settings };
-static const QHash<QString, MainWindowWidget> mainWindowWidgets = {{QS("pageMainMenu"), MainWindowWidget::MainMenu},
-    {QS("pageDiaryTabWidget"), MainWindowWidget::DiaryTabWidget}, {QS("pageSettings"), MainWindowWidget::Settings}};
+static const QHash<QString, MainWindowWidget> mainWindowWidgets = {
+    {QS("pageMainMenu"), MainWindowWidget::MainMenu},
+    {QS("pageDiaryTabWidget"), MainWindowWidget::DiaryTabWidget},
+    {QS("pageSettings"), MainWindowWidget::Settings},
+};
 
 enum class DiaryWidget { UnlockPage, DiaryMainMenu, EntryEditor };
-static const QHash<QString, DiaryWidget> diaryWidgets = {{QS("pageUnlock"), DiaryWidget::UnlockPage},
-    {QS("pageDiaryMainMenu"), DiaryWidget::DiaryMainMenu}, {QS("pageEntryEditor"), DiaryWidget::EntryEditor}};
+static const QHash<QString, DiaryWidget> diaryWidgets = {
+    {QS("pageUnlock"), DiaryWidget::UnlockPage},
+    {QS("pageDiaryMainMenu"), DiaryWidget::DiaryMainMenu},
+    {QS("pageEntryEditor"), DiaryWidget::EntryEditor},
+};
 
-enum class DiaryMainMenuWidget { Calendar, Statistics, Pixels, Search, DiarySettings };
+enum class DiaryMainMenuWidget { Calendar, Statistics, Pixels, Search, Notes, Reminders, Quotes };
 static const QHash<QString, DiaryMainMenuWidget> diaryMainMenuWidgets = {
     {QS("pageCalendar"), DiaryMainMenuWidget::Calendar},
     {QS("pageStatistics"), DiaryMainMenuWidget::Statistics},
     {QS("pagePixels"), DiaryMainMenuWidget::Pixels},
     {QS("pageSearch"), DiaryMainMenuWidget::Search},
-    {QS("pageDiaryMenu"), DiaryMainMenuWidget::DiarySettings},
+    {QS("pageNotes"), DiaryMainMenuWidget::Notes},
+    {QS("pageReminders"), DiaryMainMenuWidget::Reminders},
+    {QS("pageQuotes"), DiaryMainMenuWidget::Quotes},
 };
 } // namespace TD
-
 #endif // THEORETICAL_DIARY_CONSTANTS_H
