@@ -1,0 +1,26 @@
+[Icon Theme]
+Name=application
+Comment=Theoretical Diary Application Icon Theme
+
+Directories=scalable/actions,scalable/apps,scalable/status
+
+[scalable/actions]
+Size=48
+Type=Scalable
+MinSize=1
+MaxSize=256
+Context=Actions
+
+[scalable/apps]
+Size=48
+Type=Scalable
+MinSize=1
+MaxSize=256
+Context=Applications
+
+[scalable/status]
+Size=48
+Type=Scalable
+MinSize=1
+MaxSize=256
+Context=Status

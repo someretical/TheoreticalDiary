@@ -1,11 +1,29 @@
-\documentclass[a4paper, english, final]{article}
+\documentclass[a4paper, final, oneside, extrafontsizes]{memoir}
+\headstyles{memman}
 
 \usepackage[T1]{fontenc}
+\usepackage[sc]{mathpazo}
+\usepackage{newpxmath}
+\linespread{1.05}
+\usepackage[scaled=0.85]{beramono}
+\usepackage[final]{microtype}
 
-\usepackage[activate={true,nocompatibility}, final, tracking=true, kerning=true, spacing=true, factor=1100, stretch=10, shrink=10]{microtype}
-\microtypecontext{spacing=nonfrench}
+\usepackage{enumitem}
+\setlist[enumerate, 1]{label=(\alph*)}
+\setlist[enumerate, 2]{label=\roman*.}
 
 \usepackage{xcolor}
+\usepackage{graphicx}
+
+\usepackage{caption}
+\captiontitlefont{\itshape}
+
+\usepackage{longtable}
+
+\usepackage[os=mac]{menukeys}
+\renewmenumacro{\menu}[>]{menus}
+\renewmenumacro{\directory}[/]{pathswithfolder}
+\renewmenumacro{\keys}[+]{roundedkeys}
 
 % Code blocks
 \usepackage{listings, calc}
@@ -22,100 +40,167 @@ frame=TRbl
 \renewcommand{\lstlistingname}{Listing}
 \renewcommand{\lstlistlistingname}{List of \lstlistingname s}
 
-% Captions
-\usepackage[labelfont=normalfont, font=it]{caption}
-
-% Number figures, listings, and tables by section instead of a global counter
-\usepackage{chngcntr}
-
-% Display images
-\usepackage{graphicx}
-
-% Centre figures when they exceed line width
-\usepackage[export]{adjustbox}
-
-% "H" option for figures, tables
-\usepackage{float}
-
-% Rotate figures
-\usepackage{rotating}
-
-% Tables that cross pages
-\usepackage{longtable}
-
-% Thicker lines in table top and bottom
-\usepackage{booktabs}
-
-\usepackage[inline]{enumitem}
-
-% Subfigure capability
-\usepackage[list=true, listformat=simple]{subcaption}
-
-% Fancy paths, menus, key combinations
-\usepackage[os=win]{menukeys}
-\renewmenumacro{\menu}[>]{menus}
-\renewmenumacro{\directory}[/]{hyphenatepathswithfolder}
-\renewmenumacro{\keys}[+]{roundedkeys}
-
-% hyperlinks
 \usepackage{hyperref}
 \hypersetup{
 pdftitle={Theoretical Diary Documentation},
 pdfauthor={someretical},
-hidelinks
+colorlinks
 }
 
-% Reference multiple figures, listings, tables at once
-\usepackage{cleveref}
-\crefformat{section}{\S#2#1#3}
-\crefmultiformat{section}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
-\crefformat{subsection}{\S#2#1#3}
-\crefmultiformat{subsection}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
-
-% Especially important to load these AFTER
-\counterwithin{figure}{section}
-\counterwithin{table}{section}
-\AtBeginDocument{\counterwithin{lstlisting}{section}}
-
-% custom commands
 \newcommand{\appname}[0]{\textit{Theoretical Diary}}
+\newcommand{\datetable}[2]{
+\begin{tabularx}{\textwidth}{X X}
+    \emph{Date} & \emph{Resolved}\\
+    #1 & #2
+\end{tabularx}
+\vskip\baselineskip
+}
 
 \begin{document}
-\pagenumbering{roman}
-\hspace{0pt} % centre vertically
-\vfill
-\begin{center}
-    \includegraphics[keepaspectratio, width=0.8\textwidth]{figures/final/icon.pdf}
-    \vskip 2em
-    {\LARGE \textbf \appname{}}
-    \vskip .5em
-    {\LARGE \textbf{Documentation}}
-    \vskip 1.5em
-    someretical
-    \vskip 1em
-    v\input{../src/meta/version}
-\end{center}
-\vfill
-\thispagestyle{empty}
-\hspace{0pt}
-\newpage
-
-\section*{Acknowledgements}
-TODO
-
-\newpage
+\begin{titlingpage}
+    \begin{vplace}
+        \begin{center}
+            \includegraphics[keepaspectratio, width=\textwidth]{figures/final/icon.pdf}
+            \vskip 2em
+                {\Huge \appname{}}
+            \vskip .5em
+                {\LARGE Documentation}
+            \vskip 1.5em
+            someretical
+            \vskip .5em
+            v\input{../src/meta/version}
+        \end{center}
+    \end{vplace}
+\end{titlingpage}
 
 \microtypesetup{protrusion=false}
 \tableofcontents
+\clearpage
 \listoffigures
-\lstlistoflistings
+\clearpage
 \listoftables
+\clearpage
+\lstlistoflistings
+\clearpage
 \microtypesetup{protrusion=true}
-\newpage
 
-\pagenumbering{arabic}
+\chapter{Installation}
+Under construction
 
-\section{Installation}
-TODO
+\chapter{Building}
 
+\section{Linux (Ubuntu 22.04+)}
+The following packages are required. A C++17 compiler is required (which should
+be installed with \verb|build-essential|).
+\begin{verbatim}
+$ sudo apt update
+$ sudo apt install build-essential zlib1g-dev patchelf
+$ sudo apt install qtbase5-dev libqt5charts5 libqt5charts5-dev
+\end{verbatim}
+
+Download Git submodules.
+\begin{verbatim}
+$ git submodule update --init --recursive
+\end{verbatim}
+
+Finally, build the AppImage. Python 3.10 is assumed to be installed. Lower
+versions might still work but have not been tested.
+
+\begin{verbatim}
+$ python3.10 build.py --build-botan
+\end{verbatim}
+
+If there are no errors, then the resulting AppImage should be located in
+\directory{cmake-build-release/bin}
+
+\section{Windows 10+}
+Under construction
+
+\section{macOS 10.15+}
+Under construction
+
+\chapter{Development Log}
+
+\section{QAction and CategoryListWidget Bug}
+\datetable{2022-09-04}{2022-09-04}
+
+Do not assign QActions the shortcuts \keys{\arrowkeyup}, \keys{\arrowkeyright},
+\keys{\arrowkeydown}, \keys{\arrowkeyleft}. Doing this causes
+CategoryListWidgets to stop working properly. If a CategoryListWidget is in
+focus and a QAction with \keys{\arrowkeyup} as its shortcut is also enabled,
+then the \keys{\arrowkeyup} key cannot reliably be used to navigate the
+CategoryListWidget.
+
+\section{Icon Scaling Bug}
+\datetable{2022-09-04}{2022-09-19}
+
+When the AppImage is run, some icons within CategoryListWidgets are displayed
+at 24$\times$24 px instead of 32$\times$32 px. This issue does not occur with
+the compiled binary itself. I have tried the following things:
+\begin{enumerate}
+    \item Adding \verb|m_ui->categoryList->setIconSize(QSize(32, 32));| This does not
+          seem to do anything.
+    \item Re-download the ``broken'' icons from the internet because some more recently
+          downloaded icons appear to be scaling properly.
+    \item Rename the icons with proper Freedesktop names to invalid names. This one may
+          require further testing.
+\end{enumerate}
+
+This issue has been resolved by implementing an index.theme file with the
+corresponding icon directory structure that matches the implementation style
+used by KeePassXC. To fix the icons not rendering at all in the AppImage now,
+the following environment variables need to be set in build.py:
+
+\begin{lstlisting}[language=python]
+os.environ["DEPLOY_PLATFORM_THEMES"] = "dummy value"
+os.environ["EXTRA_QT_PLUGINS"] = "svg"
+\end{lstlisting}
+The svg plugin is extremely important because it loads the shared library at
+\directory{/usr/lib/x86\_64-linux-gnu/qt5/plugins/iconengines/libqsvgicon.so}
+which is responsible for rendering the icons.
+
+\chapter{Acknowledgements}
+
+\appname{} is built with the Qt 5.12.8 framework.
+
+The colour scheme used in \appname{} is an adapted copy from the
+\href{https://github.com/keepassxreboot/keepassxc}{KeePassXC} project. The
+encryption code is also adapted from KeePassXC.
+
+The \href{https://github.com/randombit/botan}{Botan} library is used to provide
+cryptographic support.
+
+The logging functionality is provided by the
+\href{https://github.com/dept2/CuteLogger}{CuteLogger} library.
+
+The markdown editor is adapted from
+\href{https://github.com/pbek/qmarkdowntextedit}{QMarkdownTextEdit}.
+
+The AppImage build of \appname{} is created with the help of
+\href{https://github.com/linuxdeploy/linuxdeploy}{linuxdeploy},
+\href{https://github.com/linuxdeploy/linuxdeploy-plugin-qt}{linuxdeploy-plugin-qt}
+and \href{https://github.com/AppImage/AppImageKit}{appimagetool}.
+
+This documentation file was created with \LaTeX.
 \end{document}
+
+% % Centre figures when they exceed line width
+% \usepackage[export]{adjustbox}
+
+% % "H" option for figures, tables
+% \usepackage{float}
+
+% % Rotate figures
+% \usepackage{rotating}
+
+% % Reference multiple figures, listings, tables at once
+% \usepackage{cleveref}
+% \crefformat{section}{\S#2#1#3}
+% \crefmultiformat{section}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
+% \crefformat{subsection}{\S#2#1#3}
+% \crefmultiformat{subsection}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3}
+
+% % Especially important to load these AFTER
+% \counterwithin{figure}{section}
+% \counterwithin{table}{section}
+% \AtBeginDocument{\counterwithin{lstlisting}{section}}

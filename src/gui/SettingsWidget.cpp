@@ -35,7 +35,7 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QWidget(parent), m_ui(new Ui::
 
     m_ui->pieChartSortButtonGroup->setId(m_ui->pieChartSortByRatingRadioButton, Config::PieChart_Rating);
     m_ui->pieChartSortButtonGroup->setId(m_ui->pieChartSortByNumberOfDaysRadioButton, Config::PieChart_Days);
-    connect(m_ui->pieChartSortButtonGroup, qOverload<int>(&QButtonGroup::buttonClicked), [this](int index) {
+    connect(m_ui->pieChartSortButtonGroup, &QButtonGroup::idClicked, [this](int index) {
         m_ui->pieChartRatingComboBox->setEnabled(Config::PieChart_Rating == index);
         m_ui->pieChartNumberOfDaysComboBox->setEnabled(Config::PieChart_Days == index);
 
@@ -112,7 +112,7 @@ void SettingsWidget::loadSettings()
     else {
         m_ui->pieChartSortByRatingRadioButton->setChecked(true);
     }
-    emit m_ui->pieChartSortButtonGroup->buttonClicked(pieChartSortType);
+    emit m_ui->pieChartSortButtonGroup->idClicked(pieChartSortType);
 
     auto lockTimeoutEnabled = config()->get(Config::Diary_LockTimeoutEnabled).toBool();
     m_ui->diaryLockTimeoutCheckBox->setChecked(lockTimeoutEnabled);

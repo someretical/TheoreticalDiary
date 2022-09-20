@@ -66,11 +66,11 @@ def linux_build():
 
     print("Compiled binary")
 
-    # Copy over platformthemes/libqgtk3.so as well
     os.environ["DEPLOY_PLATFORM_THEMES"] = "dummy value"
+    os.environ["EXTRA_QT_PLUGINS"] = "svg"
     os.system(f"{BUILD_DIR}/linuxdeploy-x86_64.AppImage --appdir AppDir --executable "
               f"{BUILD_DIR}/theoreticaldiary --desktop-file src/meta/me.someretical.TheoreticalDiary.desktop "
-              f"--icon-file src/icons/apps/theoreticaldiary.svg --plugin qt")
+              f"--icon-file src/icons/application/scalable/apps/theoreticaldiary.svg --plugin qt")
 
     contents = ""
 

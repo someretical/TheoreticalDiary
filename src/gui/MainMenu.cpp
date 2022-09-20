@@ -18,6 +18,7 @@
 
 #include "gui/MainMenu.h"
 #include "core/Config.h"
+#include "gui/Icons.h"
 #include "gui/MainWindow.h"
 #include "ui_MainMenu.h"
 #include "ui_MainWindow.h"
@@ -31,8 +32,8 @@ MainMenu::MainMenu(QWidget *parent) : QWidget(parent), m_ui(new Ui::MainMenu)
 {
     m_ui->setupUi(this);
     m_ui->versionText->setText(QStringLiteral("Version %1").arg(QApplication::applicationVersion()));
-    QPixmap icon(":/icons/apps/theoreticaldiary.svg");
-    m_ui->labelIcon->setPixmap(icon.scaled(100, 100, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    m_ui->labelIcon->setPixmap(QPixmap(":/icons/application/scalable/apps/theoreticaldiary.svg")
+                                   .scaled(100, 100, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
     connect(m_ui->buttonOpenExistingDiary, SIGNAL(clicked(bool)), this, SLOT(openExistingDiary()));
     connect(m_ui->recentDiariesList, &QListWidget::itemActivated,

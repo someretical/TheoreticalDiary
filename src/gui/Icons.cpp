@@ -21,8 +21,6 @@
 
 #include <Logger.h>
 #include <QBuffer>
-#include <QDir>
-#include <QFile>
 #include <QIconEngine>
 #include <QImageReader>
 #include <QPaintDevice>
@@ -34,7 +32,7 @@ public:
     explicit AdaptiveIconEngine(QIcon baseIcon, QColor overrideColor = {});
     void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override;
     auto pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) -> QPixmap override;
-    auto clone() const -> QIconEngine * override;
+    [[nodiscard]] auto clone() const -> QIconEngine * override;
 
 private:
     QIcon m_baseIcon;
@@ -97,31 +95,36 @@ auto AdaptiveIconEngine::clone() const -> QIconEngine *
     return new AdaptiveIconEngine(m_baseIcon);
 }
 
-Icons::Icons() = default;
+Icons::Icons()
+{
+    QIcon::setThemeSearchPaths(QStringList{":/icons"} << QIcon::themeSearchPaths());
+    QIcon::setThemeName("application");
+}
 
 Icons::~Icons() = default;
 
 auto Icons::icon(const QString &name, bool recolor, const QColor &overrideColor) -> QIcon
 {
+#ifdef Q_OS_LINUX
+    // Resetting the application theme name before calling QIcon::fromTheme() is required for hacky
+    // QPA platform themes such as qt5ct, which randomly mess with the configured icon theme.
+    // If we do not reset the theme name here, it will become empty at some point, causing
+    // Qt to look for icons at the user-level and global default locations.
+    //
+    // See issue #4963: https://github.com/keepassxreboot/keepassxc/issues/4963
+    // and qt5ct issue #80: https://sourceforge.net/p/qt5ct/tickets/80/
+    QIcon::setThemeName("application");
+#endif
+
     QString cacheName =
-        QStringLiteral("%1:%2:%3").arg(recolor ? "1" : "0", overrideColor.isValid() ? overrideColor.name() : "#", name);
+        QString("%1:%2:%3").arg(recolor ? "1" : "0", overrideColor.isValid() ? overrideColor.name() : "#", name);
     QIcon icon = m_iconCache.value(cacheName);
 
-    if (!icon.isNull() && !overrideColor.isValid())
+    if (!icon.isNull() && !overrideColor.isValid()) {
         return icon;
-
-    static auto iconPath = QStringLiteral(":/icons/%1/%2.svg");
-
-    QDir folder(":/icons");
-    auto folders = folder.entryList(QDir::Filter::Dirs);
-
-    for (auto &dir : folders) {
-        auto fullPath = iconPath.arg(dir, name);
-        if (QFile::exists(fullPath)) {
-            icon = QIcon(fullPath);
-        }
     }
 
+    icon = QIcon::fromTheme(name);
     if (recolor) {
         icon = QIcon(new AdaptiveIconEngine(icon, overrideColor));
         icon.setIsMask(true);

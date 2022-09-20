@@ -29,6 +29,7 @@
 #include <QDebug>
 #include <QHeaderView>
 #include <QPainter>
+#include <QPainterPath>
 #include <QStyle>
 #include <QtMath>
 
@@ -135,7 +136,7 @@ void MonthTableWidget::updateSelectedDate(const QDate &date)
 {
     if (date.month() != m_date.month()) {
         for (auto i : selectedItems()) {
-            setItemSelected(i, i->data(DATE_ROLE).toDate().day() == date.day());
+            i->setSelected(i->data(DATE_ROLE).toDate().day() == date.day());
         }
     }
 }
@@ -170,18 +171,18 @@ void MonthTableStyleDelegate::paint(
         painter->fillRect(
             opt.rect, QApplication::style()->standardPalette().color(QPalette::Inactive, QPalette::Window));
     }
-
-    if ((index.row() * 7) + index.column() + 1 <= m_tableWidget->getDate().daysInMonth()) {
+	
+	const auto &date = index.data(DATE_ROLE).toDate();
+    if (date.isValid()) {
         const auto adjustedSize = CELL_SIZE - BORDER_WIDTH - (BORDER_WIDTH / 2);
         const auto topLeft = opt.rect.topLeft();
         const auto rect = QRect(topLeft.x() + BORDER_WIDTH, topLeft.y() + BORDER_WIDTH, adjustedSize, adjustedSize);
         const auto &data = m_tableWidget->getCalendar()->getEntryPreviewData();
-        const auto &date = index.data(DATE_ROLE).toDate();
         const auto iter = data.find(date);
         const auto rating = iter == data.end() ? DiaryRating::Unknown : iter->rating;
         const auto &overlayColour = styleManager().getTextColourFromTheme(rating);
         const auto &colour = styleManager().getRatingColour(rating);
-
+        
         QPainterPath cell;
         cell.addRoundedRect(rect, ROUNDNESS, ROUNDNESS);
         painter->fillPath(cell, QBrush(colour));

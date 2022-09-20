@@ -43,7 +43,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
 #endif
     setApplicationName("Theoretical Diary");
     setDesktopFileName(":/meta/me.someretical.Application.desktop");
-    setWindowIcon(QIcon(QPixmap(":/icons/apps/theoreticaldiary.svg")
+    setWindowIcon(QIcon(QPixmap(":/icons/application/scalable/apps/theoreticaldiary.svg")
                             .scaled(QSize(256, 256), Qt::KeepAspectRatio, Qt::SmoothTransformation)));
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 

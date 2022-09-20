@@ -96,6 +96,7 @@ add_executable(theoreticaldiary
         src/gui/styling/StyleManager.h
         src/main.cpp
         src/resources.qrc
+        src/icons/icons.qrc
         src/streams/LayeredStream.cpp
         src/streams/LayeredStream.h
         src/streams/StoreDataStream.cpp
@@ -103,7 +104,20 @@ add_executable(theoreticaldiary
         src/streams/SymmetricCipherStream.cpp
         src/streams/SymmetricCipherStream.h
         src/streams/qtiocompressor.cpp
-        src/streams/qtiocompressor.h)
+        src/streams/qtiocompressor.h
+        src/gui/diary_menu/EntryEditor.cpp
+        src/gui/diary_menu/EntryEditor.h
+        src/gui/diary_menu/EntryEditor.ui
+        src/gui/diary_menu/text_editor/markdownhighlighter.h
+        src/gui/diary_menu/text_editor/qmarkdowntextedit.cpp
+        src/gui/diary_menu/text_editor/markdownhighlighter.cpp
+        src/gui/diary_menu/text_editor/qplaintexteditsearchwidget.h
+        src/gui/diary_menu/text_editor/qplaintexteditsearchwidget.ui
+        src/gui/diary_menu/text_editor/qplaintexteditsearchwidget.cpp
+        src/gui/diary_menu/text_editor/qmarkdowntextedit.h
+        src/gui/diary_menu/text_editor/qownlanguagedata.h
+        src/gui/diary_menu/text_editor/qownlanguagedata.cpp
+        src/gui/diary_menu/text_editor/linenumberarea.h)
 
 add_subdirectory(external-libs/CuteLogger)
 
