@@ -16,25 +16,29 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef THEORETICAL_DIARY_PASSWORDLINEEDIT_H
-#define THEORETICAL_DIARY_PASSWORDLINEEDIT_H
+#ifndef THEORETICAL_DIARY_MARKDOWNTEXTEDITOR_H
+#define THEORETICAL_DIARY_MARKDOWNTEXTEDITOR_H
 
-#include "gui/ContextMenuOverride.h"
+#include <QWidget>
 
-class PasswordLineEdit : public LineEdit {
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class MarkdownTextEditor;
+}
+QT_END_NAMESPACE
+
+class MarkdownTextEditor : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PasswordLineEdit(QWidget *parent = nullptr);
-    ~PasswordLineEdit() override;
+    explicit MarkdownTextEditor(QWidget *parent = nullptr);
+    ~MarkdownTextEditor() override;
 
 private:
-    QAction *m_actionMatch;
-    QAction *m_actionMismatch;
-    QAction *m_actionToggleVisibility;
+    Ui::MarkdownTextEditor *m_ui;
 
 private slots:
-    void toggleVisibility(bool show);
+    void toggleAdvancedSearch(bool checked);
 };
 
-#endif // THEORETICAL_DIARY_PASSWORDLINEEDIT_H
+#endif // THEORETICAL_DIARY_MARKDOWNTEXTEDITOR_H

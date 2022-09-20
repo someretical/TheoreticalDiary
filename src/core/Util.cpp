@@ -17,8 +17,10 @@
  */
 
 #include "core/Util.h"
+#include "gui/Icons.h"
 
 #include <QDir>
+
 
 /**
  * Get the application data path used to store configuration files
@@ -55,5 +57,66 @@ auto getOrdinalSuffix(int const number) -> QString
         return "rd";
     default:
         return "th";
+    }
+}
+
+/**
+ * The default Qt standard context menu sets icons using QIcon::FromTheme which doesn't recolour the icons meaning they
+ * don't display properly. Here, we load the correct icons from the custom Icons class.
+ *
+ * This function is meant to be called within contextMenuEvent
+ *
+ * @param menu The context menu created by createStandardContextMenu
+ */
+void overrideStandardContextMenuIcons(QMenu *menu)
+{
+    for (auto action : menu->actions())
+        action->setIcon(icons().icon(action->icon().name()));
+}
+
+/**
+ * Refactored method for overriding the context menu of spinbox widgets. This is so messy because Qt does not expose an
+ * API to override that specific context menu meaning this code is basically copy pasted from the QAbstractSpinBox
+ * source.
+ *
+ * @param event
+ * @param ptr
+ * @param lineEdit
+ * @param stepEnabled
+ */
+void spinBoxContextMenuOverrideEvent(
+    QContextMenuEvent *event, QAbstractSpinBox *ptr, QLineEdit *lineEdit, QAbstractSpinBox::StepEnabled stepEnabled)
+{
+    if (QPointer<QMenu> menu = lineEdit->createStandardContextMenu()) {
+        overrideStandardContextMenuIcons(menu);
+        const auto selAll = menu->actions().last();
+        selAll->setShortcut(QKeySequence::SelectAll);
+        menu->addSeparator();
+
+        QAction *up = menu->addAction(QAbstractSpinBox::tr("&Step up"));
+        up->setEnabled(stepEnabled & ptr->StepUpEnabled);
+        QAction *down = menu->addAction(QAbstractSpinBox::tr("Step &down"));
+        down->setEnabled(stepEnabled & ptr->StepDownEnabled);
+        menu->addSeparator();
+
+        const QPointer<QAbstractSpinBox> that = ptr;
+        const QPoint pos =
+            (event->reason() == QContextMenuEvent::Mouse)
+                ? event->globalPos()
+                : ptr->mapToGlobal(QPoint(event->pos().x(), 0)) + QPoint(ptr->width() / 2, ptr->height() / 2);
+        const QAction *action = menu->exec(pos);
+        delete static_cast<QMenu *>(menu);
+        if (that && action) {
+            if (action == up) {
+                ptr->stepBy(1);
+            }
+            else if (action == down) {
+                ptr->stepBy(-1);
+            }
+            else if (action == selAll) {
+                ptr->selectAll();
+            }
+        }
+        event->accept();
     }
 }

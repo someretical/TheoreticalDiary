@@ -117,7 +117,10 @@ add_executable(theoreticaldiary
         src/gui/diary_menu/text_editor/qmarkdowntextedit.h
         src/gui/diary_menu/text_editor/qownlanguagedata.h
         src/gui/diary_menu/text_editor/qownlanguagedata.cpp
-        src/gui/diary_menu/text_editor/linenumberarea.h)
+        src/gui/diary_menu/text_editor/linenumberarea.h
+        src/gui/diary_menu/text_editor/MarkdownTextEditor.cpp
+        src/gui/diary_menu/text_editor/MarkdownTextEditor.h
+        src/gui/diary_menu/text_editor/MarkdownTextEditor.ui)
 
 add_subdirectory(external-libs/CuteLogger)
 

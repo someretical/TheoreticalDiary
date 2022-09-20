@@ -40,6 +40,9 @@
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
        <widget class="QWidget" name="pageGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <property name="spacing">
@@ -244,7 +247,7 @@
                    </widget>
                   </item>
                   <item alignment="Qt::AlignLeft">
-                   <widget class="QSpinBox" name="diaryLockTimeoutSpinBox">
+                   <widget class="SpinBox" name="diaryLockTimeoutSpinBox">
                     <property name="suffix">
                      <string> sec</string>
                     </property>
@@ -299,6 +302,11 @@
    <extends>QWidget</extends>
    <header>gui/CategoryListWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>gui/ContextMenuOverride.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

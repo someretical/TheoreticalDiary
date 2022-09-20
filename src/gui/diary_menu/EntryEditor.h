@@ -37,7 +37,7 @@ public:
     explicit EntryEditor(QWidget *parent = nullptr);
     ~EntryEditor() override;
 
-    DiaryWidget *getDiaryWidget();
+    auto getDiaryWidget() -> DiaryWidget *;
     void changeDate(const QDate &date);
 
 public slots:

@@ -19,9 +19,17 @@
 #ifndef THEORETICAL_DIARY_UTIL_H
 #define THEORETICAL_DIARY_UTIL_H
 
+#include <QAbstractSpinBox>
+#include <QContextMenuEvent>
+#include <QLineEdit>
+#include <QMenu>
+#include <QPointer>
 #include <QString>
 
 auto dataPath() -> QString;
 auto getOrdinalSuffix(int const number) -> QString;
+void overrideStandardContextMenuIcons(QMenu *menu);
+void spinBoxContextMenuOverrideEvent(
+    QContextMenuEvent *event, QAbstractSpinBox *ptr, QLineEdit *lineEdit, QAbstractSpinBox::StepEnabled stepEnabled);
 
 #endif // THEORETICAL_DIARY_UTIL_H

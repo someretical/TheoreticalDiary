@@ -17,8 +17,8 @@
  */
 
 #include "EntryEditor.h"
-#include "ui_EntryEditor.h"
 #include "gui/Icons.h"
+#include "ui_EntryEditor.h"
 
 #include <QAbstractButton>
 #include <QTextEdit>
@@ -47,7 +47,7 @@ EntryEditor::~EntryEditor()
     delete m_ui;
 }
 
-DiaryWidget *EntryEditor::getDiaryWidget()
+auto EntryEditor::getDiaryWidget() -> DiaryWidget *
 {
     return qobject_cast<DiaryWidget *>(parentWidget()->parentWidget()->parentWidget());
 }
@@ -57,10 +57,14 @@ DiaryWidget *EntryEditor::getDiaryWidget()
  *
  * @param date Year, month and day all matter
  */
-void EntryEditor::changeDate(const QDate &date) {
+void EntryEditor::changeDate(const QDate &date) {}
 
+void EntryEditor::saveEntry()
+{
+    getDiaryWidget()->changeCurrentWidget(TD::DiaryWidget::DiaryMainMenu);
 }
 
-void EntryEditor::saveEntry() {}
-
-void EntryEditor::closeEntry() {}
+void EntryEditor::closeEntry()
+{
+    getDiaryWidget()->changeCurrentWidget(TD::DiaryWidget::DiaryMainMenu);
+}

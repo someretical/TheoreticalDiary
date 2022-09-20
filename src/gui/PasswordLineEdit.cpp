@@ -23,7 +23,7 @@
 #include <Logger.h>
 #include <QAction>
 
-PasswordLineEdit::PasswordLineEdit(QWidget *parent) : QLineEdit(parent)
+PasswordLineEdit::PasswordLineEdit(QWidget *parent) : LineEdit(parent)
 {
     const QIcon errorIcon = icons().icon("dialog-error");
     m_actionMismatch = addAction(errorIcon, QLineEdit::TrailingPosition);

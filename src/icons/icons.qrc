@@ -16,14 +16,28 @@
         <file>application/scalable/actions/document-export.svg</file>
         <file>application/scalable/actions/document-import.svg</file>
         <file>application/scalable/actions/document-new.svg</file>
-        <file>application/scalable/actions/document-open-recent.svg</file>
         <file>application/scalable/actions/document-open.svg</file>
-        <file>application/scalable/actions/document-save-as.svg</file>
+        <file>application/scalable/actions/document-open-recent.svg</file>
         <file>application/scalable/actions/document-save.svg</file>
+        <file>application/scalable/actions/document-save-as.svg</file>
+        <file>application/scalable/actions/edit-copy.svg</file>
+        <file>application/scalable/actions/edit-cut.svg</file>
+        <file>application/scalable/actions/edit-delete.svg</file>
+        <file>application/scalable/actions/edit-paste.svg</file>
+        <file>application/scalable/actions/edit-redo.svg</file>
+        <file>application/scalable/actions/edit-select-all.svg</file>
+        <file>application/scalable/actions/edit-undo.svg</file>
         <file>application/scalable/actions/entry-delete.svg</file>
         <file>application/scalable/actions/entry-update.svg</file>
         <file>application/scalable/actions/featurerequest.svg</file>
+        <file>application/scalable/actions/format-letter-case.svg</file>
+        <file>application/scalable/actions/go-first.svg</file>
+        <file>application/scalable/actions/go-last.svg</file>
+        <file>application/scalable/actions/go-next.svg</file>
+        <file>application/scalable/actions/go-previous.svg</file>
         <file>application/scalable/actions/help-about.svg</file>
+        <file>application/scalable/actions/menu-expanded.svg</file>
+        <file>application/scalable/actions/menu-hidden.svg</file>
         <file>application/scalable/actions/message-close.svg</file>
         <file>application/scalable/actions/palette.svg</file>
         <file>application/scalable/actions/password-show-off.svg</file>
@@ -37,6 +51,7 @@
         <file>application/scalable/actions/system-search.svg</file>
         <file>application/scalable/actions/theme-dark.svg</file>
         <file>application/scalable/actions/theme-light.svg</file>
+        <file>application/scalable/actions/window-close.svg</file>
         <file>application/scalable/apps/theoreticaldiary.svg</file>
         <file>application/scalable/status/dialog-error.svg</file>
         <file>application/scalable/status/dialog-information.svg</file>

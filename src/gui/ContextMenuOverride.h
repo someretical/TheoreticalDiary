@@ -19,30 +19,79 @@
 #ifndef THEORETICAL_DIARY_CONTEXTMENUOVERRIDE_H
 #define THEORETICAL_DIARY_CONTEXTMENUOVERRIDE_H
 
+#include "core/Util.h"
 #include "gui/Icons.h"
 
 #include <QContextMenuEvent>
+#include <QDoubleSpinBox>
 #include <QLineEdit>
 #include <QMenu>
+#include <QPlainTextEdit>
 #include <QSpinBox>
 
-inline void QLineEditOverride(QLineEdit *obj, QContextMenuEvent *event)
-{
-    if (QMenu *menu = obj->createStandardContextMenu()) {
-        menu->setAttribute(Qt::WA_DeleteOnClose);
+class LineEdit : public QLineEdit {
+    Q_OBJECT
 
-        menu->popup(event->globalPos());
+public:
+    explicit LineEdit(QWidget *parent = nullptr) : QLineEdit(parent) {}
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override
+    {
+        if (QMenu *menu = createStandardContextMenu()) {
+            overrideStandardContextMenuIcons(menu);
+            menu->setAttribute(Qt::WA_DeleteOnClose);
+            menu->popup(event->globalPos());
+        }
     }
-}
+};
 
-// inline void QSpinBoxOverride(QSpinBox *obj, QContextMenuEvent *event) {
-//     if (QMenu *menu = obj->createStandardContextMenu()) {
-//         menu->setAttribute(Qt::WA_DeleteOnClose);
-//
-//
-//
-//         menu->popup(event->globalPos());
-//     }
-// }
+/* =============================================================================================== */
+
+class PlainTextEdit : public QPlainTextEdit {
+    Q_OBJECT
+
+public:
+    explicit PlainTextEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent) {}
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override
+    {
+        if (QMenu *menu = createStandardContextMenu()) {
+            overrideStandardContextMenuIcons(menu);
+            menu->setAttribute(Qt::WA_DeleteOnClose);
+            menu->popup(event->globalPos());
+        }
+    }
+};
+
+/* =============================================================================================== */
+
+class DoubleSpinBox : public QDoubleSpinBox {
+    Q_OBJECT
+
+public:
+    explicit DoubleSpinBox(QWidget *parent = nullptr) : QDoubleSpinBox(parent) {}
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override
+    {
+        spinBoxContextMenuOverrideEvent(event, this, lineEdit(), stepEnabled());
+    }
+};
+
+/* =============================================================================================== */
+
+class SpinBox : public QSpinBox {
+    Q_OBJECT
+public:
+    explicit SpinBox(QWidget *parent = nullptr) : QSpinBox(parent) {}
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override
+    {
+        spinBoxContextMenuOverrideEvent(event, this, lineEdit(), stepEnabled());
+    }
+};
 
 #endif // THEORETICAL_DIARY_CONTEXTMENUOVERRIDE_H
