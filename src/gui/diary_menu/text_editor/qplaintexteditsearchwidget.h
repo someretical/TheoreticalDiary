@@ -25,15 +25,14 @@ class QPlainTextEditSearchWidget;
 class QPlainTextEditSearchWidget : public QWidget {
     Q_OBJECT
 
-   public:
+public:
     enum SearchMode { PlainTextMode, WholeWordsMode, RegularExpressionMode };
 
     explicit QPlainTextEditSearchWidget(QPlainTextEdit *parent = nullptr);
-    bool doSearch(bool searchDown = true, bool allowRestartAtTop = true,
-                  bool updateUI = true);
-    void setDarkMode(bool enabled);
+    bool doSearch(bool searchDown = true, bool allowRestartAtTop = true, bool updateUI = true);
     ~QPlainTextEditSearchWidget();
 
+    void setTextEdit(QPlainTextEdit *textEdit);
     void setSearchText(const QString &searchText);
     void setSearchMode(SearchMode searchMode);
     void setDebounceDelay(uint debounceDelay);
@@ -41,7 +40,7 @@ class QPlainTextEditSearchWidget : public QWidget {
     void clearSearchExtraSelections();
     void updateSearchExtraSelections();
 
-   private:
+private:
     Ui::QPlainTextEditSearchWidget *ui;
     int _searchResultCount;
     int _currentSearchResult;
@@ -52,12 +51,13 @@ class QPlainTextEditSearchWidget : public QWidget {
     void setSearchExtraSelections() const;
     void stopDebounce();
 
-   protected:
+protected:
     QPlainTextEdit *_textEdit;
-    bool _darkMode;
+
+protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
-   public Q_SLOTS:
+public Q_SLOTS:
     void activate();
     void deactivate();
     void doSearchDown();
@@ -69,12 +69,12 @@ class QPlainTextEditSearchWidget : public QWidget {
     void reset();
     void doSearchCount();
 
-   protected Q_SLOTS:
+protected Q_SLOTS:
     void searchLineEditTextChanged(const QString &arg1);
     void performSearch();
     void updateSearchCountLabelText();
     void setSearchSelectionColor(const QColor &color);
-   private Q_SLOTS:
+private Q_SLOTS:
     void on_modeComboBox_currentIndexChanged(int index);
     void on_matchCaseSensitiveButton_toggled(bool checked);
 };

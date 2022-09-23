@@ -16,29 +16,32 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef THEORETICAL_DIARY_MARKDOWNTEXTEDITOR_H
-#define THEORETICAL_DIARY_MARKDOWNTEXTEDITOR_H
+#ifndef THEORETICAL_DIARY_MARKDOWNEDITORWIDGET_H
+#define THEORETICAL_DIARY_MARKDOWNEDITORWIDGET_H
+
+#include "gui/diary_menu/text_editor/qplaintexteditsearchwidget.h"
 
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class MarkdownTextEditor;
+class MarkdownEditorWidget;
 }
 QT_END_NAMESPACE
 
-class MarkdownTextEditor : public QWidget {
+class MarkdownEditorWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit MarkdownTextEditor(QWidget *parent = nullptr);
-    ~MarkdownTextEditor() override;
+    explicit MarkdownEditorWidget(QWidget *parent = nullptr);
+    ~MarkdownEditorWidget() override;
+
+    uint getDebounceDelay() const;
 
 private:
-    Ui::MarkdownTextEditor *m_ui;
-
-private slots:
-    void toggleAdvancedSearch(bool checked);
+    Ui::MarkdownEditorWidget *m_ui;
+    QPlainTextEditSearchWidget *m_searchWidget;
+    uint m_deboundeDelay = 0;
 };
 
-#endif // THEORETICAL_DIARY_MARKDOWNTEXTEDITOR_H
+#endif // THEORETICAL_DIARY_MARKDOWNEDITORWIDGET_H

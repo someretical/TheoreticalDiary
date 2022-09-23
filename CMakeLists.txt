@@ -79,11 +79,29 @@ add_executable(theoreticaldiary
         src/gui/diary_menu/DiaryWidget.cpp
         src/gui/diary_menu/DiaryWidget.h
         src/gui/diary_menu/DiaryWidget.ui
+        src/gui/diary_menu/EntryEditor.cpp
+        src/gui/diary_menu/EntryEditor.h
+        src/gui/diary_menu/EntryEditor.ui
         src/gui/diary_menu/calendar/DiaryCalendar.cpp
         src/gui/diary_menu/calendar/DiaryCalendar.h
         src/gui/diary_menu/calendar/DiaryCalendar.ui
         src/gui/diary_menu/calendar/MonthTableWidget.cpp
         src/gui/diary_menu/calendar/MonthTableWidget.h
+        src/gui/diary_menu/text_editor/MarkdownEditorWidget.cpp
+        src/gui/diary_menu/text_editor/MarkdownEditorWidget.h
+        src/gui/diary_menu/text_editor/MarkdownEditorWidget.ui
+        src/gui/diary_menu/text_editor/Schema.cpp
+        src/gui/diary_menu/text_editor/Schema.h
+        src/gui/diary_menu/text_editor/linenumberarea.h
+        src/gui/diary_menu/text_editor/markdownhighlighter.cpp
+        src/gui/diary_menu/text_editor/markdownhighlighter.h
+        src/gui/diary_menu/text_editor/qmarkdowntextedit.cpp
+        src/gui/diary_menu/text_editor/qmarkdowntextedit.h
+        src/gui/diary_menu/text_editor/qownlanguagedata.cpp
+        src/gui/diary_menu/text_editor/qownlanguagedata.h
+        src/gui/diary_menu/text_editor/qplaintexteditsearchwidget.cpp
+        src/gui/diary_menu/text_editor/qplaintexteditsearchwidget.h
+        src/gui/diary_menu/text_editor/qplaintexteditsearchwidget.ui
         src/gui/styling/BaseStyle.cpp
         src/gui/styling/BaseStyle.h
         src/gui/styling/DarkStyle.cpp
@@ -94,9 +112,9 @@ add_executable(theoreticaldiary
         src/gui/styling/PhantomColour.h
         src/gui/styling/StyleManager.cpp
         src/gui/styling/StyleManager.h
+        src/icons/icons.qrc
         src/main.cpp
         src/resources.qrc
-        src/icons/icons.qrc
         src/streams/LayeredStream.cpp
         src/streams/LayeredStream.h
         src/streams/StoreDataStream.cpp
@@ -104,23 +122,7 @@ add_executable(theoreticaldiary
         src/streams/SymmetricCipherStream.cpp
         src/streams/SymmetricCipherStream.h
         src/streams/qtiocompressor.cpp
-        src/streams/qtiocompressor.h
-        src/gui/diary_menu/EntryEditor.cpp
-        src/gui/diary_menu/EntryEditor.h
-        src/gui/diary_menu/EntryEditor.ui
-        src/gui/diary_menu/text_editor/markdownhighlighter.h
-        src/gui/diary_menu/text_editor/qmarkdowntextedit.cpp
-        src/gui/diary_menu/text_editor/markdownhighlighter.cpp
-        src/gui/diary_menu/text_editor/qplaintexteditsearchwidget.h
-        src/gui/diary_menu/text_editor/qplaintexteditsearchwidget.ui
-        src/gui/diary_menu/text_editor/qplaintexteditsearchwidget.cpp
-        src/gui/diary_menu/text_editor/qmarkdowntextedit.h
-        src/gui/diary_menu/text_editor/qownlanguagedata.h
-        src/gui/diary_menu/text_editor/qownlanguagedata.cpp
-        src/gui/diary_menu/text_editor/linenumberarea.h
-        src/gui/diary_menu/text_editor/MarkdownTextEditor.cpp
-        src/gui/diary_menu/text_editor/MarkdownTextEditor.h
-        src/gui/diary_menu/text_editor/MarkdownTextEditor.ui)
+        src/streams/qtiocompressor.h)
 
 add_subdirectory(external-libs/CuteLogger)
 

@@ -38,8 +38,6 @@ EntryEditor::EntryEditor(QWidget *parent) : QWidget(parent), m_ui(new Ui::EntryE
     connect(m_ui->categoryListWidget, SIGNAL(categoryChanged(int)), m_ui->stackedWidget, SLOT(setCurrentIndex(int)));
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(saveEntry()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(closeEntry()));
-
-    m_ui->plainTextEdit->setLineNumberEnabled(true);
 }
 
 EntryEditor::~EntryEditor()

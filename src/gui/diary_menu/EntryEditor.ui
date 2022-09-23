@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>702</width>
     <height>556</height>
    </rect>
   </property>
@@ -36,7 +36,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <widget class="QWidget" name="page">
-        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="spacing">
           <number>0</number>
          </property>
@@ -53,7 +53,40 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QMarkdownTextEdit" name="plainTextEdit"/>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="MarkdownEditorWidget" name="widget_2" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>676</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>
@@ -75,7 +108,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="MarkdownTextEditor" name="widget" native="true"/>
+          <widget class="MarkdownEditorWidget" name="widget" native="true"/>
          </item>
         </layout>
        </widget>
@@ -100,14 +133,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>QMarkdownTextEdit</class>
-   <extends>QPlainTextEdit</extends>
-   <header>gui/diary_menu/text_editor/qmarkdowntextedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>MarkdownTextEditor</class>
+   <class>MarkdownEditorWidget</class>
    <extends>QWidget</extends>
-   <header>gui/diary_menu/text_editor/MarkdownTextEditor.h</header>
+   <header>gui/diary_menu/text_editor/MarkdownEditorWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

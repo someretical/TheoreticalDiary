@@ -18,12 +18,16 @@ public:
     {
         Q_ASSERT(parent);
 
+        setContentsMargins(0, 0, 0, 0);
+
         m_currentLineColour = QColor(QStringLiteral("#eef067"));
         m_otherLineColour = QColor(QStringLiteral("#a6a6a6"));
         setHidden(true);
 
         // We always use fixed font to avoid "width" issues
-        setFont(Font::fixedFont());
+        auto f = Font::fixedFont();
+        f.setPointSize(f.pointSize() - 3);
+        setFont(f);
     }
 
     void setCurrentLineColor(QColor color) {
@@ -40,7 +44,7 @@ public:
             return 0;
         }
 
-        int digits = 2;
+        int digits = 1;
         int max = std::max(1, p_textEdit->blockCount());
         while (max >= 10) {
             max /= 10;
@@ -48,9 +52,9 @@ public:
         }
 
 #if QT_VERSION >= 0x050B00
-        int space = 13 + p_textEdit->fontMetrics().horizontalAdvance(u'9') * digits;
+        int space = 4 + QFontMetrics(font()).horizontalAdvance(u'9') * digits;
 #else
-        int space = 13 + p_textEdit->fontMetrics().width(QLatin1Char('9')) * digits;
+        int space = 4 + QFontMetrics(font()).width(QLatin1Char('9')) * digits;
 #endif
 
         return space;
@@ -77,8 +81,6 @@ protected:
     {
         QPainter painter(this);
 
-        painter.fillRect(event->rect(), palette().color(QPalette::Active, QPalette::Window));
-
         auto block = p_textEdit->firstVisibleBlock();
         int blockNumber = block.blockNumber();
         qreal top = p_textEdit->blockBoundingGeometry(block).translated(p_textEdit->contentOffset()).top();
@@ -103,7 +105,7 @@ protected:
                     -5,
                     top,
                     sizeHint().width(), p_textEdit->fontMetrics().height(),
-                    Qt::AlignRight,
+                    Qt::AlignRight | Qt::AlignVCenter,
                     number
                 );
             }

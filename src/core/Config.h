@@ -49,6 +49,10 @@ public:
         GUI_MainWindowGeometry,
         GUI_LastSessionDiaries,
         GUI_LastDiaryTabIndex,
+
+        Editor_CurrentSchemaKey,
+        Editor_MainFont,
+        Editor_FixedFont,
     };
 
     explicit Config(QObject *parent);
@@ -57,6 +61,7 @@ public:
     static auto instance() -> Config *;
     static auto getDefault(ConfigKey key) -> QVariant;
     auto get(ConfigKey key) -> QVariant;
+    auto get(ConfigKey key, const QVariant &autoDefault) -> QVariant;
     void set(ConfigKey key, const QVariant &value);
     void sync();
 

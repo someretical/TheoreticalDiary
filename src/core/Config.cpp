@@ -17,8 +17,8 @@
  */
 
 #include "Config.h"
-#include "core/Util.h"
 #include "core/Constants.h"
+#include "core/Util.h"
 
 #include <QCoreApplication>
 
@@ -46,7 +46,11 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
     {Config::GUI_MainWindowGeometry, {QS("GUI/MainWindowGeometry"), {}}},
     {Config::GUI_MainWindowState, {QS("GUI/MainWindowState"), {}}},
     {Config::GUI_LastSessionDiaries, {QS("GUI/LastSessionDiaries"), {}}},
-    {Config::GUI_LastDiaryTabIndex, {QS("GUI/LastDiaryTabIndex"), 0}}
+    {Config::GUI_LastDiaryTabIndex, {QS("GUI/LastDiaryTabIndex"), 0}},
+
+    {Config::Editor_CurrentSchemaKey, {QS("Editor/CurrentSchemaKey"), QS("")}},
+    {Config::Editor_MainFont, {QS("Editor/MainFont"), QS("")}},
+    {Config::Editor_FixedFont, {QS("Editor/FixedFont"), QS("")}},
 };
 // clang-format on
 
@@ -74,6 +78,11 @@ auto Config::getDefault(const Config::ConfigKey key) -> QVariant
 auto Config::get(const Config::ConfigKey key) -> QVariant
 {
     return m_settings->value(configStrings[key].name, configStrings[key].defaultValue);
+}
+
+auto Config::get(Config::ConfigKey key, const QVariant &defaultValue) -> QVariant
+{
+    return m_settings->value(configStrings[key].name, defaultValue);
 }
 
 void Config::set(const Config::ConfigKey key, const QVariant &value)

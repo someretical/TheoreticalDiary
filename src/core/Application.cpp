@@ -20,6 +20,7 @@
 #include "core/Constants.h"
 #include "core/Util.h"
 #include "gui/Icons.h"
+#include "gui/diary_menu/text_editor/Schema.h"
 #include "gui/styling/StyleManager.h"
 
 #include <ConsoleAppender.h>
@@ -76,6 +77,8 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
 
     styleManager();
     icons();
+
+    Utils::Schema::schemaSettings = new Utils::Schema::Settings();
 }
 
 Application::~Application() = default;

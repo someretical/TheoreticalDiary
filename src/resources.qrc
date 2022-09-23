@@ -3,6 +3,7 @@
         <file>gui/styling/BaseStyle.qss</file>
         <file>gui/styling/DarkStyle.qss</file>
         <file>gui/styling/LightStyle.qss</file>
+        <file>gui/diary_menu/text_editor/schemes.conf</file>
         <file>meta/me.someretical.TheoreticalDiary.desktop</file>
         <file>meta/revision</file>
         <file>meta/version</file>

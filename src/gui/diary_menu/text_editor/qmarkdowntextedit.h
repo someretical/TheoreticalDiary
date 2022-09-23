@@ -27,7 +27,7 @@ class QMarkdownTextEdit : public QPlainTextEdit {
 
     friend class LineNumArea;
 
-   public:
+public:
     enum AutoTextOption {
         None = 0x0000,
 
@@ -40,27 +40,26 @@ class QMarkdownTextEdit : public QPlainTextEdit {
 
     Q_DECLARE_FLAGS(AutoTextOptions, AutoTextOption)
 
-    explicit QMarkdownTextEdit(QWidget *parent = nullptr,
-                               bool initHighlighter = true);
+    explicit QMarkdownTextEdit(QWidget *parent = nullptr, bool initHighlighter = true);
     MarkdownHighlighter *highlighter();
     QPlainTextEditSearchWidget *searchWidget();
     void setIgnoredClickUrlSchemata(QStringList ignoredUrlSchemata);
     virtual void openUrl(const QString &urlString);
     QString getMarkdownUrlAtPosition(const QString &text, int position);
-    void initSearchFrame(QWidget *searchFrame, bool darkMode = false);
+    void setSearchWidget(QPlainTextEditSearchWidget *searchWidget);
     void setAutoTextOptions(AutoTextOptions options);
     void setHighlightingEnabled(bool enabled);
     static bool isValidUrl(const QString &urlString);
     void resetMouseCursor() const;
     void setReadOnly(bool ro);
     void doSearch(QString &searchText,
-                  QPlainTextEditSearchWidget::SearchMode searchMode =
-                      QPlainTextEditSearchWidget::SearchMode::PlainTextMode);
+        QPlainTextEditSearchWidget::SearchMode searchMode = QPlainTextEditSearchWidget::SearchMode::PlainTextMode);
     void hideSearchWidget(bool reset);
     void updateSettings();
     void setLineNumbersCurrentLineColor(QColor color);
     void setLineNumbersOtherLineColor(QColor color);
     void setSearchWidgetDebounceDelay(uint debounceDelay);
+    void setFormatStyle(MarkdownHighlighter::HighlighterState index);
 
     void setHighlightCurrentLine(bool set);
     bool highlightCurrentLine();
@@ -68,11 +67,10 @@ class QMarkdownTextEdit : public QPlainTextEdit {
     void setCurrentLineHighlightColor(const QColor &c);
     QColor currentLineHighlightColor();
 
-   public Q_SLOTS:
+public Q_SLOTS:
     void duplicateText();
     void setText(const QString &text);
     void setPlainText(const QString &text);
-    void adjustRightMargin();
     void hide();
     bool openLinkAtCursorPosition();
     bool handleBackspaceEntered();
@@ -80,8 +78,10 @@ class QMarkdownTextEdit : public QPlainTextEdit {
     void undo();
     void moveTextUpDown(bool up);
     void setLineNumberEnabled(bool enabled);
+    void modifyFontSize(bool increase);
+    void setStyles();
 
-   protected:
+protected:
     QTextCursor _textCursor;
     MarkdownHighlighter *_highlighter = nullptr;
     bool _highlightingEnabled;
@@ -97,16 +97,12 @@ class QMarkdownTextEdit : public QPlainTextEdit {
 
     bool eventFilter(QObject *obj, QEvent *event) override;
     QMargins viewportMargins();
-    bool increaseSelectedTextIndention(
-        bool reverse, const QString &indentCharacters = QChar('\t'));
-    bool handleTabEntered(bool reverse,
-                          const QString &indentCharacters = QChar('\t'));
+    bool increaseSelectedTextIndention(bool reverse, const QString &indentCharacters = QChar('\t'));
+    bool handleTabEntered(bool reverse, const QString &indentCharacters = QChar('\t'));
     QMap<QString, QString> parseMarkdownUrlsFromText(const QString &text);
     bool handleReturnEntered();
-    bool handleBracketClosing(const QChar openingCharacter,
-                              QChar closingCharacter = QChar());
-    bool bracketClosingCheck(const QChar openingCharacter,
-                             QChar closingCharacter);
+    bool handleBracketClosing(const QChar openingCharacter, QChar closingCharacter = QChar());
+    bool bracketClosingCheck(const QChar openingCharacter, QChar closingCharacter);
     bool quotationMarkCheck(const QChar quotationCharacter);
     void focusOutEvent(QFocusEvent *event) override;
     void paintEvent(QPaintEvent *e) override;
@@ -119,17 +115,17 @@ class QMarkdownTextEdit : public QPlainTextEdit {
         return _lineNumArea;
     }
 
-   Q_SIGNALS:
+Q_SIGNALS:
     void urlClicked(QString url);
     void zoomIn();
     void zoomOut();
 
-   private:
+private:
     void updateLineNumAreaGeometry();
     void updateLineNumberArea(const QRect rect, int dy);
     Q_SLOT void updateLineNumberAreaWidth(int);
 
-   private:
+private:
     bool _handleBracketClosingUsed;
     LineNumArea *_lineNumArea;
 };
